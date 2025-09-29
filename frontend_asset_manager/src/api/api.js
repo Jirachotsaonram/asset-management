@@ -1,11 +1,13 @@
 import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost/asset-management/asset_api/';
 
+console.log("--- DEBUG: API Base URL is set to:", API_BASE_URL); // เพิ่มบรรทัดนี้!
 // --------------------------------------------------------
 // 1. การจัดการ Base URL (ใช้ Environment Variable เพื่อความยืดหยุ่น)
 // --------------------------------------------------------
 // URL ฐานของ API ที่คุณยืนยันมา
 // (ใช้ import.meta.env.VITE_API_BASE_URL ถ้าใช้ Vite/React)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost/asset-management/asset_api/';
+
 
 
 // --------------------------------------------------------
@@ -175,3 +177,128 @@ export const recordAssetMove = async (moveData) => {
         throw new Error(error.response?.data?.message || 'Error recording asset move.');
     }
 };
+
+export const updateLocation = async (locationData) => {
+    try {
+        // ใช้ PUT method ซึ่ง PHP จะจัดการใน manage_locations.php
+        const response = await axios.put(API_BASE_URL + 'manage_locations.php', locationData); 
+        if (response.data.success) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || 'Failed to update location.');
+        }
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Error updating location.');
+    }
+};
+
+export const deleteLocation = async (locationId) => {
+    try {
+        // ใช้ DELETE method ซึ่ง PHP จะจัดการใน manage_locations.php
+        // ส่ง ID ผ่าน body หรือ config object
+        const response = await axios.delete(API_BASE_URL + 'manage_locations.php', {
+            data: { location_id: locationId }
+        });
+        if (response.data.success) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || 'Failed to delete location.');
+        }
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Error deleting location.');
+    }
+};
+
+
+// --------------------------------------------------------
+// ฟังก์ชันสำหรับ Users (manage_users.php)
+// --------------------------------------------------------
+
+/**
+ * ดึงรายการผู้ใช้งานทั้งหมด
+ */
+export const getUsers = async () => {
+    const response = await axios.get(API_BASE_URL + 'manage_users.php');
+    if (response.data.success) {
+        return response.data.data;
+    }
+    throw new Error('Failed to fetch users.');
+};
+
+/**
+ * เพิ่มผู้ใช้งานใหม่
+ */
+export const addUser = async (userData) => {
+    const response = await axios.post(API_BASE_URL + 'manage_users.php', userData);
+    if (response.data.success) {
+        return response.data;
+    }
+    throw new Error(response.data.message || 'Failed to add user.');
+};
+
+/**
+ * แก้ไขข้อมูลผู้ใช้งาน
+ */
+export const updateUser = async (userData) => {
+    const response = await axios.put(API_BASE_URL + 'manage_users.php', userData);
+    if (response.data.success) {
+        return response.data;
+    }
+    throw new Error(response.data.message || 'Failed to update user.');
+};
+
+/**
+ * ลบผู้ใช้งาน
+ */
+export const deleteUser = async (userId) => {
+    const response = await axios.delete(API_BASE_URL + 'manage_users.php', {
+        data: { user_id: userId } // ส่ง ID ผ่าน body สำหรับ DELETE method
+    });
+    if (response.data.success) {
+        return response.data;
+    }
+    throw new Error(response.data.message || 'Failed to delete user.');
+};
+
+
+
+
+// --------------------------------------------------------
+// ฟังก์ชันสำหรับ Borrow/Return (manage_borrows.php)
+// --------------------------------------------------------
+
+/**
+ * ดึงรายการการยืมทั้งหมด
+ */
+export const getBorrows = async () => {
+    const response = await axios.get(API_BASE_URL + 'manage_borrows.php');
+    if (response.data.success) {
+        return response.data.data;
+    }
+    throw new Error('Failed to fetch borrow records.');
+};
+
+/**
+ * บันทึกการยืมครุภัณฑ์ใหม่
+ */
+export const addBorrow = async (borrowData) => {
+    const response = await axios.post(API_BASE_URL + 'manage_borrows.php', borrowData);
+    if (response.data.success) {
+        return response.data;
+    }
+    throw new Error(response.data.message || 'Failed to add borrow record.');
+};
+
+/**
+ * บันทึกการคืนครุภัณฑ์
+ */
+export const returnAsset = async (returnData) => {
+    // returnData ต้องมี { borrow_id, return_date }
+    const response = await axios.put(API_BASE_URL + 'manage_borrows.php', returnData);
+    if (response.data.success) {
+        return response.data;
+    }
+    throw new Error(response.data.message || 'Failed to return asset.');
+};
+
+

@@ -2,7 +2,10 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, PUT'); // อนุญาตให้ใช้ Method POST หรือ PUT ก็ได้ตามมาตรฐาน REST
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+
 include 'db_connect.php'; // ดึงไฟล์เชื่อมต่อฐานข้อมูล
+
 
 // 1. รับข้อมูลจาก Client (JSON)
 $data = json_decode(file_get_contents("php://input"));

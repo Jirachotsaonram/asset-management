@@ -2,8 +2,15 @@
 header('Content-Type: application/json'); // กำหนดให้ Header เป็น JSON
 header('Access-Control-Allow-Origin: *'); // อนุญาตให้ Client จากที่ใดก็ได้เรียกใช้ (ควรจำกัดใน Production)
 header('Access-Control-Allow-Methods: POST'); // อนุญาตเฉพาะ Method POST
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
 include 'db_connect.php'; // ดึงไฟล์เชื่อมต่อฐานข้อมูล
+
+// ถ้า Method ที่ส่งมาคือ OPTIONS ให้ตอบกลับด้วย 200 OK ทันทีแล้วจบการทำงาน
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit(); 
+}
 
 // 1. รับข้อมูลจาก Client (ส่งมาในรูปแบบ JSON)
 $data = json_decode(file_get_contents("php://input"));
