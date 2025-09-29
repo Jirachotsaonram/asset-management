@@ -1,0 +1,5 @@
+// GET
+URL: กรอกที่อยู่ของไฟล์ พร้อมค่า barcode ที่ต้องการค้นหา
+
+URL ตัวอย่าง:
+http://localhost/asset-management/asset_api/get_asset_by_barcode.php?barcode=QR1001

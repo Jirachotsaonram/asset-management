@@ -1,0 +1,12 @@
+// GET 
+(ไม่มี Body)
+
+
+// POST
+{"building_name": "อาคารเรียนรวม", "room_number": "R100", "description": "ห้องเก็บพัสดุ"}
+
+// PUT
+{"location_id": 101, "description": "ห้องคอมพิวเตอร์หลัก (อัพเดตแล้ว)"}
+
+// DELETE
+(สามารถส่งผ่าน URL Query หรือ Body ก็ได้)/manage_locations.php?location_id=999

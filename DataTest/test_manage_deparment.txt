@@ -1,0 +1,11 @@
+// GET
+(ไม่มี Body)
+
+// POST
+{"department_name": "ฝ่ายซ่อมบำรุง", "faculty": "กองกลาง"}
+
+// PUT
+{"department_id": 2, "department_name": "ฝ่ายธุรการและการเงิน"}
+
+// DELETE
+(ลบหน่วยงานที่คุณสร้างไว้)/manage_departments.php?department_id=99

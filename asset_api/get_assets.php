@@ -8,15 +8,22 @@ include 'db_connect.php';
 try {
     // ใช้คำสั่ง SQL JOIN เพื่อรวมข้อมูล Assets, Locations, และ Departments
     // การ JOIN ข้อมูลสำคัญมากในการสร้าง API ที่มีประสิทธิภาพ
+    
+
     $sql = "
         SELECT 
             A.asset_id, 
             A.asset_name, 
             A.serial_number, 
             A.quantity,
+            A.unit,      
             A.price,
             A.received_date,
             A.status,
+            A.barcode,          
+            A.image,   
+            A.department_id,        
+            A.location_id,          
             L.building_name, 
             L.room_number,
             D.department_name
