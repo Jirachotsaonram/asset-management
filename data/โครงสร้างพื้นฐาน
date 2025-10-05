@@ -1,0 +1,22 @@
+src/
+├── components/
+│   ├── Admin/
+│   │   ├── UserManagement.jsx
+│   │   ├── AssetManagement.jsx
+│   ├── Officer/
+│   │   ├── ScanQRCode.jsx
+│   │   ├── AssetList.jsx
+│   ├── Common/
+│   │   ├── Navbar.jsx
+│   │   ├── QRCodeGenerator.jsx
+├── pages/
+│   ├── Login.jsx
+│   ├── Dashboard.jsx
+│   ├── AssetDetail.jsx
+├── services/
+│   ├── api.js
+│   ├── auth.js
+├── contexts/
+│   ├── AuthContext.jsx
+├── App.jsx
+└── main.jsx
