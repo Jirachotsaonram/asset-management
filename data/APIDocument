@@ -441,3 +441,153 @@ $token = $data['data']['token'];
 
 ### ใช้ไฟล์ test.html
 เปิดไฟล์ `test.html` ที่สร้างไว้แล้วใน Browser เพื่อทดสอบ API ทั้งหมด
+
+---
+
+## 📸 Upload Images (รูปภาพ)
+
+### 1. Upload รูปภาพครุภัณฑ์ (ต้อง Login)
+```
+POST /upload/asset/{asset_id}
+Headers: Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+**Form Data:**
+```
+image: [FILE]
+```
+**Response:**
+```json
+{
+    "success": true,
+    "message": "อัปโหลดรูปภาพสำเร็จ",
+    "data": {
+        "filename": "asset_abc123.jpg",
+        "filepath": "uploads/assets/asset_abc123.jpg",
+        "url": "http://localhost/.../uploads/assets/asset_abc123.jpg"
+    }
+}
+```
+
+### 2. Upload หลายรูปพร้อมกัน (ต้อง Login)
+```
+POST /upload/multiple
+Headers: Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+**Form Data:**
+```
+images[]: [FILE1]
+images[]: [FILE2]
+images[]: [FILE3]
+```
+**Response:**
+```json
+{
+    "success": true,
+    "message": "อัปโหลดเสร็จสิ้น",
+    "data": {
+        "uploaded": [
+            {"filename": "asset_1.jpg", "url": "http://..."},
+            {"filename": "asset_2.jpg", "url": "http://..."}
+        ],
+        "errors": [],
+        "total": 2,
+        "failed": 0
+    }
+}
+```
+
+### 3. ลบรูปภาพครุภัณฑ์ (ต้อง Login)
+```
+DELETE /upload/asset/{asset_id}
+Headers: Authorization: Bearer {token}
+```
+**Response:**
+```json
+{
+    "success": true,
+    "message": "ลบรูปภาพสำเร็จ"
+}
+```
+
+### ข้อกำหนดรูปภาพ
+- **ประเภทไฟล์**: JPG, JPEG, PNG, GIF
+- **ขนาดไม่เกิน**: 5MB
+- **ขนาดสูงสุด**: 1920x1080 px (จะถูก resize อัตโนมัติ)
+- **จัดเก็บที่**: `uploads/assets/`
+
+---
+
+## 🧪 ตัวอย่างการ Upload ด้วย JavaScript
+
+### Upload รูปภาพเดียว
+```javascript
+const uploadImage = async (assetId, file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_BASE}/upload/asset/${assetId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    });
+    
+    return await response.json();
+};
+
+// ใช้งาน
+const fileInput = document.querySelector('input[type="file"]');
+const file = fileInput.files[0];
+const result = await uploadImage(1, file);
+console.log(result);
+```
+
+### Upload หลายรูป
+```javascript
+const uploadMultiple = async (files) => {
+    const formData = new FormData();
+    
+    for (let file of files) {
+        formData.append('images[]', file);
+    }
+
+    const response = await fetch(`${API_BASE}/upload/multiple`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    });
+    
+    return await response.json();
+};
+```
+
+---
+
+## 📝 สรุป API Endpoints ทั้งหมด
+
+| Category | Endpoint | Method | Auth | Description |
+|----------|----------|--------|------|-------------|
+| **Auth** | `/auth/login` | POST | ❌ | เข้าสู่ระบบ |
+| **Auth** | `/auth/register` | POST | ❌ | สมัครสมาชิก |
+| **Assets** | `/assets` | GET | ❌ | ดูครุภัณฑ์ทั้งหมด |
+| **Assets** | `/assets/{id}` | GET | ❌ | ดูครุภัณฑ์ตาม ID |
+| **Assets** | `/assets?q=keyword` | GET | ❌ | ค้นหา |
+| **Assets** | `/assets` | POST | ✅ | เพิ่ม |
+| **Assets** | `/assets/{id}` | PUT | ✅ | แก้ไข |
+| **Departments** | `/departments` | GET/POST | ❌/✅ | จัดการหน่วยงาน |
+| **Locations** | `/locations` | GET/POST | ❌/✅ | จัดการสถานที่ |
+| **Checks** | `/checks` | GET/POST | ✅ | การตรวจสอบ |
+| **History** | `/history` | GET/POST | ✅ | ประวัติการย้าย |
+| **Borrows** | `/borrows` | GET/POST/PUT | ✅ | การยืม-คืน |
+| **Audits** | `/audits` | GET | ✅ | Audit Trail |
+| **Users** | `/users` | GET/PUT | ✅ | จัดการผู้ใช้ |
+| **Upload** | `/upload/asset/{id}` | POST | ✅ | Upload รูป |
+| **Upload** | `/upload/asset/{id}` | DELETE | ✅ | ลบรูป |
+| **Upload** | `/upload/multiple` | POST | ✅ | Upload หลายรูป |
+
+**รวมทั้งหมด: 45+ Endpoints**

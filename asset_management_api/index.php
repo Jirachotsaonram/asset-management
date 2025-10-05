@@ -211,6 +211,28 @@ switch ($endpoint) {
         }
         break;
 
+    // ==================== UPLOAD ====================
+    case 'upload':
+        require_once 'controllers/UploadController.php';
+        require_once 'middleware/auth.php';
+        
+        authenticate();
+        $controller = new UploadController();
+        
+        if ($request_method === 'POST' && $id === 'asset' && $action) {
+            // POST /upload/asset/{asset_id}
+            $controller->uploadAssetImage($action);
+        } elseif ($request_method === 'DELETE' && $id === 'asset' && $action) {
+            // DELETE /upload/asset/{asset_id}
+            $controller->deleteAssetImage($action);
+        } elseif ($request_method === 'POST' && $id === 'multiple') {
+            // POST /upload/multiple
+            $controller->uploadMultipleImages();
+        } else {
+            Response::error('ไม่พบเส้นทาง API', 404);
+        }
+        break;
+
     default:
         Response::error('ไม่พบเส้นทาง API', 404);
         break;
