@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from 'react-hot-toast';
+import { useAuth } from './hooks/useAuth';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Pages
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import AssetsPage from './pages/AssetsPage';
+import CheckPage from './pages/CheckPage';
+import ReportsPage from './pages/ReportsPage';
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+// Layout
+import Layout from './components/Layout/Layout';
+import Loading from './components/Common/Loading';
+
+function PrivateRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
-export default App
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Toaster position="top-right" />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          
+          <Route path="/" element={
+            <PrivateRoute>
+              <Layout />
+            </PrivateRoute>
+          }>
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="assets" element={<AssetsPage />} />
+            <Route path="check" element={<CheckPage />} />
+            <Route path="reports" element={<ReportsPage />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+
+export default App;
