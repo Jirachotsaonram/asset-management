@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import { Lock, User, LogIn, Package } from 'lucide-react'; // เพิ่ม Package ตรงนี้
+import logoImage from './logoFITM.png'; // สมมติว่าโลโก้ของคุณอยู่ที่ src/assets/logo.png
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -27,12 +28,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-sky-300">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-block p-3 bg-blue-100 rounded-full mb-4">
-            <Package className="w-12 h-12 text-blue-600" />
-          </div>
+          {/* <div className="inline-block p-3 bg-blue-100 rounded-full mb-4"> */}
+             <img 
+                src={logoImage} 
+                alt="Asset Management Logo"
+                className="w-19 h-19 text-blue-600 " 
+            />
+            {/* <Package className="w-12 h-12 text-blue-600" /> */}
+          {/* </div> */}
           <h1 className="text-3xl font-bold text-gray-800">
             ระบบจัดการครุภัณฑ์
           </h1>
@@ -83,7 +89,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-sky-400 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
