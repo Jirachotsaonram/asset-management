@@ -1,3 +1,4 @@
+// FILE: src/pages/DashboardPage.jsx
 import { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Package, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
@@ -52,7 +53,11 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return <div>กำลังโหลด...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600">กำลังโหลด...</div>
+      </div>
+    );
   }
 
   return (

@@ -7,6 +7,7 @@ import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AssetsPage from './pages/AssetsPage';
+import ScanPage from './pages/ScanPage';
 import CheckPage from './pages/CheckPage';
 import ReportsPage from './pages/ReportsPage';
 
@@ -40,6 +41,7 @@ function App() {
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="assets" element={<AssetsPage />} />
+            <Route path="scan" element={<ScanPage />} />
             <Route path="check" element={<CheckPage />} />
             <Route path="reports" element={<ReportsPage />} />
           </Route>
