@@ -10,6 +10,7 @@ import AssetsPage from './pages/AssetsPage';
 import ScanPage from './pages/ScanPage';
 import CheckPage from './pages/CheckPage';
 import ReportsPage from './pages/ReportsPage';
+import LocationsPage from './pages/LocationsPage';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -44,6 +45,7 @@ function App() {
             <Route path="scan" element={<ScanPage />} />
             <Route path="check" element={<CheckPage />} />
             <Route path="reports" element={<ReportsPage />} />
+            <Route path="locations" element={<LocationsPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />

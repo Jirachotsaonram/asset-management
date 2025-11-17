@@ -1,9 +1,12 @@
+// FILE: src/pages/CheckPage.jsx
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // เพิ่มบรรทัดนี้
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { QrCode, CheckCircle } from 'lucide-react';
 
 export default function CheckPage() {
+  const navigate = useNavigate(); // เพิ่มบรรทัดนี้
   const [uncheckedAssets, setUncheckedAssets] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,8 +39,17 @@ export default function CheckPage() {
     }
   };
 
+  // ฟังก์ชันไปหน้า Scan
+  const goToScanPage = () => {
+    navigate('/scan');
+  };
+
   if (loading) {
-    return <div>กำลังโหลด...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   return (
@@ -52,9 +64,12 @@ export default function CheckPage() {
               มี {uncheckedAssets.length} รายการที่ยังไม่ได้ตรวจสอบ
             </p>
           </div>
-          <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <button 
+            onClick={goToScanPage}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
             <QrCode className="w-5 h-5" />
-            <span>Scan QR Code</span>
+            <span>สแกน QR Code</span>
           </button>
         </div>
       </div>
@@ -69,7 +84,7 @@ export default function CheckPage() {
             </p>
             <button
               onClick={() => handleCheck(asset.asset_id)}
-              className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
               <CheckCircle className="w-5 h-5" />
               <span>ยืนยันการตรวจสอบ</span>
