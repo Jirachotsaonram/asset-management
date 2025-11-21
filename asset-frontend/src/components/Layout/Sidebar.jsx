@@ -22,6 +22,7 @@ export default function Sidebar() {
     { path: '/check', label: 'ตรวจสอบ', icon: CheckSquare },
     { path: '/reports', label: 'รายงาน', icon: FileText },
     { path: '/locations', label: 'สถานที่', icon: Package },
+    { path: '/borrows', label: 'ยืม-คืน', icon: Package },
   ];
 
   // เพิ่มเมนู Users สำหรับ Admin
