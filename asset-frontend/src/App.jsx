@@ -12,6 +12,7 @@ import CheckPage from './pages/CheckPage';
 import ReportsPage from './pages/ReportsPage';
 import LocationsPage from './pages/LocationsPage';
 import BorrowsPage from './pages/BorrowsPage';
+import UsersPage from './pages/UsersPage';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -48,6 +49,7 @@ function App() {
             <Route path="reports" element={<ReportsPage />} />
             <Route path="locations" element={<LocationsPage />} />
             <Route path="borrows" element={<BorrowsPage />} />
+            <Route path="users" element={<UsersPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />

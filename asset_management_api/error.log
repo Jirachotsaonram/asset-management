@@ -1,0 +1,36 @@
+[22-Nov-2025 11:05:21 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::create() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:225
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 225
+[22-Nov-2025 11:05:22 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::create() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:225
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 225
+[22-Nov-2025 11:05:29 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::create() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:225
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 225
+[22-Nov-2025 11:05:38 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::update() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:231
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 231
+[22-Nov-2025 11:05:48 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::update() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:231
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 231
+[22-Nov-2025 11:06:51 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::update() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:231
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 231
+[22-Nov-2025 11:06:57 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::update() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:231
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 231
+[22-Nov-2025 11:07:44 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::update() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:231
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 231
+[22-Nov-2025 11:08:00 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method UserController::update() in C:\xampp\htdocs\asset-management\asset_management_api\index.php:231
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 231
