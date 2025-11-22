@@ -31,7 +31,6 @@ export default function BorrowsPage() {
     asset_id: '',
     borrower_name: '',
     borrow_date: new Date().toISOString().split('T')[0],
-    expected_return_date: '',
     purpose: ''
   });
   const [returnRemark, setReturnRemark] = useState('');
@@ -76,7 +75,6 @@ export default function BorrowsPage() {
       asset_id: '',
       borrower_name: '',
       borrow_date: new Date().toISOString().split('T')[0],
-      expected_return_date: '',
       purpose: ''
     });
     setShowModal(true);
@@ -93,7 +91,7 @@ export default function BorrowsPage() {
   const handleSubmitBorrow = async (e) => {
     e.preventDefault();
 
-    if (!formData.asset_id || !formData.borrower_name || !formData.expected_return_date) {
+    if (!formData.asset_id || !formData.borrower_name) {
       toast.error('กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
@@ -118,17 +116,40 @@ export default function BorrowsPage() {
   const handleSubmitReturn = async () => {
     if (!selectedBorrow) return;
 
+    const returnDate = new Date().toISOString().split('T')[0];
+
     try {
-      await api.put(`/borrows/${selectedBorrow.borrow_id}/return`, {
-        return_date: new Date().toISOString().split('T')[0],
+      // ลอง endpoint ต่างๆ
+      let response;
+      const returnData = {
+        borrow_id: selectedBorrow.borrow_id,
+        return_date: returnDate,
         return_remark: returnRemark || 'คืนปกติ',
         status: 'คืนแล้ว'
-      });
+      };
+
+      try {
+        // วิธีที่ 1: PUT /borrows/:id/return
+        response = await api.put(`/borrows/${selectedBorrow.borrow_id}/return`, returnData);
+      } catch (err) {
+        try {
+          // วิธีที่ 2: PUT /borrows/:id
+          response = await api.put(`/borrows/${selectedBorrow.borrow_id}`, returnData);
+        } catch (err2) {
+          // วิธีที่ 3: POST /return_borrow
+          response = await api.post('/return_borrow', returnData);
+        }
+      }
       
-      toast.success('บันทึกการคืนสำเร็จ');
-      setShowReturnModal(false);
-      setSelectedBorrow(null);
-      fetchData();
+      if (response.data.success) {
+        toast.success('บันทึกการคืนสำเร็จ');
+        setShowReturnModal(false);
+        setSelectedBorrow(null);
+        setReturnRemark('');
+        fetchData();
+      } else {
+        toast.error('เกิดข้อผิดพลาด: ' + response.data.message);
+      }
     } catch (error) {
       console.error('Error returning:', error);
       toast.error('ไม่สามารถบันทึกการคืนได้');
@@ -265,7 +286,7 @@ export default function BorrowsPage() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ชื่อครุภัณฑ์</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ผู้ยืม</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">วันที่ยืม</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">กำหนดคืน</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">วันที่คืน</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">สถานะ</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">จัดการ</th>
               </tr>
@@ -286,7 +307,7 @@ export default function BorrowsPage() {
                     {borrow.borrow_date}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {borrow.expected_return_date}
+                    {borrow.return_date || '-'}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(borrow.status)}`}>
@@ -302,11 +323,6 @@ export default function BorrowsPage() {
                         <RotateCcw size={16} />
                         คืน
                       </button>
-                    )}
-                    {borrow.status === 'คืนแล้ว' && (
-                      <span className="text-sm text-gray-500">
-                        คืนเมื่อ {borrow.return_date}
-                      </span>
                     )}
                   </td>
                 </tr>
@@ -375,8 +391,7 @@ export default function BorrowsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Calendar size={16} className="inline mr-1" />
                     วันที่ยืม *
@@ -389,21 +404,6 @@ export default function BorrowsPage() {
                     required
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Calendar size={16} className="inline mr-1" />
-                    กำหนดคืน *
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.expected_return_date}
-                    onChange={(e) => setFormData({...formData, expected_return_date: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    required
-                  />
-                </div>
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
