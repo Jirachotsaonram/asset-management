@@ -215,9 +215,23 @@ switch ($endpoint) {
         $controller = new UserController();
         
         if ($request_method === 'GET' && !$id) {
+            // GET /users - ดึงผู้ใช้ทั้งหมด
             $controller->getAll();
+        } elseif ($request_method === 'GET' && $id && !$action) {
+            // GET /users/{id} - ดึงผู้ใช้คนเดียว
+            $controller->getOne($id);
+        } elseif ($request_method === 'POST' && !$id) {
+            // POST /users - เพิ่มผู้ใช้ใหม่
+            $controller->create();
         } elseif ($request_method === 'PUT' && $id && $action === 'status') {
+            // PUT /users/{id}/status - อัปเดตสถานะ
             $controller->updateStatus($id);
+        } elseif ($request_method === 'PUT' && $id && !$action) {
+            // PUT /users/{id} - อัปเดตข้อมูลผู้ใช้
+            $controller->update($id);
+        } elseif ($request_method === 'DELETE' && $id) {
+            // DELETE /users/{id} - ลบผู้ใช้
+            $controller->delete($id);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }
