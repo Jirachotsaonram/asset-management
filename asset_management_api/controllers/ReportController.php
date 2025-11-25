@@ -1,0 +1,324 @@
+<?php
+require_once 'config/database.php';
+require_once 'utils/Response.php';
+
+class ReportController {
+    private $conn;
+
+    public function __construct() {
+        $database = new Database();
+        $this->conn = $database->getConnection();
+    }
+
+    // รายงานสรุปครุภัณฑ์ทั้งหมด
+    public function assetSummary() {
+        $query = "SELECT 
+                    a.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    a.quantity,
+                    a.unit,
+                    a.price,
+                    a.received_date,
+                    a.status,
+                    d.department_name,
+                    CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
+                    ac.check_date as last_check_date,
+                    u.fullname as last_checker
+                FROM Assets a
+                LEFT JOIN Departments d ON a.department_id = d.department_id
+                LEFT JOIN Locations l ON a.location_id = l.location_id
+                LEFT JOIN (
+                    SELECT asset_id, MAX(check_date) as check_date, user_id
+                    FROM Asset_Check
+                    GROUP BY asset_id
+                ) latest ON a.asset_id = latest.asset_id
+                LEFT JOIN Asset_Check ac ON a.asset_id = ac.asset_id AND ac.check_date = latest.check_date
+                LEFT JOIN Users u ON ac.user_id = u.user_id
+                ORDER BY a.asset_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $assets);
+    }
+
+    // รายงานการตรวจสอบครุภัณฑ์ตามช่วงเวลา
+    public function checkReport($params) {
+        $startDate = $params['start_date'] ?? null;
+        $endDate = $params['end_date'] ?? null;
+        
+        $query = "SELECT 
+                    ac.check_id,
+                    ac.check_date,
+                    a.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    ac.check_status,
+                    ac.remark,
+                    u.fullname as checker_name,
+                    d.department_name,
+                    CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
+                FROM Asset_Check ac
+                JOIN Assets a ON ac.asset_id = a.asset_id
+                JOIN Users u ON ac.user_id = u.user_id
+                LEFT JOIN Departments d ON a.department_id = d.department_id
+                LEFT JOIN Locations l ON a.location_id = l.location_id
+                WHERE 1=1";
+        
+        if ($startDate) {
+            $query .= " AND ac.check_date >= :start_date";
+        }
+        if ($endDate) {
+            $query .= " AND ac.check_date <= :end_date";
+        }
+        
+        $query .= " ORDER BY ac.check_date DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if ($startDate) $stmt->bindParam(':start_date', $startDate);
+        if ($endDate) $stmt->bindParam(':end_date', $endDate);
+        
+        $stmt->execute();
+        
+        $checks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $checks);
+    }
+
+    // รายงานครุภัณฑ์ตามสถานะ
+    public function assetByStatus() {
+        $query = "SELECT 
+                    status,
+                    COUNT(*) as count,
+                    SUM(price * quantity) as total_value
+                FROM Assets
+                GROUP BY status
+                ORDER BY count DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        $summary = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $summary);
+    }
+
+    // รายงานครุภัณฑ์ตามหน่วยงาน
+    public function assetByDepartment() {
+        $query = "SELECT 
+                    d.department_name,
+                    d.faculty,
+                    COUNT(a.asset_id) as asset_count,
+                    SUM(a.price * a.quantity) as total_value,
+                    SUM(CASE WHEN a.status = 'ใช้งานได้' THEN 1 ELSE 0 END) as active_count,
+                    SUM(CASE WHEN a.status = 'รอซ่อม' THEN 1 ELSE 0 END) as repair_count,
+                    SUM(CASE WHEN a.status = 'ไม่พบ' THEN 1 ELSE 0 END) as missing_count
+                FROM Departments d
+                LEFT JOIN Assets a ON d.department_id = a.department_id
+                GROUP BY d.department_id
+                ORDER BY asset_count DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        $summary = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $summary);
+    }
+
+    // รายงานครุภัณฑ์ที่ยังไม่ได้ตรวจสอบ
+    public function uncheckedAssets($days = 365) {
+        $query = "SELECT 
+                    a.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    a.status,
+                    d.department_name,
+                    CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
+                    ac.check_date as last_check_date,
+                    DATEDIFF(NOW(), ac.check_date) as days_since_check
+                FROM Assets a
+                LEFT JOIN Departments d ON a.department_id = d.department_id
+                LEFT JOIN Locations l ON a.location_id = l.location_id
+                LEFT JOIN (
+                    SELECT asset_id, MAX(check_date) as check_date
+                    FROM Asset_Check
+                    GROUP BY asset_id
+                ) ac ON a.asset_id = ac.asset_id
+                WHERE ac.check_date IS NULL 
+                   OR DATEDIFF(NOW(), ac.check_date) > :days
+                ORDER BY days_since_check DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':days', $days, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $assets);
+    }
+
+    // รายงานประวัติการเคลื่อนย้าย
+    public function movementHistory($params) {
+        $startDate = $params['start_date'] ?? null;
+        $endDate = $params['end_date'] ?? null;
+        
+        $query = "SELECT 
+                    ah.history_id,
+                    ah.move_date,
+                    a.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    CONCAT(l1.building_name, ' ห้อง ', l1.room_number) as old_location,
+                    CONCAT(l2.building_name, ' ห้อง ', l2.room_number) as new_location,
+                    u.fullname as moved_by_name,
+                    ah.remark
+                FROM Asset_History ah
+                JOIN Assets a ON ah.asset_id = a.asset_id
+                LEFT JOIN Locations l1 ON ah.old_location_id = l1.location_id
+                LEFT JOIN Locations l2 ON ah.new_location_id = l2.location_id
+                LEFT JOIN Users u ON ah.moved_by = u.user_id
+                WHERE 1=1";
+        
+        if ($startDate) {
+            $query .= " AND ah.move_date >= :start_date";
+        }
+        if ($endDate) {
+            $query .= " AND ah.move_date <= :end_date";
+        }
+        
+        $query .= " ORDER BY ah.move_date DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if ($startDate) $stmt->bindParam(':start_date', $startDate);
+        if ($endDate) $stmt->bindParam(':end_date', $endDate);
+        
+        $stmt->execute();
+        
+        $movements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $movements);
+    }
+
+    // รายงานการยืมครุภัณฑ์
+    public function borrowReport($status = null) {
+        $query = "SELECT 
+                    b.borrow_id,
+                    b.borrow_date,
+                    b.return_date,
+                    b.status,
+                    a.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    b.borrower_name,
+                    d.department_name as borrower_department,
+                    DATEDIFF(
+                        CASE 
+                            WHEN b.status = 'คืนแล้ว' THEN b.return_date 
+                            ELSE NOW() 
+                        END, 
+                        b.borrow_date
+                    ) as borrow_duration
+                FROM Borrow b
+                JOIN Assets a ON b.asset_id = a.asset_id
+                LEFT JOIN Departments d ON b.department_id = d.department_id
+                WHERE 1=1";
+        
+        if ($status) {
+            $query .= " AND b.status = :status";
+        }
+        
+        $query .= " ORDER BY b.borrow_date DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if ($status) {
+            $stmt->bindParam(':status', $status);
+        }
+        
+        $stmt->execute();
+        
+        $borrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        Response::success('ดึงข้อมูลสำเร็จ', $borrows);
+    }
+
+    // Export รายงานเป็น CSV
+    public function exportCSV($reportType, $params = []) {
+        // ตั้งค่า header สำหรับ download CSV
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="report_' . $reportType . '_' . date('Y-m-d') . '.csv"');
+        
+        $output = fopen('php://output', 'w');
+        
+        // เพิ่ม BOM สำหรับ UTF-8
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        
+        switch ($reportType) {
+            case 'asset_summary':
+                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด']);
+                
+                $query = "SELECT 
+                            a.asset_id,
+                            a.asset_name,
+                            a.serial_number,
+                            a.quantity,
+                            a.unit,
+                            a.price,
+                            a.received_date,
+                            a.status,
+                            d.department_name,
+                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
+                            ac.check_date as last_check_date,
+                            u.fullname as last_checker
+                        FROM Assets a
+                        LEFT JOIN Departments d ON a.department_id = d.department_id
+                        LEFT JOIN Locations l ON a.location_id = l.location_id
+                        LEFT JOIN (
+                            SELECT asset_id, MAX(check_date) as check_date, user_id
+                            FROM Asset_Check
+                            GROUP BY asset_id
+                        ) latest ON a.asset_id = latest.asset_id
+                        LEFT JOIN Asset_Check ac ON a.asset_id = ac.asset_id AND ac.check_date = latest.check_date
+                        LEFT JOIN Users u ON ac.user_id = u.user_id
+                        ORDER BY a.asset_id";
+                break;
+                
+            case 'check_report':
+                fputcsv($output, ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่']);
+                
+                $query = "SELECT 
+                            ac.check_id,
+                            ac.check_date,
+                            a.asset_id,
+                            a.asset_name,
+                            a.serial_number,
+                            ac.check_status,
+                            ac.remark,
+                            u.fullname as checker_name,
+                            d.department_name,
+                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
+                        FROM Asset_Check ac
+                        JOIN Assets a ON ac.asset_id = a.asset_id
+                        JOIN Users u ON ac.user_id = u.user_id
+                        LEFT JOIN Departments d ON a.department_id = d.department_id
+                        LEFT JOIN Locations l ON a.location_id = l.location_id
+                        ORDER BY ac.check_date DESC";
+                break;
+                
+            default:
+                fputcsv($output, ['Error: Unknown report type']);
+                fclose($output);
+                exit;
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            fputcsv($output, $row);
+        }
+        
+        fclose($output);
+        exit;
+    }
+}
+?>

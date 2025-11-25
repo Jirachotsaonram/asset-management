@@ -259,6 +259,60 @@ switch ($endpoint) {
         }
         break;
 
+        // ==================== REPORTS ====================
+    // เพิ่มส่วนนี้ใน index.php ก่อน default case
+    
+    case 'reports':
+        require_once 'controllers/ReportController.php';
+        require_once 'middleware/auth.php';
+        
+        authenticate();
+        $controller = new ReportController();
+        
+        if ($request_method === 'GET') {
+            if ($id === 'asset-summary') {
+                // GET /reports/asset-summary - รายงานสรุปครุภัณฑ์
+                $controller->assetSummary();
+                
+            } elseif ($id === 'check-report') {
+                // GET /reports/check-report?start_date=xxx&end_date=xxx
+                $controller->checkReport($_GET);
+                
+            } elseif ($id === 'by-status') {
+                // GET /reports/by-status - สรุปตามสถานะ
+                $controller->assetByStatus();
+                
+            } elseif ($id === 'by-department') {
+                // GET /reports/by-department - สรุปตามหน่วยงาน
+                $controller->assetByDepartment();
+                
+            } elseif ($id === 'unchecked') {
+                // GET /reports/unchecked?days=365
+                $days = $_GET['days'] ?? 365;
+                $controller->uncheckedAssets($days);
+                
+            } elseif ($id === 'movement-history') {
+                // GET /reports/movement-history?start_date=xxx&end_date=xxx
+                $controller->movementHistory($_GET);
+                
+            } elseif ($id === 'borrow-report') {
+                // GET /reports/borrow-report?status=ยืม
+                $status = $_GET['status'] ?? null;
+                $controller->borrowReport($status);
+                
+            } elseif ($id === 'export') {
+                // GET /reports/export?type=asset_summary
+                $reportType = $_GET['type'] ?? 'asset_summary';
+                $controller->exportCSV($reportType, $_GET);
+                
+            } else {
+                Response::error('ไม่พบประเภทรายงาน', 404);
+            }
+        } else {
+            Response::error('Method not allowed', 405);
+        }
+        break;
+        
     default:
         Response::error('ไม่พบเส้นทาง API', 404);
         break;
