@@ -23,6 +23,7 @@ export default function Sidebar() {
     { path: '/reports', label: 'รายงาน', icon: FileText },
     { path: '/locations', label: 'สถานที่', icon: Package },
     { path: '/borrows', label: 'ยืม-คืน', icon: Package },
+    { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: FileText },
   ];
 
   // เพิ่มเมนู Users สำหรับ Admin

@@ -13,6 +13,7 @@ import ReportsPage from './pages/ReportsPage';
 import LocationsPage from './pages/LocationsPage';
 import BorrowsPage from './pages/BorrowsPage';
 import UsersPage from './pages/UsersPage';
+import AssetHistoryPage from './pages/AssetHistoryPage';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -50,6 +51,7 @@ function App() {
             <Route path="locations" element={<LocationsPage />} />
             <Route path="borrows" element={<BorrowsPage />} />
             <Route path="users" element={<UsersPage />} />
+            <Route path="asset-history" element={<AssetHistoryPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />
