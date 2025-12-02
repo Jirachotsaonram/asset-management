@@ -14,7 +14,8 @@ import {
   Package,
   Building,
   FileText,
-  Download
+  Download,
+  CheckCircle
 } from 'lucide-react';
 
 export default function AssetHistoryPage() {
@@ -44,17 +45,23 @@ export default function AssetHistoryPage() {
 
   const fetchData = async () => {
     try {
+      console.log('🔄 Fetching data...');
+      
       const [historyRes, assetsRes, locationsRes] = await Promise.all([
         api.get('/history'),
         api.get('/assets'),
         api.get('/locations')
       ]);
 
+      console.log('✅ History:', historyRes.data.data);
+      console.log('✅ Assets:', assetsRes.data.data);
+      console.log('✅ Locations:', locationsRes.data.data);
+
       setHistory(historyRes.data.data || []);
       setAssets(assetsRes.data.data || []);
       setLocations(locationsRes.data.data || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('❌ Error fetching data:', error);
       toast.error('ไม่สามารถโหลดข้อมูลได้');
     } finally {
       setLoading(false);
@@ -86,12 +93,33 @@ export default function AssetHistoryPage() {
   };
 
   const handleAssetChange = (assetId) => {
-    const selectedAsset = assets.find(a => a.asset_id === assetId);
+    console.log('Selected Asset ID:', assetId);
+    console.log('All Assets:', assets);
+    
+    if (!assetId) {
+      setFormData({
+        ...formData,
+        asset_id: '',
+        old_location_id: ''
+      });
+      return;
+    }
+
+    const selectedAsset = assets.find(a => String(a.asset_id) === String(assetId));
+    console.log('Found Asset:', selectedAsset);
+    
     if (selectedAsset) {
       setFormData({
         ...formData,
         asset_id: assetId,
         old_location_id: selectedAsset.location_id || ''
+      });
+    } else {
+      // ถ้าหาไม่เจอ ลองใช้ค่าที่เลือก
+      setFormData({
+        ...formData,
+        asset_id: assetId,
+        old_location_id: ''
       });
     }
   };
@@ -375,17 +403,37 @@ export default function AssetHistoryPage() {
                   เลือกครุภัณฑ์ *
                 </label>
                 <select
-                  value={formData.asset_id}
-                  onChange={(e) => handleAssetChange(e.target.value)}
+                  value={formData.asset_id || ''}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    console.log('Dropdown onChange:', selectedId);
+                    handleAssetChange(selectedId);
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
                 >
                   <option value="">-- เลือกครุภัณฑ์ --</option>
-                  {assets.map(asset => (
-                    <option key={asset.asset_id} value={asset.asset_id}>
-                      {asset.asset_id} - {asset.asset_name}
-                    </option>
-                  ))}
+                  {assets && assets.length > 0 ? (
+                    assets.map(asset => (
+                      <option key={asset.asset_id} value={asset.asset_id}>
+                        {asset.asset_id} - {asset.asset_name}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>ไม่มีข้อมูลครุภัณฑ์</option>
+                  )}
                 </select>
+                {formData.asset_id && (
+                  <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                    <CheckCircle size={12} />
+                    เลือก: {assets.find(a => String(a.asset_id) === String(formData.asset_id))?.asset_name || 'กำลังโหลด...'}
+                  </p>
+                )}
+                {assets.length === 0 && (
+                  <p className="text-xs text-red-600 mt-1">
+                    ⚠️ ไม่มีข้อมูลครุภัณฑ์ กรุณารีเฟรชหน้าเว็บ
+                  </p>
+                )}
               </div>
 
               <div>
@@ -394,7 +442,8 @@ export default function AssetHistoryPage() {
                   สถานที่เดิม
                 </label>
                 <select
-                  value={formData.old_location_id}
+                  value={formData.old_location_id || ''}
+                  onChange={(e) => setFormData({...formData, old_location_id: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   disabled
                 >
@@ -416,9 +465,10 @@ export default function AssetHistoryPage() {
                   สถานที่ใหม่ *
                 </label>
                 <select
-                  value={formData.new_location_id}
+                  value={formData.new_location_id || ''}
                   onChange={(e) => setFormData({...formData, new_location_id: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
                 >
                   <option value="">-- เลือกสถานที่ใหม่ --</option>
                   {locations.map(loc => (

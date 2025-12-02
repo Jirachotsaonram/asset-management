@@ -70,32 +70,55 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      if (asset) {
-        // แก้ไข
-        await api.put(`/assets/${asset.asset_id}`, formData);
-        toast.success('แก้ไขครุภัณฑ์สำเร็จ');
-      } else {
-        // เพิ่มใหม่
-        const dataToSend = {
-          ...formData,
-          barcode: formData.barcode || `QR${Date.now()}`
-        };
-        await api.post('/assets', dataToSend);
-        toast.success('เพิ่มครุภัณฑ์สำเร็จ');
+  try {
+    if (asset) {
+      // *** เก็บ location_id เดิมไว้ก่อน ***
+      const oldLocationId = asset.location_id;
+      const newLocationId = formData.location_id;
+
+      // แก้ไข Asset
+      await api.put(`/assets/${asset.asset_id}`, formData);
+      
+      // *** ถ้ามีการเปลี่ยนสถานที่ ให้บันทึกประวัติ ***
+      if (oldLocationId && newLocationId && oldLocationId !== newLocationId) {
+        try {
+          await api.post('/history', {
+            asset_id: asset.asset_id,
+            old_location_id: oldLocationId,
+            new_location_id: newLocationId,
+            move_date: new Date().toISOString().split('T')[0],
+            remark: 'แก้ไขสถานที่ผ่านหน้าจัดการครุภัณฑ์'
+          });
+          console.log('✅ บันทึกประวัติการย้ายสำเร็จ');
+        } catch (historyError) {
+          console.error('⚠️ ไม่สามารถบันทึกประวัติได้:', historyError);
+          // ไม่ให้ error นี้ทำให้การอัปเดต Asset ล้มเหลว
+        }
       }
-      onSuccess();
-      onClose();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'เกิดข้อผิดพลาด');
-    } finally {
-      setLoading(false);
+
+      toast.success('แก้ไขครุภัณฑ์สำเร็จ');
+    } else {
+      // เพิ่มใหม่
+      const dataToSend = {
+        ...formData,
+        barcode: formData.barcode || `QR${Date.now()}`
+      };
+      await api.post('/assets', dataToSend);
+      toast.success('เพิ่มครุภัณฑ์สำเร็จ');
     }
-  };
+    
+    onSuccess();
+    onClose();
+  } catch (error) {
+    toast.error(error.response?.data?.message || 'เกิดข้อผิดพลาด');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

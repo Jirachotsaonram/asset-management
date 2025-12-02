@@ -78,7 +78,7 @@ export default function ReportsPage() {
           endpoint = '/reports/asset-summary';
           break;
         case 'check-report':
-          endpoint = `/reports/check-report?start_date=${dateRange.startDate}&end_date=${dateRange.endDate}`;
+          endpoint = `/reports/check-report${dateRange.startDate ? `?start_date=${dateRange.startDate}` : ''}${dateRange.endDate ? `&end_date=${dateRange.endDate}` : ''}`;
           break;
         case 'by-status':
           endpoint = '/reports/by-status';
@@ -90,7 +90,7 @@ export default function ReportsPage() {
           endpoint = '/reports/unchecked?days=365';
           break;
         case 'movement-history':
-          endpoint = `/reports/movement-history?start_date=${dateRange.startDate}&end_date=${dateRange.endDate}`;
+          endpoint = `/reports/movement-history${dateRange.startDate ? `?start_date=${dateRange.startDate}` : ''}${dateRange.endDate ? `&end_date=${dateRange.endDate}` : ''}`;
           break;
         case 'borrow-report':
           endpoint = '/reports/borrow-report';
@@ -99,12 +99,22 @@ export default function ReportsPage() {
           endpoint = '/reports/asset-summary';
       }
 
+      console.log('📊 Fetching report:', endpoint);
       const response = await api.get(endpoint);
-      setReportData(response.data.data || []);
-      toast.success('สร้างรายงานสำเร็จ');
+      console.log('✅ Report data:', response.data);
+      
+      if (response.data.success && response.data.data) {
+        setReportData(response.data.data);
+        toast.success(`สร้างรายงานสำเร็จ (${response.data.data.length} รายการ)`);
+      } else {
+        setReportData([]);
+        toast.warning('ไม่มีข้อมูลในรายงานนี้');
+      }
     } catch (error) {
-      console.error('Error generating report:', error);
-      toast.error('ไม่สามารถสร้างรายงานได้');
+      console.error('❌ Error generating report:', error);
+      console.error('Error details:', error.response?.data);
+      toast.error(error.response?.data?.message || 'ไม่สามารถสร้างรายงานได้');
+      setReportData([]);
     } finally {
       setLoading(false);
     }
@@ -116,15 +126,19 @@ export default function ReportsPage() {
       return;
     }
 
-    // สร้าง CSV
     let csvContent = '';
     
-    // Headers
     if (selectedReport === 'asset-summary') {
       csvContent = 'รหัสครุภัณฑ์,ชื่อครุภัณฑ์,Serial Number,จำนวน,หน่วย,ราคา,วันที่รับ,สถานะ,หน่วยงาน,สถานที่,วันที่ตรวจล่าสุด,ผู้ตรวจล่าสุด\n';
       
       reportData.forEach(item => {
         csvContent += `"${item.asset_id || ''}","${item.asset_name || ''}","${item.serial_number || ''}","${item.quantity || ''}","${item.unit || ''}","${item.price || ''}","${item.received_date || ''}","${item.status || ''}","${item.department_name || ''}","${item.location || ''}","${item.last_check_date || ''}","${item.last_checker || ''}"\n`;
+      });
+    } else if (selectedReport === 'check-report') {
+      csvContent = 'วันที่ตรวจ,รหัสครุภัณฑ์,ชื่อครุภัณฑ์,Serial Number,สถานะการตรวจ,หมายเหตุ,ผู้ตรวจ,หน่วยงาน,สถานที่\n';
+      
+      reportData.forEach(item => {
+        csvContent += `"${item.check_date || ''}","${item.asset_id || ''}","${item.asset_name || ''}","${item.serial_number || ''}","${item.check_status || ''}","${item.remark || ''}","${item.checker_name || ''}","${item.department_name || ''}","${item.location || ''}"\n`;
       });
     } else if (selectedReport === 'by-status') {
       csvContent = 'สถานะ,จำนวน,มูลค่ารวม\n';
@@ -138,9 +152,20 @@ export default function ReportsPage() {
       reportData.forEach(item => {
         csvContent += `"${item.department_name}","${item.faculty || ''}","${item.asset_count}","${parseFloat(item.total_value || 0).toLocaleString()}","${item.active_count}","${item.repair_count}","${item.missing_count}"\n`;
       });
+    } else if (selectedReport === 'unchecked') {
+      csvContent = 'รหัส,ชื่อครุภัณฑ์,สถานะ,หน่วยงาน,สถานที่,วันที่ตรวจล่าสุด,ไม่ได้ตรวจมา(วัน)\n';
+      
+      reportData.forEach(item => {
+        csvContent += `"${item.asset_id || ''}","${item.asset_name || ''}","${item.status || ''}","${item.department_name || ''}","${item.location || ''}","${item.last_check_date || 'ไม่เคยตรวจ'}","${item.days_since_check || 'N/A'}"\n`;
+      });
+    } else if (selectedReport === 'movement-history') {
+      csvContent = 'วันที่ย้าย,รหัสครุภัณฑ์,ชื่อครุภัณฑ์,จาก,ไปยัง,ผู้ดำเนินการ,หมายเหตุ\n';
+      
+      reportData.forEach(item => {
+        csvContent += `"${item.move_date || ''}","${item.asset_id || ''}","${item.asset_name || ''}","${item.old_location || ''}","${item.new_location || ''}","${item.moved_by_name || ''}","${item.remark || ''}"\n`;
+      });
     }
 
-    // Download
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -446,13 +471,15 @@ function getTableHeaders(reportType) {
     'check-report': ['วันที่ตรวจ', 'รหัส', 'ชื่อครุภัณฑ์', 'สถานะการตรวจ', 'ผู้ตรวจ', 'หมายเหตุ'],
     'by-status': ['สถานะ', 'จำนวน', 'มูลค่ารวม (บาท)'],
     'by-department': ['หน่วยงาน', 'คณะ', 'จำนวน', 'มูลค่า', 'ใช้งานได้', 'รอซ่อม', 'ไม่พบ'],
-    'unchecked': ['รหัส', 'ชื่อครุภัณฑ์', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'จำนวนวันที่ไม่ได้ตรวจ'],
+    'unchecked': ['รหัส', 'ชื่อครุภัณฑ์', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ไม่ได้ตรวจมา'],
     'movement-history': ['วันที่ย้าย', 'รหัส', 'ชื่อครุภัณฑ์', 'จาก', 'ไปยัง', 'ผู้ดำเนินการ', 'หมายเหตุ']
   };
   return headers[reportType] || [];
 }
 
 function renderTableRows(reportType, data) {
+  if (!data || data.length === 0) return null;
+
   if (reportType === 'asset-summary') {
     return data.map((item, index) => (
       <tr key={index} className="hover:bg-gray-50">
@@ -468,6 +495,21 @@ function renderTableRows(reportType, data) {
         </td>
         <td className="px-6 py-4 text-sm">{item.department_name || '-'}</td>
         <td className="px-6 py-4 text-sm">{item.location || '-'}</td>
+      </tr>
+    ));
+  } else if (reportType === 'check-report') {
+    return data.map((item, index) => (
+      <tr key={index} className="hover:bg-gray-50">
+        <td className="px-6 py-4 text-sm">{item.check_date || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.asset_id || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.asset_name || '-'}</td>
+        <td className="px-6 py-4">
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(item.check_status)}`}>
+            {item.check_status || '-'}
+          </span>
+        </td>
+        <td className="px-6 py-4 text-sm">{item.checker_name || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.remark || '-'}</td>
       </tr>
     ));
   } else if (reportType === 'by-status') {
@@ -492,6 +534,36 @@ function renderTableRows(reportType, data) {
         <td className="px-6 py-4 text-sm text-green-600">{item.active_count}</td>
         <td className="px-6 py-4 text-sm text-yellow-600">{item.repair_count}</td>
         <td className="px-6 py-4 text-sm text-red-600">{item.missing_count}</td>
+      </tr>
+    ));
+  } else if (reportType === 'unchecked') {
+    return data.map((item, index) => (
+      <tr key={index} className="hover:bg-gray-50">
+        <td className="px-6 py-4 text-sm">{item.asset_id || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.asset_name || '-'}</td>
+        <td className="px-6 py-4">
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(item.status)}`}>
+            {item.status || '-'}
+          </span>
+        </td>
+        <td className="px-6 py-4 text-sm">{item.department_name || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.location || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.last_check_date || 'ไม่เคยตรวจ'}</td>
+        <td className="px-6 py-4 text-sm text-red-600 font-semibold">
+          {item.days_since_check ? `${item.days_since_check} วัน` : 'N/A'}
+        </td>
+      </tr>
+    ));
+  } else if (reportType === 'movement-history') {
+    return data.map((item, index) => (
+      <tr key={index} className="hover:bg-gray-50">
+        <td className="px-6 py-4 text-sm">{item.move_date || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.asset_id || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.asset_name || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.old_location || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.new_location || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.moved_by_name || '-'}</td>
+        <td className="px-6 py-4 text-sm">{item.remark || '-'}</td>
       </tr>
     ));
   }

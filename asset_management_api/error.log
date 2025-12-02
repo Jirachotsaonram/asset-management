@@ -84,3 +84,4 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\asset-management\asset_management_api\index.php on line 266
+[02-Dec-2025 05:39:48 Europe/Berlin] PHP Warning:  Undefined property: stdClass::$asset_name in C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 74
