@@ -36,40 +36,42 @@ class LocationController {
         }
     }
 
-    public function create() {
-        $data = json_decode(file_get_contents("php://input"));
+public function create() {
+    $data = json_decode(file_get_contents("php://input"));
 
-        if (!empty($data->building_name)) {
-            $this->location->building_name = $data->building_name;
-            $this->location->room_number = $data->room_number ?? '';
-            $this->location->description = $data->description ?? '';
-
-            $id = $this->location->create();
-            
-            if ($id) {
-                Response::success('เพิ่มสถานที่สำเร็จ', ['location_id' => $id]);
-            } else {
-                Response::error('ไม่สามารถเพิ่มสถานที่ได้', 500);
-            }
-        } else {
-            Response::error('กรุณากรอกชื่ออาคาร', 400);
-        }
-    }
-
-    public function update($id) {
-        $data = json_decode(file_get_contents("php://input"));
-
-        $this->location->location_id = $id;
+    if (!empty($data->building_name)) {
         $this->location->building_name = $data->building_name;
+        $this->location->floor = $data->floor ?? '1';  // ← เพิ่มบรรทัดนี้
         $this->location->room_number = $data->room_number ?? '';
         $this->location->description = $data->description ?? '';
 
-        if ($this->location->update()) {
-            Response::success('อัปเดตสถานที่สำเร็จ');
+        $id = $this->location->create();
+        
+        if ($id) {
+            Response::success('เพิ่มสถานที่สำเร็จ', ['location_id' => $id]);
         } else {
-            Response::error('ไม่สามารถอัปเดตสถานที่ได้', 500);
+            Response::error('ไม่สามารถเพิ่มสถานที่ได้', 500);
         }
+    } else {
+        Response::error('กรุณากรอกชื่ออาคาร', 400);
     }
+}
+
+public function update($id) {
+    $data = json_decode(file_get_contents("php://input"));
+
+    $this->location->location_id = $id;
+    $this->location->building_name = $data->building_name;
+    $this->location->floor = $data->floor ?? '1';  // ← เพิ่มบรรทัดนี้
+    $this->location->room_number = $data->room_number ?? '';
+    $this->location->description = $data->description ?? '';
+
+    if ($this->location->update()) {
+        Response::success('อัปเดตสถานที่สำเร็จ');
+    } else {
+        Response::error('ไม่สามารถอัปเดตสถานที่ได้', 500);
+    }
+}
 
     public function delete($id) {
         $this->location->location_id = $id;

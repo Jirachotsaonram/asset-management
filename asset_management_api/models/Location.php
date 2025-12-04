@@ -5,6 +5,7 @@ class Location {
 
     public $location_id;
     public $building_name;
+    public $floor;  // ← เพิ่มบรรทัดนี้
     public $room_number;
     public $description;
 
@@ -14,11 +15,14 @@ class Location {
 
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  SET building_name=:building_name, room_number=:room_number, 
+                  SET building_name=:building_name, 
+                      floor=:floor,
+                      room_number=:room_number, 
                       description=:description";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":building_name", $this->building_name);
+        $stmt->bindParam(":floor", $this->floor);
         $stmt->bindParam(":room_number", $this->room_number);
         $stmt->bindParam(":description", $this->description);
 
@@ -30,7 +34,7 @@ class Location {
 
     public function readAll() {
         $query = "SELECT * FROM " . $this->table_name . " 
-                  ORDER BY building_name, room_number";
+                  ORDER BY building_name, floor, room_number";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
@@ -48,12 +52,15 @@ class Location {
 
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
-                  SET building_name=:building_name, room_number=:room_number,
+                  SET building_name=:building_name, 
+                      floor=:floor,
+                      room_number=:room_number,
                       description=:description
                   WHERE location_id = :location_id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":building_name", $this->building_name);
+        $stmt->bindParam(":floor", $this->floor);
         $stmt->bindParam(":room_number", $this->room_number);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":location_id", $this->location_id);

@@ -1,16 +1,26 @@
-import { useState, useEffect } from 'react';
-import api from '../services/api';
-import toast from 'react-hot-toast';
-import { Plus, Search, Edit, Trash2, Eye, Upload, X, Package, QrCode } from 'lucide-react';
-import { API_BASE_URL } from '../utils/constants';
-import AssetForm from '../components/Assets/AssetForm';
-import QRCodeModal from '../components/Assets/QRCodeModal';
-import BulkQRGenerator from '../components/Assets/BulkQRGenerator';
+import { useState, useEffect } from "react";
+import api from "../services/api";
+import toast from "react-hot-toast";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Upload,
+  X,
+  Package,
+  QrCode,
+} from "lucide-react";
+import { API_BASE_URL } from "../utils/constants";
+import AssetForm from "../components/Assets/AssetForm";
+import QRCodeModal from "../components/Assets/QRCodeModal";
+import BulkQRGenerator from "../components/Assets/BulkQRGenerator";
 
 export default function AssetsPage() {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
@@ -22,12 +32,20 @@ export default function AssetsPage() {
     fetchAssets();
   }, []);
 
+  const formatLocation = (item) => {
+    if (!item) return "-";
+    const building = item.building_name || "";
+    const floor = item.floor || "-";
+    const room = item.room_number || "-";
+    return `${building} ชั้น ${floor} ห้อง ${room}`;
+  };
+
   const fetchAssets = async () => {
     try {
-      const response = await api.get('/assets');
+      const response = await api.get("/assets");
       setAssets(response.data.data);
     } catch (error) {
-      toast.error('ไม่สามารถโหลดข้อมูลได้');
+      toast.error("ไม่สามารถโหลดข้อมูลได้");
     } finally {
       setLoading(false);
     }
@@ -43,36 +61,36 @@ export default function AssetsPage() {
       const response = await api.get(`/assets?q=${searchTerm}`);
       setAssets(response.data.data);
     } catch (error) {
-      toast.error('ค้นหาไม่สำเร็จ');
+      toast.error("ค้นหาไม่สำเร็จ");
     }
   };
 
   const handleUploadImage = async (assetId, file) => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append("image", file);
 
     try {
       await api.post(`/upload/asset/${assetId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success('อัปโหลดรูปภาพสำเร็จ');
+      toast.success("อัปโหลดรูปภาพสำเร็จ");
       fetchAssets();
     } catch (error) {
-      toast.error('อัปโหลดไม่สำเร็จ');
+      toast.error("อัปโหลดไม่สำเร็จ");
     }
   };
 
   const handleDelete = async (assetId) => {
-    if (!window.confirm('ต้องการลบครุภัณฑ์นี้หรือไม่?')) {
+    if (!window.confirm("ต้องการลบครุภัณฑ์นี้หรือไม่?")) {
       return;
     }
 
     try {
       await api.delete(`/assets/${assetId}`);
-      toast.success('ลบครุภัณฑ์สำเร็จ');
+      toast.success("ลบครุภัณฑ์สำเร็จ");
       fetchAssets();
     } catch (error) {
-      toast.error('ไม่สามารถลบได้');
+      toast.error("ไม่สามารถลบได้");
     }
   };
 
@@ -88,13 +106,13 @@ export default function AssetsPage() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'ใช้งานได้': 'bg-green-100 text-green-800',
-      'รอซ่อม': 'bg-yellow-100 text-yellow-800',
-      'รอจำหน่าย': 'bg-orange-100 text-orange-800',
-      'จำหน่ายแล้ว': 'bg-gray-100 text-gray-800',
-      'ไม่พบ': 'bg-red-100 text-red-800'
+      ใช้งานได้: "bg-green-100 text-green-800",
+      รอซ่อม: "bg-yellow-100 text-yellow-800",
+      รอจำหน่าย: "bg-orange-100 text-orange-800",
+      จำหน่ายแล้ว: "bg-gray-100 text-gray-800",
+      ไม่พบ: "bg-red-100 text-red-800",
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   if (loading) {
@@ -134,7 +152,7 @@ export default function AssetsPage() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             placeholder="ค้นหาครุภัณฑ์..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -176,7 +194,10 @@ export default function AssetsPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {assets.map((asset) => (
-                <tr key={asset.asset_id} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={asset.asset_id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="relative group">
                       {asset.image ? (
@@ -185,7 +206,8 @@ export default function AssetsPage() {
                           alt={asset.asset_name}
                           className="h-12 w-12 rounded object-cover"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/48?text=No+Image';
+                            e.target.src =
+                              "https://via.placeholder.com/48?text=No+Image";
                           }}
                         />
                       ) : (
@@ -201,7 +223,10 @@ export default function AssetsPage() {
                           accept="image/*"
                           onChange={(e) => {
                             if (e.target.files[0]) {
-                              handleUploadImage(asset.asset_id, e.target.files[0]);
+                              handleUploadImage(
+                                asset.asset_id,
+                                e.target.files[0]
+                              );
                             }
                           }}
                         />
@@ -217,13 +242,17 @@ export default function AssetsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {asset.serial_number || '-'}
+                    {asset.serial_number || "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {asset.building_name} {asset.room_number}
+                    {formatLocation(asset)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(asset.status)}`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                        asset.status
+                      )}`}
+                    >
                       {asset.status}
                     </span>
                   </td>
@@ -290,7 +319,7 @@ export default function AssetsPage() {
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
+
               {selectedAsset.image && (
                 <img
                   src={`${API_BASE_URL}/${selectedAsset.image}`}
@@ -310,26 +339,36 @@ export default function AssetsPage() {
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">Serial Number</label>
-                  <p className="font-semibold">{selectedAsset.serial_number || '-'}</p>
+                  <p className="font-semibold">
+                    {selectedAsset.serial_number || "-"}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">ราคา</label>
-                  <p className="font-semibold">{selectedAsset.price?.toLocaleString()} บาท</p>
+                  <p className="font-semibold">
+                    {selectedAsset.price?.toLocaleString()} บาท
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">สถานที่</label>
                   <p className="font-semibold">
-                    {selectedAsset.building_name} {selectedAsset.room_number}
+                    {formatLocation(selectedAsset)}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">หน่วยงาน</label>
-                  <p className="font-semibold">{selectedAsset.department_name}</p>
+                  <p className="font-semibold">
+                    {selectedAsset.department_name}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">สถานะ</label>
                   <p>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedAsset.status)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                        selectedAsset.status
+                      )}`}
+                    >
                       {selectedAsset.status}
                     </span>
                   </p>
@@ -378,10 +417,7 @@ export default function AssetsPage() {
 
       {/* Bulk QR Generator */}
       {showBulkQR && (
-        <BulkQRGenerator
-          assets={assets}
-          onClose={() => setShowBulkQR(false)}
-        />
+        <BulkQRGenerator assets={assets} onClose={() => setShowBulkQR(false)} />
       )}
     </div>
   );

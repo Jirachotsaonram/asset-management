@@ -47,33 +47,41 @@ class Asset {
         return false;
     }
 
-    public function readAll() {
-        $query = "SELECT a.*, d.department_name, l.building_name, l.room_number 
-                  FROM " . $this->table_name . " a
-                  LEFT JOIN Departments d ON a.department_id = d.department_id
-                  LEFT JOIN Locations l ON a.location_id = l.location_id
-                  ORDER BY a.created_at DESC";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        
-        return $stmt;
-    }
+public function readAll() {
+    $query = "SELECT a.*, 
+                     d.department_name, 
+                     l.building_name, 
+                     l.floor,              -- ← เพิ่มบรรทัดนี้
+                     l.room_number 
+              FROM " . $this->table_name . " a
+              LEFT JOIN Departments d ON a.department_id = d.department_id
+              LEFT JOIN Locations l ON a.location_id = l.location_id
+              ORDER BY a.created_at DESC";
+    
+    $stmt = $this->conn->prepare($query);
+    $stmt->execute();
+    
+    return $stmt;
+}
 
     public function readOne() {
-        $query = "SELECT a.*, d.department_name, l.building_name, l.room_number 
-                  FROM " . $this->table_name . " a
-                  LEFT JOIN Departments d ON a.department_id = d.department_id
-                  LEFT JOIN Locations l ON a.location_id = l.location_id
-                  WHERE a.asset_id = :asset_id OR a.barcode = :barcode";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":asset_id", $this->asset_id);
-        $stmt->bindParam(":barcode", $this->barcode);
-        $stmt->execute();
-        
-        return $stmt;
-    }
+    $query = "SELECT a.*, 
+                     d.department_name, 
+                     l.building_name, 
+                     l.floor,              -- ← เพิ่มบรรทัดนี้
+                     l.room_number 
+              FROM " . $this->table_name . " a
+              LEFT JOIN Departments d ON a.department_id = d.department_id
+              LEFT JOIN Locations l ON a.location_id = l.location_id
+              WHERE a.asset_id = :asset_id OR a.barcode = :barcode";
+    
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(":asset_id", $this->asset_id);
+    $stmt->bindParam(":barcode", $this->barcode);
+    $stmt->execute();
+    
+    return $stmt;
+}
 
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
