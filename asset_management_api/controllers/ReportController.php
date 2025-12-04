@@ -168,8 +168,8 @@ class ReportController {
                     a.asset_id,
                     a.asset_name,
                     a.serial_number,
-                    CONCAT(l1.building_name, ' ห้อง ', l1.room_number) as old_location,
-                    CONCAT(l2.building_name, ' ห้อง ', l2.room_number) as new_location,
+                    CONCAT(l1.building_name, ' ชั้น ', IFNULL(l1.floor, '-'), ' ห้อง ', l1.room_number) as old_location,
+                    CONCAT(l2.building_name, ' ชั้น ', IFNULL(l2.floor, '-'), ' ห้อง ', l2.room_number) as new_location,
                     u.fullname as moved_by_name,
                     ah.remark
                 FROM Asset_History ah
