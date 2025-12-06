@@ -17,7 +17,10 @@ import {
   Layers,
   MapPin,
   Grid,
-  List
+  List,
+  Filter,
+  X as XIcon,
+  RotateCcw
 } from "lucide-react";
 import { API_BASE_URL } from "../utils/constants";
 import AssetForm from "../components/Assets/AssetForm";
@@ -39,10 +42,40 @@ export default function AssetsPage() {
   const [viewMode, setViewMode] = useState("grouped"); // "grouped" หรือ "list"
   const [expandedBuildings, setExpandedBuildings] = useState({});
   const [expandedFloors, setExpandedFloors] = useState({});
+  
+  // สำหรับ Filter
+  const [filters, setFilters] = useState({
+    status: "all",
+    department: "all",
+    building: "all",
+    floor: "all"
+  });
+  const [departments, setDepartments] = useState([]);
+  const [locations, setLocations] = useState([]);
 
   useEffect(() => {
     fetchAssets();
+    fetchDepartments();
+    fetchLocations();
   }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await api.get("/departments");
+      setDepartments(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
+  const fetchLocations = async () => {
+    try {
+      const response = await api.get("/locations");
+      setLocations(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
 
   const formatLocation = (item) => {
     if (!item) return "-";
@@ -76,6 +109,48 @@ export default function AssetsPage() {
       toast.error("ค้นหาไม่สำเร็จ");
     }
   };
+
+  // ฟังก์ชัน Filter
+  const getFilteredAssets = () => {
+    return assets.filter((asset) => {
+      // Filter by Status
+      if (filters.status !== "all" && asset.status !== filters.status) {
+        return false;
+      }
+
+      // Filter by Department
+      if (filters.department !== "all" && asset.department_id != filters.department) {
+        return false;
+      }
+
+      // Filter by Building
+      if (filters.building !== "all" && asset.building_name !== filters.building) {
+        return false;
+      }
+
+      // Filter by Floor
+      if (filters.floor !== "all" && asset.floor !== filters.floor) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      status: "all",
+      department: "all",
+      building: "all",
+      floor: "all"
+    });
+  };
+
+  // Get unique buildings and floors
+  const uniqueBuildings = [...new Set(assets.map(a => a.building_name).filter(Boolean))];
+  const uniqueFloors = [...new Set(assets.map(a => a.floor).filter(Boolean))];
+
+  const filteredAssets = getFilteredAssets();
 
   // จัดกลุ่มครุภัณฑ์ตาม Location
   const groupAssetsByLocation = (assetList) => {
@@ -269,7 +344,7 @@ export default function AssetsPage() {
 
   // Render Grouped View
   const renderGroupedView = () => {
-    const groupedAssets = groupAssetsByLocation(assets);
+    const groupedAssets = groupAssetsByLocation(filteredAssets);
 
     return (
       <div className="space-y-4">
@@ -447,7 +522,7 @@ export default function AssetsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {assets.map((asset) => (
+            {filteredAssets.map((asset) => (
               <tr key={asset.asset_id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="relative group">
@@ -542,7 +617,7 @@ export default function AssetsPage() {
         </table>
       </div>
 
-      {assets.length === 0 && (
+      {filteredAssets.length === 0 && (
         <div className="text-center py-12 text-gray-500">
           <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <p className="text-lg">ไม่พบข้อมูลครุภัณฑ์</p>
@@ -629,6 +704,163 @@ export default function AssetsPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Filter Section */}
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Filter className="text-blue-600" size={20} />
+            <h3 className="text-lg font-semibold text-gray-800">ตัวกรอง</h3>
+          </div>
+          <button
+            onClick={handleResetFilters}
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <RotateCcw size={16} />
+            <span>รีเซ็ตตัวกรอง</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Filter by Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              สถานะ
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="all">ทั้งหมด</option>
+              <option value="ใช้งานได้">ใช้งานได้</option>
+              <option value="รอซ่อม">รอซ่อม</option>
+              <option value="รอจำหน่าย">รอจำหน่าย</option>
+              <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
+              <option value="ไม่พบ">ไม่พบ</option>
+            </select>
+          </div>
+
+          {/* Filter by Department */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              หน่วยงาน
+            </label>
+            <select
+              value={filters.department}
+              onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="all">ทั้งหมด</option>
+              {departments.map((dept) => (
+                <option key={dept.department_id} value={dept.department_id}>
+                  {dept.department_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filter by Building */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              อาคาร
+            </label>
+            <select
+              value={filters.building}
+              onChange={(e) => setFilters({ ...filters, building: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="all">ทั้งหมด</option>
+              {uniqueBuildings.map((building) => (
+                <option key={building} value={building}>
+                  {building}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filter by Floor */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ชั้น
+            </label>
+            <select
+              value={filters.floor}
+              onChange={(e) => setFilters({ ...filters, floor: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="all">ทั้งหมด</option>
+              {uniqueFloors.sort((a, b) => a - b).map((floor) => (
+                <option key={floor} value={floor}>
+                  ชั้น {floor}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Active Filters Display */}
+        {(filters.status !== "all" || filters.department !== "all" || 
+          filters.building !== "all" || filters.floor !== "all") && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-sm text-gray-600 font-medium">ตัวกรองที่ใช้งาน:</span>
+              
+              {filters.status !== "all" && (
+                <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                  สถานะ: {filters.status}
+                  <button
+                    onClick={() => setFilters({ ...filters, status: "all" })}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </span>
+              )}
+
+              {filters.department !== "all" && (
+                <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                  หน่วยงาน: {departments.find(d => d.department_id == filters.department)?.department_name}
+                  <button
+                    onClick={() => setFilters({ ...filters, department: "all" })}
+                    className="hover:bg-green-200 rounded-full p-0.5"
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </span>
+              )}
+
+              {filters.building !== "all" && (
+                <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                  อาคาร: {filters.building}
+                  <button
+                    onClick={() => setFilters({ ...filters, building: "all" })}
+                    className="hover:bg-purple-200 rounded-full p-0.5"
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </span>
+              )}
+
+              {filters.floor !== "all" && (
+                <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+                  ชั้น: {filters.floor}
+                  <button
+                    onClick={() => setFilters({ ...filters, floor: "all" })}
+                    className="hover:bg-orange-200 rounded-full p-0.5"
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </span>
+              )}
+
+              <span className="text-sm text-gray-500">
+                ({filteredAssets.length} จาก {assets.length} รายการ)
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
