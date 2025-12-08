@@ -100,3 +100,38 @@ Stack trace:
 #3 {main}
   thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 107
 [04-Dec-2025 09:45:10 Europe/Berlin] PHP Warning:  Undefined property: stdClass::$asset_name in C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 74
+[08-Dec-2025 15:16:03 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'QR1763370269178' for key 'barcode' in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[08-Dec-2025 15:16:04 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'QR1763370269178' for key 'barcode' in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[08-Dec-2025 15:16:05 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'QR1763370269178' for key 'barcode' in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[08-Dec-2025 15:16:10 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'QR1763370269178' for key 'barcode' in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[08-Dec-2025 15:16:11 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'QR1763370269178' for key 'barcode' in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
