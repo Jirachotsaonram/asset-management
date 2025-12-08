@@ -42,6 +42,7 @@ export default function AssetsPage() {
   const [viewMode, setViewMode] = useState("grouped"); // "grouped" หรือ "list"
   const [expandedBuildings, setExpandedBuildings] = useState({});
   const [expandedFloors, setExpandedFloors] = useState({});
+  const [expandedRooms, setExpandedRooms] = useState({}); // เพิ่ม state สำหรับห้อง
   
   // สำหรับ Filter
   const [filters, setFilters] = useState({
@@ -187,6 +188,14 @@ export default function AssetsPage() {
   const toggleFloor = (building, floor) => {
     const key = `${building}-${floor}`;
     setExpandedFloors((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const toggleRoom = (building, floor, room) => {
+    const key = `${building}-${floor}-${room}`;
+    setExpandedRooms((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
@@ -428,12 +437,17 @@ export default function AssetsPage() {
                         {isFloorExpanded && (
                           <div className="p-4 space-y-2 bg-white">
                             {Object.entries(rooms).map(([room, roomAssets]) => {
+                              const roomKey = `${building}-${floor}-${room}`;
+                              const isRoomExpanded = expandedRooms[roomKey];
                               const roomStats = calculateStats(roomAssets);
 
                               return (
                                 <div key={room} className="border border-gray-200 rounded-lg overflow-hidden">
                                   {/* Room Header */}
-                                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 border-b border-gray-200">
+                                  <div 
+                                    onClick={() => toggleRoom(building, floor, room)}
+                                    className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 border-b border-gray-200 cursor-pointer hover:from-gray-100 hover:to-gray-150 transition-colors"
+                                  >
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-2">
                                         <MapPin className="text-purple-600" size={18} />
@@ -442,41 +456,50 @@ export default function AssetsPage() {
                                           {roomStats.total} รายการ
                                         </span>
                                       </div>
-                                      <div className="flex gap-2 text-xs">
-                                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
-                                          ✓ {roomStats.available}
-                                        </span>
-                                        {roomStats.maintenance > 0 && (
-                                          <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                                            🔧 {roomStats.maintenance}
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex gap-2 text-xs">
+                                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                            ✓ {roomStats.available}
                                           </span>
-                                        )}
-                                        {roomStats.missing > 0 && (
-                                          <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
-                                            ⚠ {roomStats.missing}
-                                          </span>
+                                          {roomStats.maintenance > 0 && (
+                                            <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                                              🔧 {roomStats.maintenance}
+                                            </span>
+                                          )}
+                                          {roomStats.missing > 0 && (
+                                            <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
+                                              ⚠ {roomStats.missing}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {isRoomExpanded ? (
+                                          <ChevronDown className="text-gray-500" size={20} />
+                                        ) : (
+                                          <ChevronRight className="text-gray-500" size={20} />
                                         )}
                                       </div>
                                     </div>
                                   </div>
 
-                                  {/* Assets Table */}
-                                  <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                      <thead className="bg-gray-50">
-                                        <tr>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">รูปภาพ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">รหัส/ชื่อ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="bg-white divide-y divide-gray-200">
-                                        {roomAssets.map((asset) => renderAssetRow(asset))}
-                                      </tbody>
-                                    </table>
-                                  </div>
+                                  {/* Assets Table - แสดงเมื่อคลิกที่ห้อง */}
+                                  {isRoomExpanded && (
+                                    <div className="overflow-x-auto">
+                                      <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                          <tr>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">รูปภาพ</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">รหัส/ชื่อ</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                          {roomAssets.map((asset) => renderAssetRow(asset))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
                                 </div>
                               );
                             })}
@@ -911,6 +934,7 @@ export default function AssetsPage() {
                   </p>
                 </div>
                 <div>
+                  
                   <label className="text-sm text-gray-600">สถานะ</label>
                   <p>
                     <span
