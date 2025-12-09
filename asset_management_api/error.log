@@ -135,3 +135,128 @@ Stack trace:
 #2 C:\xampp\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
 #3 {main}
   thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[09-Dec-2025 08:45:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:45:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:45:50 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Department.php:30
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\DepartmentController.php(17): Department->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(87): DepartmentController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Department.php on line 30
+[09-Dec-2025 08:48:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php:38
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\LocationController.php(17): Location->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(113): LocationController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php on line 38
+[09-Dec-2025 08:48:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Department.php:30
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\DepartmentController.php(17): Department->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(87): DepartmentController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Department.php on line 30
+[09-Dec-2025 08:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php:38
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\LocationController.php(17): Location->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(113): LocationController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php on line 38
+[09-Dec-2025 08:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Department.php:30
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\DepartmentController.php(17): Department->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(87): DepartmentController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Department.php on line 30
+[09-Dec-2025 08:48:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php:38
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\LocationController.php(17): Location->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(113): LocationController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php on line 38
+[09-Dec-2025 08:48:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php:61
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\AssetController.php(17): Asset->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(61): AssetController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Asset.php on line 61
+[09-Dec-2025 08:48:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\controllers\ReportController.php:100
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\index.php(283): ReportController->assetByStatus()
+#1 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 100
+[09-Dec-2025 08:48:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php:38
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\LocationController.php(17): Location->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(113): LocationController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php on line 38
+[09-Dec-2025 08:48:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php:38
+Stack trace:
+#0 C:\xampp\htdocs\asset-management\asset_management_api\controllers\LocationController.php(17): Location->readAll()
+#1 C:\xampp\htdocs\asset-management\asset_management_api\index.php(113): LocationController->getAll()
+#2 {main}
+  thrown in C:\xampp\htdocs\asset-management\asset_management_api\models\Location.php on line 38
