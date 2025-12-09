@@ -184,7 +184,7 @@ export default function CheckPage() {
     setScheduleTarget(target);
     setScheduleForm({
       interval: 'custom',
-      customMonths: '',
+      customMonths: 12,
       nextCheckDate: '',
       notifyBefore: 30
     });
