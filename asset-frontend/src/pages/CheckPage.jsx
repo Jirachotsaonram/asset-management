@@ -946,7 +946,6 @@ export default function CheckPage() {
                   <option value="ใช้งานได้">ใช้งานได้</option>
                   <option value="รอซ่อม">รอซ่อม</option>
                   <option value="รอจำหน่าย">รอจำหน่าย</option>
-                  <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
                   <option value="ไม่พบ">ไม่พบ</option>
                 </select>
               </div>
@@ -959,7 +958,7 @@ export default function CheckPage() {
                     <div key={asset.asset_id} className="flex items-center gap-2 text-sm">
                       <Check size={14} className="text-green-600" />
                       <span className="text-gray-800">{asset.asset_name}</span>
-                      <span className="text-gray-500 text-xs">({asset.serial_number})</span>
+                      <span className="text-gray-500 text-xs">({asset.asset_id})</span>
                     </div>
                   ))}
                 </div>
