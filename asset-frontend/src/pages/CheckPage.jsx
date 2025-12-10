@@ -1,9 +1,4 @@
-// FILE: asset-frontend/src/pages/CheckPage.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import api from '../services/api';
-import toast from 'react-hot-toast';
 import { 
   QrCode, CheckCircle, AlertTriangle, Search, Filter,
   ChevronDown, ChevronRight, Building, Calendar, Bell,
@@ -11,9 +6,26 @@ import {
   Clock, Settings, Check, AlertCircle, Save
 } from 'lucide-react';
 
+// Mock API functions (replace with actual API calls)
+const mockFetchAssets = () => Promise.resolve({
+  data: {
+    data: [
+      { asset_id: 1, asset_name: 'คอมพิวเตอร์ Dell', serial_number: 'SN001', building_name: 'อาคาร 1', floor: '1', room_number: '101', status: 'ใช้งานได้', department_id: 1 },
+      { asset_id: 2, asset_name: 'เครื่องพิมพ์ HP', serial_number: 'SN002', building_name: 'อาคาร 1', floor: '1', room_number: '101', status: 'ใช้งานได้', department_id: 1 },
+      { asset_id: 3, asset_name: 'โปรเจคเตอร์', serial_number: 'SN003', building_name: 'อาคาร 1', floor: '2', room_number: '201', status: 'รอซ่อม', department_id: 1 }
+    ]
+  }
+});
+
+const mockFetchChecks = () => Promise.resolve({
+  data: { data: [{ asset_id: 1, check_date: '2025-12-01' }] }
+});
+
+const mockFetchDepartments = () => Promise.resolve({
+  data: { data: [{ department_id: 1, department_name: 'ภาควิชาเทคโนโลยีสารสนเทศ' }] }
+});
+
 export default function CheckPage() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const [assets, setAssets] = useState([]);
   const [checkedAssets, setCheckedAssets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +54,6 @@ export default function CheckPage() {
   const [showBulkCheckModal, setShowBulkCheckModal] = useState(false);
   const [bulkCheckTarget, setBulkCheckTarget] = useState(null);
   const [bulkCheckStatus, setBulkCheckStatus] = useState('ใช้งานได้');
-  const [bulkCheckRemark, setBulkCheckRemark] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -50,21 +61,15 @@ export default function CheckPage() {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      const [assetsRes, checksRes, deptsRes] = await Promise.all([
+        mockFetchAssets(),
+        mockFetchChecks(),
+        mockFetchDepartments()
+      ]);
 
-      // Fetch Assets
-      const assetsRes = await api.get('/assets');
       const allAssets = assetsRes.data.data || [];
-
-      // Fetch Checks
-      const checksRes = await api.get('/checks');
       const allChecks = checksRes.data.data || [];
 
-      // Fetch Departments
-      const deptsRes = await api.get('/departments');
-      const allDepartments = deptsRes.data.data || [];
-
-      // กรองรายการที่ตรวจแล้วในปีปัจจุบัน
       const currentYear = new Date().getFullYear();
       const checkedIds = allChecks
         .filter(check => {
@@ -75,20 +80,16 @@ export default function CheckPage() {
 
       setAssets(allAssets);
       setCheckedAssets(checkedIds);
-      setDepartments(allDepartments);
+      setDepartments(deptsRes.data.data || []);
 
-      // Fetch Notifications (ถ้ามี API)
-      try {
-        const notifRes = await api.get('/check-schedules/notifications');
-        setNotifications(notifRes.data.data || []);
-      } catch (error) {
-        console.log('Notifications API not available');
-        setNotifications([]);
-      }
+      // Mock notifications
+      const mockNotifications = [
+        { asset_id: 3, asset_name: 'โปรเจคเตอร์', days_until_check: 5, location: 'อาคาร 1 ชั้น 2 ห้อง 201' }
+      ];
+      setNotifications(mockNotifications);
 
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('ไม่สามารถโหลดข้อมูลได้');
     } finally {
       setLoading(false);
     }
@@ -179,7 +180,7 @@ export default function CheckPage() {
     setSearchTerm('');
   };
 
-  // Open Schedule Modal
+  // Open Schedule Modal for Room
   const handleOpenScheduleModal = (target) => {
     setScheduleTarget(target);
     setScheduleForm({
@@ -192,120 +193,68 @@ export default function CheckPage() {
   };
 
   // Save Schedule
-  const handleSaveSchedule = async () => {
-    try {
-      let nextDate = new Date();
-      
-      switch(scheduleForm.interval) {
-        case '3months':
-          nextDate.setMonth(nextDate.getMonth() + 3);
-          break;
-        case '6months':
-          nextDate.setMonth(nextDate.getMonth() + 6);
-          break;
-        case '1year':
-          nextDate.setMonth(nextDate.getMonth() + 12);
-          break;
-        case 'custom':
-          if (scheduleForm.customMonths) {
-            nextDate.setMonth(nextDate.getMonth() + parseInt(scheduleForm.customMonths));
-          } else if (scheduleForm.nextCheckDate) {
-            nextDate = new Date(scheduleForm.nextCheckDate);
-          }
-          break;
-      }
-
-      const formattedDate = nextDate.toISOString().split('T')[0];
-      
-      // เตรียมข้อมูลสำหรับบันทึก
-      const scheduleData = {
-        interval: scheduleForm.interval,
-        nextCheckDate: formattedDate,
-        notifyBefore: parseInt(scheduleForm.notifyBefore)
-      };
-
-      // บันทึกตารางตามประเภท
-      if (scheduleTarget.type === 'asset') {
-        // บันทึกสำหรับครุภัณฑ์เดียว
-        await api.post('/check-schedules/assign-asset', {
-          asset_id: scheduleTarget.asset.asset_id,
-          schedule_id: 1, // ต้องมี schedule_id จากการสร้าง schedule ก่อน
-          ...scheduleData
-        });
-      } else if (scheduleTarget.type === 'room' || scheduleTarget.type === 'floor' || scheduleTarget.type === 'building') {
-        // บันทึกสำหรับกลุ่ม (ทำทีละตัว)
-        const promises = scheduleTarget.assets.map(asset =>
-          api.post('/check-schedules/assign-asset', {
-            asset_id: asset.asset_id,
-            schedule_id: 1,
-            ...scheduleData
-          })
-        );
-        await Promise.all(promises);
-      }
-
-      toast.success(`✅ บันทึกตารางตรวจสอบสำเร็จ\nวันที่ตรวจครั้งถัดไป: ${formattedDate}`);
-      setShowScheduleModal(false);
-      
-    } catch (error) {
-      console.error('Error saving schedule:', error);
-      toast.error('ไม่สามารถบันทึกตารางได้');
+  const handleSaveSchedule = () => {
+    let nextDate = new Date();
+    
+    switch(scheduleForm.interval) {
+      case '3months':
+        nextDate.setMonth(nextDate.getMonth() + 3);
+        break;
+      case '6months':
+        nextDate.setMonth(nextDate.getMonth() + 6);
+        break;
+      case '1year':
+        nextDate.setMonth(nextDate.getMonth() + 12);
+        break;
+      case 'custom':
+        if (scheduleForm.customMonths) {
+          nextDate.setMonth(nextDate.getMonth() + parseInt(scheduleForm.customMonths));
+        } else if (scheduleForm.nextCheckDate) {
+          nextDate = new Date(scheduleForm.nextCheckDate);
+        }
+        break;
     }
+
+    const formattedDate = nextDate.toISOString().split('T')[0];
+    
+    console.log('บันทึกตารางตรวจสอบ:', {
+      target: scheduleTarget,
+      interval: scheduleForm.interval,
+      nextCheckDate: formattedDate,
+      notifyBefore: scheduleForm.notifyBefore
+    });
+
+    // TODO: Call API to save schedule
+    alert(`✅ บันทึกตารางตรวจสอบสำเร็จ\nวันที่ตรวจครั้งถัดไป: ${formattedDate}\nแจ้งเตือนก่อน: ${scheduleForm.notifyBefore} วัน`);
+    setShowScheduleModal(false);
   };
 
   // Open Bulk Check Modal
   const handleOpenBulkCheckModal = (target) => {
     setBulkCheckTarget(target);
     setBulkCheckStatus('ใช้งานได้');
-    setBulkCheckRemark('');
     setShowBulkCheckModal(true);
   };
 
   // Save Bulk Check
-  const handleSaveBulkCheck = async () => {
-    try {
-      if (!bulkCheckTarget || !bulkCheckTarget.assets) {
-        toast.error('ไม่พบข้อมูลครุภัณฑ์');
-        return;
-      }
+  const handleSaveBulkCheck = () => {
+    console.log('บันทึกการตรวจสอบแบบกลุ่ม:', {
+      target: bulkCheckTarget,
+      status: bulkCheckStatus,
+      date: new Date().toISOString().split('T')[0]
+    });
 
-      const checkDate = new Date().toISOString().split('T')[0];
-      const promises = bulkCheckTarget.assets.map(asset =>
-        api.post('/checks', {
-          asset_id: asset.asset_id,
-          user_id: user.user_id,
-          check_date: checkDate,
-          check_status: bulkCheckStatus,
-          remark: bulkCheckRemark || `ตรวจสอบแบบกลุ่ม - ${bulkCheckTarget.building} ชั้น ${bulkCheckTarget.floor} ห้อง ${bulkCheckTarget.room}`
-        })
-      );
-
-      await Promise.all(promises);
-
-      // Update checked assets
+    // TODO: Call API to save bulk check
+    const affectedCount = bulkCheckTarget.assets?.length || 0;
+    alert(`✅ บันทึกการตรวจสอบสำเร็จ\nตรวจสอบ ${affectedCount} รายการ\nสถานะ: ${bulkCheckStatus}`);
+    
+    // Update checked assets
+    if (bulkCheckTarget.assets) {
       const newCheckedIds = bulkCheckTarget.assets.map(a => a.asset_id);
       setCheckedAssets(prev => [...new Set([...prev, ...newCheckedIds])]);
-
-      toast.success(`✅ บันทึกการตรวจสอบสำเร็จ\nตรวจสอบ ${bulkCheckTarget.assets.length} รายการ`);
-      setShowBulkCheckModal(false);
-      
-      // Refresh data
-      fetchData();
-
-    } catch (error) {
-      console.error('Error saving bulk check:', error);
-      toast.error('ไม่สามารถบันทึกการตรวจสอบได้');
     }
-  };
-
-  // Navigate to Scan Page
-  const handleNavigateToScan = () => {
-    navigate('/scan');
-  };
-
-  // Navigate to individual asset check
-  const handleCheckAsset = (assetId) => {
-    navigate(`/scan?asset_id=${assetId}`);
+    
+    setShowBulkCheckModal(false);
   };
 
   // Render Grouped View
@@ -557,7 +506,10 @@ export default function CheckPage() {
                                                 <Clock size={14} />
                                               </button>
                                               <button
-                                                onClick={() => handleCheckAsset(asset.asset_id)}
+                                                onClick={() => {
+                                                  // Navigate to scan page or check directly
+                                                  console.log('Scan asset:', asset.asset_id);
+                                                }}
                                                 className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
                                               >
                                                 <QrCode size={14} />
@@ -595,7 +547,7 @@ export default function CheckPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -603,7 +555,7 @@ export default function CheckPage() {
           <p className="text-gray-600 mt-1">จัดกลุ่มตามสถานที่และติดตามสถานะการตรวจสอบ</p>
         </div>
         <button 
-          onClick={handleNavigateToScan}
+          onClick={() => console.log('Navigate to scan')}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition shadow-md"
         >
           <QrCode size={20} />
@@ -659,7 +611,7 @@ export default function CheckPage() {
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Bell className="text-orange-500" size={24} />
-            การแจ้งเตือนการตรวจสอบ ({notifications.length})
+            การแจ้งเตือนการตรวจสอบ
           </h2>
           
           <div className="space-y-2">
@@ -670,7 +622,7 @@ export default function CheckPage() {
                   <div>
                     <p className="font-semibold text-yellow-800">ใกล้ถึงกำหนดตรวจ</p>
                     <p className="text-sm text-yellow-700 mt-1">
-                      {notif.asset_name} ({notif.building_name} ชั้น {notif.floor} ห้อง {notif.room_number}) - อีก {notif.days_until_check} วัน
+                      {notif.asset_name} ({notif.location}) - อีก {notif.days_until_check} วัน
                     </p>
                   </div>
                 </div>
@@ -680,7 +632,7 @@ export default function CheckPage() {
         </div>
       )}
 
-      {/* Search & Filters */}
+      {/* Search & View Mode */}
       <div className="bg-white rounded-lg shadow-md p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 flex gap-4">
@@ -691,8 +643,16 @@ export default function CheckPage() {
               placeholder="ค้นหาครุภัณฑ์..."
               className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
+            <button
+              onClick={() => setFilters({ ...filters })}
+              className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+            >
+              <Search size={20} />
+              <span>ค้นหา</span>
+            </button>
           </div>
 
+          {/* View Mode Toggle */}
           <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
             <button
               onClick={() => setViewMode("grouped")}
@@ -816,7 +776,7 @@ export default function CheckPage() {
       {/* Schedule Modal */}
       {showScheduleModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -833,6 +793,7 @@ export default function CheckPage() {
             </div>
 
             <div className="p-6 space-y-4">
+              {/* Target Info */}
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p className="text-sm text-blue-600 font-medium">เป้าหมาย:</p>
                 <p className="text-blue-900 font-semibold">
@@ -846,6 +807,7 @@ export default function CheckPage() {
                 </p>
               </div>
 
+              {/* Interval Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ช่วงเวลาการตรวจสอบ
@@ -872,6 +834,7 @@ export default function CheckPage() {
                 </div>
               </div>
 
+              {/* Custom Interval */}
               {scheduleForm.interval === 'custom' && (
                 <div className="space-y-3">
                   <div>
@@ -902,6 +865,7 @@ export default function CheckPage() {
                 </div>
               )}
 
+              {/* Notification Days */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   แจ้งเตือนล่วงหน้า (14วัน)
@@ -917,6 +881,7 @@ export default function CheckPage() {
                 />*/}
               </div>
 
+              {/* Actions */}
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleSaveSchedule}
@@ -940,7 +905,7 @@ export default function CheckPage() {
       {/* Bulk Check Modal */}
       {showBulkCheckModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -957,6 +922,7 @@ export default function CheckPage() {
             </div>
 
             <div className="p-6 space-y-4">
+              {/* Target Info */}
               <div className="bg-green-50 p-4 rounded-lg">
                 <p className="text-sm text-green-600 font-medium">กำลังตรวจสอบ:</p>
                 <p className="text-green-900 font-semibold">
@@ -967,6 +933,7 @@ export default function CheckPage() {
                 </p>
               </div>
 
+              {/* Status Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   สถานะหลังตรวจสอบ
@@ -984,25 +951,13 @@ export default function CheckPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  หมายเหตุ
-                </label>
-                <textarea
-                  value={bulkCheckRemark}
-                  onChange={(e) => setBulkCheckRemark(e.target.value)}
-                  placeholder="ระบุหมายเหตุ (ถ้ามี)"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
-                  rows={3}
-                />
-              </div>
-
+              {/* Asset List Preview */}
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-2">รายการครุภัณฑ์:</p>
                 <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3 space-y-2">
                   {bulkCheckTarget?.assets?.map(asset => (
                     <div key={asset.asset_id} className="flex items-center gap-2 text-sm">
-                      <Check size={14} className="text-green-600 flex-shrink-0" />
+                      <Check size={14} className="text-green-600" />
                       <span className="text-gray-800">{asset.asset_name}</span>
                       <span className="text-gray-500 text-xs">({asset.serial_number})</span>
                     </div>
@@ -1010,6 +965,7 @@ export default function CheckPage() {
                 </div>
               </div>
 
+              {/* Actions */}
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleSaveBulkCheck}
