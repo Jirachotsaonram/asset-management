@@ -153,3 +153,15 @@ Stack trace:
   thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php on line 274
 =======
 >>>>>>> parent of c576742 (kkk)
+[10-Dec-2025 08:59:52 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'asch.notify_before_days' in 'field list' in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php:274
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php(274): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(331): CheckScheduleController->getNotifications()
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php on line 274
+[10-Dec-2025 08:59:52 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'asch.notify_before_days' in 'field list' in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php:274
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php(274): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(331): CheckScheduleController->getNotifications()
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\CheckScheduleController.php on line 274

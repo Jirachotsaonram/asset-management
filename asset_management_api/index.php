@@ -312,6 +312,57 @@ switch ($endpoint) {
             Response::error('Method not allowed', 405);
         }
         break;
+
+            // ==================== CHECK SCHEDULES ====================
+    case 'check-schedules':
+        require_once 'controllers/CheckScheduleController.php';
+        require_once 'middleware/auth.php';
+        
+        authenticate();
+        $controller = new CheckScheduleController();
+        
+        if ($request_method === 'GET') {
+            if (!$id) {
+                // GET /check-schedules - ดึงรอบการตรวจทั้งหมด
+                $controller->getAllSchedules();
+                
+            } elseif ($id === 'notifications') {
+                // GET /check-schedules/notifications - ดึงการแจ้งเตือน
+                $controller->getNotifications();
+                
+            } elseif ($id === 'overdue') {
+                // GET /check-schedules/overdue - ดึงรายการเลยกำหนด
+                $controller->getOverdue();
+                
+            } else {
+                Response::error('ไม่พบเส้นทาง API', 404);
+            }
+            
+        } elseif ($request_method === 'POST') {
+            if ($id === 'assign-asset') {
+                // POST /check-schedules/assign-asset - กำหนดรอบให้ครุภัณฑ์
+                $controller->assignToAsset();
+                
+            } elseif ($id === 'assign-location') {
+                // POST /check-schedules/assign-location - กำหนดรอบให้ทั้งห้อง
+                $controller->assignToLocation();
+                
+            } elseif ($id === 'dismiss') {
+                // POST /check-schedules/dismiss - ซ่อนการแจ้งเตือน
+                $controller->dismissNotification();
+                
+            } elseif (!$id) {
+                // POST /check-schedules - สร้างรอบการตรวจใหม่
+                $controller->createSchedule();
+                
+            } else {
+                Response::error('ไม่พบเส้นทาง API', 404);
+            }
+            
+        } else {
+            Response::error('Method not allowed', 405);
+        }
+        break;
         
     default:
         Response::error('ไม่พบเส้นทาง API', 404);
