@@ -54,3 +54,87 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php on line 322
+[10-Dec-2025 12:08:36 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:37 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:42 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:52 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:08:57 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
+[10-Dec-2025 12:09:06 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `assets_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)) in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:44
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(44): PDOStatement->execute()
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(58): Asset->create()
+#2 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(67): AssetController->create()
+#3 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 44
