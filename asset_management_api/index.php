@@ -312,38 +312,6 @@ switch ($endpoint) {
             Response::error('Method not allowed', 405);
         }
         break;
-
-    // เพิ่มใน asset_management_api/index.php
-
-    case 'check-schedules':
-        require_once 'controllers/CheckScheduleController.php';
-        require_once 'middleware/auth.php';
-        
-        authenticate();
-        $controller = new CheckScheduleController();
-        
-        if ($request_method === 'GET' && !$id) {
-            // GET /check-schedules - ดึงรอบการตรวจทั้งหมด
-            $controller->getAllSchedules();
-        } elseif ($request_method === 'POST' && !$id) {
-            // POST /check-schedules - เพิ่มรอบการตรวจใหม่
-            $controller->createSchedule();
-        } elseif ($request_method === 'POST' && $id === 'assign-asset') {
-            // POST /check-schedules/assign-asset - กำหนดรอบให้ครุภัณฑ์
-            $controller->assignToAsset();
-        } elseif ($request_method === 'POST' && $id === 'assign-location') {
-            // POST /check-schedules/assign-location - กำหนดรอบให้สถานที่
-            $controller->assignToLocation();
-        } elseif ($request_method === 'GET' && $id === 'notifications') {
-            // GET /check-schedules/notifications - ดึงการแจ้งเตือน
-            $controller->getNotifications();
-        } elseif ($request_method === 'GET' && $id === 'overdue') {
-            // GET /check-schedules/overdue - ดึงรายการเลยกำหนด
-            $controller->getOverdue();
-        } else {
-            Response::error('ไม่พบเส้นทาง API', 404);
-        }
-        break;
         
     default:
         Response::error('ไม่พบเส้นทาง API', 404);
