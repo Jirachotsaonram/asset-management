@@ -47,9 +47,9 @@ export default function CheckPage() {
   const [scheduleTarget, setScheduleTarget] = useState(null);
   const [scheduleForm, setScheduleForm] = useState({
     interval: 'custom',
-    customMonths: 1,
+    customMonths: 12,
     nextCheckDate: '',
-    notifyBefore: 14
+    notifyBefore: 30
   });
   const [showBulkCheckModal, setShowBulkCheckModal] = useState(false);
   const [bulkCheckTarget, setBulkCheckTarget] = useState(null);
@@ -848,7 +848,7 @@ export default function CheckPage() {
                       value={scheduleForm.customMonths}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, customMonths: e.target.value })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                      placeholder="1"
+                      placeholder="12"
                     />
                   </div>
                   <div>
@@ -868,9 +868,9 @@ export default function CheckPage() {
               {/* Notification Days */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  แจ้งเตือนล่วงหน้า (14วัน)
+                  แจ้งเตือนล่วงหน้า (วัน)
                 </label>
-                {/*<input
+                <input
                   type="number"
                   min="1"
                   max="365"
@@ -878,7 +878,7 @@ export default function CheckPage() {
                   onChange={(e) => setScheduleForm({ ...scheduleForm, notifyBefore: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                   placeholder="30"
-                />*/}
+                />
               </div>
 
               {/* Actions */}
