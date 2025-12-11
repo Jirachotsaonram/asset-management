@@ -1,14 +1,13 @@
 <?php
 class CheckSchedule {
     private $conn;
-    private $schedules_table = "Check_Schedules";
-    private $asset_schedules_table = "Asset_Schedules";
+    private $schedules_table = "check_schedules";
+    private $asset_schedules_table = "asset_schedules";
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
-    // ดึงรอบการตรวจทั้งหมด
     public function getAllSchedules() {
         $query = "SELECT * FROM " . $this->schedules_table . " 
                   WHERE is_active = 1 
@@ -18,12 +17,10 @@ class CheckSchedule {
         return $stmt;
     }
 
-    // กำหนดรอบการตรวจให้ครุภัณฑ์
     public function assignToAsset($asset_id, $schedule_id, $custom_interval = null) {
-        // คำนวณ next_check_date
         $next_check_date = null;
         
-        if ($schedule_id) {
+        if ($schedule_id && $schedule_id != 5) {  // 5 = กำหนดเอง
             $query = "SELECT check_interval_months FROM " . $this->schedules_table . " 
                       WHERE schedule_id = :schedule_id";
             $stmt = $this->conn->prepare($query);
@@ -36,14 +33,13 @@ class CheckSchedule {
             $next_check_date = date('Y-m-d', strtotime("+{$custom_interval} months"));
         }
 
-        // บันทึกหรืออัปเดทใน Asset_Schedules
         $query = "INSERT INTO " . $this->asset_schedules_table . " 
                    (asset_id, schedule_id, next_check_date, custom_interval_months, is_notified, is_dismissed)
                    VALUES (:asset_id, :schedule_id, :next_check_date, :custom_interval, 0, 0)
                    ON DUPLICATE KEY UPDATE 
-                   schedule_id = :schedule_id,
-                   next_check_date = :next_check_date,
-                   custom_interval_months = :custom_interval,
+                   schedule_id = VALUES(schedule_id),
+                   next_check_date = VALUES(next_check_date),
+                   custom_interval_months = VALUES(custom_interval_months),
                    is_notified = 0,
                    is_dismissed = 0,
                    updated_at = CURRENT_TIMESTAMP";
@@ -57,9 +53,8 @@ class CheckSchedule {
         return $stmt->execute();
     }
 
-    // กำหนดรอบการตรวจทั้งห้อง
     public function assignToLocation($location_id, $schedule_id, $custom_interval = null) {
-        $query = "SELECT asset_id FROM Assets WHERE location_id = :location_id";
+        $query = "SELECT asset_id FROM assets WHERE location_id = :location_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":location_id", $location_id);
         $stmt->execute();
@@ -73,7 +68,6 @@ class CheckSchedule {
         return $success_count;
     }
 
-    // ดึงการแจ้งเตือน (ใช้ View แทน)
     public function getNotifications($days_threshold = 30) {
         $query = "SELECT 
                     ast.asset_schedule_id,
@@ -86,7 +80,6 @@ class CheckSchedule {
                     l.room_number,
                     d.department_name,
                     ast.next_check_date,
-                    -- ดึง last_check_date จาก Asset_Check
                     (SELECT ac.check_date 
                      FROM asset_check ac 
                      WHERE ac.asset_id = a.asset_id 
@@ -102,10 +95,10 @@ class CheckSchedule {
                         ELSE 'ปกติ'
                     END AS urgency_level
                   FROM " . $this->asset_schedules_table . " ast
-                  INNER JOIN Assets a ON ast.asset_id = a.asset_id
-                  LEFT JOIN Check_Schedules cs ON ast.schedule_id = cs.schedule_id
-                  LEFT JOIN Locations l ON a.location_id = l.location_id
-                  LEFT JOIN Departments d ON a.department_id = d.department_id
+                  INNER JOIN assets a ON ast.asset_id = a.asset_id
+                  LEFT JOIN check_schedules cs ON ast.schedule_id = cs.schedule_id
+                  LEFT JOIN locations l ON a.location_id = l.location_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
                   WHERE DATEDIFF(ast.next_check_date, CURDATE()) <= :days
                     AND ast.is_dismissed = 0
                   ORDER BY ast.next_check_date ASC";
@@ -116,7 +109,6 @@ class CheckSchedule {
         return $stmt;
     }
 
-    // ดึงรายการเลยกำหนด
     public function getOverdue() {
         $query = "SELECT 
                     ast.asset_schedule_id,
@@ -129,7 +121,6 @@ class CheckSchedule {
                     l.room_number,
                     d.department_name,
                     ast.next_check_date,
-                    -- ดึง last_check_date จาก Asset_Check
                     (SELECT ac.check_date 
                      FROM asset_check ac 
                      WHERE ac.asset_id = a.asset_id 
@@ -138,10 +129,10 @@ class CheckSchedule {
                     DATEDIFF(CURDATE(), ast.next_check_date) AS days_overdue,
                     cs.name AS schedule_name
                   FROM " . $this->asset_schedules_table . " ast
-                  INNER JOIN Assets a ON ast.asset_id = a.asset_id
-                  LEFT JOIN Check_Schedules cs ON ast.schedule_id = cs.schedule_id
-                  LEFT JOIN Locations l ON a.location_id = l.location_id
-                  LEFT JOIN Departments d ON a.department_id = d.department_id
+                  INNER JOIN assets a ON ast.asset_id = a.asset_id
+                  LEFT JOIN check_schedules cs ON ast.schedule_id = cs.schedule_id
+                  LEFT JOIN locations l ON a.location_id = l.location_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
                   WHERE ast.next_check_date < CURDATE()
                     AND ast.is_dismissed = 0
                   ORDER BY days_overdue DESC";

@@ -46,79 +46,22 @@ class Asset {
         return false;
     }
 
-    // ✅ ใช้ View ที่มีข้อมูล last_check_date จาก Asset_Check
     public function readAll() {
-        $query = "SELECT 
-                    a.*, 
-                    d.department_name, 
-                    l.building_name, 
-                    l.floor,
-                    l.room_number,
-                    -- ดึง last_check_date จาก Asset_Check
-                    (SELECT ac.check_date 
-                     FROM asset_check ac 
-                     WHERE ac.asset_id = a.asset_id 
-                     ORDER BY ac.check_date DESC 
-                     LIMIT 1) AS last_check_date,
-                    -- ดึงผู้ตรวจล่าสุด
-                    (SELECT u.fullname 
-                     FROM asset_check ac 
-                     LEFT JOIN users u ON ac.user_id = u.user_id
-                     WHERE ac.asset_id = a.asset_id 
-                     ORDER BY ac.check_date DESC 
-                     LIMIT 1) AS last_checker,
-                    -- ดึงข้อมูลรอบการตรวจ
-                    sch.next_check_date,
-                    sch.schedule_id,
-                    cs.name AS schedule_name
-                  FROM " . $this->table_name . " a
-                  LEFT JOIN departments d ON a.department_id = d.department_id
-                  LEFT JOIN locations l ON a.location_id = l.location_id
-                  LEFT JOIN asset_schedules sch ON a.asset_id = sch.asset_id
-                  LEFT JOIN check_schedules cs ON sch.schedule_id = cs.schedule_id
-                  ORDER BY a.created_at DESC";
-        
+        // ใช้ View ที่มีข้อมูลครบถ้วน
+        $query = "SELECT * FROM v_assets_with_check_info ORDER BY created_at DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        
         return $stmt;
     }
 
     public function readOne() {
-        $query = "SELECT 
-                    a.*, 
-                    d.department_name, 
-                    l.building_name, 
-                    l.floor,
-                    l.room_number,
-                    -- ดึง last_check_date
-                    (SELECT ac.check_date 
-                     FROM asset_check ac 
-                     WHERE ac.asset_id = a.asset_id 
-                     ORDER BY ac.check_date DESC 
-                     LIMIT 1) AS last_check_date,
-                    -- ดึงผู้ตรวจล่าสุด
-                    (SELECT u.fullname 
-                     FROM asset_check ac 
-                     LEFT JOIN users u ON ac.user_id = u.user_id
-                     WHERE ac.asset_id = a.asset_id 
-                     ORDER BY ac.check_date DESC 
-                     LIMIT 1) AS last_checker,
-                    -- ดึงข้อมูลรอบการตรวจ
-                    sch.next_check_date,
-                    cs.name AS schedule_name
-                  FROM " . $this->table_name . " a
-                  LEFT JOIN departments d ON a.department_id = d.department_id
-                  LEFT JOIN locations l ON a.location_id = l.location_id
-                  LEFT JOIN asset_schedules sch ON a.asset_id = sch.asset_id
-                  LEFT JOIN check_schedules cs ON sch.schedule_id = cs.schedule_id
-                  WHERE a.asset_id = :asset_id OR a.barcode = :barcode";
+        $query = "SELECT * FROM v_assets_with_check_info 
+                  WHERE asset_id = :asset_id OR barcode = :barcode";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":asset_id", $this->asset_id);
         $stmt->bindParam(":barcode", $this->barcode);
         $stmt->execute();
-        
         return $stmt;
     }
 
@@ -146,31 +89,16 @@ class Asset {
     }
 
     public function search($keyword) {
-        $query = "SELECT 
-                    a.*, 
-                    d.department_name, 
-                    l.building_name, 
-                    l.floor,
-                    l.room_number,
-                    (SELECT ac.check_date 
-                     FROM asset_check ac 
-                     WHERE ac.asset_id = a.asset_id 
-                     ORDER BY ac.check_date DESC 
-                     LIMIT 1) AS last_check_date
-                  FROM " . $this->table_name . " a
-                  LEFT JOIN departments d ON a.department_id = d.department_id
-                  LEFT JOIN locations l ON a.location_id = l.location_id
-                  WHERE a.asset_name LIKE :keyword 
-                     OR a.serial_number LIKE :keyword 
-                     OR a.barcode LIKE :keyword
-                  ORDER BY a.created_at DESC";
+        $query = "SELECT * FROM v_assets_with_check_info
+                  WHERE asset_name LIKE :keyword 
+                     OR serial_number LIKE :keyword 
+                     OR barcode LIKE :keyword
+                  ORDER BY created_at DESC";
         
         $stmt = $this->conn->prepare($query);
         $keyword = "%{$keyword}%";
         $stmt->bindParam(":keyword", $keyword);
         $stmt->execute();
-        
         return $stmt;
     }
 }
-?>
