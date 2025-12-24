@@ -102,6 +102,62 @@ class UserController {
         }
     }
 
+    public function updateProfile($id) {
+    $data = json_decode(file_get_contents("php://input"));
+
+    // ตรวจสอบว่าเป็นการแก้ไขโปรไฟล์ตัวเอง
+    $headers = getallheaders();
+    $token = str_replace('Bearer ', '', $headers['Authorization'] ?? '');
+    $decoded = base64_decode($token);
+    $user_data = json_decode($decoded, true);
+    
+    if ($user_data['user_id'] != $id) {
+        Response::error('คุณสามารถแก้ไขได้เฉพาะโปรไฟล์ของตัวเองเท่านั้น', 403);
+    }
+
+    if (!empty($data->fullname)) {
+        $this->user->user_id = $id;
+        $this->user->fullname = $data->fullname;
+        $this->user->email = $data->email ?? '';
+        $this->user->phone = $data->phone ?? '';
+        
+        // ถ้ามีการส่ง password มาด้วย
+        if (!empty($data->password)) {
+            $this->user->password = $data->password;
+            
+            // ต้องส่ง current_password มาด้วยเพื่อยืนยัน
+            if (empty($data->current_password)) {
+                Response::error('กรุณากรอกรหัสผ่านปัจจุบัน', 400);
+            }
+            
+            // ตรวจสอบรหัสผ่านเดิม
+            $checkQuery = "SELECT password FROM Users WHERE user_id = :user_id";
+            $stmt = $this->db->prepare($checkQuery);
+            $stmt->bindParam(':user_id', $id);
+            $stmt->execute();
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!password_verify($data->current_password, $userData['password'])) {
+                Response::error('รหัสผ่านปัจจุบันไม่ถูกต้อง', 400);
+            }
+            
+            if ($this->user->updateWithPassword()) {
+                Response::success('อัปเดตโปรไฟล์และรหัสผ่านสำเร็จ');
+            } else {
+                Response::error('ไม่สามารถอัปเดตได้', 500);
+            }
+        } else {
+            if ($this->user->update()) {
+                Response::success('อัปเดตโปรไฟล์สำเร็จ');
+            } else {
+                Response::error('ไม่สามารถอัปเดตได้', 500);
+            }
+        }
+    } else {
+        Response::error('กรุณากรอกชื่อ-นามสกุล', 400);
+    }
+}
+
     public function updateStatus($id) {
         $data = json_decode(file_get_contents("php://input"));
 

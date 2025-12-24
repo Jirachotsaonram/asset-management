@@ -217,6 +217,12 @@ switch ($endpoint) {
         if ($request_method === 'GET' && !$id) {
             // GET /users - ดึงผู้ใช้ทั้งหมด
             $controller->getAll();
+        } elseif ($request_method === 'GET' && $id === 'profile') {
+        // GET /users/profile - ดึงข้อมูลโปรไฟล์ตัวเอง
+        $controller->getOne($user_data['user_id']);
+        } elseif ($request_method === 'PUT' && $id === 'profile') {
+        // PUT /users/profile - แก้ไขโปรไฟล์ตัวเอง
+        $controller->updateProfile($user_data['user_id']);
         } elseif ($request_method === 'GET' && $id && !$action) {
             // GET /users/{id} - ดึงผู้ใช้คนเดียว
             $controller->getOne($id);
