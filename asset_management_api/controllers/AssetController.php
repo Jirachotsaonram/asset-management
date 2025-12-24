@@ -39,6 +39,17 @@ class AssetController {
         }
     }
 
+        if (!empty($data->department_id)) {
+        // ตรวจสอบว่า department_id มีจริง
+        $checkDept = "SELECT department_id FROM Departments WHERE department_id = :dept_id";
+        $stmtCheck = $this->db->prepare($checkDept);
+        $stmtCheck->execute([':dept_id' => $data->department_id]);
+        
+        if ($stmtCheck->rowCount() === 0) {
+            Response::error('ไม่พบหน่วยงานที่เลือก', 400);
+        }
+    }
+
     public function create() {
         $data = json_decode(file_get_contents("php://input"));
 
