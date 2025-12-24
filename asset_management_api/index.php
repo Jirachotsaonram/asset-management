@@ -339,5 +339,32 @@ case 'check-schedules':
     default:
         Response::error('ไม่พบเส้นทาง API', 404);
         break;
+
+    // ==================== IMPORT ====================
+case 'import':
+    require_once 'controllers/ImportController.php';
+    require_once 'middleware/auth.php';
+    
+    $controller = new ImportController();
+    
+    if ($request_method === 'GET' && $id === 'template') {
+        // GET /import/template - Download CSV template
+        $controller->downloadTemplate();
+    } elseif ($request_method === 'GET' && $id === 'references') {
+        // GET /import/references - Get reference data
+        authenticate();
+        $controller->getReferences();
+    } elseif ($request_method === 'POST' && $id === 'validate') {
+        // POST /import/validate - Validate CSV data
+        authenticate();
+        $controller->validateCSV();
+    } elseif ($request_method === 'POST' && $id === 'assets') {
+        // POST /import/assets - Import assets
+        $user_data = authenticate();
+        $controller->importAssets($user_data);
+    } else {
+        Response::error('ไม่พบเส้นทาง API', 404);
+    }
+    break;
 }
 ?>

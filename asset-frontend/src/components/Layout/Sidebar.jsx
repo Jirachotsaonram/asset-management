@@ -24,7 +24,7 @@ export default function Sidebar() {
     { path: '/locations', label: 'สถานที่', icon: Package },
     { path: '/borrows', label: 'ยืม-คืน', icon: Package },
     { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: FileText },
-    { path: '/public-scanner', label: 'สแกน QR สาธารณะ', icon: QrCode }
+    { path: '/import', label: 'นำเข้าข้อมูล', icon: FileText }
   ];
 
   // เพิ่มเมนู Users สำหรับ Admin
