@@ -1,67 +1,8 @@
-import { useState, useRef } from 'react';
-import { Upload, Download, FileText, CheckCircle, AlertCircle, X, Info } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Upload, Download, FileText, CheckCircle, AlertCircle, X, Info, HelpCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import toast from 'react-hot-toast';
-
-// Mock API (แทนที่ด้วย api จริง)
-const api = {
-  get: async (url) => {
-    // Mock data
-    if (url === '/import/references') {
-      return {
-        data: {
-          success: true,
-          data: {
-            departments: [
-              { department_id: 1, department_name: 'ภาควิชาเทคโนโลยีสารสนเทศ', faculty: 'คณะเทคโนโลยีและการจัดการอุตสาหกรรม' },
-              { department_id: 2, department_name: 'ภาควิชาวิศวกรรมคอมพิวเตอร์', faculty: 'คณะวิศวกรรมศาสตร์' }
-            ],
-            locations: [
-              { location_id: 1, building_name: 'อาคาร IT', floor: '3', room_number: '301' },
-              { location_id: 2, building_name: 'อาคาร IT', floor: '3', room_number: '302' }
-            ],
-            valid_statuses: ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ']
-          }
-        }
-      };
-    }
-  },
-  post: async (url, data) => {
-    // Mock validation
-    if (url === '/import/validate') {
-      return {
-        data: {
-          success: true,
-          data: {
-            valid: data.rows.filter((_, i) => i % 2 === 0).map((row, i) => ({ row: i + 1, data: row })),
-            invalid: data.rows.filter((_, i) => i % 2 !== 0).map((row, i) => ({ 
-              row: i + 1, 
-              data: row, 
-              errors: ['ตัวอย่าง error'] 
-            })),
-            summary: {
-              total: data.rows.length,
-              valid_count: Math.floor(data.rows.length / 2),
-              invalid_count: Math.ceil(data.rows.length / 2)
-            }
-          }
-        }
-      };
-    }
-    if (url === '/import/assets') {
-      return {
-        data: {
-          success: true,
-          data: {
-            success: data.rows.map((row, i) => ({ row: i + 1, asset_id: i + 1, asset_name: row.asset_name })),
-            failed: [],
-            summary: { total: data.rows.length, success_count: data.rows.length, failed_count: 0 }
-          }
-        }
-      };
-    }
-  }
-};
+import api from '../services/api';
 
 export default function ImportPage() {
   const [file, setFile] = useState(null);
@@ -69,8 +10,26 @@ export default function ImportPage() {
   const [validationResult, setValidationResult] = useState(null);
   const [importResult, setImportResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1: Upload, 2: Preview, 3: Validate, 4: Import, 5: Result
+  const [step, setStep] = useState(1);
+  const [references, setReferences] = useState(null);
+  const [showReferenceModal, setShowReferenceModal] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Load reference data
+  useEffect(() => {
+    loadReferences();
+  }, []);
+
+  const loadReferences = async () => {
+    try {
+      const response = await api.get('/import/references');
+      if (response.data.success) {
+        setReferences(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error loading references:', error);
+    }
+  };
 
   const handleFileUpload = (e) => {
     const uploadedFile = e.target.files[0];
@@ -162,6 +121,17 @@ export default function ImportPage() {
     toast.success('ดาวน์โหลด Template สำเร็จ');
   };
 
+  const downloadTemplateFromServer = async () => {
+    try {
+      window.open(`${api.defaults.baseURL}/import/template`, '_blank');
+      toast.success('กำลังดาวน์โหลด Template...');
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      // Fallback to client-side generation
+      downloadTemplate();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -222,12 +192,21 @@ export default function ImportPage() {
                     ดาวน์โหลดไฟล์ตัวอย่างเพื่อดูรูปแบบข้อมูลที่ถูกต้อง
                   </p>
                   <button
-                    onClick={downloadTemplate}
+                    onClick={downloadTemplateFromServer}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     <Download size={18} />
                     ดาวน์โหลด Template
                   </button>
+                  {references && (
+                    <button
+                      onClick={() => setShowReferenceModal(true)}
+                      className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors mt-2"
+                    >
+                      <HelpCircle size={18} />
+                      ดูรหัสอ้างอิง
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -450,6 +429,93 @@ export default function ImportPage() {
             >
               นำเข้าไฟล์ใหม่
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reference Modal */}
+      {showReferenceModal && references && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-800">รหัสอ้างอิงสำหรับการนำเข้า</h2>
+                <button
+                  onClick={() => setShowReferenceModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Departments */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">รหัสหน่วยงาน (department_id)</h3>
+                <div className="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-200 sticky top-0">
+                      <tr>
+                        <th className="px-3 py-2 text-left">ID</th>
+                        <th className="px-3 py-2 text-left">ชื่อหน่วยงาน</th>
+                        <th className="px-3 py-2 text-left">คณะ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {references.departments.map(dept => (
+                        <tr key={dept.department_id} className="border-b border-gray-200">
+                          <td className="px-3 py-2 font-mono font-semibold text-blue-600">{dept.department_id}</td>
+                          <td className="px-3 py-2">{dept.department_name}</td>
+                          <td className="px-3 py-2 text-gray-600">{dept.faculty || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Locations */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">รหัสสถานที่ (location_id)</h3>
+                <div className="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-200 sticky top-0">
+                      <tr>
+                        <th className="px-3 py-2 text-left">ID</th>
+                        <th className="px-3 py-2 text-left">อาคาร</th>
+                        <th className="px-3 py-2 text-left">ชั้น</th>
+                        <th className="px-3 py-2 text-left">ห้อง</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {references.locations.map(loc => (
+                        <tr key={loc.location_id} className="border-b border-gray-200">
+                          <td className="px-3 py-2 font-mono font-semibold text-blue-600">{loc.location_id}</td>
+                          <td className="px-3 py-2">{loc.building_name}</td>
+                          <td className="px-3 py-2">{loc.floor}</td>
+                          <td className="px-3 py-2">{loc.room_number}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Valid Statuses */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">สถานะที่ใช้ได้ (status)</h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex flex-wrap gap-2">
+                    {references.valid_statuses.map(status => (
+                      <span key={status} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        {status}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
