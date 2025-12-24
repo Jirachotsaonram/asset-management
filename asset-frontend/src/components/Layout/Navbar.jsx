@@ -1,8 +1,10 @@
 import { useAuth } from '../../hooks/useAuth';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <nav className="bg-white shadow-lg">
@@ -20,6 +22,16 @@ export default function Navbar() {
               <span className="text-gray-700">{user?.fullname}</span>
               <span className="text-sm text-gray-500">({user?.role})</span>
             </div>
+            
+            {/* ปุ่มโปรไฟล์ */}
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              title="แก้ไขโปรไฟล์"
+            >
+              <Settings className="w-4 h-4" />
+              <span>โปรไฟล์</span>
+            </button>
             
             <button
               onClick={logout}

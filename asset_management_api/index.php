@@ -211,33 +211,48 @@ switch ($endpoint) {
         require_once 'controllers/UserController.php';
         require_once 'middleware/auth.php';
         
-        authenticate();
         $controller = new UserController();
         
-        if ($request_method === 'GET' && !$id) {
-            // GET /users - ดึงผู้ใช้ทั้งหมด
-            $controller->getAll();
-        } elseif ($request_method === 'GET' && $id === 'profile') {
-        // GET /users/profile - ดึงข้อมูลโปรไฟล์ตัวเอง
-        $controller->getOne($user_data['user_id']);
+        if ($request_method === 'GET' && $id === 'profile') {
+            // GET /users/profile - ดึงข้อมูลโปรไฟล์ตัวเอง
+            $user_data = authenticate();
+            $controller->getOne($user_data['user_id']);
+            
         } elseif ($request_method === 'PUT' && $id === 'profile') {
-        // PUT /users/profile - แก้ไขโปรไฟล์ตัวเอง
-        $controller->updateProfile($user_data['user_id']);
+            // PUT /users/profile - แก้ไขโปรไฟล์ตัวเอง
+            $user_data = authenticate();
+            $controller->updateProfile($user_data);
+            
+        } elseif ($request_method === 'GET' && !$id) {
+            // GET /users - ดึงผู้ใช้ทั้งหมด
+            authenticate();
+            $controller->getAll();
+            
         } elseif ($request_method === 'GET' && $id && !$action) {
             // GET /users/{id} - ดึงผู้ใช้คนเดียว
+            authenticate();
             $controller->getOne($id);
+            
         } elseif ($request_method === 'POST' && !$id) {
             // POST /users - เพิ่มผู้ใช้ใหม่
+            authenticate();
             $controller->create();
+            
         } elseif ($request_method === 'PUT' && $id && $action === 'status') {
             // PUT /users/{id}/status - อัปเดตสถานะ
+            authenticate();
             $controller->updateStatus($id);
+            
         } elseif ($request_method === 'PUT' && $id && !$action) {
             // PUT /users/{id} - อัปเดตข้อมูลผู้ใช้
+            authenticate();
             $controller->update($id);
+            
         } elseif ($request_method === 'DELETE' && $id) {
             // DELETE /users/{id} - ลบผู้ใช้
+            authenticate();
             $controller->delete($id);
+            
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }
