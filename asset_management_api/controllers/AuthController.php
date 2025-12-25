@@ -39,7 +39,8 @@ class AuthController {
                             'username' => $row['username'],
                             'fullname' => $row['fullname'],
                             'role' => $row['role'],
-                            'email' => $row['email']
+                            'email' => $row['email'],
+                            'phone' => $row['phone']
                         ]
                     ]);
                 } else {

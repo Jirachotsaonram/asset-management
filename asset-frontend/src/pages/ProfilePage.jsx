@@ -25,12 +25,25 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/users/profile');
+        const userData = response.data.data;
+        setProfileData({
+          fullname: userData.fullname || '',
+          email: userData.email || '',
+          phone: userData.phone || ''
+        });
+        // อัปเดต user ใน context และ localStorage
+        const updatedUser = { ...user, ...userData };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
     if (user) {
-      setProfileData({
-        fullname: user.fullname || '',
-        email: user.email || '',
-        phone: user.phone || ''
-      });
+      fetchProfile();
     }
   }, [user]);
 

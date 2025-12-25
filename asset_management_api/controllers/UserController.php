@@ -72,52 +72,64 @@ class UserController {
         }
     }
 
-    // ฟังก์ชันสำหรับแก้ไขโปรไฟล์ตัวเอง
+    // ✅ ฟังก์ชันสำหรับแก้ไขโปรไฟล์ตัวเอง (แก้ไขแล้ว)
     public function updateProfile($user_data) {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!empty($data->fullname)) {
-            $this->user->user_id = $user_data['user_id'];
-            $this->user->fullname = $data->fullname;
-            $this->user->email = $data->email ?? '';
-            $this->user->phone = $data->phone ?? '';
+        if (empty($data->fullname)) {
+            Response::error('กรุณากรอกชื่อ-นามสกุล', 400);
+            return;
+        }
+
+        // 1. ดึงข้อมูลเดิมมาก่อน
+        $this->user->user_id = $user_data['user_id'];
+        $stmt = $this->user->readOne();
+        
+        if ($stmt->rowCount() === 0) {
+            Response::error('ไม่พบข้อมูลผู้ใช้', 404);
+            return;
+        }
+        
+        $currentData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // 2. Merge ข้อมูล (เก็บค่าเดิมถ้าไม่ส่งมา)
+        $this->user->fullname = $data->fullname;
+        $this->user->email = isset($data->email) ? $data->email : $currentData['email'];
+        $this->user->phone = isset($data->phone) ? $data->phone : $currentData['phone'];
+        
+        // ✅ ป้องกัน Role และ Status ถูกแก้ไขจากหน้า Profile
+        $this->user->role = $currentData['role'];
+        $this->user->status = $currentData['status'];
+        
+        // 3. ตรวจสอบว่าต้องการเปลี่ยนรหัสผ่านด้วยหรือไม่
+        if (!empty($data->password)) {
+            // ต้องส่ง current_password มาด้วยเพื่อยืนยัน
+            if (empty($data->current_password)) {
+                Response::error('กรุณากรอกรหัสผ่านปัจจุบัน', 400);
+                return;
+            }
             
-            // ถ้ามีการส่ง password มาด้วย
-            if (!empty($data->password)) {
-                // ต้องส่ง current_password มาด้วยเพื่อยืนยัน
-                if (empty($data->current_password)) {
-                    Response::error('กรุณากรอกรหัสผ่านปัจจุบัน', 400);
-                    return;
-                }
-                
-                // ตรวจสอบรหัสผ่านเดิม
-                $checkQuery = "SELECT password FROM Users WHERE user_id = :user_id";
-                $stmt = $this->db->prepare($checkQuery);
-                $stmt->bindParam(':user_id', $user_data['user_id']);
-                $stmt->execute();
-                $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if (!password_verify($data->current_password, $userData['password'])) {
-                    Response::error('รหัสผ่านปัจจุบันไม่ถูกต้อง', 400);
-                    return;
-                }
-                
-                $this->user->password = $data->password;
-                
-                if ($this->user->updateWithPassword()) {
-                    Response::success('อัปเดตโปรไฟล์และรหัสผ่านสำเร็จ');
-                } else {
-                    Response::error('ไม่สามารถอัปเดตได้', 500);
-                }
+            // ตรวจสอบรหัสผ่านเดิม
+            if (!password_verify($data->current_password, $currentData['password'])) {
+                Response::error('รหัสผ่านปัจจุบันไม่ถูกต้อง', 400);
+                return;
+            }
+            
+            // อัปเดตพร้อมรหัสผ่าน
+            $this->user->password = $data->password;
+            
+            if ($this->user->updateWithPassword()) {
+                Response::success('อัปเดตโปรไฟล์และรหัสผ่านสำเร็จ');
             } else {
-                if ($this->user->update()) {
-                    Response::success('อัปเดตโปรไฟล์สำเร็จ');
-                } else {
-                    Response::error('ไม่สามารถอัปเดตได้', 500);
-                }
+                Response::error('ไม่สามารถอัปเดตได้', 500);
             }
         } else {
-            Response::error('กรุณากรอกชื่อ-นามสกุล', 400);
+            // อัปเดตเฉพาะข้อมูลโปรไฟล์
+            if ($this->user->update()) {
+                Response::success('อัปเดตโปรไฟล์สำเร็จ');
+            } else {
+                Response::error('ไม่สามารถอัปเดตได้', 500);
+            }
         }
     }
 

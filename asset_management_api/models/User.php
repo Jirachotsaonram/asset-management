@@ -1,4 +1,5 @@
 <?php
+// FILE: asset_management_api/models/User.php
 class User {
     private $conn;
     private $table_name = "Users";
@@ -63,7 +64,7 @@ class User {
     }
 
     public function readOne() {
-        $query = "SELECT user_id, username, fullname, role, status, email, phone, created_at 
+        $query = "SELECT user_id, username, password, fullname, role, status, email, phone, created_at 
                   FROM " . $this->table_name . " 
                   WHERE user_id = :user_id";
         
@@ -74,6 +75,7 @@ class User {
         return $stmt;
     }
 
+    // ✅ Update โดยไม่เปลี่ยนรหัสผ่าน
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
                   SET fullname = :fullname, 
@@ -98,6 +100,7 @@ class User {
         return false;
     }
 
+    // ✅ Update พร้อมเปลี่ยนรหัสผ่าน
     public function updateWithPassword() {
         $query = "UPDATE " . $this->table_name . " 
                   SET fullname = :fullname, 
@@ -110,6 +113,7 @@ class User {
         
         $stmt = $this->conn->prepare($query);
 
+        // Hash รหัสผ่านใหม่
         $this->password = password_hash($this->password, PASSWORD_BCRYPT);
 
         $stmt->bindParam(":fullname", $this->fullname);
