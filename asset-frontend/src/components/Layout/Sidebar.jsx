@@ -23,6 +23,7 @@ export default function Sidebar() {
     { path: '/reports', label: 'รายงาน', icon: FileText },
     { path: '/locations', label: 'สถานที่', icon: Package },
     { path: '/borrows', label: 'ยืม-คืน', icon: Package },
+    { path: '/audit-trail', label: 'ประวัติการใช้งาน', icon: FileText },
     { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: FileText },
     { path: '/import', label: 'นำเข้าข้อมูล', icon: FileText },
   ];

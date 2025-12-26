@@ -6,3 +6,33 @@
 [24-Dec-2025 14:14:27 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php on line 225
 [24-Dec-2025 14:15:16 Europe/Berlin] PHP Warning:  Undefined variable $user_data in C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php on line 225
 [24-Dec-2025 14:15:16 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php on line 225
+[26-Dec-2025 03:21:18 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: array_column(): Argument #3 ($index_key) must be of type string|int|null, array given in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php:149
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(149): array_column(Array, 'old', Array)
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(69): AssetController->update('11')
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 149
+[26-Dec-2025 03:21:36 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: array_column(): Argument #3 ($index_key) must be of type string|int|null, array given in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php:149
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(149): array_column(Array, 'old', Array)
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(69): AssetController->update('11')
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 149
+[26-Dec-2025 03:21:43 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: array_column(): Argument #3 ($index_key) must be of type string|int|null, array given in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php:149
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(149): array_column(Array, 'old', Array)
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(69): AssetController->update('11')
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 149
+[26-Dec-2025 03:22:06 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: array_column(): Argument #3 ($index_key) must be of type string|int|null, array given in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php:149
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(149): array_column(Array, 'old', Array)
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(69): AssetController->update('11')
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 149
+[26-Dec-2025 03:23:22 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: array_column(): Argument #3 ($index_key) must be of type string|int|null, array given in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php:149
+Stack trace:
+#0 C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(149): array_column(Array, 'old', Array)
+#1 C:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(69): AssetController->update('11')
+#2 {main}
+  thrown in C:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 149

@@ -16,6 +16,7 @@ import UsersPage from './pages/UsersPage';
 import AssetHistoryPage from './pages/AssetHistoryPage';
 import ImportPage from './pages/ImportPage';
 import ProfilePage from './pages/ProfilePage';
+import AuditTrailPage from './pages/AuditTrailPage';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -56,6 +57,7 @@ function App() {
             <Route path="asset-history" element={<AssetHistoryPage />} />
             <Route path="import" element={<ImportPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="audit-trail" element={<AuditTrailPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />
