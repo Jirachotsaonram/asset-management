@@ -26,9 +26,13 @@ export default function ReportsPage() {
     total: 0,
     available: 0,
     maintenance: 0,
+    pendingDisposal: 0,
+    disposed: 0,
     missing: 0
   });
   
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'available', 'maintenance', 'pendingDisposal', 'disposed', 'missing'
+  const [statusAssets, setStatusAssets] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [reportData, setReportData] = useState([]);
   const [dateRange, setDateRange] = useState({
@@ -40,6 +44,12 @@ export default function ReportsPage() {
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    if (activeTab && !selectedReport) {
+      fetchAssetsByStatus(activeTab);
+    }
+  }, [activeTab, selectedReport]);
+
   const fetchStats = async () => {
     try {
       const response = await api.get('/reports/by-status');
@@ -48,16 +58,20 @@ export default function ReportsPage() {
       let total = 0;
       let available = 0;
       let maintenance = 0;
+      let pendingDisposal = 0;
+      let disposed = 0;
       let missing = 0;
 
       data.forEach(item => {
         total += parseInt(item.count || 0);
         if (item.status === 'ใช้งานได้') available = parseInt(item.count || 0);
         if (item.status === 'รอซ่อม') maintenance = parseInt(item.count || 0);
+        if (item.status === 'รอจำหน่าย') pendingDisposal = parseInt(item.count || 0);
+        if (item.status === 'จำหน่ายแล้ว') disposed = parseInt(item.count || 0);
         if (item.status === 'ไม่พบ') missing = parseInt(item.count || 0);
       });
 
-      setStats({ total, available, maintenance, missing });
+      setStats({ total, available, maintenance, pendingDisposal, disposed, missing });
     } catch (error) {
       console.error('Error fetching stats:', error);
       toast.error('ไม่สามารถโหลดสถิติได้');
@@ -66,9 +80,39 @@ export default function ReportsPage() {
     }
   };
 
+  const fetchAssetsByStatus = async (status) => {
+    try {
+      setLoading(true);
+      const response = await api.get('/assets');
+      let assets = response.data.data || [];
+
+      // Filter by status
+      if (status !== 'all') {
+        const statusMap = {
+          'available': 'ใช้งานได้',
+          'maintenance': 'รอซ่อม',
+          'pendingDisposal': 'รอจำหน่าย',
+          'disposed': 'จำหน่ายแล้ว',
+          'missing': 'ไม่พบ'
+        };
+        const targetStatus = statusMap[status];
+        assets = assets.filter(asset => asset.status === targetStatus);
+      }
+
+      setStatusAssets(assets);
+    } catch (error) {
+      console.error('Error fetching assets by status:', error);
+      toast.error('ไม่สามารถโหลดข้อมูลครุภัณฑ์ได้');
+      setStatusAssets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const generateReport = async (reportType) => {
     setLoading(true);
     setSelectedReport(reportType);
+    setActiveTab('');
 
     try {
       let endpoint = '';
@@ -127,17 +171,83 @@ export default function ReportsPage() {
     }
 
     try {
-      const queryParams = new URLSearchParams();
-      queryParams.append('type', selectedReport);
-      queryParams.append('format', 'excel');
-      
-      if (dateRange.startDate) queryParams.append('start_date', dateRange.startDate);
-      if (dateRange.endDate) queryParams.append('end_date', dateRange.endDate);
+      // Export จากข้อมูลที่มีอยู่ (client-side)
+      const headers = getTableHeaders(selectedReport);
+      const rows = reportData.map(item => {
+        if (selectedReport === 'asset-summary') {
+          return [
+            item.asset_id || '-',
+            item.asset_name || '-',
+            item.serial_number || '-',
+            `${item.quantity || 0} ${item.unit || ''}`,
+            parseFloat(item.price || 0).toLocaleString(),
+            item.status || '-',
+            item.department_name || '-',
+            item.location || '-'
+          ];
+        } else if (selectedReport === 'check-report') {
+          return [
+            item.check_date || '-',
+            item.asset_id || '-',
+            item.asset_name || '-',
+            item.check_status || '-',
+            item.checker_name || '-',
+            item.remark || '-'
+          ];
+        } else if (selectedReport === 'by-status') {
+          return [
+            item.status || '-',
+            item.count || 0,
+            parseFloat(item.total_value || 0).toLocaleString()
+          ];
+        } else if (selectedReport === 'by-department') {
+          return [
+            item.department_name || '-',
+            item.faculty || '-',
+            item.asset_count || 0,
+            parseFloat(item.total_value || 0).toLocaleString(),
+            item.active_count || 0,
+            item.repair_count || 0,
+            item.missing_count || 0
+          ];
+        } else if (selectedReport === 'unchecked') {
+          return [
+            item.asset_id || '-',
+            item.asset_name || '-',
+            item.status || '-',
+            item.department_name || '-',
+            item.location || '-',
+            item.last_check_date || 'ไม่เคยตรวจ',
+            item.days_since_check ? `${item.days_since_check} วัน` : 'N/A'
+          ];
+        } else if (selectedReport === 'movement-history') {
+          return [
+            item.move_date || '-',
+            item.asset_id || '-',
+            item.asset_name || '-',
+            item.old_location || '-',
+            item.new_location || '-',
+            item.moved_by_name || '-',
+            item.remark || '-'
+          ];
+        }
+        return [];
+      });
 
-      const url = `${api.defaults.baseURL}/reports/export?${queryParams.toString()}`;
+      // สร้าง CSV content
+      let csvContent = '\uFEFF'; // BOM for UTF-8
+      csvContent += headers.join('\t') + '\n';
+      rows.forEach(row => {
+        csvContent += row.join('\t') + '\n';
+      });
+
+      // สร้าง Blob และดาวน์โหลด
+      const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', '');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `report_${selectedReport}_${new Date().toISOString().split('T')[0]}.xls`);
+      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -155,42 +265,233 @@ export default function ReportsPage() {
       return;
     }
 
-    const doc = new jsPDF();
-    
-    // Title
-    doc.setFontSize(16);
-    doc.text('รายงานครุภัณฑ์', 14, 20);
-    doc.setFontSize(10);
-    doc.text(`วันที่: ${new Date().toLocaleDateString('th-TH')}`, 14, 27);
+    try {
+      const doc = new jsPDF('l', 'mm', 'a4'); // landscape for wider tables
+      
+      // Title
+      doc.setFontSize(16);
+      doc.text(getReportTitle(selectedReport), 14, 15);
+      doc.setFontSize(10);
+      doc.text(`วันที่: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`, 14, 22);
 
-    // Table
-    if (selectedReport === 'asset-summary') {
+      let tableData = { head: [], body: [] };
+
+      // Table data based on report type
+      if (selectedReport === 'asset-summary') {
+        tableData = {
+          head: [['รหัส', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา', 'สถานะ', 'หน่วยงาน', 'สถานที่']],
+          body: reportData.map(item => [
+            String(item.asset_id || '-'),
+            String(item.asset_name || '-'),
+            String(item.serial_number || '-'),
+            `${item.quantity || 0} ${item.unit || ''}`,
+            parseFloat(item.price || 0).toLocaleString('th-TH'),
+            String(item.status || '-'),
+            String(item.department_name || '-'),
+            String(item.location || '-')
+          ])
+        };
+      } else if (selectedReport === 'check-report') {
+        tableData = {
+          head: [['วันที่ตรวจ', 'รหัส', 'ชื่อครุภัณฑ์', 'สถานะการตรวจ', 'ผู้ตรวจ', 'หมายเหตุ']],
+          body: reportData.map(item => [
+            String(item.check_date || '-'),
+            String(item.asset_id || '-'),
+            String(item.asset_name || '-'),
+            String(item.check_status || '-'),
+            String(item.checker_name || '-'),
+            String(item.remark || '-')
+          ])
+        };
+      } else if (selectedReport === 'by-status') {
+        tableData = {
+          head: [['สถานะ', 'จำนวน', 'มูลค่ารวม (บาท)']],
+          body: reportData.map(item => [
+            String(item.status || '-'),
+            String(item.count || 0),
+            parseFloat(item.total_value || 0).toLocaleString('th-TH')
+          ])
+        };
+      } else if (selectedReport === 'by-department') {
+        tableData = {
+          head: [['หน่วยงาน', 'คณะ', 'จำนวน', 'มูลค่า', 'ใช้งานได้', 'รอซ่อม', 'ไม่พบ']],
+          body: reportData.map(item => [
+            String(item.department_name || '-'),
+            String(item.faculty || '-'),
+            String(item.asset_count || 0),
+            parseFloat(item.total_value || 0).toLocaleString('th-TH'),
+            String(item.active_count || 0),
+            String(item.repair_count || 0),
+            String(item.missing_count || 0)
+          ])
+        };
+      } else if (selectedReport === 'unchecked') {
+        tableData = {
+          head: [['รหัส', 'ชื่อครุภัณฑ์', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ไม่ได้ตรวจมา']],
+          body: reportData.map(item => [
+            String(item.asset_id || '-'),
+            String(item.asset_name || '-'),
+            String(item.status || '-'),
+            String(item.department_name || '-'),
+            String(item.location || '-'),
+            String(item.last_check_date || 'ไม่เคยตรวจ'),
+            String(item.days_since_check ? `${item.days_since_check} วัน` : 'N/A')
+          ])
+        };
+      } else if (selectedReport === 'movement-history') {
+        tableData = {
+          head: [['วันที่ย้าย', 'รหัส', 'ชื่อครุภัณฑ์', 'จาก', 'ไปยัง', 'ผู้ดำเนินการ', 'หมายเหตุ']],
+          body: reportData.map(item => [
+            String(item.move_date || '-'),
+            String(item.asset_id || '-'),
+            String(item.asset_name || '-'),
+            String(item.old_location || '-'),
+            String(item.new_location || '-'),
+            String(item.moved_by_name || '-'),
+            String(item.remark || '-')
+          ])
+        };
+      }
+
+      // Generate table
       doc.autoTable({
-        startY: 35,
-        head: [['รหัส', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา', 'สถานะ']],
-        body: reportData.map(item => [
-          item.asset_id || '-',
-          item.asset_name || '-',
-          item.serial_number || '-',
-          `${item.quantity || 0} ${item.unit || ''}`,
-          `${parseFloat(item.price || 0).toLocaleString()}`,
-          item.status || '-'
-        ])
+        startY: 28,
+        head: tableData.head,
+        body: tableData.body,
+        styles: { 
+          fontSize: 8,
+          cellPadding: 2
+        },
+        headStyles: {
+          fillColor: [66, 139, 202],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { top: 28, left: 10, right: 10 }
       });
-    } else if (selectedReport === 'by-status') {
-      doc.autoTable({
-        startY: 35,
-        head: [['สถานะ', 'จำนวน', 'มูลค่ารวม (บาท)']],
-        body: reportData.map(item => [
-          item.status,
-          item.count,
-          parseFloat(item.total_value || 0).toLocaleString()
-        ])
-      });
+
+      doc.save(`report_${selectedReport}_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('Export PDF สำเร็จ');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('ไม่สามารถ Export PDF ได้');
+    }
+  };
+
+  const exportStatusAssetsToExcel = async () => {
+    if (statusAssets.length === 0) {
+      toast.error('ไม่มีข้อมูลให้ Export');
+      return;
     }
 
-    doc.save(`report_${selectedReport}_${new Date().toISOString().split('T')[0]}.pdf`);
-    toast.success('Export PDF สำเร็จ');
+    try {
+      // Export จากข้อมูลที่มีอยู่ (client-side)
+      const headers = ['รหัส', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา', 'สถานะ', 'หน่วยงาน', 'สถานที่'];
+      const rows = statusAssets.map(item => [
+        item.asset_id || '-',
+        item.asset_name || '-',
+        item.serial_number || '-',
+        `${item.quantity || 0} ${item.unit || ''}`,
+        parseFloat(item.price || 0).toLocaleString(),
+        item.status || '-',
+        item.department_name || item.department || '-',
+        item.building_name 
+          ? `${item.building_name}${item.floor ? ` ชั้น ${item.floor}` : ''}${item.room_number ? ` ห้อง ${item.room_number}` : ''}`
+          : '-'
+      ]);
+
+      // สร้าง CSV content
+      let csvContent = '\uFEFF'; // BOM for UTF-8
+      csvContent += headers.join('\t') + '\n';
+      rows.forEach(row => {
+        csvContent += row.join('\t') + '\n';
+      });
+
+      // สร้าง Blob และดาวน์โหลด
+      const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `report_${activeTab}_${new Date().toISOString().split('T')[0]}.xls`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('กำลังดาวน์โหลด Excel');
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      toast.error('ไม่สามารถ Export Excel ได้');
+    }
+  };
+
+  const exportStatusAssetsToPDF = () => {
+    if (statusAssets.length === 0) {
+      toast.error('ไม่มีข้อมูลให้ Export');
+      return;
+    }
+
+    try {
+      const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation for wider table
+      
+      // Title
+      doc.setFontSize(16);
+      doc.text(getStatusTabTitle(activeTab), 14, 15);
+      doc.setFontSize(10);
+      doc.text(`วันที่: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`, 14, 22);
+
+      // Table
+      doc.autoTable({
+        startY: 28,
+        head: [['รหัส', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา', 'สถานะ', 'หน่วยงาน', 'สถานที่']],
+        body: statusAssets.map(item => [
+          String(item.asset_id || '-'),
+          String(item.asset_name || '-'),
+          String(item.serial_number || '-'),
+          `${item.quantity || 0} ${item.unit || ''}`,
+          parseFloat(item.price || 0).toLocaleString('th-TH'),
+          String(item.status || '-'),
+          String(item.department_name || item.department || '-'),
+          item.building_name 
+            ? `${item.building_name}${item.floor ? ` ชั้น ${item.floor}` : ''}${item.room_number ? ` ห้อง ${item.room_number}` : ''}`
+            : '-'
+        ]),
+        styles: { 
+          fontSize: 8,
+          cellPadding: 2
+        },
+        headStyles: {
+          fillColor: [66, 139, 202],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { top: 28, left: 10, right: 10 }
+      });
+
+      doc.save(`report_${activeTab}_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('Export PDF สำเร็จ');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('ไม่สามารถ Export PDF ได้');
+    }
+  };
+
+  const getStatusTabTitle = (tab) => {
+    const titles = {
+      'all': 'รายงานครุภัณฑ์ทั้งหมด',
+      'available': 'รายงานครุภัณฑ์ที่ใช้งานได้',
+      'maintenance': 'รายงานครุภัณฑ์รอซ่อม',
+      'pendingDisposal': 'รายงานครุภัณฑ์รอจำหน่าย',
+      'disposed': 'รายงานครุภัณฑ์จำหน่ายแล้ว',
+      'missing': 'รายงานครุภัณฑ์ไม่พบ'
+    };
+    return titles[tab] || 'รายงานครุภัณฑ์';
   };
 
   if (loading && !selectedReport) {
@@ -210,55 +511,170 @@ export default function ReportsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div 
+          onClick={() => { setActiveTab('all'); setSelectedReport(null); }}
+          className={`bg-gradient-to-br ${activeTab === 'all' ? 'from-blue-600 to-blue-700 ring-4 ring-blue-300' : 'from-blue-500 to-blue-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-100 text-sm">ครุภัณฑ์ทั้งหมด</p>
-              <p className="text-4xl font-bold mt-2">{stats.total}</p>
+              <p className="text-blue-100 text-xs mb-1">ครุภัณฑ์ทั้งหมด</p>
+              <p className="text-2xl font-bold">{stats.total}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-              <Package size={32} />
+            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+              <Package size={20} />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+        <div 
+          onClick={() => { setActiveTab('available'); setSelectedReport(null); }}
+          className={`bg-gradient-to-br ${activeTab === 'available' ? 'from-green-600 to-green-700 ring-4 ring-green-300' : 'from-green-500 to-green-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm">ใช้งานได้</p>
-              <p className="text-4xl font-bold mt-2">{stats.available}</p>
+              <p className="text-green-100 text-xs mb-1">ใช้งานได้</p>
+              <p className="text-2xl font-bold">{stats.available}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-              <CheckCircle size={32} />
+            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+              <CheckCircle size={20} />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
+        <div 
+          onClick={() => { setActiveTab('maintenance'); setSelectedReport(null); }}
+          className={`bg-gradient-to-br ${activeTab === 'maintenance' ? 'from-yellow-600 to-yellow-700 ring-4 ring-yellow-300' : 'from-yellow-500 to-yellow-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-yellow-100 text-sm">รอซ่อม</p>
-              <p className="text-4xl font-bold mt-2">{stats.maintenance}</p>
+              <p className="text-yellow-100 text-xs mb-1">รอซ่อม</p>
+              <p className="text-2xl font-bold">{stats.maintenance}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-              <Clock size={32} />
+            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+              <Clock size={20} />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
+        <div 
+          onClick={() => { setActiveTab('pendingDisposal'); setSelectedReport(null); }}
+          className={`bg-gradient-to-br ${activeTab === 'pendingDisposal' ? 'from-orange-600 to-orange-700 ring-4 ring-orange-300' : 'from-orange-500 to-orange-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-red-100 text-sm">ไม่พบ</p>
-              <p className="text-4xl font-bold mt-2">{stats.missing}</p>
+              <p className="text-orange-100 text-xs mb-1">รอจำหน่าย</p>
+              <p className="text-2xl font-bold">{stats.pendingDisposal}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-              <AlertTriangle size={32} />
+            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+              <AlertTriangle size={20} />
+            </div>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => { setActiveTab('disposed'); setSelectedReport(null); }}
+          className={`bg-gradient-to-br ${activeTab === 'disposed' ? 'from-gray-600 to-gray-700 ring-4 ring-gray-300' : 'from-gray-500 to-gray-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-100 text-xs mb-1">จำหน่ายแล้ว</p>
+              <p className="text-2xl font-bold">{stats.disposed}</p>
+            </div>
+            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+              <Package size={20} />
+            </div>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => { setActiveTab('missing'); setSelectedReport(null); }}
+          className={`bg-gradient-to-br ${activeTab === 'missing' ? 'from-red-600 to-red-700 ring-4 ring-red-300' : 'from-red-500 to-red-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-red-100 text-xs mb-1">ไม่พบ</p>
+              <p className="text-2xl font-bold">{stats.missing}</p>
+            </div>
+            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+              <AlertTriangle size={20} />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Status Assets Table */}
+      {!selectedReport && activeTab && (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800">
+                {getStatusTabTitle(activeTab)}
+              </h2>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => exportStatusAssetsToExcel()}
+                  disabled={statusAssets.length === 0}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download size={18} />
+                  Export Excel
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          ) : statusAssets.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">รหัส</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ชื่อครุภัณฑ์</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Serial</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">จำนวน</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ราคา</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">สถานะ</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">หน่วยงาน</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">สถานที่</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {statusAssets.map((asset, index) => (
+                    <tr key={asset.asset_id || index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm">{asset.asset_id || '-'}</td>
+                      <td className="px-6 py-4 text-sm font-medium">{asset.asset_name || '-'}</td>
+                      <td className="px-6 py-4 text-sm">{asset.serial_number || '-'}</td>
+                      <td className="px-6 py-4 text-sm">{asset.quantity || 0} {asset.unit || ''}</td>
+                      <td className="px-6 py-4 text-sm">{parseFloat(asset.price || 0).toLocaleString()}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(asset.status)}`}>
+                          {asset.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">{asset.department_name || asset.department || '-'}</td>
+                      <td className="px-6 py-4 text-sm">
+                        {asset.building_name 
+                          ? `${asset.building_name}${asset.floor ? ` ชั้น ${asset.floor}` : ''}${asset.room_number ? ` ห้อง ${asset.room_number}` : ''}`
+                          : '-'
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center py-12">
+              <p className="text-gray-500">ไม่มีข้อมูลครุภัณฑ์ในหมวดนี้</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Date Filter */}
       {(selectedReport === 'check-report' || selectedReport === 'movement-history') && (
@@ -360,13 +776,6 @@ export default function ReportsPage() {
                 >
                   <Download size={18} />
                   Export Excel
-                </button>
-                <button
-                  onClick={exportToPDF}
-                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
-                >
-                  <Download size={18} />
-                  Export PDF
                 </button>
               </div>
             </div>
