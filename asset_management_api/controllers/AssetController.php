@@ -146,8 +146,14 @@ class AssetController {
                 $this->auditTrail->user_id = $user_data['user_id'];
                 $this->auditTrail->asset_id = $id;
                 $this->auditTrail->action = 'Edit';
-                $this->auditTrail->old_value = json_encode(array_column($changes, 'old', array_keys($changes)));
-                $this->auditTrail->new_value = json_encode(array_column($changes, 'new', array_keys($changes)));
+                $old_values = [];
+                $new_values = [];
+                foreach ($changes as $field => $change) {
+                    $old_values[$field] = $change['old'];
+                    $new_values[$field] = $change['new'];
+                }
+                $this->auditTrail->old_value = json_encode($old_values);
+                $this->auditTrail->new_value = json_encode($new_values);
                 $this->auditTrail->create();
             }
 
@@ -174,25 +180,26 @@ class AssetController {
         
         $old_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // ✅ บันทึก Audit Trail สำหรับ Delete ก่อนลบ
+        $this->auditTrail->user_id = $user_data['user_id'];
+        $this->auditTrail->asset_id = $id;
+        $this->auditTrail->action = 'Delete';
+        $this->auditTrail->old_value = json_encode([
+            'asset_name' => $old_data['asset_name'],
+            'serial_number' => $old_data['serial_number'],
+            'barcode' => $old_data['barcode'],
+            'status' => $old_data['status'],
+            'location_id' => $old_data['location_id']
+        ]);
+        $this->auditTrail->new_value = null;
+        $this->auditTrail->create();
+
         // ลบครุภัณฑ์
         $query = "DELETE FROM Assets WHERE asset_id = :asset_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':asset_id', $id);
 
         if ($stmt->execute()) {
-            // ✅ บันทึก Audit Trail สำหรับ Delete
-            $this->auditTrail->user_id = $user_data['user_id'];
-            $this->auditTrail->asset_id = $id;
-            $this->auditTrail->action = 'Delete';
-            $this->auditTrail->old_value = json_encode([
-                'asset_name' => $old_data['asset_name'],
-                'serial_number' => $old_data['serial_number'],
-                'barcode' => $old_data['barcode'],
-                'status' => $old_data['status'],
-                'location_id' => $old_data['location_id']
-            ]);
-            $this->auditTrail->new_value = null;
-            $this->auditTrail->create();
 
             Response::success('ลบครุภัณฑ์สำเร็จ');
         } else {

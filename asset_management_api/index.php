@@ -67,6 +67,8 @@ switch ($endpoint) {
             $controller->create();
         } elseif ($request_method === 'PUT' && $id) {
             $controller->update($id);
+        }elseif ($request_method === 'DELETE' && $id) {
+            $controller->delete($id);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }
