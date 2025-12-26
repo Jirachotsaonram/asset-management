@@ -23,11 +23,14 @@ import {
   RotateCcw
 } from "lucide-react";
 import { API_BASE_URL } from "../utils/constants";
+import { useAuth } from "../hooks/useAuth";
 import AssetForm from "../components/Assets/AssetForm";
 import QRCodeModal from "../components/Assets/QRCodeModal";
 import BulkQRGenerator from "../components/Assets/BulkQRGenerator";
 
 export default function AssetsPage() {
+  const { user } = useAuth();
+  const canEdit = user?.role === 'Admin' || user?.role === 'Inspector';
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -271,19 +274,21 @@ export default function AssetsPage() {
               No Image
             </div>
           )}
-          <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 flex items-center justify-center rounded transition-opacity">
-            <Upload className="w-6 h-6 text-white" />
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files[0]) {
-                  handleUploadImage(asset.asset_id, e.target.files[0]);
-                }
-              }}
-            />
-          </label>
+          {canEdit && (
+            <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 flex items-center justify-center rounded transition-opacity">
+              <Upload className="w-6 h-6 text-white" />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files[0]) {
+                    handleUploadImage(asset.asset_id, e.target.files[0]);
+                  }
+                }}
+              />
+            </label>
+          )}
         </div>
       </td>
       <td className="px-6 py-4">
@@ -323,20 +328,24 @@ export default function AssetsPage() {
           >
             <Eye className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => handleEdit(asset)}
-            className="text-yellow-600 hover:text-yellow-900 transition-colors"
-            title="แก้ไข"
-          >
-            <Edit className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => handleDelete(asset.asset_id)}
-            className="text-red-600 hover:text-red-900 transition-colors"
-            title="ลบ"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
+          {canEdit && (
+            <>
+              <button
+                onClick={() => handleEdit(asset)}
+                className="text-yellow-600 hover:text-yellow-900 transition-colors"
+                title="แก้ไข"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => handleDelete(asset.asset_id)}
+                className="text-red-600 hover:text-red-900 transition-colors"
+                title="ลบ"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
       </td>
     </tr>
@@ -595,20 +604,24 @@ export default function AssetsPage() {
                     >
                       <Eye className="w-5 h-5" />
                     </button>
-                    <button
-                      onClick={() => handleEdit(asset)}
-                      className="text-yellow-600 hover:text-yellow-900 transition-colors"
-                      title="แก้ไข"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(asset.asset_id)}
-                      className="text-red-600 hover:text-red-900 transition-colors"
-                      title="ลบ"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    {canEdit && (
+                      <>
+                        <button
+                          onClick={() => handleEdit(asset)}
+                          className="text-yellow-600 hover:text-yellow-900 transition-colors"
+                          title="แก้ไข"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(asset.asset_id)}
+                          className="text-red-600 hover:text-red-900 transition-colors"
+                          title="ลบ"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -639,22 +652,24 @@ export default function AssetsPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">จัดการครุภัณฑ์</h1>
-        <div className="flex space-x-3">
-          <button
-            onClick={() => setShowBulkQR(true)}
-            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <QrCode className="w-5 h-5" />
-            <span>สร้าง QR ทั้งหมด</span>
-          </button>
-          <button
-            onClick={handleAdd}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            <span>เพิ่มครุภัณฑ์</span>
-          </button>
-        </div>
+        {canEdit && (
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowBulkQR(true)}
+              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <QrCode className="w-5 h-5" />
+              <span>สร้าง QR ทั้งหมด</span>
+            </button>
+            <button
+              onClick={handleAdd}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>เพิ่มครุภัณฑ์</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Search & View Mode Toggle */}

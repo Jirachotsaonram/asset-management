@@ -10,5 +10,6 @@ export const ASSET_STATUS = {
 
 export const USER_ROLES = {
   ADMIN: 'Admin',
-  INSPECTOR: 'Inspector'
+  INSPECTOR: 'Inspector',
+  VIEWER: 'Viewer'
 };

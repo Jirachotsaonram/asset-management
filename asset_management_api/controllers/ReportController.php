@@ -285,6 +285,9 @@ class ReportController {
             case 'check_report':
                 fputcsv($output, ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่']);
                 
+                $startDate = $params['start_date'] ?? null;
+                $endDate = $params['end_date'] ?? null;
+                
                 $query = "SELECT 
                             ac.check_id,
                             ac.check_date,
@@ -301,7 +304,16 @@ class ReportController {
                         JOIN Users u ON ac.user_id = u.user_id
                         LEFT JOIN Departments d ON a.department_id = d.department_id
                         LEFT JOIN Locations l ON a.location_id = l.location_id
-                        ORDER BY ac.check_date DESC";
+                        WHERE 1=1";
+                
+                if ($startDate) {
+                    $query .= " AND ac.check_date >= :start_date";
+                }
+                if ($endDate) {
+                    $query .= " AND ac.check_date <= :end_date";
+                }
+                
+                $query .= " ORDER BY ac.check_date DESC";
                 break;
                 
             default:
@@ -311,10 +323,110 @@ class ReportController {
         }
         
         $stmt = $this->conn->prepare($query);
+        
+        if (isset($startDate)) $stmt->bindParam(':start_date', $startDate);
+        if (isset($endDate)) $stmt->bindParam(':end_date', $endDate);
+        
         $stmt->execute();
         
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             fputcsv($output, $row);
+        }
+        
+        fclose($output);
+        exit;
+    }
+
+    // Export รายงานเป็น Excel (ใช้รูปแบบ Tab-delimited ที่ Excel อ่านได้)
+    public function exportExcel($reportType, $params = []) {
+        // ตั้งค่า header สำหรับ download Excel
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+        header('Content-Disposition: attachment; filename="report_' . $reportType . '_' . date('Y-m-d_His') . '.xls"');
+        
+        $output = fopen('php://output', 'w');
+        
+        // เพิ่ม BOM สำหรับ UTF-8
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        
+        switch ($reportType) {
+            case 'asset_summary':
+                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'], "\t");
+                
+                $query = "SELECT 
+                            a.asset_id,
+                            a.asset_name,
+                            a.serial_number,
+                            a.quantity,
+                            a.unit,
+                            a.price,
+                            a.received_date,
+                            a.status,
+                            d.department_name,
+                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
+                            ac.check_date as last_check_date,
+                            u.fullname as last_checker
+                        FROM Assets a
+                        LEFT JOIN Departments d ON a.department_id = d.department_id
+                        LEFT JOIN Locations l ON a.location_id = l.location_id
+                        LEFT JOIN (
+                            SELECT asset_id, MAX(check_date) as check_date, user_id
+                            FROM Asset_Check
+                            GROUP BY asset_id
+                        ) latest ON a.asset_id = latest.asset_id
+                        LEFT JOIN Asset_Check ac ON a.asset_id = ac.asset_id AND ac.check_date = latest.check_date
+                        LEFT JOIN Users u ON ac.user_id = u.user_id
+                        ORDER BY a.asset_id";
+                break;
+                
+            case 'check_report':
+                fputcsv($output, ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่'], "\t");
+                
+                $startDate = $params['start_date'] ?? null;
+                $endDate = $params['end_date'] ?? null;
+                
+                $query = "SELECT 
+                            ac.check_id,
+                            ac.check_date,
+                            a.asset_id,
+                            a.asset_name,
+                            a.serial_number,
+                            ac.check_status,
+                            ac.remark,
+                            u.fullname as checker_name,
+                            d.department_name,
+                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
+                        FROM Asset_Check ac
+                        JOIN Assets a ON ac.asset_id = a.asset_id
+                        JOIN Users u ON ac.user_id = u.user_id
+                        LEFT JOIN Departments d ON a.department_id = d.department_id
+                        LEFT JOIN Locations l ON a.location_id = l.location_id
+                        WHERE 1=1";
+                
+                if ($startDate) {
+                    $query .= " AND ac.check_date >= :start_date";
+                }
+                if ($endDate) {
+                    $query .= " AND ac.check_date <= :end_date";
+                }
+                
+                $query .= " ORDER BY ac.check_date DESC";
+                break;
+                
+            default:
+                fputcsv($output, ['Error: Unknown report type'], "\t");
+                fclose($output);
+                exit;
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if (isset($startDate)) $stmt->bindParam(':start_date', $startDate);
+        if (isset($endDate)) $stmt->bindParam(':end_date', $endDate);
+        
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            fputcsv($output, $row, "\t");
         }
         
         fclose($output);

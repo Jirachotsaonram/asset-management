@@ -145,9 +145,16 @@ export default function AuditTrailPage() {
     if (filters.start_date) queryParams.append('start_date', filters.start_date);
     if (filters.end_date) queryParams.append('end_date', filters.end_date);
     if (filters.keyword) queryParams.append('keyword', filters.keyword);
+    queryParams.append('format', 'csv');
 
-    const url = `${api.defaults.baseURL}/audits/export-csv?${queryParams.toString()}`;
-    window.open(url, '_blank');
+    const token = localStorage.getItem('token');
+    const url = `${api.defaults.baseURL}/audits/export?${queryParams.toString()}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', '');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     toast.success('กำลังดาวน์โหลด CSV');
   };
 
@@ -160,9 +167,16 @@ export default function AuditTrailPage() {
     if (filters.start_date) queryParams.append('start_date', filters.start_date);
     if (filters.end_date) queryParams.append('end_date', filters.end_date);
     if (filters.keyword) queryParams.append('keyword', filters.keyword);
+    queryParams.append('format', 'excel');
 
-    const url = `${api.defaults.baseURL}/audits/export-excel?${queryParams.toString()}`;
-    window.open(url, '_blank');
+    const token = localStorage.getItem('token');
+    const url = `${api.defaults.baseURL}/audits/export?${queryParams.toString()}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', '');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     toast.success('กำลังดาวน์โหลด Excel');
   };
 

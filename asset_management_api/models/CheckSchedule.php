@@ -17,10 +17,12 @@ class CheckSchedule {
         return $stmt;
     }
 
-    public function assignToAsset($asset_id, $schedule_id, $custom_interval = null) {
-        $next_check_date = null;
-        
-        if ($schedule_id && $schedule_id != 5) {  // 5 = กำหนดเอง
+    public function assignToAsset($asset_id, $schedule_id, $custom_interval = null, $next_check_date = null) {
+        // ถ้ามีการส่ง next_check_date มาแล้ว ให้ใช้ค่านั้น
+        if ($next_check_date) {
+            // ใช้วันที่ที่ส่งมา
+        } else if ($schedule_id && $schedule_id != 5) {  // 5 = กำหนดเอง
+            // ใช้รอบมาตรฐาน
             $query = "SELECT check_interval_months FROM " . $this->schedules_table . " 
                       WHERE schedule_id = :schedule_id";
             $stmt = $this->conn->prepare($query);
@@ -29,7 +31,8 @@ class CheckSchedule {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $interval = $row['check_interval_months'] ?? 3;
             $next_check_date = date('Y-m-d', strtotime("+{$interval} months"));
-        } else if ($custom_interval) {
+        } else if ($custom_interval && $custom_interval > 0) {
+            // ใช้จำนวนเดือนที่กำหนดเอง
             $next_check_date = date('Y-m-d', strtotime("+{$custom_interval} months"));
         }
 

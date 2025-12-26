@@ -15,22 +15,38 @@ export default function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const menuItems = [
+  // เมนูพื้นฐานที่ทุกคนเข้าถึงได้
+  const baseMenuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/assets', label: 'ครุภัณฑ์', icon: Package },
-    { path: '/scan', label: 'สแกน QR Code', icon: QrCode },  
-    { path: '/check', label: 'ตรวจสอบ', icon: CheckSquare },
+    { path: '/scan', label: 'สแกน QR Code', icon: QrCode },
     { path: '/reports', label: 'รายงาน', icon: FileText },
+    { path: '/audit-trail', label: 'ประวัติการใช้งาน', icon: FileText },
+  ];
+
+  // เมนูสำหรับ Inspector และ Admin
+  const inspectorMenuItems = [
+    { path: '/check', label: 'ตรวจสอบ', icon: CheckSquare },
     { path: '/locations', label: 'สถานที่', icon: Package },
     { path: '/borrows', label: 'ยืม-คืน', icon: Package },
-    { path: '/audit-trail', label: 'ประวัติการใช้งาน', icon: FileText },
     { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: FileText },
     { path: '/import', label: 'นำเข้าข้อมูล', icon: FileText },
   ];
 
-  // เพิ่มเมนู Users สำหรับ Admin
+  // เมนูสำหรับ Admin เท่านั้น
+  const adminMenuItems = [
+    { path: '/users', label: 'ผู้ใช้งาน', icon: Users },
+  ];
+
+  // รวมเมนูตาม role
+  let menuItems = [...baseMenuItems];
+  
+  if (user?.role === 'Admin' || user?.role === 'Inspector') {
+    menuItems = [...menuItems, ...inspectorMenuItems];
+  }
+  
   if (user?.role === 'Admin') {
-    menuItems.push({ path: '/users', label: 'ผู้ใช้งาน', icon: Users });
+    menuItems = [...menuItems, ...adminMenuItems];
   }
 
   const isActive = (path) => location.pathname === path;

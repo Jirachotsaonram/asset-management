@@ -32,15 +32,24 @@ class CheckScheduleController {
         try {
             $data = json_decode(file_get_contents("php://input"));
             
-            if (empty($data->asset_id) || (empty($data->schedule_id) && empty($data->custom_interval_months))) {
-                Response::error('กรุณาระบุข้อมูลให้ครบถ้วน', 400);
+            if (empty($data->asset_id)) {
+                Response::error('กรุณาระบุรหัสครุภัณฑ์', 400);
                 return;
+            }
+            
+            // Validation สำหรับกำหนดเอง
+            if ($data->schedule_id == 5) {
+                if (empty($data->custom_interval_months) && empty($data->next_check_date)) {
+                    Response::error('กรุณาระบุจำนวนเดือนหรือวันที่ตรวจครั้งถัดไป', 400);
+                    return;
+                }
             }
 
             $result = $this->checkSchedule->assignToAsset(
                 $data->asset_id,
                 $data->schedule_id ?? null,
-                $data->custom_interval_months ?? null
+                $data->custom_interval_months ?? null,
+                $data->next_check_date ?? null
             );
 
             if ($result) {

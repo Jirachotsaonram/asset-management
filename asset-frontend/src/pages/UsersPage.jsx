@@ -195,6 +195,7 @@ export default function UsersPage() {
     switch (role) {
       case 'Admin': return 'bg-purple-100 text-purple-800';
       case 'Inspector': return 'bg-blue-100 text-blue-800';
+      case 'Viewer': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -304,6 +305,7 @@ export default function UsersPage() {
             <option value="all">ทุกบทบาท</option>
             <option value="Admin">Admin</option>
             <option value="Inspector">Inspector</option>
+            <option value="Viewer">Viewer</option>
           </select>
         </div>
       </div>
@@ -483,6 +485,7 @@ export default function UsersPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   >
                     <option value="Inspector">Inspector</option>
+                    <option value="Viewer">Viewer</option>
                     <option value="Admin">Admin</option>
                   </select>
                 </div>

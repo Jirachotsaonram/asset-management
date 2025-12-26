@@ -67,7 +67,18 @@ export default function CheckPage() {
     scheduleId: 3,
     customMonths: '',
     nextCheckDate: '',
-    checkNow: false
+    checkNow: false,
+    useCustomDate: false
+  });
+  
+  // State สำหรับกำหนดรอบทั้งห้อง
+  const [showRoomScheduleModal, setShowRoomScheduleModal] = useState(false);
+  const [currentRoomForSchedule, setCurrentRoomForSchedule] = useState(null);
+  const [roomScheduleForm, setRoomScheduleForm] = useState({
+    scheduleId: 3,
+    customMonths: '',
+    nextCheckDate: '',
+    useCustomDate: false
   });
   
   const [checkForm, setCheckForm] = useState({
@@ -275,25 +286,69 @@ export default function CheckPage() {
   // Handlers
   const handleOpenScheduleModal = (asset) => {
     setCurrentAsset(asset);
+    const hasCustomInterval = asset.custom_interval_months && asset.schedule_id == 5;
     setScheduleForm({
       scheduleId: asset.schedule_id || 3,
       customMonths: asset.custom_interval_months || '',
       nextCheckDate: asset.next_check_date || '',
-      checkNow: false
+      checkNow: false,
+      useCustomDate: !!asset.next_check_date && asset.schedule_id == 5
     });
     setShowScheduleModal(true);
+  };
+  
+  const handleOpenRoomScheduleModal = (building, floor, room, roomAssets) => {
+    setCurrentRoomForSchedule({ building, floor, room, assets: roomAssets });
+    setRoomScheduleForm({
+      scheduleId: 3,
+      customMonths: '',
+      nextCheckDate: '',
+      useCustomDate: false
+    });
+    setShowRoomScheduleModal(true);
   };
 
   const handleSaveSchedule = async () => {
     try {
+      // Validation
+      if (scheduleForm.scheduleId == 5) {
+        // ถ้าเลือก "กำหนดเอง" ต้องมี customMonths หรือ nextCheckDate
+        if (!scheduleForm.customMonths && !scheduleForm.nextCheckDate) {
+          toast.error('กรุณาระบุจำนวนเดือนหรือวันที่ตรวจครั้งถัดไป');
+          return;
+        }
+      }
+      
       setLoading(true);
+      
+      // คำนวณ next_check_date
+      let nextCheckDate = null;
+      if (scheduleForm.useCustomDate && scheduleForm.nextCheckDate) {
+        // ใช้วันที่ที่กำหนดเอง
+        nextCheckDate = scheduleForm.nextCheckDate;
+      } else if (scheduleForm.scheduleId == 5 && scheduleForm.customMonths) {
+        // ใช้จำนวนเดือนที่กำหนดเอง
+        const months = parseInt(scheduleForm.customMonths);
+        if (months > 0) {
+          const date = new Date();
+          date.setMonth(date.getMonth() + months);
+          nextCheckDate = date.toISOString().split('T')[0];
+        }
+      } else if (scheduleForm.scheduleId != 5) {
+        // ใช้รอบมาตรฐาน
+        const selectedSchedule = schedules.find(s => s.schedule_id == scheduleForm.scheduleId);
+        if (selectedSchedule && selectedSchedule.check_interval_months > 0) {
+          const date = new Date();
+          date.setMonth(date.getMonth() + selectedSchedule.check_interval_months);
+          nextCheckDate = date.toISOString().split('T')[0];
+        }
+      }
       
       const payload = {
         asset_id: currentAsset.asset_id,
         schedule_id: scheduleForm.scheduleId,
-        custom_interval_months: scheduleForm.customMonths || null,
-        custom_next_date: scheduleForm.nextCheckDate || null,
-        notify_before_days: 14
+        custom_interval_months: scheduleForm.scheduleId == 5 && scheduleForm.customMonths ? parseInt(scheduleForm.customMonths) : null,
+        next_check_date: nextCheckDate
       };
 
       await api.post('/check-schedules/assign-asset', payload);
@@ -304,7 +359,46 @@ export default function CheckPage() {
       fetchData();
     } catch (error) {
       console.error('Error saving schedule:', error);
-      toast.error('ไม่สามารถบันทึกได้');
+      toast.error(error.response?.data?.message || 'ไม่สามารถบันทึกได้');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleSaveRoomSchedule = async () => {
+    try {
+      // Validation
+      if (roomScheduleForm.scheduleId == 5) {
+        if (!roomScheduleForm.customMonths) {
+          toast.error('กรุณาระบุจำนวนเดือน');
+          return;
+        }
+      }
+      
+      setLoading(true);
+      
+      // ดึง location_id จาก asset แรก
+      const firstAsset = currentRoomForSchedule.assets[0];
+      if (!firstAsset.location_id) {
+        toast.error('ครุภัณฑ์ในห้องนี้ไม่มี location_id');
+        return;
+      }
+      
+      const payload = {
+        location_id: firstAsset.location_id,
+        schedule_id: roomScheduleForm.scheduleId,
+        custom_interval_months: roomScheduleForm.scheduleId == 5 && roomScheduleForm.customMonths ? parseInt(roomScheduleForm.customMonths) : null
+      };
+
+      const response = await api.post('/check-schedules/assign-location', payload);
+      
+      toast.success(`กำหนดรอบการตรวจทั้งห้องสำเร็จ (${currentRoomForSchedule.assets.length} รายการ)`);
+      setShowRoomScheduleModal(false);
+      setCurrentRoomForSchedule(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error saving room schedule:', error);
+      toast.error(error.response?.data?.message || 'ไม่สามารถบันทึกได้');
     } finally {
       setLoading(false);
     }
@@ -356,13 +450,24 @@ export default function CheckPage() {
     try {
       setLoading(true);
       
+      // แปลงสถานะจากข้อความเป็นสถานะจริง
+      const statusMap = {
+        'ใช้งานได้': 'ใช้งานได้',
+        'รอซ่อม': 'รอซ่อม',
+        'รอจำหน่าย': 'รอจำหน่าย',
+        'จำหน่ายแล้ว': 'จำหน่ายแล้ว',
+        'ไม่พบ': 'ไม่พบ'
+      };
+      
+      const actualStatus = statusMap[checkForm.status] || checkForm.status;
+      
       // บันทึกการตรวจทีละรายการ
       for (const asset of currentRoom.assets) {
         await api.post('/checks', {
           asset_id: asset.asset_id,
           user_id: user.user_id,
           check_date: new Date().toISOString().split('T')[0],
-          check_status: checkForm.status,
+          check_status: actualStatus,
           remark: checkForm.remark
         });
       }
@@ -593,6 +698,7 @@ export default function CheckPage() {
               onCheck={handleOpenCheckModal}
               onSchedule={handleOpenScheduleModal}
               onRoomCheck={handleOpenRoomCheck}
+              onRoomSchedule={handleOpenRoomScheduleModal}
             />
           ) : (
             <ListView 
@@ -662,6 +768,19 @@ export default function CheckPage() {
           loading={loading}
         />
       )}
+
+      {/* Room Schedule Modal */}
+      {showRoomScheduleModal && currentRoomForSchedule && (
+        <RoomScheduleModal
+          room={currentRoomForSchedule}
+          schedules={schedules}
+          scheduleForm={roomScheduleForm}
+          setScheduleForm={setRoomScheduleForm}
+          onSave={handleSaveRoomSchedule}
+          onClose={() => setShowRoomScheduleModal(false)}
+          loading={loading}
+        />
+      )}
     </div>
   );
 }
@@ -672,7 +791,7 @@ export default function CheckPage() {
 function GroupedView({ 
   groupedAssets, expandedBuildings, expandedFloors, expandedRooms,
   toggleBuilding, toggleFloor, toggleRoom, getCheckStatus,
-  onCheck, onSchedule, onRoomCheck 
+  onCheck, onSchedule, onRoomCheck, onRoomSchedule
 }) {
   if (Object.keys(groupedAssets).length === 0) {
     return (
@@ -760,13 +879,22 @@ function GroupedView({
                                         <ChevronRight className="text-gray-500" size={18} />
                                       }
                                     </div>
-                                    <button
-                                      onClick={() => onRoomCheck(building, floor, room, roomAssets)}
-                                      className="ml-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1"
-                                    >
-                                      <CheckSquare size={14} />
-                                      ตรวจทั้งห้อง
-                                    </button>
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => onRoomCheck(building, floor, room, roomAssets)}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1"
+                                      >
+                                        <CheckSquare size={14} />
+                                        ตรวจทั้งห้อง
+                                      </button>
+                                      <button
+                                        onClick={() => onRoomSchedule(building, floor, room, roomAssets)}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1"
+                                      >
+                                        <Settings size={14} />
+                                        กำหนดรอบ
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
 
@@ -1129,6 +1257,8 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
 
 // Schedule Modal
 function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave, onClose, loading }) {
+  const isCustomSchedule = scheduleForm.scheduleId == 5;
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -1146,70 +1276,243 @@ function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave
             <p className="text-sm text-gray-600 mb-1">ครุภัณฑ์</p>
             <p className="font-bold text-gray-800">{asset.asset_name}</p>
             <p className="text-sm text-gray-600">Serial: {asset.serial_number || '-'}</p>
+            {asset.next_check_date && (
+              <p className="text-xs text-gray-500 mt-1">
+                กำหนดตรวจครั้งถัดไป: {new Date(asset.next_check_date).toLocaleDateString('th-TH')}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">รอบการตรวจ</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              รอบการตรวจ <span className="text-red-500">*</span>
+            </label>
             <select
               value={scheduleForm.scheduleId}
-              onChange={(e) => setScheduleForm({...scheduleForm, scheduleId: parseInt(e.target.value)})}
+              onChange={(e) => {
+                const newScheduleId = parseInt(e.target.value);
+                setScheduleForm({
+                  ...scheduleForm, 
+                  scheduleId: newScheduleId,
+                  useCustomDate: newScheduleId == 5 ? scheduleForm.useCustomDate : false,
+                  customMonths: newScheduleId != 5 ? '' : scheduleForm.customMonths,
+                  nextCheckDate: newScheduleId != 5 ? '' : scheduleForm.nextCheckDate
+                });
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               {schedules.map(schedule => (
                 <option key={schedule.schedule_id} value={schedule.schedule_id}>
-                  {schedule.name}
+                  {schedule.name} {schedule.check_interval_months > 0 ? `(${schedule.check_interval_months} เดือน)` : ''}
                 </option>
               ))}
             </select>
           </div>
 
-          {scheduleForm.scheduleId === 4 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">จำนวนเดือน</label>
-              <input
-                type="number"
-                min="1"
-                max="24"
-                value={scheduleForm.customMonths}
-                onChange={(e) => setScheduleForm({...scheduleForm, customMonths: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="เช่น 3, 6, 12"
-              />
-            </div>
+          {isCustomSchedule && (
+            <>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-xs text-yellow-800">
+                  💡 เมื่อเลือก "กำหนดเอง" กรุณาระบุจำนวนเดือนหรือวันที่ตรวจครั้งถัดไป
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  วิธีกำหนดรอบ
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={!scheduleForm.useCustomDate}
+                      onChange={() => setScheduleForm({...scheduleForm, useCustomDate: false, nextCheckDate: ''})}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">กำหนดจำนวนเดือน</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={scheduleForm.useCustomDate}
+                      onChange={() => setScheduleForm({...scheduleForm, useCustomDate: true, customMonths: ''})}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">กำหนดวันที่ตรวจครั้งถัดไป</span>
+                  </label>
+                </div>
+              </div>
+
+              {!scheduleForm.useCustomDate ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    จำนวนเดือน <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="36"
+                    value={scheduleForm.customMonths}
+                    onChange={(e) => setScheduleForm({...scheduleForm, customMonths: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="เช่น 3, 6, 12"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    ระบบจะคำนวณวันที่ตรวจครั้งถัดไปจากวันนี้ + จำนวนเดือนที่กำหนด
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    วันที่ตรวจครั้งถัดไป <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={scheduleForm.nextCheckDate}
+                    onChange={(e) => setScheduleForm({...scheduleForm, nextCheckDate: e.target.value})}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              )}
+            </>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">วันที่ตรวจครั้งแรก</label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  checked={scheduleForm.checkNow}
-                  onChange={() => setScheduleForm({...scheduleForm, checkNow: true})}
-                  className="text-blue-600"
-                />
-                <span className="text-sm">ตรวจวันนี้</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  checked={!scheduleForm.checkNow}
-                  onChange={() => setScheduleForm({...scheduleForm, checkNow: false})}
-                  className="text-blue-600"
-                />
-                <span className="text-sm">คำนวณจากวันนี้</span>
-              </label>
+          {!isCustomSchedule && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs text-green-800">
+                ✅ ระบบจะคำนวณวันที่ตรวจครั้งถัดไปอัตโนมัติตามรอบที่เลือก
+              </p>
             </div>
-          </div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <button
               onClick={onSave}
-              disabled={loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={loading || (isCustomSchedule && !scheduleForm.customMonths && !scheduleForm.nextCheckDate)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save size={20} />
               {loading ? 'กำลังบันทึก...' : 'บันทึก'}
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg transition-colors font-semibold"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Room Schedule Modal
+function RoomScheduleModal({ room, schedules, scheduleForm, setScheduleForm, onSave, onClose, loading }) {
+  const isCustomSchedule = scheduleForm.scheduleId == 5;
+  
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gray-800">กำหนดรอบการตรวจทั้งห้อง</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <p className="text-sm text-gray-600 mb-2">คุณกำลังกำหนดรอบการตรวจทั้งห้อง</p>
+            <p className="font-bold text-gray-800">
+              {room.building} ชั้น {room.floor} ห้อง {room.room}
+            </p>
+            <p className="text-sm text-gray-600 mt-1">จำนวน: {room.assets.length} รายการ</p>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+            <p className="text-xs font-medium text-gray-600 mb-2">รายการครุภัณฑ์:</p>
+            <ul className="space-y-1">
+              {room.assets.map(asset => (
+                <li key={asset.asset_id} className="text-sm text-gray-700 flex items-center gap-2">
+                  <Settings size={14} className="text-purple-600" />
+                  {asset.asset_name} ({asset.serial_number || '-'})
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              รอบการตรวจ <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={scheduleForm.scheduleId}
+              onChange={(e) => {
+                const newScheduleId = parseInt(e.target.value);
+                setScheduleForm({
+                  ...scheduleForm, 
+                  scheduleId: newScheduleId,
+                  customMonths: newScheduleId != 5 ? '' : scheduleForm.customMonths
+                });
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              {schedules.map(schedule => (
+                <option key={schedule.schedule_id} value={schedule.schedule_id}>
+                  {schedule.name} {schedule.check_interval_months > 0 ? `(${schedule.check_interval_months} เดือน)` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {isCustomSchedule && (
+            <>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-xs text-yellow-800">
+                  💡 เมื่อเลือก "กำหนดเอง" กรุณาระบุจำนวนเดือน
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  จำนวนเดือน <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="36"
+                  value={scheduleForm.customMonths}
+                  onChange={(e) => setScheduleForm({...scheduleForm, customMonths: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="เช่น 3, 6, 12"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  ระบบจะคำนวณวันที่ตรวจครั้งถัดไปจากวันนี้ + จำนวนเดือนที่กำหนด
+                </p>
+              </div>
+            </>
+          )}
+
+          {!isCustomSchedule && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs text-green-800">
+                ✅ ระบบจะคำนวณวันที่ตรวจครั้งถัดไปอัตโนมัติตามรอบที่เลือก
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={onSave}
+              disabled={loading || (isCustomSchedule && !scheduleForm.customMonths)}
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Save size={20} />
+              {loading ? 'กำลังบันทึก...' : 'บันทึกทั้งห้อง'}
             </button>
             <button
               onClick={onClose}
@@ -1257,6 +1560,7 @@ function CheckModal({ asset, checkForm, setCheckForm, onSave, onClose, loading }
               <option value="ใช้งานได้">ใช้งานได้</option>
               <option value="รอซ่อม">รอซ่อม</option>
               <option value="รอจำหน่าย">รอจำหน่าย</option>
+              <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
               <option value="ไม่พบ">ไม่พบ</option>
             </select>
           </div>
@@ -1337,8 +1641,10 @@ function RoomCheckModal({ room, checkForm, setCheckForm, onSave, onClose, loadin
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="ใช้งานได้">ใช้งานได้ทั้งหมด</option>
-              <option value="บางรายการรอซ่อม">บางรายการรอซ่อม</option>
-              <option value="มีครุภัณฑ์สูญหาย">มีครุภัณฑ์สูญหาย</option>
+              <option value="รอซ่อม">บางรายการรอซ่อม</option>
+              <option value="รอจำหน่าย">บางรายการรอจำหน่าย</option>
+              <option value="จำหน่ายแล้ว">บางรายการจำหน่ายแล้ว</option>
+              <option value="ไม่พบ">มีครุภัณฑ์สูญหาย</option>
             </select>
           </div>
 

@@ -120,59 +120,33 @@ export default function ReportsPage() {
     }
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (reportData.length === 0) {
       toast.error('ไม่มีข้อมูลให้ Export');
       return;
     }
 
-    let csvContent = '';
-    
-    if (selectedReport === 'asset-summary') {
-      csvContent = 'รหัสครุภัณฑ์,ชื่อครุภัณฑ์,Serial Number,จำนวน,หน่วย,ราคา,วันที่รับ,สถานะ,หน่วยงาน,สถานที่,วันที่ตรวจล่าสุด,ผู้ตรวจล่าสุด\n';
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append('type', selectedReport);
+      queryParams.append('format', 'excel');
       
-      reportData.forEach(item => {
-        csvContent += `"${item.asset_id || ''}","${item.asset_name || ''}","${item.serial_number || ''}","${item.quantity || ''}","${item.unit || ''}","${item.price || ''}","${item.received_date || ''}","${item.status || ''}","${item.department_name || ''}","${item.location || ''}","${item.last_check_date || ''}","${item.last_checker || ''}"\n`;
-      });
-    } else if (selectedReport === 'check-report') {
-      csvContent = 'วันที่ตรวจ,รหัสครุภัณฑ์,ชื่อครุภัณฑ์,Serial Number,สถานะการตรวจ,หมายเหตุ,ผู้ตรวจ,หน่วยงาน,สถานที่\n';
-      
-      reportData.forEach(item => {
-        csvContent += `"${item.check_date || ''}","${item.asset_id || ''}","${item.asset_name || ''}","${item.serial_number || ''}","${item.check_status || ''}","${item.remark || ''}","${item.checker_name || ''}","${item.department_name || ''}","${item.location || ''}"\n`;
-      });
-    } else if (selectedReport === 'by-status') {
-      csvContent = 'สถานะ,จำนวน,มูลค่ารวม\n';
-      
-      reportData.forEach(item => {
-        csvContent += `"${item.status}","${item.count}","${parseFloat(item.total_value || 0).toLocaleString()}"\n`;
-      });
-    } else if (selectedReport === 'by-department') {
-      csvContent = 'หน่วยงาน,คณะ,จำนวน,มูลค่า,ใช้งานได้,รอซ่อม,ไม่พบ\n';
-      
-      reportData.forEach(item => {
-        csvContent += `"${item.department_name}","${item.faculty || ''}","${item.asset_count}","${parseFloat(item.total_value || 0).toLocaleString()}","${item.active_count}","${item.repair_count}","${item.missing_count}"\n`;
-      });
-    } else if (selectedReport === 'unchecked') {
-      csvContent = 'รหัส,ชื่อครุภัณฑ์,สถานะ,หน่วยงาน,สถานที่,วันที่ตรวจล่าสุด,ไม่ได้ตรวจมา(วัน)\n';
-      
-      reportData.forEach(item => {
-        csvContent += `"${item.asset_id || ''}","${item.asset_name || ''}","${item.status || ''}","${item.department_name || ''}","${item.location || ''}","${item.last_check_date || 'ไม่เคยตรวจ'}","${item.days_since_check || 'N/A'}"\n`;
-      });
-    } else if (selectedReport === 'movement-history') {
-      csvContent = 'วันที่ย้าย,รหัสครุภัณฑ์,ชื่อครุภัณฑ์,จาก,ไปยัง,ผู้ดำเนินการ,หมายเหตุ\n';
-      
-      reportData.forEach(item => {
-        csvContent += `"${item.move_date || ''}","${item.asset_id || ''}","${item.asset_name || ''}","${item.old_location || ''}","${item.new_location || ''}","${item.moved_by_name || ''}","${item.remark || ''}"\n`;
-      });
-    }
+      if (dateRange.startDate) queryParams.append('start_date', dateRange.startDate);
+      if (dateRange.endDate) queryParams.append('end_date', dateRange.endDate);
 
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `report_${selectedReport}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    
-    toast.success('Export สำเร็จ');
+      const url = `${api.defaults.baseURL}/reports/export?${queryParams.toString()}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', '');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('กำลังดาวน์โหลด Excel');
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      toast.error('ไม่สามารถ Export Excel ได้');
+    }
   };
 
   const exportToPDF = () => {

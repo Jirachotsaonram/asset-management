@@ -51,23 +51,25 @@ switch ($endpoint) {
         require_once 'controllers/AssetController.php';
         require_once 'middleware/auth.php';
         
-        if ($request_method !== 'GET') {
-            $user_data = authenticate();
-        }
-        
         $controller = new AssetController();
         
+        // GET requests - Viewer, Inspector, Admin สามารถดูได้
         if ($request_method === 'GET' && !$id && !isset($_GET['q'])) {
             $controller->getAll();
         } elseif ($request_method === 'GET' && $id) {
             $controller->getOne($id);
         } elseif ($request_method === 'GET' && isset($_GET['q'])) {
             $controller->search();
-        } elseif ($request_method === 'POST') {
+        } 
+        // POST, PUT, DELETE - เฉพาะ Admin และ Inspector เท่านั้น
+        elseif ($request_method === 'POST') {
+            requireAdminOrInspector();
             $controller->create();
         } elseif ($request_method === 'PUT' && $id) {
+            requireAdminOrInspector();
             $controller->update($id);
-        }elseif ($request_method === 'DELETE' && $id) {
+        } elseif ($request_method === 'DELETE' && $id) {
+            requireAdminOrInspector();
             $controller->delete($id);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
@@ -79,21 +81,23 @@ switch ($endpoint) {
         require_once 'controllers/DepartmentController.php';
         require_once 'middleware/auth.php';
         
-        if ($request_method !== 'GET') {
-            $user_data = authenticate();
-        }
-        
         $controller = new DepartmentController();
         
+        // GET requests - ทุกคนสามารถดูได้
         if ($request_method === 'GET' && !$id) {
             $controller->getAll();
         } elseif ($request_method === 'GET' && $id) {
             $controller->getOne($id);
-        } elseif ($request_method === 'POST') {
+        } 
+        // POST, PUT, DELETE - เฉพาะ Admin เท่านั้น
+        elseif ($request_method === 'POST') {
+            requireAdmin();
             $controller->create();
         } elseif ($request_method === 'PUT' && $id) {
+            requireAdmin();
             $controller->update($id);
         } elseif ($request_method === 'DELETE' && $id) {
+            requireAdmin();
             $controller->delete($id);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
@@ -105,21 +109,23 @@ switch ($endpoint) {
         require_once 'controllers/LocationController.php';
         require_once 'middleware/auth.php';
         
-        if ($request_method !== 'GET') {
-            $user_data = authenticate();
-        }
-        
         $controller = new LocationController();
         
+        // GET requests - ทุกคนสามารถดูได้
         if ($request_method === 'GET' && !$id) {
             $controller->getAll();
         } elseif ($request_method === 'GET' && $id) {
             $controller->getOne($id);
-        } elseif ($request_method === 'POST') {
+        } 
+        // POST, PUT, DELETE - เฉพาะ Admin และ Inspector เท่านั้น
+        elseif ($request_method === 'POST') {
+            requireAdminOrInspector();
             $controller->create();
         } elseif ($request_method === 'PUT' && $id) {
+            requireAdminOrInspector();
             $controller->update($id);
         } elseif ($request_method === 'DELETE' && $id) {
+            requireAdminOrInspector();
             $controller->delete($id);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
@@ -131,16 +137,19 @@ switch ($endpoint) {
         require_once 'controllers/AssetCheckController.php';
         require_once 'middleware/auth.php';
         
-        $user_data = authenticate();
         $controller = new AssetCheckController();
         
+        // GET requests - ทุกคนสามารถดูได้
         if ($request_method === 'GET' && !$id && !$action) {
             $controller->getAll();
         } elseif ($request_method === 'GET' && $id === 'unchecked') {
             $controller->getUnchecked();
         } elseif ($request_method === 'GET' && $id === 'asset' && $action) {
             $controller->getByAsset($action);
-        } elseif ($request_method === 'POST') {
+        } 
+        // POST - เฉพาะ Admin และ Inspector เท่านั้น
+        elseif ($request_method === 'POST') {
+            $user_data = requireAdminOrInspector();
             $controller->create($user_data);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
@@ -171,18 +180,22 @@ switch ($endpoint) {
         require_once 'controllers/BorrowController.php';
         require_once 'middleware/auth.php';
         
-        $user_data = authenticate();
         $controller = new BorrowController();
         
+        // GET requests - ทุกคนสามารถดูได้
         if ($request_method === 'GET' && !$id && !$action) {
             $controller->getAll();
         } elseif ($request_method === 'GET' && $id === 'active') {
             $controller->getActive();
         } elseif ($request_method === 'GET' && $id === 'asset' && $action) {
             $controller->getByAsset($action);
-        } elseif ($request_method === 'POST') {
+        } 
+        // POST, PUT - เฉพาะ Admin และ Inspector เท่านั้น
+        elseif ($request_method === 'POST') {
+            $user_data = requireAdminOrInspector();
             $controller->create($user_data);
         } elseif ($request_method === 'PUT' && $id) {
+            $user_data = requireAdminOrInspector();
             $controller->returnAsset($id, $user_data);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
@@ -203,6 +216,14 @@ switch ($endpoint) {
             $controller->getByAsset($action);
         } elseif ($request_method === 'GET' && $id === 'user' && $action) {
             $controller->getByUser($action);
+        } elseif ($request_method === 'GET' && $id === 'export') {
+            // GET /audits/export?format=excel หรือ csv
+            $format = $_GET['format'] ?? 'csv';
+            if ($format === 'excel') {
+                $controller->exportExcel();
+            } else {
+                $controller->exportCSV();
+            }
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }
@@ -226,33 +247,33 @@ switch ($endpoint) {
             $controller->updateProfile($user_data);
             
         } elseif ($request_method === 'GET' && !$id) {
-            // GET /users - ดึงผู้ใช้ทั้งหมด
-            authenticate();
+            // GET /users - ดึงผู้ใช้ทั้งหมด (เฉพาะ Admin)
+            requireAdmin();
             $controller->getAll();
             
         } elseif ($request_method === 'GET' && $id && !$action) {
-            // GET /users/{id} - ดึงผู้ใช้คนเดียว
-            authenticate();
+            // GET /users/{id} - ดึงผู้ใช้คนเดียว (เฉพาะ Admin)
+            requireAdmin();
             $controller->getOne($id);
             
         } elseif ($request_method === 'POST' && !$id) {
-            // POST /users - เพิ่มผู้ใช้ใหม่
-            authenticate();
+            // POST /users - เพิ่มผู้ใช้ใหม่ (เฉพาะ Admin)
+            requireAdmin();
             $controller->create();
             
         } elseif ($request_method === 'PUT' && $id && $action === 'status') {
-            // PUT /users/{id}/status - อัปเดตสถานะ
-            authenticate();
+            // PUT /users/{id}/status - อัปเดตสถานะ (เฉพาะ Admin)
+            requireAdmin();
             $controller->updateStatus($id);
             
         } elseif ($request_method === 'PUT' && $id && !$action) {
-            // PUT /users/{id} - อัปเดตข้อมูลผู้ใช้
-            authenticate();
+            // PUT /users/{id} - อัปเดตข้อมูลผู้ใช้ (เฉพาะ Admin)
+            requireAdmin();
             $controller->update($id);
             
         } elseif ($request_method === 'DELETE' && $id) {
-            // DELETE /users/{id} - ลบผู้ใช้
-            authenticate();
+            // DELETE /users/{id} - ลบผู้ใช้ (เฉพาะ Admin)
+            requireAdmin();
             $controller->delete($id);
             
         } else {
@@ -324,9 +345,15 @@ switch ($endpoint) {
                 $controller->borrowReport($status);
                 
             } elseif ($id === 'export') {
-                // GET /reports/export?type=asset_summary
+                // GET /reports/export?type=asset_summary&format=csv
                 $reportType = $_GET['type'] ?? 'asset_summary';
-                $controller->exportCSV($reportType, $_GET);
+                $format = $_GET['format'] ?? 'csv';
+                
+                if ($format === 'excel') {
+                    $controller->exportExcel($reportType, $_GET);
+                } else {
+                    $controller->exportCSV($reportType, $_GET);
+                }
                 
             } else {
                 Response::error('ไม่พบประเภทรายงาน', 404);
@@ -337,33 +364,29 @@ switch ($endpoint) {
         break;
 
     // ==================== CHECK SCHEDULES ====================
-case 'check-schedules':
-    require_once 'controllers/CheckScheduleController.php';
-    require_once 'middleware/auth.php';
-    
-    authenticate();
-    $controller = new CheckScheduleController();
-    
-    if ($request_method === 'GET' && !$id) {
-        $controller->getAllSchedules();
-    } elseif ($request_method === 'GET' && $id === 'notifications') {
-        $controller->getNotifications();
-    } elseif ($request_method === 'GET' && $id === 'overdue') {
-        $controller->getOverdue();
-    } elseif ($request_method === 'POST' && $id === 'assign-asset') {
-        $controller->assignToAsset();
-    } elseif ($request_method === 'POST' && $id === 'assign-location') {
-        $controller->assignToLocation();
-    } else {
-        Response::error('ไม่พบเส้นทาง API', 404);
-    }
-    break;
+    case 'check-schedules':
+        require_once 'controllers/CheckScheduleController.php';
+        require_once 'middleware/auth.php';
         
-    default:
-        Response::error('ไม่พบเส้นทาง API', 404);
+        authenticate();
+        $controller = new CheckScheduleController();
+        
+        if ($request_method === 'GET' && !$id) {
+            $controller->getAllSchedules();
+        } elseif ($request_method === 'GET' && $id === 'notifications') {
+            $controller->getNotifications();
+        } elseif ($request_method === 'GET' && $id === 'overdue') {
+            $controller->getOverdue();
+        } elseif ($request_method === 'POST' && $id === 'assign-asset') {
+            $controller->assignToAsset();
+        } elseif ($request_method === 'POST' && $id === 'assign-location') {
+            $controller->assignToLocation();
+        } else {
+            Response::error('ไม่พบเส้นทาง API', 404);
+        }
         break;
 
-// ==================== IMPORT ====================
+    // ==================== IMPORT ====================
     case 'import':
         require_once 'controllers/ImportController.php';
         require_once 'middleware/auth.php';
