@@ -1,6 +1,6 @@
 // FILE: src/components/Assets/AssetForm.jsx
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { ASSET_STATUS } from "../../utils/constants";
@@ -22,6 +22,11 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showDepartmentForm, setShowDepartmentForm] = useState(false);
+  const [departmentFormData, setDepartmentFormData] = useState({
+    department_name: "",
+  });
+  const [addingDepartment, setAddingDepartment] = useState(false);
 
   useEffect(() => {
     fetchDepartments();
@@ -75,6 +80,42 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleAddDepartment = async (e) => {
+    e.preventDefault();
+    setAddingDepartment(true);
+
+    try {
+      // ส่งข้อมูลไปยัง API โดยให้ faculty เป็นค่าว่าง
+      const dataToSend = {
+        department_name: departmentFormData.department_name,
+        faculty: "",
+      };
+      const response = await api.post("/departments", dataToSend);
+      const newDepartmentId = response.data.data.department_id;
+
+      // Refresh รายการหน่วยงาน
+      await fetchDepartments();
+
+      // เลือกหน่วยงานที่เพิ่มใหม่
+      setFormData((prev) => ({
+        ...prev,
+        department_id: newDepartmentId,
+      }));
+
+      // ปิด modal และ reset form
+      setShowDepartmentForm(false);
+      setDepartmentFormData({
+        department_name: "",
+      });
+
+      toast.success("เพิ่มหน่วยงานสำเร็จ");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "ไม่สามารถเพิ่มหน่วยงานได้");
+    } finally {
+      setAddingDepartment(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -259,19 +300,29 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 หน่วยงาน
               </label>
-              <select
-                name="department_id"
-                value={formData.department_id}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">-- เลือกหน่วยงาน --</option>
-                {departments.map((dept) => (
-                  <option key={dept.department_id} value={dept.department_id}>
-                    {dept.department_name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex gap-2">
+                <select
+                  name="department_id"
+                  value={formData.department_id}
+                  onChange={handleChange}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">-- เลือกหน่วยงาน --</option>
+                  {departments.map((dept) => (
+                    <option key={dept.department_id} value={dept.department_id}>
+                      {dept.department_name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setShowDepartmentForm(true)}
+                  className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1"
+                  title="เพิ่มหน่วยงานใหม่"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* สถานที่ */}
@@ -337,6 +388,70 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
           </div>
         </form>
       </div>
+
+      {/* Modal เพิ่มหน่วยงาน */}
+      {showDepartmentForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="border-b px-6 py-4 flex justify-between items-center">
+              <h3 className="text-xl font-bold">เพิ่มหน่วยงานใหม่</h3>
+              <button
+                onClick={() => {
+                  setShowDepartmentForm(false);
+                  setDepartmentFormData({
+                    department_name: "",
+                  });
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddDepartment} className="p-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ชื่อหน่วยงานหรือคณะ <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={departmentFormData.department_name}
+                  onChange={(e) =>
+                    setDepartmentFormData({
+                      department_name: e.target.value,
+                    })
+                  }
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="เช่น ภาควิชาวิทยาการคอมพิวเตอร์ หรือ คณะเทคโนโลยีสารสนเทศ"
+                />
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDepartmentForm(false);
+                    setDepartmentFormData({
+                      department_name: "",
+                    });
+                  }}
+                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingDepartment}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {addingDepartment ? "กำลังบันทึก..." : "เพิ่มหน่วยงาน"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -40,20 +40,54 @@ export default function BulkQRGenerator({ assets, onClose }) {
           currentCol = 0;
         }
 
-        // สร้าง QR Code เป็น canvas
-        const canvas = document.createElement('canvas');
+        // สร้าง QR Code โดยใช้ QRCodeCanvas component
         const qrData = JSON.stringify({
           id: asset.asset_id,
           name: asset.asset_name,
           barcode: asset.barcode
         });
 
-        // ใช้ library เพื่อสร้าง QR Code
-        const QRCode = require('qrcode');
-        await QRCode.toCanvas(canvas, qrData, { width: 200 });
+        // สร้าง container ชั่วคราวสำหรับ QR Code
+        const tempDiv = document.createElement('div');
+        tempDiv.id = `qr-temp-${i}-${Date.now()}`;
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.top = '-9999px';
+        tempDiv.style.width = '200px';
+        tempDiv.style.height = '200px';
+        document.body.appendChild(tempDiv);
+
+        // สร้าง QRCodeCanvas โดยใช้ React
+        const { createRoot } = await import('react-dom/client');
+        const React = await import('react');
+        
+        const qrElement = React.createElement(QRCodeCanvas, {
+          value: qrData,
+          size: 200,
+          level: 'H',
+          includeMargin: false
+        });
+
+        const root = createRoot(tempDiv);
+        root.render(qrElement);
+
+        // รอให้ render เสร็จ
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // ดึง canvas จาก QRCodeCanvas
+        const qrCanvas = tempDiv.querySelector('canvas');
+        if (!qrCanvas) {
+          root.unmount();
+          document.body.removeChild(tempDiv);
+          throw new Error('ไม่สามารถสร้าง QR Code ได้');
+        }
 
         // แปลง canvas เป็นรูปภาพ
-        const imgData = canvas.toDataURL('image/png');
+        const imgData = qrCanvas.toDataURL('image/png');
+
+        // ลบ element ชั่วคราว
+        root.unmount();
+        document.body.removeChild(tempDiv);
 
         // วาด QR Code ลง PDF
         pdf.addImage(imgData, 'PNG', x, y, qrSize, qrSize);

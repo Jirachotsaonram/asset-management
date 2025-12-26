@@ -158,18 +158,43 @@ export default function DashboardPage() {
       queryParams.append('type', 'asset-summary');
       queryParams.append('format', 'excel');
 
+      const token = localStorage.getItem('token');
       const url = `${api.defaults.baseURL}/reports/export?${queryParams.toString()}`;
+      
+      // ใช้ fetch เพื่อส่ง Authorization header
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'เกิดข้อผิดพลาดในการดาวน์โหลด' }));
+        throw new Error(errorData.message || 'ไม่สามารถ Export Excel ได้');
+      }
+
+      // สร้าง blob จาก response
+      const blob = await response.blob();
+      
+      // สร้าง URL จาก blob
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // สร้าง link element เพื่อ download
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', '');
+      link.href = blobUrl;
+      link.setAttribute('download', `report_asset-summary_${new Date().toISOString().split('T')[0]}.xls`);
       document.body.appendChild(link);
       link.click();
+      
+      // Cleanup
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
       
       toast.success('กำลังดาวน์โหลด Excel');
     } catch (error) {
       console.error('Error exporting Excel:', error);
-      toast.error('ไม่สามารถ Export Excel ได้');
+      toast.error(error.message || 'ไม่สามารถ Export Excel ได้');
     }
   };
 

@@ -1,51 +1,73 @@
 import { useEffect, useRef, useState } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { Camera, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
+import { Camera, X, CheckCircle, AlertCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import api from '../../services/api';
 import { API_BASE_URL } from '../../utils/constants';
 
 export default function QRScanner({ onClose }) {
   const scannerRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [scanning, setScanning] = useState(true);
+  const [scanMode, setScanMode] = useState('camera'); // 'camera' or 'upload'
   const [scannedAsset, setScannedAsset] = useState(null);
   const [error, setError] = useState(null);
   const [checkStatus, setCheckStatus] = useState('ปกติ');
   const [remark, setRemark] = useState('');
   const [saving, setSaving] = useState(false);
+  const [processingImage, setProcessingImage] = useState(false);
 
-  useEffect(() => {
-    const scanner = new Html5QrcodeScanner(
-      'qr-reader',
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
-      },
-      false
-    );
+  // ฟังก์ชันสำหรับประมวลผล QR Code ที่สแกนได้
+  const processQRCode = async (decodedText) => {
+    setScanning(false);
+    setError(null);
 
-    scanner.render(onScanSuccess, onScanError);
-
-    async function onScanSuccess(decodedText, decodedResult) {
-      scanner.clear();
-      setScanning(false);
-
-      try {
-        // Parse QR Code data
-        const qrData = JSON.parse(decodedText);
-        
-        // ดึงข้อมูลครุภัณฑ์จาก API
-        const response = await api.get(`/assets/${qrData.id}`);
-        setScannedAsset(response.data.data);
-      } catch (err) {
-        console.error('Error fetching asset:', err);
-        setError('ไม่สามารถดึงข้อมูลครุภัณฑ์ได้');
-      }
+    try {
+      // Parse QR Code data
+      const qrData = JSON.parse(decodedText);
+      
+      // ดึงข้อมูลครุภัณฑ์จาก API
+      const response = await api.get(`/assets/${qrData.id}`);
+      setScannedAsset(response.data.data);
+    } catch (err) {
+      console.error('Error fetching asset:', err);
+      setError('ไม่สามารถดึงข้อมูลครุภัณฑ์ได้: ' + (err.response?.data?.message || err.message));
     }
+  };
 
-    function onScanError(error) {
-      // ไม่ต้องแสดง error ทุกครั้ง (เพราะจะ spam)
-      console.warn(error);
+  // เริ่มต้น Camera Scanner
+  useEffect(() => {
+    if (scanMode !== 'camera' || !scanning) return;
+
+    let scanner = null;
+    
+    try {
+      scanner = new Html5QrcodeScanner(
+        'qr-reader',
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0
+        },
+        false
+      );
+
+      scanner.render(
+        async (decodedText, decodedResult) => {
+          if (scanner) {
+            scanner.clear().catch(console.error);
+          }
+          await processQRCode(decodedText);
+        },
+        (error) => {
+          // ไม่ต้องแสดง error ทุกครั้ง (เพราะจะ spam)
+          console.warn(error);
+        }
+      );
+
+      scannerRef.current = scanner;
+    } catch (err) {
+      console.error('Error initializing scanner:', err);
+      setError('ไม่สามารถเริ่มต้นกล้องได้');
     }
 
     return () => {
@@ -53,7 +75,47 @@ export default function QRScanner({ onClose }) {
         scanner.clear().catch(console.error);
       }
     };
-  }, []);
+  }, [scanMode, scanning]);
+
+  // ฟังก์ชันสำหรับอัปโหลดและสแกนรูปภาพ
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // ตรวจสอบประเภทไฟล์
+    if (!file.type.startsWith('image/')) {
+      setError('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+      return;
+    }
+
+    setProcessingImage(true);
+    setError(null);
+    setScanning(false);
+
+    try {
+      const html5QrCode = new Html5Qrcode();
+      
+      // สแกน QR Code จากรูปภาพ
+      const decodedText = await html5QrCode.scanFile(file, false);
+      
+      // ประมวลผล QR Code ที่สแกนได้
+      await processQRCode(decodedText);
+    } catch (err) {
+      console.error('Error scanning image:', err);
+      if (err.message.includes('No QR code found')) {
+        setError('ไม่พบ QR Code ในรูปภาพ กรุณาเลือกรูปภาพที่มี QR Code ชัดเจน');
+      } else {
+        setError('ไม่สามารถสแกน QR Code จากรูปภาพได้: ' + err.message);
+      }
+      setScanning(true);
+    } finally {
+      setProcessingImage(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleSaveCheck = async () => {
     if (!scannedAsset) return;
@@ -81,7 +143,22 @@ export default function QRScanner({ onClose }) {
     setError(null);
     setCheckStatus('ปกติ');
     setRemark('');
-    window.location.reload(); // Reload เพื่อเริ่ม scanner ใหม่
+    setScanning(true);
+    
+    // ถ้าเป็นโหมดกล้อง ให้ reload เพื่อเริ่ม scanner ใหม่
+    if (scanMode === 'camera') {
+      window.location.reload();
+    }
+  };
+
+  const switchMode = (mode) => {
+    if (scannerRef.current) {
+      scannerRef.current.clear().catch(console.error);
+    }
+    setScanMode(mode);
+    setScanning(true);
+    setScannedAsset(null);
+    setError(null);
   };
 
   return (
@@ -101,14 +178,91 @@ export default function QRScanner({ onClose }) {
         </div>
 
         <div className="p-6">
-          {scanning && (
+          {scanning && !scannedAsset && (
             <div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-blue-800">
-                  📸 กรุณาจ่อกล้องไปที่ QR Code ของครุภัณฑ์
-                </p>
+              {/* แท็บเลือกโหมด */}
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => switchMode('camera')}
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${
+                    scanMode === 'camera'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Camera className="w-5 h-5 inline-block mr-2" />
+                  สแกนด้วยกล้อง
+                </button>
+                <button
+                  onClick={() => switchMode('upload')}
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${
+                    scanMode === 'upload'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Upload className="w-5 h-5 inline-block mr-2" />
+                  อัปโหลดรูปภาพ
+                </button>
               </div>
-              <div id="qr-reader" className="w-full"></div>
+
+              {/* โหมดกล้อง */}
+              {scanMode === 'camera' && (
+                <div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-blue-800">
+                      📸 กรุณาจ่อกล้องไปที่ QR Code ของครุภัณฑ์
+                    </p>
+                  </div>
+                  <div id="qr-reader" className="w-full"></div>
+                </div>
+              )}
+
+              {/* โหมดอัปโหลดรูปภาพ */}
+              {scanMode === 'upload' && (
+                <div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-blue-800">
+                      📷 เลือกรูปภาพที่มี QR Code ของครุภัณฑ์
+                    </p>
+                  </div>
+                  
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="qr-image-upload"
+                      disabled={processingImage}
+                    />
+                    <label
+                      htmlFor="qr-image-upload"
+                      className={`cursor-pointer flex flex-col items-center ${
+                        processingImage ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {processingImage ? (
+                        <>
+                          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
+                          <p className="text-gray-700 font-medium">กำลังประมวลผล...</p>
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
+                          <p className="text-gray-700 font-medium mb-2">
+                            คลิกเพื่อเลือกรูปภาพ หรือลากไฟล์มาวางที่นี่
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            รองรับไฟล์: JPG, PNG, GIF
+                          </p>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

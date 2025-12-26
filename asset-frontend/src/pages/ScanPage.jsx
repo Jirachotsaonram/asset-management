@@ -1,15 +1,18 @@
 // FILE: src/pages/ScanPage.jsx
-import { useState } from 'react';
-import { QrCode, Camera, CheckCircle, AlertCircle, RefreshCw, Search } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Camera, CheckCircle, AlertCircle, RefreshCw, Search, Upload } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function ScanPage() {
   const { user } = useAuth();
+  const fileInputRef = useRef(null);
   const [barcode, setBarcode] = useState('');
   const [scannedAsset, setScannedAsset] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [processingImage, setProcessingImage] = useState(false);
   const [checkStatus, setCheckStatus] = useState('ใช้งานได้');
   const [remark, setRemark] = useState('');
   const [scanHistory, setScanHistory] = useState([]);
@@ -160,6 +163,153 @@ export default function ScanPage() {
     }
   };
 
+  // ฟังก์ชันสำหรับอัปโหลดและสแกนรูปภาพ QR Code
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // ตรวจสอบประเภทไฟล์
+    if (!file.type.startsWith('image/')) {
+      toast.error('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+      return;
+    }
+
+    setProcessingImage(true);
+    setLoading(true);
+
+    let imageUrl = null;
+
+    try {
+      // สร้าง temporary element ID สำหรับ Html5Qrcode
+      const tempElementId = `qr-temp-${Date.now()}`;
+      const tempDiv = document.createElement('div');
+      tempDiv.id = tempElementId;
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '-9999px';
+      tempDiv.style.width = '1px';
+      tempDiv.style.height = '1px';
+      document.body.appendChild(tempDiv);
+      
+      try {
+        // สร้าง Html5Qrcode instance ด้วย element ID
+        const html5QrCode = new Html5Qrcode(tempElementId);
+        
+        // ใช้ scanFile โดยตรงกับ File object
+        const decodedText = await html5QrCode.scanFile(file, false);
+        
+        // ลบ temporary element
+        document.body.removeChild(tempDiv);
+        
+        // Parse QR Code data (อาจเป็น JSON หรือ string)
+        let qrData;
+        try {
+          qrData = JSON.parse(decodedText);
+        } catch {
+          // ถ้าไม่ใช่ JSON อาจเป็น string ธรรมดา
+          qrData = { id: decodedText };
+        }
+
+        // ค้นหาครุภัณฑ์จาก QR Code
+        let foundAsset = null;
+        
+        // วิธีที่ 1: ใช้ ID จาก QR Code
+        if (qrData.id) {
+          try {
+            const response = await api.get(`/assets/${qrData.id}`);
+            if (response.data.success) {
+              foundAsset = response.data.data;
+            }
+          } catch (err) {
+            console.log('Method 1 failed:', err);
+          }
+        }
+
+        // วิธีที่ 2: ค้นหาจาก decodedText โดยตรง (อาจเป็น asset_id, barcode, หรือ serial_number)
+        if (!foundAsset) {
+          try {
+            const response = await api.get('/assets');
+            if (response.data.success) {
+              foundAsset = response.data.data.find(
+                a => a.barcode === decodedText || 
+                     a.serial_number === decodedText || 
+                     a.asset_id == decodedText ||
+                     a.asset_id == qrData.id
+              );
+            }
+          } catch (err) {
+            console.log('Method 2 failed:', err);
+          }
+        }
+
+        // วิธีที่ 3: ลอง endpoint แบบอื่น
+        if (!foundAsset) {
+          try {
+            const response = await api.get(`/assets/barcode/${decodedText}`);
+            if (response.data.success) {
+              foundAsset = response.data.data;
+            }
+          } catch (err) {
+            console.log('Method 3 failed:', err);
+          }
+        }
+
+        if (foundAsset) {
+          setScannedAsset(foundAsset);
+          setCheckStatus(foundAsset.status || 'ใช้งานได้');
+          setRemark('');
+          setBarcode(decodedText);
+          toast.success('สแกน QR Code สำเร็จ - พบครุภัณฑ์');
+        } else {
+          toast.error('ไม่พบครุภัณฑ์ที่ตรงกับ QR Code: ' + decodedText);
+          setScannedAsset(null);
+        }
+      } catch (scanError) {
+        // ลบ temporary element ถ้ายังมีอยู่
+        const tempDiv = document.getElementById(tempElementId);
+        if (tempDiv) {
+          document.body.removeChild(tempDiv);
+        }
+        throw scanError;
+      }
+      
+    } catch (err) {
+      console.error('Error scanning image:', err);
+      
+      // จัดการ error message ให้ชัดเจน
+      let errorMessage = 'ไม่สามารถสแกน QR Code จากรูปภาพได้';
+      
+      if (err) {
+        if (typeof err === 'string') {
+          errorMessage = err;
+        } else if (err.message) {
+          const msg = err.message.toLowerCase();
+          if (msg.includes('no qr code found') || 
+              msg.includes('qr code parse error') ||
+              msg.includes('not found') ||
+              msg.includes('not detected')) {
+            errorMessage = 'ไม่พบ QR Code ในรูปภาพ กรุณาเลือกรูปภาพที่มี QR Code ชัดเจน';
+          } else {
+            errorMessage = 'ไม่สามารถสแกน QR Code จากรูปภาพได้: ' + err.message;
+          }
+        } else if (err.name) {
+          errorMessage = 'เกิดข้อผิดพลาด: ' + err.name;
+        } else if (err.toString && err.toString() !== '[object Object]') {
+          errorMessage = 'เกิดข้อผิดพลาด: ' + err.toString();
+        }
+      }
+      
+      toast.error(errorMessage);
+    } finally {
+      setProcessingImage(false);
+      setLoading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -207,10 +357,40 @@ export default function ScanPage() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center">
-              <QrCode size={80} className="mx-auto text-blue-600 mb-4" />
-              <p className="text-gray-700 font-medium">พร้อมรับสแกน QR Code</p>
-              <p className="text-sm text-gray-500 mt-2">ใช้เครื่องอ่าน Barcode Scanner</p>
+            {/* ส่วนอัปโหลดรูปภาพ */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="qr-image-upload"
+                disabled={processingImage || loading}
+              />
+              <label
+                htmlFor="qr-image-upload"
+                className={`cursor-pointer flex flex-col items-center ${
+                  processingImage || loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {processingImage ? (
+                  <>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-3"></div>
+                    <p className="text-gray-700 font-medium text-sm">กำลังสแกน QR Code...</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-12 h-12 text-gray-400 mb-3" />
+                    <p className="text-gray-700 font-medium text-sm mb-1">
+                      หรืออัปโหลดรูปภาพที่มี QR Code
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      คลิกเพื่อเลือกรูปภาพ (JPG, PNG, GIF)
+                    </p>
+                  </>
+                )}
+              </label>
             </div>
 
             {scannedAsset && (
