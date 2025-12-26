@@ -60,15 +60,47 @@ class AssetCheckController {
             $this->assetCheck->check_status = $data->check_status;
             $this->assetCheck->remark = $data->remark ?? '';
 
+            // ดึงข้อมูลสถานะเดิมของครุภัณฑ์ก่อนอัพเดต
+            $oldStatusQuery = "SELECT status FROM assets WHERE asset_id = :asset_id";
+            $oldStatusStmt = $this->db->prepare($oldStatusQuery);
+            $oldStatusStmt->bindParam(':asset_id', $data->asset_id);
+            $oldStatusStmt->execute();
+            $oldAsset = $oldStatusStmt->fetch(PDO::FETCH_ASSOC);
+            $oldStatus = $oldAsset ? $oldAsset['status'] : null;
+
             $id = $this->assetCheck->create();
             
             if ($id) {
+                // อัพเดตสถานะของครุภัณฑ์ตาม check_status
+                // แปลง check_status เป็น status ของครุภัณฑ์
+                $statusMap = [
+                    'ใช้งานได้' => 'ใช้งานได้',
+                    'รอซ่อม' => 'รอซ่อม',
+                    'รอจำหน่าย' => 'รอจำหน่าย',
+                    'จำหน่ายแล้ว' => 'จำหน่ายแล้ว',
+                    'ไม่พบ' => 'ไม่พบ'
+                ];
+                
+                $newStatus = isset($statusMap[$data->check_status]) 
+                    ? $statusMap[$data->check_status] 
+                    : $data->check_status;
+
+                // อัพเดตสถานะครุภัณฑ์
+                $updateStatusQuery = "UPDATE assets SET status = :status WHERE asset_id = :asset_id";
+                $updateStatusStmt = $this->db->prepare($updateStatusQuery);
+                $updateStatusStmt->bindParam(':status', $newStatus);
+                $updateStatusStmt->bindParam(':asset_id', $data->asset_id);
+                $updateStatusStmt->execute();
+
                 // บันทึก Audit Trail
                 $this->auditTrail->user_id = $user_data['user_id'];
                 $this->auditTrail->asset_id = $data->asset_id;
                 $this->auditTrail->action = 'Check';
-                $this->auditTrail->old_value = null;
+                $this->auditTrail->old_value = json_encode([
+                    'status' => $oldStatus
+                ]);
                 $this->auditTrail->new_value = json_encode([
+                    'status' => $newStatus,
                     'check_status' => $data->check_status,
                     'remark' => $data->remark ?? ''
                 ]);

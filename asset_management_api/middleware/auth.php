@@ -1,20 +1,66 @@
 <?php
 function authenticate() {
-    $headers = getallheaders();
+    // ใช้วิธีที่รองรับทุก environment (CGI, Apache, etc.)
+    $authHeader = null;
     
-    if (!isset($headers['Authorization'])) {
+    // ลองใช้ getallheaders() ก่อน (ทำงานบน Apache)
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        // ตรวจสอบ Authorization header (case-insensitive)
+        foreach ($headers as $key => $value) {
+            if (strtolower($key) === 'authorization') {
+                $authHeader = $value;
+                break;
+            }
+        }
+    }
+    
+    // ถ้ายังไม่เจอ ลองดู $_SERVER (สำหรับ CGI/FastCGI)
+    if (!$authHeader) {
+        // ลองหา HTTP_AUTHORIZATION ใน $_SERVER
+        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            // บาง server อาจ redirect header
+            $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        } else {
+            // ลองแปลงจาก $_SERVER headers
+            foreach ($_SERVER as $key => $value) {
+                if (strpos($key, 'HTTP_') === 0) {
+                    $headerKey = str_replace('_', '-', substr($key, 5));
+                    if (strtolower($headerKey) === 'authorization') {
+                        $authHeader = $value;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    if (!$authHeader) {
+        // Log สำหรับ debug (ถ้าต้องการ)
+        error_log('Auth failed: No Authorization header found. Available headers: ' . json_encode(array_keys($_SERVER)));
         Response::error('ไม่พบ Token การยืนยันตัวตน', 401);
     }
 
-    $token = str_replace('Bearer ', '', $headers['Authorization']);
+    $token = str_replace('Bearer ', '', $authHeader);
+    $token = trim($token);
+    
+    if (empty($token)) {
+        Response::error('Token ไม่ถูกต้อง (empty)', 401);
+    }
     
     try {
         // ตรวจสอบ JWT token (ในตัวอย่างนี้ใช้วิธีง่ายๆ)
-        $decoded = base64_decode($token);
+        $decoded = base64_decode($token, true); // strict mode
+        if ($decoded === false) {
+            Response::error('Token ไม่ถูกต้อง (base64 decode failed)', 401);
+        }
+        
         $user_data = json_decode($decoded, true);
         
         if (!$user_data || !isset($user_data['user_id'])) {
-            Response::error('Token ไม่ถูกต้อง', 401);
+            Response::error('Token ไม่ถูกต้อง (invalid user data)', 401);
         }
         
         // ตรวจสอบสถานะผู้ใช้
