@@ -238,10 +238,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-600 mt-1">ภาพรวมระบบจัดการครุภัณฑ์</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p className="text-gray-600">ภาพรวมระบบจัดการครุภัณฑ์</p>
         </div>
         
         {/* Quick Actions */}

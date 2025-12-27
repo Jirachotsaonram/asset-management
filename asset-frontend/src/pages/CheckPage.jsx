@@ -91,20 +91,39 @@ export default function CheckPage() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (forceRefresh = false) => {
     try {
       setLoading(true);
+      // เพิ่ม timestamp เพื่อ force refresh ข้อมูล
+      const timestamp = forceRefresh ? `?t=${Date.now()}` : '';
       const [assetsRes, schedulesRes, locationsRes, departmentsRes] = await Promise.all([
-        api.get('/assets'),
-        api.get('/check-schedules'),
-        api.get('/locations'),
-        api.get('/departments')
+        api.get(`/assets${timestamp}`),
+        api.get(`/check-schedules${timestamp}`),
+        api.get(`/locations${timestamp}`),
+        api.get(`/departments${timestamp}`)
       ]);
 
-      setAssets(assetsRes.data.data || []);
+      const fetchedAssets = assetsRes.data.data || [];
+      setAssets(fetchedAssets);
       setSchedules(schedulesRes.data.data || []);
       setLocations(locationsRes.data.data || []);
       setDepartments(departmentsRes.data.data || []);
+      
+      // Debug: ตรวจสอบข้อมูลที่ดึงมา
+      if (forceRefresh) {
+        console.log('Refreshed assets:', fetchedAssets.length);
+        // ตรวจสอบ assets ที่มี last_check_date
+        const checkedAssets = fetchedAssets.filter(a => a.last_check_date);
+        console.log('Assets with last_check_date:', checkedAssets.length);
+        if (checkedAssets.length > 0) {
+          console.log('Sample asset:', {
+            asset_id: checkedAssets[0].asset_id,
+            asset_name: checkedAssets[0].asset_name,
+            last_check_date: checkedAssets[0].last_check_date,
+            next_check_date: checkedAssets[0].next_check_date
+          });
+        }
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('ไม่สามารถโหลดข้อมูลได้');
@@ -116,10 +135,14 @@ export default function CheckPage() {
   // Helper: Get Check Status
   const getCheckStatus = (asset) => {
     const today = new Date();
-    const nextCheck = asset.next_check_date ? new Date(asset.next_check_date) : null;
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
     
     // 1. ยังไม่เคยตรวจ
     if (!asset.last_check_date) {
+      // Debug log
+      if (asset.asset_id === 14) {
+        console.log('Asset 14: No last_check_date', asset);
+      }
       return {
         status: 'never_checked',
         label: 'ยังไม่เคยตรวจ',
@@ -129,8 +152,44 @@ export default function CheckPage() {
       };
     }
     
-    // 2. ไม่มีกำหนดการ
-    if (!nextCheck) {
+    // ตรวจสอบวันที่ตรวจล่าสุด
+    // Parse date string (format: YYYY-MM-DD) โดยเพิ่ม timezone
+    const lastCheckDateStr = asset.last_check_date;
+    const lastCheckDate = new Date(lastCheckDateStr + 'T00:00:00');
+    lastCheckDate.setHours(0, 0, 0, 0);
+    const daysSinceLastCheck = Math.floor((today - lastCheckDate) / (1000 * 60 * 60 * 24));
+    
+    // Debug log for asset 14
+    if (asset.asset_id === 14) {
+      console.log('Asset 14 status calculation:', {
+        last_check_date: asset.last_check_date,
+        next_check_date: asset.next_check_date,
+        daysSinceLastCheck,
+        today: today.toISOString().split('T')[0],
+        lastCheckDate: lastCheckDate.toISOString().split('T')[0],
+        todayTime: today.getTime(),
+        lastCheckDateTime: lastCheckDate.getTime()
+      });
+    }
+    
+    // 2. ไม่มีกำหนดการ (ไม่มี next_check_date)
+    if (!asset.next_check_date) {
+      // ถ้าตรวจล่าสุดภายใน 30 วัน ให้แสดงว่า "ตรวจแล้ว"
+      if (daysSinceLastCheck <= 30) {
+        if (asset.asset_id === 14) {
+          console.log('Asset 14: Returning checked status (no schedule, checked within 30 days)');
+        }
+        return {
+          status: 'checked',
+          label: `ตรวจแล้ว ${asset.last_check_date}`,
+          color: 'bg-green-100 text-green-800 border-green-300',
+          icon: CheckSquare,
+          priority: 3
+        };
+      }
+      if (asset.asset_id === 14) {
+        console.log('Asset 14: Returning no_schedule status (checked more than 30 days ago)');
+      }
       return {
         status: 'no_schedule',
         label: 'ยังไม่กำหนดรอบ',
@@ -140,9 +199,24 @@ export default function CheckPage() {
       };
     }
     
+    const nextCheck = new Date(asset.next_check_date + 'T00:00:00');
+    nextCheck.setHours(0, 0, 0, 0);
     const daysUntil = Math.floor((nextCheck - today) / (1000 * 60 * 60 * 24));
     
-    // 3. เลยกำหนด
+    // 3. ถ้าตรวจล่าสุดภายใน 7 วัน ให้แสดง "ตรวจแล้ว" (ไม่ว่าจะ next_check_date เป็นวันไหน)
+    // เพราะถ้าตรวจแล้วก็ควรแสดงว่า "ตรวจแล้ว" ไม่ใช่ "อีก X วัน"
+    if (daysSinceLastCheck <= 7) {
+      return {
+        status: 'checked',
+        label: `ตรวจแล้ว ${asset.last_check_date}`,
+        color: 'bg-green-100 text-green-800 border-green-300',
+        icon: CheckSquare,
+        priority: 3,
+        days: daysUntil
+      };
+    }
+    
+    // 4. เลยกำหนด (next_check_date ผ่านไปแล้ว)
     if (daysUntil < 0) {
       return {
         status: 'overdue',
@@ -154,7 +228,7 @@ export default function CheckPage() {
       };
     }
     
-    // 4. ใกล้กำหนด (7 วัน)
+    // 5. ใกล้กำหนด (7 วัน) - เฉพาะกรณีที่ยังไม่เคยตรวจหรือตรวจมานานแล้ว
     if (daysUntil <= 7) {
       return {
         status: 'due_soon',
@@ -166,7 +240,7 @@ export default function CheckPage() {
       };
     }
     
-    // 5. ปกติ
+    // 6. ปกติ (ตรวจแล้วและยังไม่ถึงกำหนด)
     return {
       status: 'checked',
       label: `ตรวจแล้ว ${asset.last_check_date}`,
@@ -462,23 +536,58 @@ export default function CheckPage() {
       const actualStatus = statusMap[checkForm.status] || checkForm.status;
       
       // บันทึกการตรวจทีละรายการ
+      const results = [];
+      const errors = [];
+      
       for (const asset of currentRoom.assets) {
-        await api.post('/checks', {
-          asset_id: asset.asset_id,
-          user_id: user.user_id,
-          check_date: new Date().toISOString().split('T')[0],
-          check_status: actualStatus,
-          remark: checkForm.remark
-        });
+        try {
+          const response = await api.post('/checks', {
+            asset_id: asset.asset_id,
+            check_date: new Date().toISOString().split('T')[0],
+            check_status: actualStatus,
+            remark: checkForm.remark
+          });
+          
+          if (response.data.success) {
+            results.push(asset.asset_id);
+          } else {
+            errors.push({
+              asset_id: asset.asset_id,
+              asset_name: asset.asset_name,
+              error: response.data.message || 'ไม่สามารถบันทึกได้'
+            });
+          }
+        } catch (error) {
+          errors.push({
+            asset_id: asset.asset_id,
+            asset_name: asset.asset_name,
+            error: error.response?.data?.message || 'ไม่สามารถบันทึกได้'
+          });
+        }
       }
 
-      toast.success(`บันทึกการตรวจทั้งห้องสำเร็จ (${currentRoom.assets.length} รายการ)`);
+      // แสดงผลลัพธ์
+      if (errors.length === 0) {
+        toast.success(`บันทึกการตรวจทั้งห้องสำเร็จ (${results.length} รายการ)`);
+      } else if (results.length > 0) {
+        toast.success(`บันทึกสำเร็จ ${results.length} รายการ แต่มี ${errors.length} รายการที่บันทึกไม่สำเร็จ`);
+        console.error('Errors:', errors);
+      } else {
+        toast.error(`ไม่สามารถบันทึกได้ (${errors.length} รายการ)`);
+        console.error('All errors:', errors);
+      }
+      
       setShowRoomCheckModal(false);
       setCurrentRoom(null);
-      fetchData();
+      
+      // รอสักครู่เพื่อให้ database transaction commit และ trigger ทำงาน
+      // ใช้ forceRefresh เพื่อให้แน่ใจว่าข้อมูลถูกดึงมาใหม่
+      setTimeout(() => {
+        fetchData(true);
+      }, 1000);
     } catch (error) {
       console.error('Error saving room check:', error);
-      toast.error('ไม่สามารถบันทึกได้');
+      toast.error(error.response?.data?.message || 'ไม่สามารถบันทึกได้');
     } finally {
       setLoading(false);
     }
@@ -913,6 +1022,18 @@ function GroupedView({
                                         {roomAssets.map(asset => {
                                           const status = getCheckStatus(asset);
                                           const StatusIcon = status.icon;
+                                          
+                                          // Debug log for asset 14
+                                          if (asset.asset_id === 14) {
+                                            console.log('Asset 14 in table:', {
+                                              asset_id: asset.asset_id,
+                                              asset_name: asset.asset_name,
+                                              last_check_date: asset.last_check_date,
+                                              next_check_date: asset.next_check_date,
+                                              status: status.status,
+                                              label: status.label
+                                            });
+                                          }
 
                                           return (
                                             <tr key={asset.asset_id} className="hover:bg-gray-50">

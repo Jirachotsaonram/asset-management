@@ -60,17 +60,30 @@ class AssetCheckController {
             $this->assetCheck->check_status = $data->check_status;
             $this->assetCheck->remark = $data->remark ?? '';
 
-            // ดึงข้อมูลสถานะเดิมของครุภัณฑ์ก่อนอัพเดต
-            $oldStatusQuery = "SELECT status FROM assets WHERE asset_id = :asset_id";
-            $oldStatusStmt = $this->db->prepare($oldStatusQuery);
-            $oldStatusStmt->bindParam(':asset_id', $data->asset_id);
-            $oldStatusStmt->execute();
-            $oldAsset = $oldStatusStmt->fetch(PDO::FETCH_ASSOC);
-            $oldStatus = $oldAsset ? $oldAsset['status'] : null;
-
-            $id = $this->assetCheck->create();
+            // ตรวจสอบว่า asset_id มีอยู่จริงหรือไม่
+            $checkAssetQuery = "SELECT asset_id, status FROM assets WHERE asset_id = :asset_id";
+            $checkAssetStmt = $this->db->prepare($checkAssetQuery);
+            $checkAssetStmt->bindParam(':asset_id', $data->asset_id);
+            $checkAssetStmt->execute();
+            $oldAsset = $checkAssetStmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($id) {
+            if (!$oldAsset) {
+                Response::error('ไม่พบครุภัณฑ์ที่ต้องการตรวจสอบ', 404);
+                return;
+            }
+            
+            $oldStatus = $oldAsset['status'];
+
+            // เริ่ม transaction เพื่อให้แน่ใจว่าทั้งการบันทึก check และการอัพเดตสถานะสำเร็จพร้อมกัน
+            $this->db->beginTransaction();
+            
+            try {
+                $id = $this->assetCheck->create();
+                
+                if (!$id) {
+                    throw new Exception('ไม่สามารถบันทึกการตรวจสอบได้');
+                }
+                
                 // อัพเดตสถานะของครุภัณฑ์ตาม check_status
                 // แปลง check_status เป็น status ของครุภัณฑ์
                 $statusMap = [
@@ -85,12 +98,18 @@ class AssetCheckController {
                     ? $statusMap[$data->check_status] 
                     : $data->check_status;
 
-                // อัพเดตสถานะครุภัณฑ์
-                $updateStatusQuery = "UPDATE assets SET status = :status WHERE asset_id = :asset_id";
+                // อัพเดตสถานะครุภัณฑ์ (อัพเดตแม้ว่าสถานะเดิมและใหม่จะเหมือนกันก็ตาม)
+                $updateStatusQuery = "UPDATE assets SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE asset_id = :asset_id";
                 $updateStatusStmt = $this->db->prepare($updateStatusQuery);
                 $updateStatusStmt->bindParam(':status', $newStatus);
                 $updateStatusStmt->bindParam(':asset_id', $data->asset_id);
-                $updateStatusStmt->execute();
+                
+                if (!$updateStatusStmt->execute()) {
+                    throw new Exception('ไม่สามารถอัพเดตสถานะครุภัณฑ์ได้');
+                }
+                
+                // ไม่ต้องตรวจสอบ rowCount() เพราะถ้าสถานะเดิมและใหม่เหมือนกัน MySQL จะ return 0 rows affected
+                // แต่เรายังคงต้องอัพเดต updated_at เพื่อให้ระบบรู้ว่ามีการตรวจสอบ
 
                 // บันทึก Audit Trail
                 $this->auditTrail->user_id = $user_data['user_id'];
@@ -106,9 +125,15 @@ class AssetCheckController {
                 ]);
                 $this->auditTrail->create();
 
+                // commit transaction
+                $this->db->commit();
+                
                 Response::success('บันทึกการตรวจสอบสำเร็จ', ['check_id' => $id]);
-            } else {
-                Response::error('ไม่สามารถบันทึกการตรวจสอบได้', 500);
+            } catch (Exception $e) {
+                // rollback transaction ถ้ามี error
+                $this->db->rollBack();
+                error_log('Error in AssetCheckController::create: ' . $e->getMessage());
+                Response::error('ไม่สามารถบันทึกการตรวจสอบได้: ' . $e->getMessage(), 500);
             }
         } else {
             Response::error('กรุณากรอกข้อมูลให้ครบถ้วน', 400);

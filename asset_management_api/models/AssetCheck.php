@@ -1,7 +1,7 @@
 <?php
 class AssetCheck {
     private $conn;
-    private $table_name = "Asset_Check";
+    private $table_name = "asset_check";
 
     public $check_id;
     public $asset_id;
@@ -35,8 +35,8 @@ class AssetCheck {
     public function readAll() {
         $query = "SELECT ac.*, a.asset_name, u.fullname as checker_name 
                   FROM " . $this->table_name . " ac
-                  LEFT JOIN Assets a ON ac.asset_id = a.asset_id
-                  LEFT JOIN Users u ON ac.user_id = u.user_id
+                  LEFT JOIN assets a ON ac.asset_id = a.asset_id
+                  LEFT JOIN users u ON ac.user_id = u.user_id
                   ORDER BY ac.check_date DESC";
         
         $stmt = $this->conn->prepare($query);
@@ -58,7 +58,7 @@ class AssetCheck {
     }
 
     public function getUncheckedAssets() {
-        $query = "SELECT a.* FROM Assets a
+        $query = "SELECT a.* FROM assets a
                   WHERE a.asset_id NOT IN (
                       SELECT asset_id FROM " . $this->table_name . "
                       WHERE check_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
