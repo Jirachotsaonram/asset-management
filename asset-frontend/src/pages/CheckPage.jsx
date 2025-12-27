@@ -34,7 +34,6 @@ export default function CheckPage() {
   // States
   const [assets, setAssets] = useState([]);
   const [schedules, setSchedules] = useState([]);
-  const [locations, setLocations] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -91,39 +90,18 @@ export default function CheckPage() {
     fetchData();
   }, []);
 
-  const fetchData = async (forceRefresh = false) => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      // เพิ่ม timestamp เพื่อ force refresh ข้อมูล
-      const timestamp = forceRefresh ? `?t=${Date.now()}` : '';
-      const [assetsRes, schedulesRes, locationsRes, departmentsRes] = await Promise.all([
-        api.get(`/assets${timestamp}`),
-        api.get(`/check-schedules${timestamp}`),
-        api.get(`/locations${timestamp}`),
-        api.get(`/departments${timestamp}`)
+      const [assetsRes, schedulesRes, departmentsRes] = await Promise.all([
+        api.get('/assets'),
+        api.get('/check-schedules'),
+        api.get('/departments')
       ]);
 
-      const fetchedAssets = assetsRes.data.data || [];
-      setAssets(fetchedAssets);
+      setAssets(assetsRes.data.data || []);
       setSchedules(schedulesRes.data.data || []);
-      setLocations(locationsRes.data.data || []);
       setDepartments(departmentsRes.data.data || []);
-      
-      // Debug: ตรวจสอบข้อมูลที่ดึงมา
-      if (forceRefresh) {
-        console.log('Refreshed assets:', fetchedAssets.length);
-        // ตรวจสอบ assets ที่มี last_check_date
-        const checkedAssets = fetchedAssets.filter(a => a.last_check_date);
-        console.log('Assets with last_check_date:', checkedAssets.length);
-        if (checkedAssets.length > 0) {
-          console.log('Sample asset:', {
-            asset_id: checkedAssets[0].asset_id,
-            asset_name: checkedAssets[0].asset_name,
-            last_check_date: checkedAssets[0].last_check_date,
-            next_check_date: checkedAssets[0].next_check_date
-          });
-        }
-      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('ไม่สามารถโหลดข้อมูลได้');
@@ -135,14 +113,10 @@ export default function CheckPage() {
   // Helper: Get Check Status
   const getCheckStatus = (asset) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+    const nextCheck = asset.next_check_date ? new Date(asset.next_check_date) : null;
     
     // 1. ยังไม่เคยตรวจ
     if (!asset.last_check_date) {
-      // Debug log
-      if (asset.asset_id === 14) {
-        console.log('Asset 14: No last_check_date', asset);
-      }
       return {
         status: 'never_checked',
         label: 'ยังไม่เคยตรวจ',
@@ -152,44 +126,8 @@ export default function CheckPage() {
       };
     }
     
-    // ตรวจสอบวันที่ตรวจล่าสุด
-    // Parse date string (format: YYYY-MM-DD) โดยเพิ่ม timezone
-    const lastCheckDateStr = asset.last_check_date;
-    const lastCheckDate = new Date(lastCheckDateStr + 'T00:00:00');
-    lastCheckDate.setHours(0, 0, 0, 0);
-    const daysSinceLastCheck = Math.floor((today - lastCheckDate) / (1000 * 60 * 60 * 24));
-    
-    // Debug log for asset 14
-    if (asset.asset_id === 14) {
-      console.log('Asset 14 status calculation:', {
-        last_check_date: asset.last_check_date,
-        next_check_date: asset.next_check_date,
-        daysSinceLastCheck,
-        today: today.toISOString().split('T')[0],
-        lastCheckDate: lastCheckDate.toISOString().split('T')[0],
-        todayTime: today.getTime(),
-        lastCheckDateTime: lastCheckDate.getTime()
-      });
-    }
-    
-    // 2. ไม่มีกำหนดการ (ไม่มี next_check_date)
-    if (!asset.next_check_date) {
-      // ถ้าตรวจล่าสุดภายใน 30 วัน ให้แสดงว่า "ตรวจแล้ว"
-      if (daysSinceLastCheck <= 30) {
-        if (asset.asset_id === 14) {
-          console.log('Asset 14: Returning checked status (no schedule, checked within 30 days)');
-        }
-        return {
-          status: 'checked',
-          label: `ตรวจแล้ว ${asset.last_check_date}`,
-          color: 'bg-green-100 text-green-800 border-green-300',
-          icon: CheckSquare,
-          priority: 3
-        };
-      }
-      if (asset.asset_id === 14) {
-        console.log('Asset 14: Returning no_schedule status (checked more than 30 days ago)');
-      }
+    // 2. ไม่มีกำหนดการ
+    if (!nextCheck) {
       return {
         status: 'no_schedule',
         label: 'ยังไม่กำหนดรอบ',
@@ -199,24 +137,9 @@ export default function CheckPage() {
       };
     }
     
-    const nextCheck = new Date(asset.next_check_date + 'T00:00:00');
-    nextCheck.setHours(0, 0, 0, 0);
     const daysUntil = Math.floor((nextCheck - today) / (1000 * 60 * 60 * 24));
     
-    // 3. ถ้าตรวจล่าสุดภายใน 7 วัน ให้แสดง "ตรวจแล้ว" (ไม่ว่าจะ next_check_date เป็นวันไหน)
-    // เพราะถ้าตรวจแล้วก็ควรแสดงว่า "ตรวจแล้ว" ไม่ใช่ "อีก X วัน"
-    if (daysSinceLastCheck <= 7) {
-      return {
-        status: 'checked',
-        label: `ตรวจแล้ว ${asset.last_check_date}`,
-        color: 'bg-green-100 text-green-800 border-green-300',
-        icon: CheckSquare,
-        priority: 3,
-        days: daysUntil
-      };
-    }
-    
-    // 4. เลยกำหนด (next_check_date ผ่านไปแล้ว)
+    // 3. เลยกำหนด
     if (daysUntil < 0) {
       return {
         status: 'overdue',
@@ -228,7 +151,7 @@ export default function CheckPage() {
       };
     }
     
-    // 5. ใกล้กำหนด (7 วัน) - เฉพาะกรณีที่ยังไม่เคยตรวจหรือตรวจมานานแล้ว
+    // 4. ใกล้กำหนด (7 วัน)
     if (daysUntil <= 7) {
       return {
         status: 'due_soon',
@@ -240,7 +163,7 @@ export default function CheckPage() {
       };
     }
     
-    // 6. ปกติ (ตรวจแล้วและยังไม่ถึงกำหนด)
+    // 5. ปกติ
     return {
       status: 'checked',
       label: `ตรวจแล้ว ${asset.last_check_date}`,
@@ -360,13 +283,14 @@ export default function CheckPage() {
   // Handlers
   const handleOpenScheduleModal = (asset) => {
     setCurrentAsset(asset);
-    const hasCustomInterval = asset.custom_interval_months && asset.schedule_id == 5;
+    // ถ้า asset มี schedule_id = 5 (กำหนดเอง) ให้เปลี่ยนเป็น 3 (3 เดือน) แทน
+    const scheduleId = asset.schedule_id && asset.schedule_id != 5 ? asset.schedule_id : 3;
     setScheduleForm({
-      scheduleId: asset.schedule_id || 3,
-      customMonths: asset.custom_interval_months || '',
-      nextCheckDate: asset.next_check_date || '',
+      scheduleId: scheduleId,
+      customMonths: '',
+      nextCheckDate: '',
       checkNow: false,
-      useCustomDate: !!asset.next_check_date && asset.schedule_id == 5
+      useCustomDate: false
     });
     setShowScheduleModal(true);
   };
@@ -384,44 +308,21 @@ export default function CheckPage() {
 
   const handleSaveSchedule = async () => {
     try {
-      // Validation
-      if (scheduleForm.scheduleId == 5) {
-        // ถ้าเลือก "กำหนดเอง" ต้องมี customMonths หรือ nextCheckDate
-        if (!scheduleForm.customMonths && !scheduleForm.nextCheckDate) {
-          toast.error('กรุณาระบุจำนวนเดือนหรือวันที่ตรวจครั้งถัดไป');
-          return;
-        }
-      }
-      
       setLoading(true);
       
-      // คำนวณ next_check_date
+      // คำนวณ next_check_date จากรอบมาตรฐานเท่านั้น
       let nextCheckDate = null;
-      if (scheduleForm.useCustomDate && scheduleForm.nextCheckDate) {
-        // ใช้วันที่ที่กำหนดเอง
-        nextCheckDate = scheduleForm.nextCheckDate;
-      } else if (scheduleForm.scheduleId == 5 && scheduleForm.customMonths) {
-        // ใช้จำนวนเดือนที่กำหนดเอง
-        const months = parseInt(scheduleForm.customMonths);
-        if (months > 0) {
-          const date = new Date();
-          date.setMonth(date.getMonth() + months);
-          nextCheckDate = date.toISOString().split('T')[0];
-        }
-      } else if (scheduleForm.scheduleId != 5) {
-        // ใช้รอบมาตรฐาน
-        const selectedSchedule = schedules.find(s => s.schedule_id == scheduleForm.scheduleId);
-        if (selectedSchedule && selectedSchedule.check_interval_months > 0) {
-          const date = new Date();
-          date.setMonth(date.getMonth() + selectedSchedule.check_interval_months);
-          nextCheckDate = date.toISOString().split('T')[0];
-        }
+      const selectedSchedule = schedules.find(s => s.schedule_id == scheduleForm.scheduleId);
+      if (selectedSchedule && selectedSchedule.check_interval_months > 0) {
+        const date = new Date();
+        date.setMonth(date.getMonth() + selectedSchedule.check_interval_months);
+        nextCheckDate = date.toISOString().split('T')[0];
       }
       
       const payload = {
         asset_id: currentAsset.asset_id,
         schedule_id: scheduleForm.scheduleId,
-        custom_interval_months: scheduleForm.scheduleId == 5 && scheduleForm.customMonths ? parseInt(scheduleForm.customMonths) : null,
+        custom_interval_months: null,
         next_check_date: nextCheckDate
       };
 
@@ -441,14 +342,6 @@ export default function CheckPage() {
   
   const handleSaveRoomSchedule = async () => {
     try {
-      // Validation
-      if (roomScheduleForm.scheduleId == 5) {
-        if (!roomScheduleForm.customMonths) {
-          toast.error('กรุณาระบุจำนวนเดือน');
-          return;
-        }
-      }
-      
       setLoading(true);
       
       // ดึง location_id จาก asset แรก
@@ -461,10 +354,10 @@ export default function CheckPage() {
       const payload = {
         location_id: firstAsset.location_id,
         schedule_id: roomScheduleForm.scheduleId,
-        custom_interval_months: roomScheduleForm.scheduleId == 5 && roomScheduleForm.customMonths ? parseInt(roomScheduleForm.customMonths) : null
+        custom_interval_months: null
       };
 
-      const response = await api.post('/check-schedules/assign-location', payload);
+      await api.post('/check-schedules/assign-location', payload);
       
       toast.success(`กำหนดรอบการตรวจทั้งห้องสำเร็จ (${currentRoomForSchedule.assets.length} รายการ)`);
       setShowRoomScheduleModal(false);
@@ -536,58 +429,23 @@ export default function CheckPage() {
       const actualStatus = statusMap[checkForm.status] || checkForm.status;
       
       // บันทึกการตรวจทีละรายการ
-      const results = [];
-      const errors = [];
-      
       for (const asset of currentRoom.assets) {
-        try {
-          const response = await api.post('/checks', {
-            asset_id: asset.asset_id,
-            check_date: new Date().toISOString().split('T')[0],
-            check_status: actualStatus,
-            remark: checkForm.remark
-          });
-          
-          if (response.data.success) {
-            results.push(asset.asset_id);
-          } else {
-            errors.push({
-              asset_id: asset.asset_id,
-              asset_name: asset.asset_name,
-              error: response.data.message || 'ไม่สามารถบันทึกได้'
-            });
-          }
-        } catch (error) {
-          errors.push({
-            asset_id: asset.asset_id,
-            asset_name: asset.asset_name,
-            error: error.response?.data?.message || 'ไม่สามารถบันทึกได้'
-          });
-        }
+        await api.post('/checks', {
+          asset_id: asset.asset_id,
+          user_id: user.user_id,
+          check_date: new Date().toISOString().split('T')[0],
+          check_status: actualStatus,
+          remark: checkForm.remark
+        });
       }
 
-      // แสดงผลลัพธ์
-      if (errors.length === 0) {
-        toast.success(`บันทึกการตรวจทั้งห้องสำเร็จ (${results.length} รายการ)`);
-      } else if (results.length > 0) {
-        toast.success(`บันทึกสำเร็จ ${results.length} รายการ แต่มี ${errors.length} รายการที่บันทึกไม่สำเร็จ`);
-        console.error('Errors:', errors);
-      } else {
-        toast.error(`ไม่สามารถบันทึกได้ (${errors.length} รายการ)`);
-        console.error('All errors:', errors);
-      }
-      
+      toast.success(`บันทึกการตรวจทั้งห้องสำเร็จ (${currentRoom.assets.length} รายการ)`);
       setShowRoomCheckModal(false);
       setCurrentRoom(null);
-      
-      // รอสักครู่เพื่อให้ database transaction commit และ trigger ทำงาน
-      // ใช้ forceRefresh เพื่อให้แน่ใจว่าข้อมูลถูกดึงมาใหม่
-      setTimeout(() => {
-        fetchData(true);
-      }, 1000);
+      fetchData();
     } catch (error) {
       console.error('Error saving room check:', error);
-      toast.error(error.response?.data?.message || 'ไม่สามารถบันทึกได้');
+      toast.error('ไม่สามารถบันทึกได้');
     } finally {
       setLoading(false);
     }
@@ -1022,18 +880,6 @@ function GroupedView({
                                         {roomAssets.map(asset => {
                                           const status = getCheckStatus(asset);
                                           const StatusIcon = status.icon;
-                                          
-                                          // Debug log for asset 14
-                                          if (asset.asset_id === 14) {
-                                            console.log('Asset 14 in table:', {
-                                              asset_id: asset.asset_id,
-                                              asset_name: asset.asset_name,
-                                              last_check_date: asset.last_check_date,
-                                              next_check_date: asset.next_check_date,
-                                              status: status.status,
-                                              label: status.label
-                                            });
-                                          }
 
                                           return (
                                             <tr key={asset.asset_id} className="hover:bg-gray-50">
@@ -1378,7 +1224,8 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
 
 // Schedule Modal
 function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave, onClose, loading }) {
-  const isCustomSchedule = scheduleForm.scheduleId == 5;
+  // กรอง schedule_id = 5 (กำหนดเอง) ออก
+  const availableSchedules = schedules.filter(s => s.schedule_id != 5);
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1414,15 +1261,12 @@ function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave
                 const newScheduleId = parseInt(e.target.value);
                 setScheduleForm({
                   ...scheduleForm, 
-                  scheduleId: newScheduleId,
-                  useCustomDate: newScheduleId == 5 ? scheduleForm.useCustomDate : false,
-                  customMonths: newScheduleId != 5 ? '' : scheduleForm.customMonths,
-                  nextCheckDate: newScheduleId != 5 ? '' : scheduleForm.nextCheckDate
+                  scheduleId: newScheduleId
                 });
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
-              {schedules.map(schedule => (
+              {availableSchedules.map(schedule => (
                 <option key={schedule.schedule_id} value={schedule.schedule_id}>
                   {schedule.name} {schedule.check_interval_months > 0 ? `(${schedule.check_interval_months} เดือน)` : ''}
                 </option>
@@ -1430,87 +1274,16 @@ function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave
             </select>
           </div>
 
-          {isCustomSchedule && (
-            <>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p className="text-xs text-yellow-800">
-                  💡 เมื่อเลือก "กำหนดเอง" กรุณาระบุจำนวนเดือนหรือวันที่ตรวจครั้งถัดไป
-                </p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  วิธีกำหนดรอบ
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={!scheduleForm.useCustomDate}
-                      onChange={() => setScheduleForm({...scheduleForm, useCustomDate: false, nextCheckDate: ''})}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm">กำหนดจำนวนเดือน</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={scheduleForm.useCustomDate}
-                      onChange={() => setScheduleForm({...scheduleForm, useCustomDate: true, customMonths: ''})}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm">กำหนดวันที่ตรวจครั้งถัดไป</span>
-                  </label>
-                </div>
-              </div>
-
-              {!scheduleForm.useCustomDate ? (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    จำนวนเดือน <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="36"
-                    value={scheduleForm.customMonths}
-                    onChange={(e) => setScheduleForm({...scheduleForm, customMonths: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="เช่น 3, 6, 12"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    ระบบจะคำนวณวันที่ตรวจครั้งถัดไปจากวันนี้ + จำนวนเดือนที่กำหนด
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    วันที่ตรวจครั้งถัดไป <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={scheduleForm.nextCheckDate}
-                    onChange={(e) => setScheduleForm({...scheduleForm, nextCheckDate: e.target.value})}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                </div>
-              )}
-            </>
-          )}
-
-          {!isCustomSchedule && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs text-green-800">
-                ✅ ระบบจะคำนวณวันที่ตรวจครั้งถัดไปอัตโนมัติตามรอบที่เลือก
-              </p>
-            </div>
-          )}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-xs text-green-800">
+              ✅ ระบบจะคำนวณวันที่ตรวจครั้งถัดไปอัตโนมัติตามรอบที่เลือก
+            </p>
+          </div>
 
           <div className="flex gap-3 pt-4">
             <button
               onClick={onSave}
-              disabled={loading || (isCustomSchedule && !scheduleForm.customMonths && !scheduleForm.nextCheckDate)}
+              disabled={loading}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save size={20} />
@@ -1531,7 +1304,8 @@ function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave
 
 // Room Schedule Modal
 function RoomScheduleModal({ room, schedules, scheduleForm, setScheduleForm, onSave, onClose, loading }) {
-  const isCustomSchedule = scheduleForm.scheduleId == 5;
+  // กรอง schedule_id = 5 (กำหนดเอง) ออก
+  const availableSchedules = schedules.filter(s => s.schedule_id != 5);
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1576,13 +1350,12 @@ function RoomScheduleModal({ room, schedules, scheduleForm, setScheduleForm, onS
                 const newScheduleId = parseInt(e.target.value);
                 setScheduleForm({
                   ...scheduleForm, 
-                  scheduleId: newScheduleId,
-                  customMonths: newScheduleId != 5 ? '' : scheduleForm.customMonths
+                  scheduleId: newScheduleId
                 });
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
-              {schedules.map(schedule => (
+              {availableSchedules.map(schedule => (
                 <option key={schedule.schedule_id} value={schedule.schedule_id}>
                   {schedule.name} {schedule.check_interval_months > 0 ? `(${schedule.check_interval_months} เดือน)` : ''}
                 </option>
@@ -1590,46 +1363,16 @@ function RoomScheduleModal({ room, schedules, scheduleForm, setScheduleForm, onS
             </select>
           </div>
 
-          {isCustomSchedule && (
-            <>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p className="text-xs text-yellow-800">
-                  💡 เมื่อเลือก "กำหนดเอง" กรุณาระบุจำนวนเดือน
-                </p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  จำนวนเดือน <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="36"
-                  value={scheduleForm.customMonths}
-                  onChange={(e) => setScheduleForm({...scheduleForm, customMonths: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="เช่น 3, 6, 12"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  ระบบจะคำนวณวันที่ตรวจครั้งถัดไปจากวันนี้ + จำนวนเดือนที่กำหนด
-                </p>
-              </div>
-            </>
-          )}
-
-          {!isCustomSchedule && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs text-green-800">
-                ✅ ระบบจะคำนวณวันที่ตรวจครั้งถัดไปอัตโนมัติตามรอบที่เลือก
-              </p>
-            </div>
-          )}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-xs text-green-800">
+              ✅ ระบบจะคำนวณวันที่ตรวจครั้งถัดไปอัตโนมัติตามรอบที่เลือก
+            </p>
+          </div>
 
           <div className="flex gap-3 pt-4">
             <button
               onClick={onSave}
-              disabled={loading || (isCustomSchedule && !scheduleForm.customMonths)}
+              disabled={loading}
               className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save size={20} />

@@ -55,16 +55,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const isActive = (path) => location.pathname === path;
 
-  const getRoleColor = (role) => {
-    switch (role) {
-      case 'Admin':
-        return 'bg-red-500';
-      case 'Inspector':
-        return 'bg-blue-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
+
 
   return (
     <>
