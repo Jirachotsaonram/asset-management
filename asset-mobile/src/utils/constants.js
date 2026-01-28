@@ -21,7 +21,7 @@ import { Platform } from 'react-native';
 //   - PC จะได้ IP เช่น 10.103.131.243
 //   - Gateway จะเป็น IP ของมือถือ เช่น 10.103.131.17
 //   - แต่ API URL ต้องใช้ IP ของ PC (10.103.131.243) ไม่ใช่ gateway
-const YOUR_IP_ADDRESS = '10.103.131.243'; // IP ของ PC ที่เชื่อมต่อกับ hotspot จากมือถือ
+const YOUR_IP_ADDRESS = '192.168.0.160'; // IP ของ PC ที่เชื่อมต่อกับ hotspot จากมือถือ
 
 // สำหรับ Expo Go บนอุปกรณ์จริง ต้องใช้ IP address ของเครื่องที่รัน API
 // สำหรับ Android Emulator ใช้ 10.0.2.2 แทน localhost

@@ -94,7 +94,7 @@ export default function LoginScreen({ navigation }) {
             )}
           </TouchableOpacity>
 
-          <Text style={styles.hint}>ทดสอบด้วย: admin / admin123</Text>
+          
         </View>
       </View>
     </KeyboardAvoidingView>
