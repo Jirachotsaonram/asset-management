@@ -251,6 +251,8 @@ export default function AssetsPage() {
       total: assetList.length,
       available: assetList.filter(a => a.status === 'ใช้งานได้').length,
       maintenance: assetList.filter(a => a.status === 'รอซ่อม').length,
+      awaiting_disposal: assetList.filter(a => a.status === 'รอจำหน่าย').length,
+      disposed: assetList.filter(a => a.status === 'จำหน่ายแล้ว').length,
       missing: assetList.filter(a => a.status === 'ไม่พบ').length
     };
   };
@@ -380,7 +382,9 @@ export default function AssetsPage() {
                     <p className="text-sm text-gray-600 mt-1">
                       ทั้งหมด: {stats.total} | 
                       <span className="text-green-600 ml-2">ใช้งานได้: {stats.available}</span> | 
-                      <span className="text-yellow-600 ml-2">รอซ่อม: {stats.maintenance}</span> | 
+                      <span className="text-orange-500 ml-2">รอซ่อม: {stats.maintenance}</span> | 
+                      <span className="text-amber-500 ml-2">รอจำหน่าย: {stats.awaiting_disposal}</span> | 
+                      <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {stats.disposed}</span> | 
                       <span className="text-red-600 ml-2">ไม่พบ: {stats.missing}</span>
                     </p>
                   </div>
