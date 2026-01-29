@@ -468,6 +468,177 @@ function DetailModal({ audit, onClose }) {
     }
   };
 
+  // แปลง key เป็นชื่อภาษาไทย
+  const fieldLabels = {
+    asset_id: 'รหัสครุภัณฑ์',
+    asset_name: 'ชื่อครุภัณฑ์',
+    serial_number: 'หมายเลข Serial',
+    category_id: 'หมวดหมู่',
+    category_name: 'ชื่อหมวดหมู่',
+    department_id: 'รหัสหน่วยงาน',
+    department_name: 'หน่วยงาน',
+    location_id: 'รหัสสถานที่',
+    building_name: 'อาคาร',
+    floor: 'ชั้น',
+    room_number: 'ห้อง',
+    status: 'สถานะ',
+    purchase_date: 'วันที่ซื้อ',
+    purchase_price: 'ราคา',
+    warranty_end: 'วันหมดประกัน',
+    remark: 'หมายเหตุ',
+    description: 'รายละเอียด',
+    image_url: 'รูปภาพ',
+    created_at: 'วันที่สร้าง',
+    updated_at: 'วันที่อัปเดต',
+    user_id: 'รหัสผู้ใช้',
+    fullname: 'ชื่อผู้ใช้',
+    check_status: 'สถานะการตรวจ',
+    check_date: 'วันที่ตรวจ',
+    next_check_date: 'วันตรวจครั้งถัดไป',
+    borrow_date: 'วันที่ยืม',
+    return_date: 'วันที่คืน',
+    borrower_name: 'ผู้ยืม',
+    purpose: 'วัตถุประสงค์'
+  };
+
+  const getFieldLabel = (key) => {
+    return fieldLabels[key] || key;
+  };
+
+  // ฟอร์แมตค่าให้แสดงสวยงาม
+  const formatValue = (key, value) => {
+    if (value === null || value === undefined || value === '') {
+      return <span className="text-gray-400 italic">-</span>;
+    }
+    
+    // ถ้าเป็นวันที่
+    if (key.includes('date') || key.includes('_at')) {
+      try {
+        return new Date(value).toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch {
+        return value;
+      }
+    }
+    
+    // ถ้าเป็นราคา
+    if (key.includes('price') || key.includes('cost')) {
+      return new Intl.NumberFormat('th-TH', {
+        style: 'currency',
+        currency: 'THB'
+      }).format(value);
+    }
+    
+    // ถ้าเป็น URL รูปภาพ
+    if (key.includes('image') && typeof value === 'string' && value.startsWith('http')) {
+      return (
+        <a 
+          href={value} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline"
+        >
+          ดูรูปภาพ
+        </a>
+      );
+    }
+    
+    // ถ้าเป็น object หรือ array
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    
+    return String(value);
+  };
+
+  // Component สำหรับแสดงข้อมูลแบบตาราง
+  const DataTable = ({ data, title, bgColor, borderColor, titleColor }) => {
+    if (!data || Object.keys(data).length === 0) return null;
+    
+    return (
+      <div className={`${bgColor} border-2 ${borderColor} rounded-lg p-4`}>
+        <h3 className={`font-semibold text-lg mb-3 ${titleColor}`}>{title}</h3>
+        <div className="bg-white rounded-lg overflow-hidden">
+          <table className="w-full">
+            <tbody className="divide-y divide-gray-100">
+              {Object.entries(data).map(([key, value]) => (
+                <tr key={key} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 text-sm font-medium text-gray-600 w-1/3 bg-gray-50">
+                    {getFieldLabel(key)}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {formatValue(key, value)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  // Component สำหรับแสดง Diff (เปรียบเทียบค่า)
+  const DiffView = ({ oldData, newData }) => {
+    if (!oldData && !newData) return null;
+    
+    const allKeys = new Set([
+      ...Object.keys(oldData || {}),
+      ...Object.keys(newData || {})
+    ]);
+    
+    const changedKeys = [...allKeys].filter(key => {
+      const oldVal = oldData?.[key];
+      const newVal = newData?.[key];
+      return JSON.stringify(oldVal) !== JSON.stringify(newVal);
+    });
+    
+    if (changedKeys.length === 0) {
+      return (
+        <div className="bg-gray-50 rounded-lg p-6 text-center text-gray-500">
+          <p>ไม่มีการเปลี่ยนแปลง</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-lg mb-3 text-blue-800">🔄 รายการที่เปลี่ยนแปลง</h3>
+        <div className="bg-white rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">ฟิลด์</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">ค่าเดิม</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">ค่าใหม่</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {changedKeys.map(key => (
+                <tr key={key} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50">
+                    {getFieldLabel(key)}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-red-600 bg-red-50">
+                    {formatValue(key, oldData?.[key])}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-green-600 bg-green-50">
+                    {formatValue(key, newData?.[key])}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   const oldValue = parseJSON(audit.old_value);
   const newValue = parseJSON(audit.new_value);
 
@@ -510,28 +681,29 @@ function DetailModal({ audit, onClose }) {
             </div>
           </div>
 
-          {/* ค่าเดิม (Old Value) */}
-          {oldValue && (
-            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-3 text-red-800">📋 ค่าเดิม (Old Value)</h3>
-              <div className="bg-white rounded p-3">
-                <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                  {JSON.stringify(oldValue, null, 2)}
-                </pre>
-              </div>
-            </div>
-          )}
+          {/* แสดง Diff ถ้ามีทั้ง old และ new (สำหรับ Edit) */}
+          {audit.action === 'Edit' && oldValue && newValue ? (
+            <DiffView oldData={oldValue} newData={newValue} />
+          ) : (
+            <>
+              {/* ค่าเดิม (Old Value) */}
+              <DataTable 
+                data={oldValue}
+                title="📋 ค่าเดิม (Old Value)"
+                bgColor="bg-red-50"
+                borderColor="border-red-200"
+                titleColor="text-red-800"
+              />
 
-          {/* ค่าใหม่ (New Value) */}
-          {newValue && (
-            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-3 text-green-800">📝 ค่าใหม่ (New Value)</h3>
-              <div className="bg-white rounded p-3">
-                <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                  {JSON.stringify(newValue, null, 2)}
-                </pre>
-              </div>
-            </div>
+              {/* ค่าใหม่ (New Value) */}
+              <DataTable 
+                data={newValue}
+                title="📝 ค่าใหม่ (New Value)"
+                bgColor="bg-green-50"
+                borderColor="border-green-200"
+                titleColor="text-green-800"
+              />
+            </>
           )}
 
           {/* ถ้าไม่มีข้อมูล */}

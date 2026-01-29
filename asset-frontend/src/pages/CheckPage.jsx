@@ -774,6 +774,16 @@ function GroupedView({
       {Object.entries(groupedAssets).map(([building, floors]) => {
         const buildingAssets = Object.values(floors).flatMap(f => Object.values(f)).flat();
         const buildingExpanded = expandedBuildings[building];
+        
+        // คำนวณสถิติสำหรับแต่ละอาคาร
+        const buildingStats = {
+          total: buildingAssets.length,
+          available: buildingAssets.filter(a => a.status === 'ใช้งานได้').length,
+          maintenance: buildingAssets.filter(a => a.status === 'รอซ่อม').length,
+          awaiting_disposal: buildingAssets.filter(a => a.status === 'รอจำหน่าย').length,
+          disposed: buildingAssets.filter(a => a.status === 'จำหน่ายแล้ว').length,
+          missing: buildingAssets.filter(a => a.status === 'ไม่พบ').length
+        };
 
         return (
           <div key={building} className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -787,7 +797,14 @@ function GroupedView({
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">{building}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{buildingAssets.length} รายการ</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                      ทั้งหมด: {buildingStats.total} | 
+                      <span className="text-green-600 ml-2">ใช้งานได้: {buildingStats.available}</span> | 
+                      <span className="text-orange-500 ml-2">รอซ่อม: {buildingStats.maintenance}</span> | 
+                      <span className="text-amber-500 ml-2">รอจำหน่าย: {buildingStats.awaiting_disposal}</span> | 
+                      <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {buildingStats.disposed}</span> | 
+                      <span className="text-red-600 ml-2">ไม่พบ: {buildingStats.missing}</span>
+                    </p>
                 </div>
               </div>
               {buildingExpanded ? 
