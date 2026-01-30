@@ -11,6 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import api from '../services/api';
+import offlineService from '../services/offlineService';
+import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function AssetsScreen({ navigation }) {
@@ -19,6 +21,9 @@ export default function AssetsScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isOfflineData, setIsOfflineData] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const { isConnected } = useNetwork();
 
   useEffect(() => {
     loadAssets();
@@ -31,9 +36,30 @@ export default function AssetsScreen({ navigation }) {
   const loadAssets = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/assets');
-      if (response.data.success) {
-        setAssets(response.data.data || []);
+      
+      // Try to load from cache first (fast)
+      const cachedAssets = await offlineService.getCachedAssets();
+      if (cachedAssets.length > 0) {
+        setAssets(cachedAssets);
+        setIsOfflineData(true);
+      }
+
+      // Then try to fetch from server
+      if (isConnected) {
+        try {
+          const response = await api.get('/assets');
+          if (response.data.success) {
+            setAssets(response.data.data || []);
+            setIsOfflineData(false);
+            // Update cache silently
+            await offlineService.downloadAssetsForOffline();
+          }
+        } catch (error) {
+          console.log('Using cached data due to network error');
+          // Keep using cached data
+        }
+      } else if (cachedAssets.length === 0) {
+        Alert.alert('ออฟไลน์', 'ไม่มีข้อมูลในเครื่อง กรุณาดาวน์โหลดข้อมูลเมื่อมีอินเทอร์เน็ต');
       }
     } catch (error) {
       console.error('Error loading assets:', error);
@@ -41,6 +67,24 @@ export default function AssetsScreen({ navigation }) {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const handleDownloadForOffline = async () => {
+    if (!isConnected) {
+      Alert.alert('ออฟไลน์', 'กรุณาเชื่อมต่ออินเทอร์เน็ตเพื่อดาวน์โหลดข้อมูล');
+      return;
+    }
+    
+    setDownloading(true);
+    const result = await offlineService.downloadAssetsForOffline();
+    setDownloading(false);
+    
+    if (result.success) {
+      Alert.alert('สำเร็จ', result.message);
+      loadAssets(); // Refresh the list
+    } else {
+      Alert.alert('ผิดพลาด', result.message);
     }
   };
 
@@ -160,10 +204,36 @@ export default function AssetsScreen({ navigation }) {
         </View>
       </View>
 
+      {/* Offline Status Bar */}
+      {!isConnected && (
+        <View style={styles.offlineBanner}>
+          <Ionicons name="cloud-offline-outline" size={16} color="#fff" />
+          <Text style={styles.offlineBannerText}>โหมดออฟไลน์</Text>
+        </View>
+      )}
+
+      {/* Offline indicator and download button */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>
-          ทั้งหมด {filteredAssets.length} รายการ
-        </Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerText}>
+            ทั้งหมด {filteredAssets.length} รายการ
+            {isOfflineData && <Text style={styles.offlineLabel}> (ข้อมูลออฟไลน์)</Text>}
+          </Text>
+          <TouchableOpacity 
+            style={[styles.downloadButton, downloading && styles.downloadButtonDisabled]} 
+            onPress={handleDownloadForOffline}
+            disabled={downloading}
+          >
+            {downloading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="cloud-download-outline" size={16} color="#fff" />
+                <Text style={styles.downloadButtonText}>ดาวน์โหลด</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -295,6 +365,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9CA3AF',
     marginTop: 16,
+  },
+  // Offline mode styles
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EF4444',
+    paddingVertical: 8,
+    gap: 8,
+  },
+  offlineBannerText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  offlineLabel: {
+    color: '#F59E0B',
+    fontSize: 12,
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#10B981',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  downloadButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  downloadButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 

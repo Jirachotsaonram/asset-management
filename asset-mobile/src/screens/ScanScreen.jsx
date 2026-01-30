@@ -12,10 +12,13 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
+import offlineService from '../services/offlineService';
+import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ScanScreen({ navigation }) {
   const { user } = useAuth();
+  const { isConnected } = useNetwork();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedAsset, setScannedAsset] = useState(null);
@@ -24,6 +27,18 @@ export default function ScanScreen({ navigation }) {
   const [remark, setRemark] = useState('');
   const [manualBarcode, setManualBarcode] = useState('');
   const [showCamera, setShowCamera] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [isOfflineResult, setIsOfflineResult] = useState(false);
+
+  // Load pending count on mount
+  useEffect(() => {
+    loadPendingCount();
+  }, []);
+
+  const loadPendingCount = async () => {
+    const count = await offlineService.getPendingCount();
+    setPendingCount(count);
+  };
 
   const handleBarCodeScanned = async ({ data }) => {
     if (scanned) return;
@@ -33,6 +48,7 @@ export default function ScanScreen({ navigation }) {
 
   const searchAsset = async (barcode) => {
     setLoading(true);
+    setIsOfflineResult(false);
     try {
       let foundAsset = null;
       
@@ -48,57 +64,34 @@ export default function ScanScreen({ navigation }) {
         searchValue = barcode;
       }
 
-      // วิธีที่ 1: ค้นหาจาก /assets ทั้งหมด
-      try {
-        const response = await api.get('/assets');
-        if (response.data.success) {
-          foundAsset = response.data.data.find(
-            (a) =>
-              a.barcode === searchValue ||
-              a.serial_number === searchValue ||
-              a.asset_id == searchValue ||
-              a.barcode === barcode ||
-              a.serial_number === barcode ||
-              a.asset_id == barcode
-          );
-        }
-      } catch (err) {
-        console.log('Method 1 failed:', err.message);
+      // ===== OFFLINE FIRST: ค้นหาจาก Cache ก่อน =====
+      foundAsset = await offlineService.searchCachedAsset(searchValue);
+      if (foundAsset) {
+        setIsOfflineResult(true);
       }
 
-      // วิธีที่ 2: ลอง endpoint /assets/{id}
-      if (!foundAsset) {
+      // ===== ถ้ามีเน็ต พยายามดึงข้อมูลล่าสุดจาก Server =====
+      if (isConnected) {
         try {
-          const response = await api.get(`/assets/${searchValue}`);
+          const response = await api.get('/assets');
           if (response.data.success) {
-            foundAsset = response.data.data;
+            const serverAsset = response.data.data.find(
+              (a) =>
+                a.barcode === searchValue ||
+                a.serial_number === searchValue ||
+                String(a.asset_id) === String(searchValue) ||
+                a.barcode === barcode ||
+                a.serial_number === barcode ||
+                String(a.asset_id) === String(barcode)
+            );
+            if (serverAsset) {
+              foundAsset = serverAsset;
+              setIsOfflineResult(false);
+            }
           }
         } catch (err) {
-          console.log('Method 2 failed:', err.message);
-        }
-      }
-
-      // วิธีที่ 3: ลอง query parameter
-      if (!foundAsset) {
-        try {
-          const response = await api.get(`/assets?barcode=${encodeURIComponent(searchValue)}`);
-          if (response.data.success && response.data.data && response.data.data.length > 0) {
-            foundAsset = response.data.data[0];
-          }
-        } catch (err) {
-          console.log('Method 3 failed:', err.message);
-        }
-      }
-
-      // วิธีที่ 4: ลอง endpoint /assets/barcode/{barcode}
-      if (!foundAsset) {
-        try {
-          const response = await api.get(`/assets/barcode/${encodeURIComponent(searchValue)}`);
-          if (response.data.success) {
-            foundAsset = response.data.data;
-          }
-        } catch (err) {
-          console.log('Method 4 failed:', err.message);
+          console.log('Server search failed, using cache:', err.message);
+          // ใช้ผลจาก cache ถ้ามี
         }
       }
 
@@ -107,11 +100,12 @@ export default function ScanScreen({ navigation }) {
         setCheckStatus(foundAsset.status || 'ใช้งานได้');
         setRemark('');
         setShowCamera(false);
-        Alert.alert('สำเร็จ', `พบครุภัณฑ์: ${foundAsset.asset_name}`);
+        const mode = isOfflineResult ? ' (ข้อมูลออฟไลน์)' : '';
+        Alert.alert('สำเร็จ', `พบครุภัณฑ์: ${foundAsset.asset_name}${mode}`);
       } else {
         Alert.alert(
           'ไม่พบข้อมูล', 
-          `ไม่พบครุภัณฑ์ที่ตรงกับรหัส: ${searchValue}\n\nลองตรวจสอบ:\n- รหัสครุภัณฑ์ถูกต้องหรือไม่\n- มีครุภัณฑ์นี้ในระบบหรือไม่`
+          `ไม่พบครุภัณฑ์ที่ตรงกับรหัส: ${searchValue}\n\n${!isConnected ? 'กำลังใช้โหมดออฟไลน์ - ลองดาวน์โหลดข้อมูลใหม่เมื่อมีอินเทอร์เน็ต' : 'ลองตรวจสอบรหัสครุภัณฑ์'}`
         );
       }
     } catch (error) {
@@ -152,6 +146,23 @@ export default function ScanScreen({ navigation }) {
         check_date: new Date().toISOString().split('T')[0],
       };
 
+      // ===== OFFLINE MODE: บันทึกลงคิวถ้าไม่มีเน็ต =====
+      if (!isConnected) {
+        const queued = await offlineService.queueCheck(requestData);
+        if (queued) {
+          await loadPendingCount();
+          Alert.alert(
+            '📋 บันทึกลงคิวแล้ว',
+            `ระบบได้บันทึก "${scannedAsset.asset_name}" ไว้ในคิวเรียบร้อย\n\nจะซิงค์ขึ้น Server อัตโนมัติเมื่อมีอินเทอร์เน็ต`,
+            [{ text: 'OK', onPress: handleReset }]
+          );
+        } else {
+          Alert.alert('ผิดพลาด', 'ไม่สามารถบันทึกลงคิวได้');
+        }
+        return;
+      }
+
+      // ===== ONLINE MODE: ส่งขึ้น Server ทันที =====
       const response = await api.post('/checks', requestData);
 
       if (response.data.success) {
@@ -163,7 +174,6 @@ export default function ScanScreen({ navigation }) {
           }
         } catch (refreshError) {
           console.log('Could not refresh asset data:', refreshError);
-          // ไม่จำเป็นต้องแสดง error ถ้าดึงข้อมูลใหม่ไม่สำเร็จ
         }
         
         Alert.alert('สำเร็จ', 'บันทึกการตรวจสอบสำเร็จ\nสถานะครุภัณฑ์ได้ถูกอัพเดตแล้ว', [
@@ -174,24 +184,36 @@ export default function ScanScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Error checking asset:', error);
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
+      
+      // ===== FALLBACK: ถ้าส่งไม่สำเร็จ เก็บลงคิว =====
+      if (!error.response || error.message?.includes('Network')) {
+        const requestData = {
+          asset_id: scannedAsset.asset_id,
+          check_status: checkStatus,
+          remark: remark || 'ตรวจสอบผ่าน Mobile App',
+          check_date: new Date().toISOString().split('T')[0],
+        };
+        const queued = await offlineService.queueCheck(requestData);
+        if (queued) {
+          await loadPendingCount();
+          Alert.alert(
+            '📋 บันทึกลงคิวแล้ว',
+            'เครือข่ายมีปัญหา ระบบได้บันทึกไว้ในคิวเรียบร้อย\n\nจะซิงค์ขึ้น Server อัตโนมัติเมื่อมีอินเทอร์เน็ต',
+            [{ text: 'OK', onPress: handleReset }]
+          );
+          return;
+        }
+      }
       
       // แสดง error message ที่ชัดเจนขึ้น
       let errorMessage = 'ไม่สามารถบันทึกการตรวจสอบได้';
       
       if (error.response) {
-        // มี response จาก server
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error || '';
         
         if (status === 401) {
           errorMessage = 'Session หมดอายุ กรุณา Logout และ Login ใหม่';
-          // Logout user เพื่อให้ redirect ไปหน้า login
-          // AuthContext จะจัดการเองเมื่อ token ถูก clear
         } else if (status === 403) {
           errorMessage = 'คุณไม่มีสิทธิ์บันทึกการตรวจสอบ\n\nต้องเป็น Admin หรือ Inspector เท่านั้น';
         } else if (status === 400) {
@@ -208,6 +230,28 @@ export default function ScanScreen({ navigation }) {
       Alert.alert('ผิดพลาด', errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ===== ฟังก์ชันซิงค์ข้อมูลที่รอส่ง =====
+  const handleSyncPending = async () => {
+    if (!isConnected) {
+      Alert.alert('ออฟไลน์', 'กรุณาเชื่อมต่ออินเทอร์เน็ตเพื่อซิงค์ข้อมูล');
+      return;
+    }
+
+    setLoading(true);
+    const results = await offlineService.syncPendingChecks();
+    setLoading(false);
+    await loadPendingCount();
+
+    if (results.success > 0 || results.failed > 0) {
+      Alert.alert(
+        '🔄 ผลการซิงค์',
+        `สำเร็จ: ${results.success} รายการ\nล้มเหลว: ${results.failed} รายการ`
+      );
+    } else {
+      Alert.alert('ข้อมูล', 'ไม่มีข้อมูลที่ต้องซิงค์');
     }
   };
 
@@ -276,6 +320,30 @@ export default function ScanScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Offline Status Bar */}
+      {!isConnected && (
+        <View style={styles.offlineBanner}>
+          <Ionicons name="cloud-offline-outline" size={16} color="#fff" />
+          <Text style={styles.offlineBannerText}>โหมดออฟไลน์</Text>
+        </View>
+      )}
+
+      {/* Pending Sync Bar */}
+      {pendingCount > 0 && (
+        <TouchableOpacity style={styles.pendingBanner} onPress={handleSyncPending}>
+          <View style={styles.pendingInfo}>
+            <Ionicons name="time-outline" size={20} color="#F59E0B" />
+            <Text style={styles.pendingText}>รอส่งข้อมูล {pendingCount} รายการ</Text>
+          </View>
+          {isConnected && (
+            <View style={styles.syncButton}>
+              <Ionicons name="sync-outline" size={16} color="#fff" />
+              <Text style={styles.syncButtonText}>ซิงค์</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
+
       {!scannedAsset ? (
         <View style={styles.searchContainer}>
           <View style={styles.searchSection}>
@@ -730,6 +798,54 @@ const styles = StyleSheet.create({
   permissionButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  // Offline mode styles
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EF4444',
+    paddingVertical: 10,
+    gap: 8,
+  },
+  offlineBannerText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  pendingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FEF3C7',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F59E0B',
+  },
+  pendingInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  pendingText: {
+    color: '#92400E',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  syncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#10B981',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  syncButtonText: {
+    color: '#fff',
+    fontSize: 12,
     fontWeight: '600',
   },
 });
