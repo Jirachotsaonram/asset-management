@@ -39,7 +39,7 @@ function App() {
         <Toaster position="top-right" />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          
+
           <Route path="/" element={
             <PrivateRoute>
               <Layout />

@@ -1,25 +1,53 @@
 // FILE: asset-frontend/src/pages/AuditTrailPage.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { 
-  FileText, 
-  Search, 
-  Download, 
+import {
+  FileText,
+  Search,
+  Download,
   Filter,
   X,
   Eye,
   Calendar,
   User,
   Package,
-  Activity
+  Activity,
+  RefreshCw,
+  RotateCcw,
+  FileSpreadsheet
 } from 'lucide-react';
+
+// ==================== Notifications Integration ====================
+export const getAuditNotifications = (audits) => {
+  const notifications = [];
+
+  // Get today's audits
+  const today = new Date().toDateString();
+  const todayAudits = audits.filter(a => new Date(a.action_date).toDateString() === today);
+
+  if (todayAudits.length > 0) {
+    const deleteActions = todayAudits.filter(a => a.action === 'Delete');
+    if (deleteActions.length > 0) {
+      notifications.push({
+        id: 'today-deletes',
+        type: 'warning',
+        title: `วันนี้มีการลบ ${deleteActions.length} รายการ`,
+        message: 'ตรวจสอบการดำเนินการ',
+        link: '/audit-trail',
+        read: false
+      });
+    }
+  }
+
+  return notifications;
+};
 
 export default function AuditTrailPage() {
   const [audits, setAudits] = useState([]);
   const [filteredAudits, setFilteredAudits] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // States สำหรับ Filter
   const [filters, setFilters] = useState({
     action: 'all',
@@ -113,7 +141,7 @@ export default function AuditTrailPage() {
     // ค้นหาแบบ Keyword
     if (filters.keyword) {
       const keyword = filters.keyword.toLowerCase();
-      filtered = filtered.filter(a => 
+      filtered = filtered.filter(a =>
         a.fullname?.toLowerCase().includes(keyword) ||
         a.asset_name?.toLowerCase().includes(keyword) ||
         a.action?.toLowerCase().includes(keyword)
@@ -189,15 +217,15 @@ export default function AuditTrailPage() {
   // สีตาม Action
   const getActionColor = (action) => {
     const colors = {
-      'Add': 'bg-green-100 text-green-800 border-green-300',
-      'Edit': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      'Delete': 'bg-red-100 text-red-800 border-red-300',
-      'Move': 'bg-blue-100 text-blue-800 border-blue-300',
-      'Check': 'bg-purple-100 text-purple-800 border-purple-300',
-      'Borrow': 'bg-orange-100 text-orange-800 border-orange-300',
-      'Return': 'bg-teal-100 text-teal-800 border-teal-300'
+      'Add': 'bg-success-100 text-success-700 border-success-200',
+      'Edit': 'bg-warning-100 text-warning-700 border-warning-200',
+      'Delete': 'bg-danger-100 text-danger-700 border-danger-200',
+      'Move': 'bg-primary-100 text-primary-700 border-primary-200',
+      'Check': 'bg-purple-100 text-purple-700 border-purple-200',
+      'Borrow': 'bg-orange-100 text-orange-700 border-orange-200',
+      'Return': 'bg-teal-100 text-teal-700 border-teal-200'
     };
-    return colors[action] || 'bg-gray-100 text-gray-800 border-gray-300';
+    return colors[action] || 'bg-gray-100 text-gray-600 border-gray-200';
   };
 
   // ไอคอนตาม Action
@@ -216,8 +244,12 @@ export default function AuditTrailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+          <Activity className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-600" size={24} />
+        </div>
+        <p className="mt-4 text-gray-600 font-medium">กำลังโหลดข้อมูล Audit Trail...</p>
       </div>
     );
   }
@@ -227,26 +259,35 @@ export default function AuditTrailPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-            <FileText className="text-blue-600" size={36} />
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="bg-gradient-to-br from-primary-500 to-primary-600 p-2.5 rounded-xl">
+              <FileText className="text-white" size={24} />
+            </div>
             Audit Trail
           </h1>
           <p className="text-gray-600 mt-1">ประวัติการทำงานทั้งหมดในระบบ</p>
         </div>
         <div className="flex gap-3">
           <button
+            onClick={fetchData}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
+          >
+            <RefreshCw size={18} />
+            รีเฟรช
+          </button>
+          <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+            className="flex items-center gap-2 bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-success-500/20"
           >
             <Download size={18} />
-            Export CSV
+            CSV
           </button>
           <button
             onClick={handleExportExcel}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+            className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/20"
           >
-            <Download size={18} />
-            Export Excel
+            <FileSpreadsheet size={18} />
+            Excel
           </button>
         </div>
       </div>
@@ -268,7 +309,7 @@ export default function AuditTrailPage() {
             <input
               type="text"
               value={filters.keyword}
-              onChange={(e) => setFilters({...filters, keyword: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
               placeholder="พิมพ์เพื่อค้นหา..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
@@ -282,7 +323,7 @@ export default function AuditTrailPage() {
             </label>
             <select
               value={filters.action}
-              onChange={(e) => setFilters({...filters, action: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, action: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="all">ทั้งหมด</option>
@@ -304,7 +345,7 @@ export default function AuditTrailPage() {
             </label>
             <select
               value={filters.user_id}
-              onChange={(e) => setFilters({...filters, user_id: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, user_id: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="all">ทั้งหมด</option>
@@ -324,7 +365,7 @@ export default function AuditTrailPage() {
             </label>
             <select
               value={filters.asset_id}
-              onChange={(e) => setFilters({...filters, asset_id: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, asset_id: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="">ทั้งหมด</option>
@@ -345,7 +386,7 @@ export default function AuditTrailPage() {
             <input
               type="date"
               value={filters.start_date}
-              onChange={(e) => setFilters({...filters, start_date: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
@@ -358,32 +399,26 @@ export default function AuditTrailPage() {
             <input
               type="date"
               value={filters.end_date}
-              onChange={(e) => setFilters({...filters, end_date: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex gap-3 mt-4">
+        <div className="flex gap-3 mt-6">
           <button
             onClick={handleFilter}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition font-semibold"
+            className="flex-1 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white py-3 rounded-xl transition font-semibold shadow-lg shadow-primary-600/20"
           >
             ใช้ตัวกรอง
-          </button>
-          <button
-            onClick={handleResetFilter}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg transition font-semibold"
-          >
-            รีเซ็ต
           </button>
         </div>
       </div>
 
       {/* Results Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+        <p className="text-sm text-primary-800">
           📊 แสดง <strong>{filteredAudits.length}</strong> รายการจากทั้งหมด <strong>{audits.length}</strong> รายการ
         </p>
       </div>
@@ -510,7 +545,7 @@ function DetailModal({ audit, onClose }) {
     if (value === null || value === undefined || value === '') {
       return <span className="text-gray-400 italic">-</span>;
     }
-    
+
     // ถ้าเป็นวันที่
     if (key.includes('date') || key.includes('_at')) {
       try {
@@ -525,7 +560,7 @@ function DetailModal({ audit, onClose }) {
         return value;
       }
     }
-    
+
     // ถ้าเป็นราคา
     if (key.includes('price') || key.includes('cost')) {
       return new Intl.NumberFormat('th-TH', {
@@ -533,13 +568,13 @@ function DetailModal({ audit, onClose }) {
         currency: 'THB'
       }).format(value);
     }
-    
+
     // ถ้าเป็น URL รูปภาพ
     if (key.includes('image') && typeof value === 'string' && value.startsWith('http')) {
       return (
-        <a 
-          href={value} 
-          target="_blank" 
+        <a
+          href={value}
+          target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline"
         >
@@ -547,19 +582,19 @@ function DetailModal({ audit, onClose }) {
         </a>
       );
     }
-    
+
     // ถ้าเป็น object หรือ array
     if (typeof value === 'object') {
       return JSON.stringify(value);
     }
-    
+
     return String(value);
   };
 
   // Component สำหรับแสดงข้อมูลแบบตาราง
   const DataTable = ({ data, title, bgColor, borderColor, titleColor }) => {
     if (!data || Object.keys(data).length === 0) return null;
-    
+
     return (
       <div className={`${bgColor} border-2 ${borderColor} rounded-lg p-4`}>
         <h3 className={`font-semibold text-lg mb-3 ${titleColor}`}>{title}</h3>
@@ -586,18 +621,18 @@ function DetailModal({ audit, onClose }) {
   // Component สำหรับแสดง Diff (เปรียบเทียบค่า)
   const DiffView = ({ oldData, newData }) => {
     if (!oldData && !newData) return null;
-    
+
     const allKeys = new Set([
       ...Object.keys(oldData || {}),
       ...Object.keys(newData || {})
     ]);
-    
+
     const changedKeys = [...allKeys].filter(key => {
       const oldVal = oldData?.[key];
       const newVal = newData?.[key];
       return JSON.stringify(oldVal) !== JSON.stringify(newVal);
     });
-    
+
     if (changedKeys.length === 0) {
       return (
         <div className="bg-gray-50 rounded-lg p-6 text-center text-gray-500">
@@ -605,7 +640,7 @@ function DetailModal({ audit, onClose }) {
         </div>
       );
     }
-    
+
     return (
       <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
         <h3 className="font-semibold text-lg mb-3 text-blue-800">🔄 รายการที่เปลี่ยนแปลง</h3>
@@ -687,7 +722,7 @@ function DetailModal({ audit, onClose }) {
           ) : (
             <>
               {/* ค่าเดิม (Old Value) */}
-              <DataTable 
+              <DataTable
                 data={oldValue}
                 title="📋 ค่าเดิม (Old Value)"
                 bgColor="bg-red-50"
@@ -696,7 +731,7 @@ function DetailModal({ audit, onClose }) {
               />
 
               {/* ค่าใหม่ (New Value) */}
-              <DataTable 
+              <DataTable
                 data={newValue}
                 title="📝 ค่าใหม่ (New Value)"
                 bgColor="bg-green-50"

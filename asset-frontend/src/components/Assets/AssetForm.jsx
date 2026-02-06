@@ -51,9 +51,8 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
 
   const formatLocation = (loc) => {
     if (!loc) return "";
-    return `${loc.building_name || ""} ชั้น ${loc.floor || "-"} ห้อง ${
-      loc.room_number || "-"
-    }`;
+    return `${loc.building_name || ""} ชั้น ${loc.floor || "-"} ห้อง ${loc.room_number || "-"
+      }`;
   };
 
   const fetchDepartments = async () => {
@@ -382,8 +381,8 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
               {loading
                 ? "กำลังบันทึก..."
                 : asset
-                ? "บันทึกการแก้ไข"
-                : "เพิ่มครุภัณฑ์"}
+                  ? "บันทึกการแก้ไข"
+                  : "เพิ่มครุภัณฑ์"}
             </button>
           </div>
         </form>

@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { 
-  Package, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Package,
+  AlertTriangle,
+  CheckCircle,
   Clock,
   Plus,
   Download,
@@ -22,24 +22,55 @@ import {
   AlertCircle,
   Wrench,
   XCircle,
-  X
+  X,
+  RefreshCw,
+  TrendingUp
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-function StatsCard({ title, value, icon: Icon, color, bgColor, subtitle }) {
+// ==================== Notifications Integration ====================
+export const getDashboardNotifications = (stats) => {
+  const notifications = [];
+
+  if (stats.missing > 0) {
+    notifications.push({
+      id: 'missing-assets',
+      type: 'error',
+      title: `มี ${stats.missing} ครุภัณฑ์ไม่พบ`,
+      message: 'ครุภัณฑ์ที่ต้องตรวจสอบ',
+      link: '/assets',
+      read: false
+    });
+  }
+
+  if (stats.unchecked > 0) {
+    notifications.push({
+      id: 'unchecked-assets',
+      type: 'warning',
+      title: `มี ${stats.unchecked} รายการยังไม่ได้ตรวจ`,
+      message: 'ครุภัณฑ์ที่ต้องตรวจสอบ',
+      link: '/check',
+      read: false
+    });
+  }
+
+  return notifications;
+};
+
+function StatsCard({ title, value, icon: Icon, color, bgColor, subtitle, gradient }) {
   const IconComponent = Icon;
   return (
-    <div className={`${bgColor} rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow`}>
+    <div className={`${gradient ? `bg-gradient-to-br ${gradient}` : bgColor} rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]`}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className={`text-4xl font-bold ${color} mt-2`}>{value}</p>
+          <p className={`${gradient ? 'text-white/80' : 'text-gray-600'} text-sm font-medium`}>{title}</p>
+          <p className={`text-4xl font-bold ${gradient ? 'text-white' : color} mt-2`}>{value}</p>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+            <p className={`text-xs ${gradient ? 'text-white/60' : 'text-gray-500'} mt-1`}>{subtitle}</p>
           )}
         </div>
-        <div className={`${color} opacity-20`}>
-          <IconComponent className="w-20 h-20" />
+        <div className={`${gradient ? 'text-white/30' : `${color} opacity-20`}`}>
+          <IconComponent className="w-16 h-16" />
         </div>
       </div>
     </div>
@@ -72,7 +103,7 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all data in parallel
       const [assetsRes, statusRes, uncheckedRes, auditsRes, notificationsRes, overdueRes] = await Promise.all([
         api.get('/assets'),
@@ -160,7 +191,7 @@ export default function DashboardPage() {
 
       const token = localStorage.getItem('token');
       const url = `${api.defaults.baseURL}/reports/export?${queryParams.toString()}`;
-      
+
       // ใช้ fetch เพื่อส่ง Authorization header
       const response = await fetch(url, {
         method: 'GET',
@@ -176,21 +207,21 @@ export default function DashboardPage() {
 
       // สร้าง blob จาก response
       const blob = await response.blob();
-      
+
       // สร้าง URL จาก blob
       const blobUrl = window.URL.createObjectURL(blob);
-      
+
       // สร้าง link element เพื่อ download
       const link = document.createElement('a');
       link.href = blobUrl;
       link.setAttribute('download', `report_asset-summary_${new Date().toISOString().split('T')[0]}.xls`);
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-      
+
       toast.success('กำลังดาวน์โหลด Excel');
     } catch (error) {
       console.error('Error exporting Excel:', error);
@@ -200,15 +231,15 @@ export default function DashboardPage() {
 
   const getActionColor = (action) => {
     const colors = {
-      'Add': 'bg-green-100 text-green-800 border-green-300',
-      'Edit': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      'Delete': 'bg-red-100 text-red-800 border-red-300',
-      'Move': 'bg-blue-100 text-blue-800 border-blue-300',
-      'Check': 'bg-purple-100 text-purple-800 border-purple-300',
-      'Borrow': 'bg-orange-100 text-orange-800 border-orange-300',
-      'Return': 'bg-teal-100 text-teal-800 border-teal-300'
+      'Add': 'bg-success-100 text-success-700 border-success-200',
+      'Edit': 'bg-warning-100 text-warning-700 border-warning-200',
+      'Delete': 'bg-danger-100 text-danger-700 border-danger-200',
+      'Move': 'bg-primary-100 text-primary-700 border-primary-200',
+      'Check': 'bg-purple-100 text-purple-700 border-purple-200',
+      'Borrow': 'bg-orange-100 text-orange-700 border-orange-200',
+      'Return': 'bg-teal-100 text-teal-700 border-teal-200'
     };
-    return colors[action] || 'bg-gray-100 text-gray-800 border-gray-300';
+    return colors[action] || 'bg-gray-100 text-gray-600 border-gray-200';
   };
 
   const getActionIcon = (action) => {
@@ -226,8 +257,12 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+          <BarChart3 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-600" size={24} />
+        </div>
+        <p className="mt-4 text-gray-600 font-medium">กำลังโหลดข้อมูล Dashboard...</p>
       </div>
     );
   }
@@ -243,51 +278,13 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
           <p className="text-gray-600">ภาพรวมระบบจัดการครุภัณฑ์</p>
         </div>
-        
-        {/* Quick Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleAddAsset}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg"
-          >
-            <Plus size={18} />
-            <span>เพิ่มครุภัณฑ์</span>
-          </button>
-          <button
-            onClick={() => setShowNotificationModal(true)}
-            className="relative flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg"
-          >
-            <Bell size={18} />
-            <span>การแจ้งเตือน</span>
-            {(overdueAssets.length > 0 || 
-              notifications.filter(n => n.urgency_level === 'เร่งด่วน' || n.urgency_level === 'วันนี้').length > 0 || 
-              stats.unchecked > 0 || 
-              stats.missing > 0 || 
-              stats.maintenance > 0) && (
-              <span className="absolute -top-2 -right-2 bg-yellow-400 text-red-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-                {overdueAssets.length + 
-                 notifications.filter(n => n.urgency_level === 'เร่งด่วน' || n.urgency_level === 'วันนี้').length + 
-                 (stats.unchecked > 0 ? 1 : 0) + 
-                 (stats.missing > 0 ? 1 : 0) + 
-                 (stats.maintenance > 0 ? 1 : 0)}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={handleCheck}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg"
-          >
-            <ClipboardCheck size={18} />
-            <span>ตรวจสอบ</span>
-          </button>
-          <button
-            onClick={handleExportExcel}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg"
-          >
-            <Download size={18} />
-            <span>Export Excel</span>
-          </button>
-        </div>
+        <button
+          onClick={fetchDashboardData}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
+        >
+          <RefreshCw size={18} />
+          รีเฟรช
+        </button>
       </div>
 
       {/* Stats Cards - ตอบโจทย์ 2.2.2: ลดเวลาตรวจสอบ */}
@@ -381,8 +378,8 @@ export default function DashboardPage() {
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={statusData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
+                    <XAxis
+                      dataKey="name"
                       angle={-45}
                       textAnchor="end"
                       height={80}
@@ -411,8 +408,8 @@ export default function DashboardPage() {
           <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
             {statusData.map((item, index) => (
               <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                <div 
-                  className="w-4 h-4 rounded-full" 
+                <div
+                  className="w-4 h-4 rounded-full"
                   style={{ backgroundColor: item.color }}
                 ></div>
                 <div className="flex-1">
@@ -467,14 +464,14 @@ export default function DashboardPage() {
                       })}
                     </span>
                   </div>
-                  
+
                   {audit.asset_name && (
                     <div className="flex items-center gap-2 mt-2">
                       <Package size={14} className="text-gray-400" />
                       <span className="text-sm font-medium text-gray-800">{audit.asset_name}</span>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-2 mt-2">
                     <User size={14} className="text-gray-400" />
                     <span className="text-xs text-gray-600">{audit.fullname || 'ไม่ระบุผู้ใช้'}</span>
@@ -573,7 +570,7 @@ export default function DashboardPage() {
 // Notification Modal Component
 function NotificationModal({ overdueAssets, notifications, stats, onClose, onCheck }) {
   const urgentNotifications = notifications.filter(n => n.urgency_level === 'เร่งด่วน' || n.urgency_level === 'วันนี้');
-  const totalNotifications = overdueAssets.length + urgentNotifications.length + 
+  const totalNotifications = overdueAssets.length + urgentNotifications.length +
     (stats.unchecked > 0 ? 1 : 0) + (stats.missing > 0 ? 1 : 0) + (stats.maintenance > 0 ? 1 : 0);
 
   return (

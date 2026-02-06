@@ -1,12 +1,13 @@
 // FILE: asset-frontend/src/pages/CheckPage.jsx
 import { useState, useEffect } from 'react';
-import { 
-  CheckSquare, 
-  Search, 
-  ChevronDown, 
-  ChevronRight, 
-  Building, 
-  Layers, 
+import { useSearchParams } from 'react-router-dom';
+import {
+  CheckSquare,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Building,
+  Layers,
   MapPin,
   Calendar,
   Bell,
@@ -30,20 +31,20 @@ import toast from 'react-hot-toast';
 
 export default function CheckPage() {
   const { user } = useAuth();
-  
+
   // States
   const [assets, setAssets] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // UI States
   const [activeTab, setActiveTab] = useState('check'); // 'check' or 'notifications'
   const [viewMode, setViewMode] = useState('grouped'); // 'grouped' or 'list'
   const [expandedBuildings, setExpandedBuildings] = useState({});
   const [expandedFloors, setExpandedFloors] = useState({});
   const [expandedRooms, setExpandedRooms] = useState({});
-  
+
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -52,7 +53,32 @@ export default function CheckPage() {
     floor: 'all',
     department: 'all'
   });
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read URL params on mount and set filters
+  useEffect(() => {
+    const filterFromUrl = searchParams.get('filter') ? decodeURIComponent(searchParams.get('filter')).trim() : null;
+    if (filterFromUrl) {
+      // Map URL filter to status
+      let mappedStatus = 'all';
+      if (filterFromUrl === 'overdue') {
+        mappedStatus = 'overdue';
+      } else if (filterFromUrl === 'unchecked') {
+        mappedStatus = 'never_checked';
+      } else if (filterFromUrl === 'today') {
+        mappedStatus = 'today';
+      } else if (filterFromUrl === 'urgent') {
+        mappedStatus = 'urgent'; // maps to due_soon < 7 days
+      } else if (filterFromUrl === 'due_soon') {
+        mappedStatus = 'due_soon';
+      }
+
+      if (mappedStatus !== 'all') {
+        setFilters(prev => ({ ...prev, status: mappedStatus }));
+      }
+    }
+  }, [searchParams]);
+
   // Modal States
   const [showCheckModal, setShowCheckModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -60,7 +86,7 @@ export default function CheckPage() {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [currentAsset, setCurrentAsset] = useState(null);
   const [currentRoom, setCurrentRoom] = useState(null);
-  
+
   // Form States
   const [scheduleForm, setScheduleForm] = useState({
     scheduleId: 3,
@@ -69,7 +95,7 @@ export default function CheckPage() {
     checkNow: false,
     useCustomDate: false
   });
-  
+
   // State สำหรับกำหนดรอบทั้งห้อง
   const [showRoomScheduleModal, setShowRoomScheduleModal] = useState(false);
   const [currentRoomForSchedule, setCurrentRoomForSchedule] = useState(null);
@@ -79,7 +105,7 @@ export default function CheckPage() {
     nextCheckDate: '',
     useCustomDate: false
   });
-  
+
   const [checkForm, setCheckForm] = useState({
     status: 'ใช้งานได้',
     remark: ''
@@ -114,18 +140,18 @@ export default function CheckPage() {
   const getCheckStatus = (asset) => {
     const today = new Date();
     const nextCheck = asset.next_check_date ? new Date(asset.next_check_date) : null;
-    
+
     // 1. ยังไม่เคยตรวจ
     if (!asset.last_check_date) {
       return {
         status: 'never_checked',
         label: 'ยังไม่เคยตรวจ',
-        color: 'bg-red-100 text-red-800 border-red-300',
+        color: 'bg-danger-100 text-danger-700 border-danger-200',
         icon: AlertCircle,
         priority: 1
       };
     }
-    
+
     // 2. ไม่มีกำหนดการ
     if (!nextCheck) {
       return {
@@ -136,38 +162,38 @@ export default function CheckPage() {
         priority: 2
       };
     }
-    
+
     const daysUntil = Math.floor((nextCheck - today) / (1000 * 60 * 60 * 24));
-    
+
     // 3. เลยกำหนด
     if (daysUntil < 0) {
       return {
         status: 'overdue',
         label: `เลย ${Math.abs(daysUntil)} วัน`,
-        color: 'bg-red-100 text-red-800 border-red-300',
+        color: 'bg-danger-100 text-danger-700 border-danger-200',
         icon: AlertTriangle,
         priority: 1,
         days: daysUntil
       };
     }
-    
+
     // 4. ใกล้กำหนด (7 วัน)
     if (daysUntil <= 7) {
       return {
         status: 'due_soon',
         label: `อีก ${daysUntil} วัน`,
-        color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+        color: 'bg-warning-100 text-warning-700 border-warning-200',
         icon: Clock,
         priority: 2,
         days: daysUntil
       };
     }
-    
+
     // 5. ปกติ
     return {
       status: 'checked',
       label: `ตรวจแล้ว ${asset.last_check_date}`,
-      color: 'bg-green-100 text-green-800 border-green-300',
+      color: 'bg-success-100 text-success-700 border-success-200',
       icon: CheckSquare,
       priority: 3,
       days: daysUntil
@@ -208,7 +234,7 @@ export default function CheckPage() {
 
     assets.forEach(asset => {
       const status = getCheckStatus(asset);
-      
+
       if (status.status === 'never_checked' || status.status === 'overdue') {
         notifications.urgent.push({ ...asset, statusInfo: status });
       } else if (status.status === 'due_soon') {
@@ -231,7 +257,7 @@ export default function CheckPage() {
   const getFilteredAssets = () => {
     return assets.filter(asset => {
       // Search
-      const matchSearch = 
+      const matchSearch =
         asset.asset_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         asset.serial_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         asset.asset_id?.toString().includes(searchTerm);
@@ -241,7 +267,17 @@ export default function CheckPage() {
       // Status Filter
       if (filters.status !== 'all') {
         const status = getCheckStatus(asset);
-        if (status.status !== filters.status) return false;
+
+        if (filters.status === 'today') {
+          // Special case for today: check checkStatus days = 0
+          if (status.days !== 0) return false;
+        } else if (filters.status === 'urgent') {
+          // Urgent usually means due soon (<= 7 days)
+          if (status.status !== 'due_soon') return false;
+        } else {
+          // Default strict match
+          if (status.status !== filters.status) return false;
+        }
       }
 
       // Building Filter
@@ -262,7 +298,7 @@ export default function CheckPage() {
   // Group Assets by Location
   const groupAssetsByLocation = (assetsList) => {
     const grouped = {};
-    
+
     assetsList.forEach(asset => {
       const building = asset.building_name || 'ไม่ระบุอาคาร';
       const floor = asset.floor || 'ไม่ระบุชั้น';
@@ -294,7 +330,7 @@ export default function CheckPage() {
     });
     setShowScheduleModal(true);
   };
-  
+
   const handleOpenRoomScheduleModal = (building, floor, room, roomAssets) => {
     setCurrentRoomForSchedule({ building, floor, room, assets: roomAssets });
     setRoomScheduleForm({
@@ -309,7 +345,7 @@ export default function CheckPage() {
   const handleSaveSchedule = async () => {
     try {
       setLoading(true);
-      
+
       // คำนวณ next_check_date จากรอบมาตรฐานเท่านั้น
       let nextCheckDate = null;
       const selectedSchedule = schedules.find(s => s.schedule_id == scheduleForm.scheduleId);
@@ -318,7 +354,7 @@ export default function CheckPage() {
         date.setMonth(date.getMonth() + selectedSchedule.check_interval_months);
         nextCheckDate = date.toISOString().split('T')[0];
       }
-      
+
       const payload = {
         asset_id: currentAsset.asset_id,
         schedule_id: scheduleForm.scheduleId,
@@ -327,7 +363,7 @@ export default function CheckPage() {
       };
 
       await api.post('/check-schedules/assign-asset', payload);
-      
+
       toast.success('กำหนดรอบการตรวจสำเร็จ');
       setShowScheduleModal(false);
       setCurrentAsset(null);
@@ -339,18 +375,18 @@ export default function CheckPage() {
       setLoading(false);
     }
   };
-  
+
   const handleSaveRoomSchedule = async () => {
     try {
       setLoading(true);
-      
+
       // ดึง location_id จาก asset แรก
       const firstAsset = currentRoomForSchedule.assets[0];
       if (!firstAsset.location_id) {
         toast.error('ครุภัณฑ์ในห้องนี้ไม่มี location_id');
         return;
       }
-      
+
       const payload = {
         location_id: firstAsset.location_id,
         schedule_id: roomScheduleForm.scheduleId,
@@ -358,7 +394,7 @@ export default function CheckPage() {
       };
 
       await api.post('/check-schedules/assign-location', payload);
-      
+
       toast.success(`กำหนดรอบการตรวจทั้งห้องสำเร็จ (${currentRoomForSchedule.assets.length} รายการ)`);
       setShowRoomScheduleModal(false);
       setCurrentRoomForSchedule(null);
@@ -383,7 +419,7 @@ export default function CheckPage() {
   const handleSaveCheck = async () => {
     try {
       setLoading(true);
-      
+
       await api.post('/checks', {
         asset_id: currentAsset.asset_id,
         user_id: user.user_id,
@@ -416,7 +452,7 @@ export default function CheckPage() {
   const handleSaveRoomCheck = async () => {
     try {
       setLoading(true);
-      
+
       // แปลงสถานะจากข้อความเป็นสถานะจริง
       const statusMap = {
         'ใช้งานได้': 'ใช้งานได้',
@@ -425,9 +461,9 @@ export default function CheckPage() {
         'จำหน่ายแล้ว': 'จำหน่ายแล้ว',
         'ไม่พบ': 'ไม่พบ'
       };
-      
+
       const actualStatus = statusMap[checkForm.status] || checkForm.status;
-      
+
       // บันทึกการตรวจทีละรายการ
       for (const asset of currentRoom.assets) {
         await api.post('/checks', {
@@ -499,20 +535,19 @@ export default function CheckPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">ตรวจสอบครุภัณฑ์</h1>
-        <p className="text-gray-600 mt-1">จัดการและติดตามการตรวจสอบครุภัณฑ์ทั้งหมด</p>
+        <h1 className="text-2xl font-bold text-gray-900">ตรวจสอบครุภัณฑ์</h1>
+        <p className="text-gray-500 mt-1">จัดการและติดตามการตรวจสอบครุภัณฑ์ทั้งหมด</p>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-md">
-        <div className="flex border-b">
+      <div className="card">
+        <div className="flex border-b border-gray-100">
           <button
             onClick={() => setActiveTab('check')}
-            className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${
-              activeTab === 'check'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
+            className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${activeTab === 'check'
+              ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50'
+              : 'text-gray-500 hover:bg-gray-50'
+              }`}
           >
             <div className="flex items-center justify-center gap-2">
               <CheckSquare size={20} />
@@ -521,17 +556,16 @@ export default function CheckPage() {
           </button>
           <button
             onClick={() => setActiveTab('notifications')}
-            className={`flex-1 px-6 py-4 text-center font-medium transition-colors relative ${
-              activeTab === 'notifications'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
+            className={`flex-1 px-6 py-4 text-center font-medium transition-colors relative ${activeTab === 'notifications'
+              ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50'
+              : 'text-gray-500 hover:bg-gray-50'
+              }`}
           >
             <div className="flex items-center justify-center gap-2">
               <Bell size={20} />
               <span>การแจ้งเตือน</span>
               {stats.needsAction > 0 && (
-                <span className="absolute top-2 right-4 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                <span className="bg-danger-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
                   {stats.needsAction}
                 </span>
               )}
@@ -544,53 +578,53 @@ export default function CheckPage() {
         <>
           {/* Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+            <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl p-5 text-white shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm mb-1">ทั้งหมด</p>
+                  <p className="text-primary-100 text-sm mb-1">ทั้งหมด</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <BarChart3 size={32} className="opacity-80" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-6 text-white shadow-lg">
+            <div className="bg-gradient-to-br from-danger-500 to-danger-600 rounded-xl p-5 text-white shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-red-100 text-sm mb-1">ยังไม่เคยตรวจ</p>
+                  <p className="text-danger-100 text-sm mb-1">ยังไม่เคยตรวจ</p>
                   <p className="text-3xl font-bold">{stats.neverChecked}</p>
                 </div>
                 <AlertCircle size={32} className="opacity-80" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+            <div className="bg-gradient-to-br from-warning-500 to-warning-600 rounded-xl p-5 text-white shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-100 text-sm mb-1">เลยกำหนด</p>
+                  <p className="text-warning-100 text-sm mb-1">เลยกำหนด</p>
                   <p className="text-3xl font-bold">{stats.overdue}</p>
                 </div>
                 <AlertTriangle size={32} className="opacity-80" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 text-white shadow-lg">
+            <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-xl p-5 text-white shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-yellow-100 text-sm mb-1">ใกล้กำหนด</p>
+                  <p className="text-amber-100 text-sm mb-1">ใกล้กำหนด</p>
                   <p className="text-3xl font-bold">{stats.dueSoon}</p>
                 </div>
                 <Clock size={32} className="opacity-80" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+            <div className="bg-gradient-to-br from-success-500 to-success-600 rounded-xl p-5 text-white shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm mb-1">ตรวจแล้ว</p>
+                  <p className="text-success-100 text-sm mb-1">ตรวจแล้ว</p>
                   <p className="text-3xl font-bold">{stats.checked}</p>
-                  <div className="w-full bg-green-400 rounded-full h-1.5 mt-2">
-                    <div 
+                  <div className="w-full bg-success-400 rounded-full h-1.5 mt-2">
+                    <div
                       className="bg-white h-1.5 rounded-full transition-all"
                       style={{ width: `${stats.percentage}%` }}
                     />
@@ -612,7 +646,7 @@ export default function CheckPage() {
                     placeholder="ค้นหาครุภัณฑ์..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="form-input pl-10"
                   />
                 </div>
                 <button
@@ -624,25 +658,23 @@ export default function CheckPage() {
                 </button>
               </div>
 
-              <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+              <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
                 <button
                   onClick={() => setViewMode('grouped')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    viewMode === 'grouped'
-                      ? 'bg-white text-blue-600 shadow'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === 'grouped'
+                    ? 'bg-white text-primary-600 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   <Grid size={18} />
                   <span className="font-medium">จัดกลุ่ม</span>
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-white text-blue-600 shadow'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === 'list'
+                    ? 'bg-white text-primary-600 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   <List size={18} />
                   <span className="font-medium">รายการ</span>
@@ -653,7 +685,7 @@ export default function CheckPage() {
 
           {/* Assets Display */}
           {viewMode === 'grouped' ? (
-            <GroupedView 
+            <GroupedView
               groupedAssets={groupedAssets}
               expandedBuildings={expandedBuildings}
               expandedFloors={expandedFloors}
@@ -668,7 +700,7 @@ export default function CheckPage() {
               onRoomSchedule={handleOpenRoomScheduleModal}
             />
           ) : (
-            <ListView 
+            <ListView
               assets={filteredAssets}
               getCheckStatus={getCheckStatus}
               onCheck={handleOpenCheckModal}
@@ -678,7 +710,7 @@ export default function CheckPage() {
 
         </>
       ) : (
-        <NotificationsTab 
+        <NotificationsTab
           notifications={notifications}
           onCheck={handleOpenCheckModal}
           onSchedule={handleOpenScheduleModal}
@@ -755,7 +787,7 @@ export default function CheckPage() {
 // ============================================================
 // GROUPED VIEW COMPONENT
 // ============================================================
-function GroupedView({ 
+function GroupedView({
   groupedAssets, expandedBuildings, expandedFloors, expandedRooms,
   toggleBuilding, toggleFloor, toggleRoom, getCheckStatus,
   onCheck, onSchedule, onRoomCheck, onRoomSchedule
@@ -774,7 +806,7 @@ function GroupedView({
       {Object.entries(groupedAssets).map(([building, floors]) => {
         const buildingAssets = Object.values(floors).flatMap(f => Object.values(f)).flat();
         const buildingExpanded = expandedBuildings[building];
-        
+
         // คำนวณสถิติสำหรับแต่ละอาคาร
         const buildingStats = {
           total: buildingAssets.length,
@@ -798,17 +830,17 @@ function GroupedView({
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">{building}</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                      ทั้งหมด: {buildingStats.total} | 
-                      <span className="text-green-600 ml-2">ใช้งานได้: {buildingStats.available}</span> | 
-                      <span className="text-orange-500 ml-2">รอซ่อม: {buildingStats.maintenance}</span> | 
-                      <span className="text-amber-500 ml-2">รอจำหน่าย: {buildingStats.awaiting_disposal}</span> | 
-                      <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {buildingStats.disposed}</span> | 
-                      <span className="text-red-600 ml-2">ไม่พบ: {buildingStats.missing}</span>
-                    </p>
+                    ทั้งหมด: {buildingStats.total} |
+                    <span className="text-green-600 ml-2">ใช้งานได้: {buildingStats.available}</span> |
+                    <span className="text-orange-500 ml-2">รอซ่อม: {buildingStats.maintenance}</span> |
+                    <span className="text-amber-500 ml-2">รอจำหน่าย: {buildingStats.awaiting_disposal}</span> |
+                    <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {buildingStats.disposed}</span> |
+                    <span className="text-red-600 ml-2">ไม่พบ: {buildingStats.missing}</span>
+                  </p>
                 </div>
               </div>
-              {buildingExpanded ? 
-                <ChevronDown className="text-gray-600" size={24} /> : 
+              {buildingExpanded ?
+                <ChevronDown className="text-gray-600" size={24} /> :
                 <ChevronRight className="text-gray-600" size={24} />
               }
             </div>
@@ -833,8 +865,8 @@ function GroupedView({
                             <h4 className="font-semibold text-gray-800">ชั้น {floor}</h4>
                           </div>
                         </div>
-                        {floorExpanded ? 
-                          <ChevronDown className="text-gray-500" size={20} /> : 
+                        {floorExpanded ?
+                          <ChevronDown className="text-gray-500" size={20} /> :
                           <ChevronRight className="text-gray-500" size={20} />
                         }
                       </div>
@@ -849,7 +881,7 @@ function GroupedView({
                               <div key={roomKey} className="border border-gray-200 rounded-lg overflow-hidden">
                                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 border-b border-gray-200">
                                   <div className="flex items-center justify-between">
-                                    <div 
+                                    <div
                                       onClick={() => toggleRoom(building, floor, room)}
                                       className="flex items-center gap-2 flex-1 cursor-pointer"
                                     >
@@ -858,15 +890,15 @@ function GroupedView({
                                       <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
                                         {roomAssets.length} รายการ
                                       </span>
-                                      {roomExpanded ? 
-                                        <ChevronDown className="text-gray-500" size={18} /> : 
+                                      {roomExpanded ?
+                                        <ChevronDown className="text-gray-500" size={18} /> :
                                         <ChevronRight className="text-gray-500" size={18} />
                                       }
                                     </div>
                                     <div className="flex gap-2">
                                       <button
                                         onClick={() => onRoomCheck(building, floor, room, roomAssets)}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1"
+                                        className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1"
                                       >
                                         <CheckSquare size={14} />
                                         ตรวจทั้งห้อง
@@ -912,7 +944,7 @@ function GroupedView({
                                                 <div className="flex gap-2">
                                                   <button
                                                     onClick={() => onCheck(asset)}
-                                                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                                                    className="text-primary-600 hover:text-primary-800 transition-colors"
                                                     title="ตรวจสอบ"
                                                   >
                                                     <Eye size={18} />
@@ -1000,7 +1032,7 @@ function ListView({ assets, getCheckStatus, onCheck, onSchedule }) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => onCheck(asset)}
-                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        className="text-primary-600 hover:text-primary-800 transition-colors"
                         title="ตรวจสอบ"
                       >
                         <Eye size={18} />
@@ -1063,7 +1095,7 @@ function NotificationsTab({ notifications, onCheck, onSchedule, onDismiss }) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => onCheck(asset)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                        className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1"
                       >
                         <CheckSquare size={16} />
                         ตรวจสอบเลย
@@ -1163,7 +1195,7 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
               <label className="block text-sm font-medium text-gray-700 mb-2">สถานะการตรวจ</label>
               <select
                 value={filters.status}
-                onChange={(e) => setFilters({...filters, status: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="all">ทั้งหมด</option>
@@ -1178,7 +1210,7 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
               <label className="block text-sm font-medium text-gray-700 mb-2">อาคาร</label>
               <select
                 value={filters.building}
-                onChange={(e) => setFilters({...filters, building: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, building: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="all">ทั้งหมด</option>
@@ -1192,7 +1224,7 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
               <label className="block text-sm font-medium text-gray-700 mb-2">ชั้น</label>
               <select
                 value={filters.floor}
-                onChange={(e) => setFilters({...filters, floor: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, floor: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="all">ทั้งหมด</option>
@@ -1206,7 +1238,7 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
               <label className="block text-sm font-medium text-gray-700 mb-2">หน่วยงาน</label>
               <select
                 value={filters.department}
-                onChange={(e) => setFilters({...filters, department: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, department: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="all">ทั้งหมด</option>
@@ -1243,7 +1275,7 @@ function FilterModal({ filters, setFilters, uniqueBuildings, uniqueFloors, depar
 function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave, onClose, loading }) {
   // กรอง schedule_id = 5 (กำหนดเอง) ออก
   const availableSchedules = schedules.filter(s => s.schedule_id != 5);
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -1277,7 +1309,7 @@ function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave
               onChange={(e) => {
                 const newScheduleId = parseInt(e.target.value);
                 setScheduleForm({
-                  ...scheduleForm, 
+                  ...scheduleForm,
                   scheduleId: newScheduleId
                 });
               }}
@@ -1323,7 +1355,7 @@ function ScheduleModal({ asset, schedules, scheduleForm, setScheduleForm, onSave
 function RoomScheduleModal({ room, schedules, scheduleForm, setScheduleForm, onSave, onClose, loading }) {
   // กรอง schedule_id = 5 (กำหนดเอง) ออก
   const availableSchedules = schedules.filter(s => s.schedule_id != 5);
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -1366,7 +1398,7 @@ function RoomScheduleModal({ room, schedules, scheduleForm, setScheduleForm, onS
               onChange={(e) => {
                 const newScheduleId = parseInt(e.target.value);
                 setScheduleForm({
-                  ...scheduleForm, 
+                  ...scheduleForm,
                   scheduleId: newScheduleId
                 });
               }}
@@ -1435,7 +1467,7 @@ function CheckModal({ asset, checkForm, setCheckForm, onSave, onClose, loading }
             <label className="block text-sm font-medium text-gray-700 mb-2">สถานะหลังตรวจสอบ</label>
             <select
               value={checkForm.status}
-              onChange={(e) => setCheckForm({...checkForm, status: e.target.value})}
+              onChange={(e) => setCheckForm({ ...checkForm, status: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="ใช้งานได้">ใช้งานได้</option>
@@ -1450,7 +1482,7 @@ function CheckModal({ asset, checkForm, setCheckForm, onSave, onClose, loading }
             <label className="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
             <textarea
               value={checkForm.remark}
-              onChange={(e) => setCheckForm({...checkForm, remark: e.target.value})}
+              onChange={(e) => setCheckForm({ ...checkForm, remark: e.target.value })}
               placeholder="ระบุรายละเอียดเพิ่มเติม..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
               rows={3}
@@ -1518,7 +1550,7 @@ function RoomCheckModal({ room, checkForm, setCheckForm, onSave, onClose, loadin
             <label className="block text-sm font-medium text-gray-700 mb-2">สถานะทั้งห้อง</label>
             <select
               value={checkForm.status}
-              onChange={(e) => setCheckForm({...checkForm, status: e.target.value})}
+              onChange={(e) => setCheckForm({ ...checkForm, status: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="ใช้งานได้">ใช้งานได้ทั้งหมด</option>
@@ -1533,7 +1565,7 @@ function RoomCheckModal({ room, checkForm, setCheckForm, onSave, onClose, loadin
             <label className="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
             <textarea
               value={checkForm.remark}
-              onChange={(e) => setCheckForm({...checkForm, remark: e.target.value})}
+              onChange={(e) => setCheckForm({ ...checkForm, remark: e.target.value })}
               placeholder="ระบุรายละเอียดเพิ่มเติม..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
               rows={3}

@@ -1,9 +1,25 @@
 // FILE: asset-frontend/src/pages/ProfilePage.jsx
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Lock, Save, Eye, EyeOff, Shield } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save, Eye, EyeOff, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+
+// ==================== Notifications Integration ====================
+export const getProfileNotifications = (profileData) => {
+  const notifications = [];
+  if (!profileData?.email && !profileData?.phone) {
+    notifications.push({
+      id: 'missing-contact',
+      type: 'warning',
+      title: 'ข้อมูลติดต่อไม่ครบ',
+      message: 'กรุณาเพิ่มอีเมลหรือเบอร์โทร',
+      link: '/profile',
+      read: false
+    });
+  }
+  return notifications;
+};
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -11,7 +27,7 @@ export default function ProfilePage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [profileData, setProfileData] = useState({
     fullname: '',
     email: '',
@@ -53,13 +69,13 @@ export default function ProfilePage() {
 
     try {
       await api.put('/users/profile', profileData);
-      
+
       // อัปเดต localStorage
       const updatedUser = { ...user, ...profileData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+
       toast.success('อัปเดตโปรไฟล์สำเร็จ');
-      
+
       // Reload หน้าเพื่อให้ข้อมูลอัปเดต
       setTimeout(() => {
         window.location.reload();
@@ -103,9 +119,9 @@ export default function ProfilePage() {
         current_password: passwordData.current_password,
         password: passwordData.password
       });
-      
+
       toast.success('เปลี่ยนรหัสผ่านสำเร็จ');
-      
+
       // Reset form
       setPasswordData({
         current_password: '',
@@ -121,33 +137,42 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+          <User className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-600" size={24} />
+        </div>
+        <p className="mt-4 text-gray-600 font-medium">กำลังโหลดโปรไฟล์...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">ข้อมูลส่วนตัว</h1>
+        <h1 className="text-2xl font-bold text-gray-900">ข้อมูลส่วนตัว</h1>
         <p className="text-gray-600 mt-1">แก้ไขข้อมูลโปรไฟล์และเปลี่ยนรหัสผ่าน</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* User Info Card */}
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div className="text-center">
-            <div className="bg-blue-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User size={48} className="text-blue-600" />
+            <div className="relative inline-block">
+              <div className="w-28 h-28 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-primary-500/30">
+                <span className="text-4xl font-bold text-white">{user.fullname?.charAt(0)?.toUpperCase() || 'U'}</span>
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-success-500 rounded-xl flex items-center justify-center shadow-lg border-2 border-white">
+                <CheckCircle size={16} className="text-white" />
+              </div>
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">{user.fullname}</h2>
-            <p className="text-sm text-gray-600 mb-4">@{user.username}</p>
-            
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full inline-flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-bold text-gray-900 mt-5">{user.fullname}</h2>
+            <p className="text-sm text-gray-500 mt-1">@{user.username}</p>
+
+            <div className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-primary-500/30">
               <Shield size={16} />
-              <span className="font-semibold">{user.role}</span>
+              <span className="font-semibold text-sm">{user.role}</span>
             </div>
 
             <div className="space-y-3 text-left bg-gray-50 rounded-lg p-4 mt-4">
@@ -192,7 +217,7 @@ export default function ProfilePage() {
                 <input
                   type="text"
                   value={profileData.fullname}
-                  onChange={(e) => setProfileData({...profileData, fullname: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, fullname: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   required
                 />
@@ -205,7 +230,7 @@ export default function ProfilePage() {
                 <input
                   type="email"
                   value={profileData.email}
-                  onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                   placeholder="example@email.com"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
@@ -218,7 +243,7 @@ export default function ProfilePage() {
                 <input
                   type="tel"
                   value={profileData.phone}
-                  onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                   placeholder="0812345678"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
@@ -251,7 +276,7 @@ export default function ProfilePage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={passwordData.current_password}
-                    onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})}
+                    onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                     placeholder="••••••••"
                   />
@@ -273,7 +298,7 @@ export default function ProfilePage() {
                   <input
                     type={showNewPassword ? 'text' : 'password'}
                     value={passwordData.password}
-                    onChange={(e) => setPasswordData({...passwordData, password: e.target.value})}
+                    onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                     placeholder="••••••••"
                   />
@@ -296,7 +321,7 @@ export default function ProfilePage() {
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={passwordData.confirm_password}
-                    onChange={(e) => setPasswordData({...passwordData, confirm_password: e.target.value})}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                     placeholder="••••••••"
                   />

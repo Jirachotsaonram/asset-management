@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { 
-  FileText, 
-  Download, 
+import {
+  FileText,
+  Download,
   Calendar,
   Filter,
   TrendingUp,
@@ -13,12 +13,44 @@ import {
   Clock,
   Building,
   MapPin,
-  Users,
   BarChart3,
-  PieChart
+  PieChart,
+  RefreshCw,
+  FileSpreadsheet,
+  ChevronDown,
+  X
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+
+// ==================== Notifications Integration ====================
+export const getReportNotifications = (stats) => {
+  const notifications = [];
+
+  if (stats.missing > 0) {
+    notifications.push({
+      id: 'missing-assets',
+      type: 'error',
+      title: `มี ${stats.missing} รายการไม่พบ`,
+      message: 'ครุภัณฑ์ที่ต้องตรวจสอบ',
+      link: '/reports',
+      read: false
+    });
+  }
+
+  if (stats.maintenance > 0) {
+    notifications.push({
+      id: 'maintenance-assets',
+      type: 'warning',
+      title: `มี ${stats.maintenance} รายการรอซ่อม`,
+      message: 'ครุภัณฑ์ที่ต้องดำเนินการ',
+      link: '/reports',
+      read: false
+    });
+  }
+
+  return notifications;
+};
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
@@ -30,7 +62,7 @@ export default function ReportsPage() {
     disposed: 0,
     missing: 0
   });
-  
+
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'available', 'maintenance', 'pendingDisposal', 'disposed', 'missing'
   const [statusAssets, setStatusAssets] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -116,8 +148,8 @@ export default function ReportsPage() {
 
     try {
       let endpoint = '';
-      
-      switch(reportType) {
+
+      switch (reportType) {
         case 'asset-summary':
           endpoint = '/reports/asset-summary';
           break;
@@ -146,7 +178,7 @@ export default function ReportsPage() {
       console.log('📊 Fetching report:', endpoint);
       const response = await api.get(endpoint);
       console.log('✅ Report data:', response.data);
-      
+
       if (response.data.success && response.data.data) {
         setReportData(response.data.data);
         toast.success(`สร้างรายงานสำเร็จ (${response.data.data.length} รายการ)`);
@@ -251,7 +283,7 @@ export default function ReportsPage() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast.success('กำลังดาวน์โหลด Excel');
     } catch (error) {
       console.error('Error exporting Excel:', error);
@@ -267,7 +299,7 @@ export default function ReportsPage() {
 
     try {
       const doc = new jsPDF('l', 'mm', 'a4'); // landscape for wider tables
-      
+
       // Title
       doc.setFontSize(16);
       doc.text(getReportTitle(selectedReport), 14, 15);
@@ -358,7 +390,7 @@ export default function ReportsPage() {
         startY: 28,
         head: tableData.head,
         body: tableData.body,
-        styles: { 
+        styles: {
           fontSize: 8,
           cellPadding: 2
         },
@@ -398,7 +430,7 @@ export default function ReportsPage() {
         parseFloat(item.price || 0).toLocaleString(),
         item.status || '-',
         item.department_name || item.department || '-',
-        item.building_name 
+        item.building_name
           ? `${item.building_name}${item.floor ? ` ชั้น ${item.floor}` : ''}${item.room_number ? ` ห้อง ${item.room_number}` : ''}`
           : '-'
       ]);
@@ -420,7 +452,7 @@ export default function ReportsPage() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast.success('กำลังดาวน์โหลด Excel');
     } catch (error) {
       console.error('Error exporting Excel:', error);
@@ -436,7 +468,7 @@ export default function ReportsPage() {
 
     try {
       const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation for wider table
-      
+
       // Title
       doc.setFontSize(16);
       doc.text(getStatusTabTitle(activeTab), 14, 15);
@@ -455,11 +487,11 @@ export default function ReportsPage() {
           parseFloat(item.price || 0).toLocaleString('th-TH'),
           String(item.status || '-'),
           String(item.department_name || item.department || '-'),
-          item.building_name 
+          item.building_name
             ? `${item.building_name}${item.floor ? ` ชั้น ${item.floor}` : ''}${item.room_number ? ` ห้อง ${item.room_number}` : ''}`
             : '-'
         ]),
-        styles: { 
+        styles: {
           fontSize: 8,
           cellPadding: 2
         },
@@ -496,8 +528,12 @@ export default function ReportsPage() {
 
   if (loading && !selectedReport) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+          <BarChart3 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-600" size={24} />
+        </div>
+        <p className="mt-4 text-gray-600 font-medium">กำลังโหลดข้อมูลรายงาน...</p>
       </div>
     );
   }
@@ -505,14 +541,23 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">รายงาน</h1>
-        <p className="text-gray-600 mt-1">สรุปและวิเคราะห์ข้อมูลครุภัณฑ์</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">รายงาน</h1>
+          <p className="text-gray-600 mt-1">สรุปและวิเคราะห์ข้อมูลครุภัณฑ์</p>
+        </div>
+        <button
+          onClick={fetchStats}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
+        >
+          <RefreshCw size={18} />
+          รีเฟรช
+        </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div 
+        <div
           onClick={() => { setActiveTab('all'); setSelectedReport(null); }}
           className={`bg-gradient-to-br ${activeTab === 'all' ? 'from-blue-600 to-blue-700 ring-4 ring-blue-300' : 'from-blue-500 to-blue-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
         >
@@ -527,7 +572,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div 
+        <div
           onClick={() => { setActiveTab('available'); setSelectedReport(null); }}
           className={`bg-gradient-to-br ${activeTab === 'available' ? 'from-green-600 to-green-700 ring-4 ring-green-300' : 'from-green-500 to-green-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
         >
@@ -542,7 +587,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div 
+        <div
           onClick={() => { setActiveTab('maintenance'); setSelectedReport(null); }}
           className={`bg-gradient-to-br ${activeTab === 'maintenance' ? 'from-yellow-600 to-yellow-700 ring-4 ring-yellow-300' : 'from-yellow-500 to-yellow-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
         >
@@ -557,7 +602,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div 
+        <div
           onClick={() => { setActiveTab('pendingDisposal'); setSelectedReport(null); }}
           className={`bg-gradient-to-br ${activeTab === 'pendingDisposal' ? 'from-orange-600 to-orange-700 ring-4 ring-orange-300' : 'from-orange-500 to-orange-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
         >
@@ -572,7 +617,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div 
+        <div
           onClick={() => { setActiveTab('disposed'); setSelectedReport(null); }}
           className={`bg-gradient-to-br ${activeTab === 'disposed' ? 'from-gray-600 to-gray-700 ring-4 ring-gray-300' : 'from-gray-500 to-gray-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
         >
@@ -587,7 +632,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div 
+        <div
           onClick={() => { setActiveTab('missing'); setSelectedReport(null); }}
           className={`bg-gradient-to-br ${activeTab === 'missing' ? 'from-red-600 to-red-700 ring-4 ring-red-300' : 'from-red-500 to-red-600'} rounded-xl shadow-lg p-4 text-white cursor-pointer transition-all hover:scale-105`}
         >
@@ -658,7 +703,7 @@ export default function ReportsPage() {
                       </td>
                       <td className="px-6 py-4 text-sm">{asset.department_name || asset.department || '-'}</td>
                       <td className="px-6 py-4 text-sm">
-                        {asset.building_name 
+                        {asset.building_name
                           ? `${asset.building_name}${asset.floor ? ` ชั้น ${asset.floor}` : ''}${asset.room_number ? ` ห้อง ${asset.room_number}` : ''}`
                           : '-'
                         }
@@ -691,7 +736,7 @@ export default function ReportsPage() {
               <input
                 type="date"
                 value={dateRange.startDate}
-                onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})}
+                onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
@@ -702,7 +747,7 @@ export default function ReportsPage() {
               <input
                 type="date"
                 value={dateRange.endDate}
-                onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})}
+                onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
@@ -811,21 +856,21 @@ export default function ReportsPage() {
 
 function ReportCard({ title, description, icon, color, onClick }) {
   const colorClasses = {
-    blue: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-    green: 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
-    purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
-    indigo: 'from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700',
-    red: 'from-red-500 to-red-600 hover:from-red-600 hover:to-red-700',
-    orange: 'from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'
+    blue: 'from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-primary-500/20',
+    green: 'from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 shadow-success-500/20',
+    purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-purple-500/20',
+    indigo: 'from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 shadow-indigo-500/20',
+    red: 'from-danger-500 to-danger-600 hover:from-danger-600 hover:to-danger-700 shadow-danger-500/20',
+    orange: 'from-warning-500 to-warning-600 hover:from-warning-600 hover:to-warning-700 shadow-warning-500/20'
   };
 
   return (
     <div
       onClick={onClick}
-      className={`bg-gradient-to-br ${colorClasses[color]} rounded-xl shadow-lg p-6 text-white cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
+      className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl shadow-lg p-6 text-white cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl`}
     >
       <div className="flex items-start justify-between mb-4">
-        <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+        <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
           {icon}
         </div>
         <Download size={20} className="opacity-70" />
@@ -950,17 +995,17 @@ function renderTableRows(reportType, data) {
       </tr>
     ));
   }
-  
+
   return null;
 }
 
 function getStatusColor(status) {
   const colors = {
-    'ใช้งานได้': 'bg-green-100 text-green-800',
-    'รอซ่อม': 'bg-yellow-100 text-yellow-800',
-    'รอจำหน่าย': 'bg-orange-100 text-orange-800',
-    'จำหน่ายแล้ว': 'bg-gray-100 text-gray-800',
-    'ไม่พบ': 'bg-red-100 text-red-800'
+    'ใช้งานได้': 'bg-success-100 text-success-700 border border-success-200',
+    'รอซ่อม': 'bg-warning-100 text-warning-700 border border-warning-200',
+    'รอจำหน่าย': 'bg-orange-100 text-orange-700 border border-orange-200',
+    'จำหน่ายแล้ว': 'bg-gray-100 text-gray-600 border border-gray-200',
+    'ไม่พบ': 'bg-danger-100 text-danger-700 border border-danger-200'
   };
-  return colors[status] || 'bg-gray-100 text-gray-800';
+  return colors[status] || 'bg-gray-100 text-gray-600 border border-gray-200';
 }

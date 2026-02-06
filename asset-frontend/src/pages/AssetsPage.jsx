@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import toast from "react-hot-toast";
 import {
@@ -19,14 +20,45 @@ import {
   Grid,
   List,
   Filter,
-  X as XIcon,
-  RotateCcw
+  RotateCcw,
+  RefreshCw
 } from "lucide-react";
 import { API_BASE_URL } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
 import AssetForm from "../components/Assets/AssetForm";
 import QRCodeModal from "../components/Assets/QRCodeModal";
 import BulkQRGenerator from "../components/Assets/BulkQRGenerator";
+
+// ==================== Notifications Integration ====================
+export const getAssetNotifications = (assets) => {
+  const notifications = [];
+
+  const missingAssets = assets.filter(a => a.status === 'ไม่พบ');
+  if (missingAssets.length > 0) {
+    notifications.push({
+      id: 'missing-assets',
+      type: 'error',
+      title: `มี ${missingAssets.length} ครุภัณฑ์ไม่พบ`,
+      message: 'ครุภัณฑ์ที่ต้องตรวจสอบ',
+      link: '/assets',
+      read: false
+    });
+  }
+
+  const maintenanceAssets = assets.filter(a => a.status === 'รอซ่อม');
+  if (maintenanceAssets.length > 0) {
+    notifications.push({
+      id: 'maintenance-assets',
+      type: 'warning',
+      title: `มี ${maintenanceAssets.length} ครุภัณฑ์รอซ่อม`,
+      message: 'ครุภัณฑ์ที่ต้องดำเนินการ',
+      link: '/assets',
+      read: false
+    });
+  }
+
+  return notifications;
+};
 
 export default function AssetsPage() {
   const { user } = useAuth();
@@ -40,12 +72,12 @@ export default function AssetsPage() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrAsset, setQrAsset] = useState(null);
   const [showBulkQR, setShowBulkQR] = useState(false);
-  
+
   // สำหรับการจัดกลุ่ม
   const [viewMode, setViewMode] = useState("grouped"); // "grouped" หรือ "list"
   const [expandedBuildings, setExpandedBuildings] = useState({});
   const [expandedFloors, setExpandedFloors] = useState({});
-  
+
   // สำหรับ Filter
   const [filters, setFilters] = useState({
     status: "all",
@@ -55,6 +87,10 @@ export default function AssetsPage() {
   });
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read URL params on mount and set filters
+
 
   useEffect(() => {
     fetchAssets();
@@ -117,7 +153,8 @@ export default function AssetsPage() {
   const getFilteredAssets = () => {
     return assets.filter((asset) => {
       // Filter by Status
-      if (filters.status !== "all" && asset.status !== filters.status) {
+      // Filter by Status
+      if (filters.status !== "all" && asset.status?.trim() !== filters.status) {
         return false;
       }
 
@@ -236,13 +273,13 @@ export default function AssetsPage() {
 
   const getStatusColor = (status) => {
     const colors = {
-      ใช้งานได้: "bg-green-100 text-green-800",
-      รอซ่อม: "bg-yellow-100 text-yellow-800",
-      รอจำหน่าย: "bg-orange-100 text-orange-800",
-      จำหน่ายแล้ว: "bg-gray-100 text-gray-800",
-      ไม่พบ: "bg-red-100 text-red-800",
+      ใช้งานได้: "bg-success-100 text-success-700 border border-success-200",
+      รอซ่อม: "bg-warning-100 text-warning-700 border border-warning-200",
+      รอจำหน่าย: "bg-orange-100 text-orange-700 border border-orange-200",
+      จำหน่ายแล้ว: "bg-gray-100 text-gray-600 border border-gray-200",
+      ไม่พบ: "bg-danger-100 text-danger-700 border border-danger-200",
     };
-    return colors[status] || "bg-gray-100 text-gray-800";
+    return colors[status] || "bg-gray-100 text-gray-600 border border-gray-200";
   };
 
   // คำนวณสถิติ
@@ -380,11 +417,11 @@ export default function AssetsPage() {
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">{building}</h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      ทั้งหมด: {stats.total} | 
-                      <span className="text-green-600 ml-2">ใช้งานได้: {stats.available}</span> | 
-                      <span className="text-orange-500 ml-2">รอซ่อม: {stats.maintenance}</span> | 
-                      <span className="text-amber-500 ml-2">รอจำหน่าย: {stats.awaiting_disposal}</span> | 
-                      <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {stats.disposed}</span> | 
+                      ทั้งหมด: {stats.total} |
+                      <span className="text-green-600 ml-2">ใช้งานได้: {stats.available}</span> |
+                      <span className="text-orange-500 ml-2">รอซ่อม: {stats.maintenance}</span> |
+                      <span className="text-amber-500 ml-2">รอจำหน่าย: {stats.awaiting_disposal}</span> |
+                      <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {stats.disposed}</span> |
                       <span className="text-red-600 ml-2">ไม่พบ: {stats.missing}</span>
                     </p>
                   </div>
@@ -422,7 +459,7 @@ export default function AssetsPage() {
                             <div>
                               <h4 className="font-semibold text-gray-800">ชั้น {floor}</h4>
                               <p className="text-xs text-gray-600">
-                                {floorStats.total} รายการ | 
+                                {floorStats.total} รายการ |
                                 <span className="text-green-600 ml-1">{floorStats.available} พร้อมใช้</span>
                               </p>
                             </div>
@@ -645,32 +682,46 @@ export default function AssetsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+          <Package className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-600" size={24} />
+        </div>
+        <p className="mt-4 text-gray-600 font-medium">กำลังโหลดข้อมูลครุภัณฑ์...</p>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">จัดการครุภัณฑ์</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">จัดการครุภัณฑ์</h1>
+          <p className="text-gray-600 mt-1">ค้นหา ตรวจสอบ และจัดการครุภัณฑ์ทั้งหมด</p>
+        </div>
         {canEdit && (
-          <div className="flex space-x-3">
+          <div className="flex gap-3">
+            <button
+              onClick={fetchAssets}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
+            >
+              <RefreshCw size={18} />
+              รีเฟรช
+            </button>
             <button
               onClick={() => setShowBulkQR(true)}
-              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+              className="flex items-center gap-2 bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-success-500/20"
             >
-              <QrCode className="w-5 h-5" />
-              <span>สร้าง QR ทั้งหมด</span>
+              <QrCode size={18} />
+              สร้าง QR
             </button>
             <button
               onClick={handleAdd}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/20"
             >
-              <Plus className="w-5 h-5" />
-              <span>เพิ่มครุภัณฑ์</span>
+              <Plus size={18} />
+              เพิ่มครุภัณฑ์
             </button>
           </div>
         )}
@@ -701,22 +752,20 @@ export default function AssetsPage() {
           <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
             <button
               onClick={() => setViewMode("grouped")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === "grouped"
-                  ? "bg-white text-blue-600 shadow"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === "grouped"
+                ? "bg-white text-blue-600 shadow"
+                : "text-gray-600 hover:text-gray-800"
+                }`}
             >
               <Grid size={18} />
               <span className="font-medium">จัดกลุ่ม</span>
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === "list"
-                  ? "bg-white text-blue-600 shadow"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === "list"
+                ? "bg-white text-blue-600 shadow"
+                : "text-gray-600 hover:text-gray-800"
+                }`}
             >
               <List size={18} />
               <span className="font-medium">รายการ</span>
@@ -820,66 +869,66 @@ export default function AssetsPage() {
         </div>
 
         {/* Active Filters Display */}
-        {(filters.status !== "all" || filters.department !== "all" || 
+        {(filters.status !== "all" || filters.department !== "all" ||
           filters.building !== "all" || filters.floor !== "all") && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-sm text-gray-600 font-medium">ตัวกรองที่ใช้งาน:</span>
-              
-              {filters.status !== "all" && (
-                <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                  สถานะ: {filters.status}
-                  <button
-                    onClick={() => setFilters({ ...filters, status: "all" })}
-                    className="hover:bg-blue-200 rounded-full p-0.5"
-                  >
-                    <XIcon size={14} />
-                  </button>
-                </span>
-              )}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-sm text-gray-600 font-medium">ตัวกรองที่ใช้งาน:</span>
 
-              {filters.department !== "all" && (
-                <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                  หน่วยงาน: {departments.find(d => d.department_id == filters.department)?.department_name}
-                  <button
-                    onClick={() => setFilters({ ...filters, department: "all" })}
-                    className="hover:bg-green-200 rounded-full p-0.5"
-                  >
-                    <XIcon size={14} />
-                  </button>
-                </span>
-              )}
+                {filters.status !== "all" && (
+                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    สถานะ: {filters.status}
+                    <button
+                      onClick={() => setFilters({ ...filters, status: "all" })}
+                      className="hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </span>
+                )}
 
-              {filters.building !== "all" && (
-                <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                  อาคาร: {filters.building}
-                  <button
-                    onClick={() => setFilters({ ...filters, building: "all" })}
-                    className="hover:bg-purple-200 rounded-full p-0.5"
-                  >
-                    <XIcon size={14} />
-                  </button>
-                </span>
-              )}
+                {filters.department !== "all" && (
+                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                    หน่วยงาน: {departments.find(d => d.department_id == filters.department)?.department_name}
+                    <button
+                      onClick={() => setFilters({ ...filters, department: "all" })}
+                      className="hover:bg-green-200 rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </span>
+                )}
 
-              {filters.floor !== "all" && (
-                <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
-                  ชั้น: {filters.floor}
-                  <button
-                    onClick={() => setFilters({ ...filters, floor: "all" })}
-                    className="hover:bg-orange-200 rounded-full p-0.5"
-                  >
-                    <XIcon size={14} />
-                  </button>
-                </span>
-              )}
+                {filters.building !== "all" && (
+                  <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                    อาคาร: {filters.building}
+                    <button
+                      onClick={() => setFilters({ ...filters, building: "all" })}
+                      className="hover:bg-purple-200 rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </span>
+                )}
 
-              <span className="text-sm text-gray-500">
-                ({filteredAssets.length} จาก {assets.length} รายการ)
-              </span>
+                {filters.floor !== "all" && (
+                  <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+                    ชั้น: {filters.floor}
+                    <button
+                      onClick={() => setFilters({ ...filters, floor: "all" })}
+                      className="hover:bg-orange-200 rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </span>
+                )}
+
+                <span className="text-sm text-gray-500">
+                  ({filteredAssets.length} จาก {assets.length} รายการ)
+                </span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
 
       {/* Content */}
