@@ -236,7 +236,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
           {(!isCollapsed || isMobile) && (
             <div className="mt-3 text-center">
               <p className="text-xs text-gray-500">
-                เวอร์ชัน 2.0.0
+                เวอร์ชัน 1.0.0
               </p>
             </div>
           )}

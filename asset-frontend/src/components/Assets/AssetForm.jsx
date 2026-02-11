@@ -17,6 +17,8 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     location_id: "",
     status: "ใช้งานได้",
     barcode: "",
+    description: "",
+    reference_number: "",
   });
 
   const [departments, setDepartments] = useState([]);
@@ -45,6 +47,8 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
         location_id: asset.location_id || "",
         status: asset.status || "ใช้งานได้",
         barcode: asset.barcode || "",
+        description: asset.description || "",
+        reference_number: asset.reference_number || "",
       });
     }
   }, [asset]);
@@ -361,6 +365,36 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* คุณสมบัติและรายละเอียด */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                คุณสมบัติและรายละเอียด
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="3"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="เช่น คุณสมบัติ : ทำด้วยเหล็ก ขนาด 700x350x700 มม."
+              />
+            </div>
+
+            {/* อ้างอิงใบตรวจรับ */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                อ้างอิงใบตรวจรับ
+              </label>
+              <input
+                type="text"
+                name="reference_number"
+                value={formData.reference_number}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="เช่น 3050200125632"
+              />
             </div>
           </div>
 

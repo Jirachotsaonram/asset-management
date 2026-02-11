@@ -61,6 +61,8 @@ class AssetController {
             $this->asset->location_id = $data->location_id ?? null;
             $this->asset->status = $data->status ?? 'ใช้งานได้';
             $this->asset->barcode = $data->barcode ?? uniqid('QR');
+            $this->asset->description = $data->description ?? '';
+            $this->asset->reference_number = $data->reference_number ?? '';
             $this->asset->image = $data->image ?? '';
 
             $asset_id = $this->asset->create();
@@ -81,7 +83,9 @@ class AssetController {
                     'received_date' => $data->received_date ?? date('Y-m-d'),
                     'department_id' => $data->department_id ?? null,
                     'location_id' => $data->location_id ?? null,
-                    'status' => $data->status ?? 'ใช้งานได้'
+                    'status' => $data->status ?? 'ใช้งานได้',
+                    'description' => $data->description ?? '',
+                    'reference_number' => $data->reference_number ?? ''
                 ]);
                 $this->auditTrail->create();
 
@@ -122,6 +126,8 @@ class AssetController {
         $this->asset->department_id = $data->department_id ?? null;
         $this->asset->location_id = $data->location_id ?? null;
         $this->asset->status = $data->status ?? 'ใช้งานได้';
+        $this->asset->description = $data->description ?? '';
+        $this->asset->reference_number = $data->reference_number ?? '';
         $this->asset->image = $data->image ?? '';
 
         if ($this->asset->update()) {
@@ -129,7 +135,8 @@ class AssetController {
             $changes = [];
             $fields_to_track = [
                 'asset_name', 'serial_number', 'quantity', 'unit', 
-                'price', 'department_id', 'location_id', 'status'
+                'price', 'department_id', 'location_id', 'status',
+                'description', 'reference_number'
             ];
 
             foreach ($fields_to_track as $field) {

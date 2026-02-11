@@ -14,6 +14,8 @@ class Asset {
     public $location_id;
     public $status;
     public $barcode;
+    public $description;
+    public $reference_number;
     public $image;
 
     public function __construct($db) {
@@ -25,7 +27,8 @@ class Asset {
                   SET asset_name=:asset_name, serial_number=:serial_number, 
                       quantity=:quantity, unit=:unit, price=:price, 
                       received_date=:received_date, department_id=:department_id, 
-                      location_id=:location_id, status=:status, barcode=:barcode, image=:image";
+                      location_id=:location_id, status=:status, barcode=:barcode,
+                      description=:description, reference_number=:reference_number, image=:image";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":asset_name", $this->asset_name);
@@ -38,6 +41,8 @@ class Asset {
         $stmt->bindParam(":location_id", $this->location_id);
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":barcode", $this->barcode);
+        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":reference_number", $this->reference_number);
         $stmt->bindParam(":image", $this->image);
 
         if($stmt->execute()) {
@@ -70,7 +75,8 @@ class Asset {
                   SET asset_name=:asset_name, serial_number=:serial_number, 
                       quantity=:quantity, unit=:unit, price=:price, 
                       department_id=:department_id, location_id=:location_id, 
-                      status=:status, image=:image
+                      status=:status, description=:description,
+                      reference_number=:reference_number, image=:image
                   WHERE asset_id = :asset_id";
         
         $stmt = $this->conn->prepare($query);
@@ -82,6 +88,8 @@ class Asset {
         $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":location_id", $this->location_id);
         $stmt->bindParam(":status", $this->status);
+        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":reference_number", $this->reference_number);
         $stmt->bindParam(":image", $this->image);
         $stmt->bindParam(":asset_id", $this->asset_id);
 

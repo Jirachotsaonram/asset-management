@@ -8,6 +8,7 @@ import {
 import Papa from 'papaparse';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import OcrImportTab from '../components/Import/OcrImportTab';
 
 export default function ImportPage() {
   const [file, setFile] = useState(null);
@@ -22,6 +23,7 @@ export default function ImportPage() {
   const [expandedErrors, setExpandedErrors] = useState({});
   const [previewExpanded, setPreviewExpanded] = useState(true);
   const fileInputRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('csv');
 
   // Import history for notifications
   const [importHistory, setImportHistory] = useState([]);
@@ -249,438 +251,469 @@ export default function ImportPage() {
         )}
       </div>
 
-      {/* Progress Steps */}
-      <div className="card p-6">
-        <div className="flex items-center justify-between">
-          {stepConfig.map((s, i) => {
-            const Icon = s.icon;
-            const isActive = step >= s.num;
-            const isComplete = step > s.num;
-            const isCurrent = step === s.num;
-
-            return (
-              <div key={s.num} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isComplete ? 'bg-success-500 text-white shadow-success-glow' :
-                      isCurrent ? 'bg-primary-600 text-white shadow-lg' :
-                        'bg-gray-100 text-gray-400'
-                    }`}>
-                    {isComplete ? <CheckCircle size={24} /> : <Icon size={24} />}
-                  </div>
-                  <p className={`text-sm mt-2 font-medium ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
-                    {s.label}
-                  </p>
-                  <p className={`text-xs ${isActive ? 'text-gray-500' : 'text-gray-300'}`}>
-                    {s.description}
-                  </p>
-                </div>
-                {i < 3 && (
-                  <div className={`h-1 flex-1 mx-2 rounded transition-colors ${step > s.num ? 'bg-success-500' : 'bg-gray-200'
-                    }`} />
-                )}
-              </div>
-            );
-          })}
-        </div>
+      {/* Tab Switcher */}
+      <div className="flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">
+        <button
+          onClick={() => setActiveTab('csv')}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'csv'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50'
+            }`}
+        >
+          <FileSpreadsheet size={18} />
+          นำเข้าจาก CSV
+        </button>
+        <button
+          onClick={() => setActiveTab('ocr')}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'ocr'
+              ? 'bg-purple-600 text-white shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50'
+            }`}
+        >
+          <Eye size={18} />
+          สแกนเอกสาร (OCR)
+        </button>
       </div>
 
-      {/* Step 1: Upload */}
-      {step === 1 && (
-        <div className="card p-8">
-          <div className="max-w-3xl mx-auto">
-            {/* Template Download & Reference */}
-            <div className="bg-primary-50 border border-primary-100 rounded-xl p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-primary-100 p-3 rounded-xl">
-                  <FileSpreadsheet className="text-primary-600" size={24} />
+      {/* OCR Tab */}
+      {activeTab === 'ocr' && <OcrImportTab />}
+
+      {/* CSV Tab */}
+      {activeTab === 'csv' && (<>
+
+        {/* Progress Steps */}
+        <div className="card p-6">
+          <div className="flex items-center justify-between">
+            {stepConfig.map((s, i) => {
+              const Icon = s.icon;
+              const isActive = step >= s.num;
+              const isComplete = step > s.num;
+              const isCurrent = step === s.num;
+
+              return (
+                <div key={s.num} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center flex-1">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isComplete ? 'bg-success-500 text-white shadow-success-glow' :
+                      isCurrent ? 'bg-primary-600 text-white shadow-lg' :
+                        'bg-gray-100 text-gray-400'
+                      }`}>
+                      {isComplete ? <CheckCircle size={24} /> : <Icon size={24} />}
+                    </div>
+                    <p className={`text-sm mt-2 font-medium ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
+                      {s.label}
+                    </p>
+                    <p className={`text-xs ${isActive ? 'text-gray-500' : 'text-gray-300'}`}>
+                      {s.description}
+                    </p>
+                  </div>
+                  {i < 3 && (
+                    <div className={`h-1 flex-1 mx-2 rounded transition-colors ${step > s.num ? 'bg-success-500' : 'bg-gray-200'
+                      }`} />
+                  )}
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-2">เริ่มต้นด้วย Template</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    ดาวน์โหลดไฟล์ตัวอย่างเพื่อดูรูปแบบข้อมูลที่ถูกต้อง หรือดูรหัสอ้างอิงสำหรับหน่วยงานและสถานที่
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={downloadTemplateFromServer}
-                      className="btn-primary flex items-center gap-2"
-                    >
-                      <Download size={18} />
-                      ดาวน์โหลด Template
-                    </button>
-                    {references && (
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Step 1: Upload */}
+        {step === 1 && (
+          <div className="card p-8">
+            <div className="max-w-3xl mx-auto">
+              {/* Template Download & Reference */}
+              <div className="bg-primary-50 border border-primary-100 rounded-xl p-6 mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary-100 p-3 rounded-xl">
+                    <FileSpreadsheet className="text-primary-600" size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-2">เริ่มต้นด้วย Template</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      ดาวน์โหลดไฟล์ตัวอย่างเพื่อดูรูปแบบข้อมูลที่ถูกต้อง หรือดูรหัสอ้างอิงสำหรับหน่วยงานและสถานที่
+                    </p>
+                    <div className="flex flex-wrap gap-2">
                       <button
-                        onClick={() => setShowReferenceModal(true)}
-                        className="btn-secondary flex items-center gap-2"
+                        onClick={downloadTemplateFromServer}
+                        className="btn-primary flex items-center gap-2"
                       >
-                        <HelpCircle size={18} />
-                        ดูรหัสอ้างอิง
+                        <Download size={18} />
+                        ดาวน์โหลด Template
                       </button>
-                    )}
+                      {references && (
+                        <button
+                          onClick={() => setShowReferenceModal(true)}
+                          className="btn-secondary flex items-center gap-2"
+                        >
+                          <HelpCircle size={18} />
+                          ดูรหัสอ้างอิง
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Upload Area with Drag & Drop */}
-            <div
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${isDragging
+              {/* Upload Area with Drag & Drop */}
+              <div
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${isDragging
                   ? 'border-primary-500 bg-primary-50 scale-[1.02]'
                   : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-                }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="csv-upload"
-              />
-              <label htmlFor="csv-upload" className="cursor-pointer block">
-                {loading ? (
-                  <div className="flex flex-col items-center">
-                    <Loader className="w-16 h-16 text-primary-600 animate-spin mb-4" />
-                    <p className="text-lg font-semibold text-gray-700">กำลังอ่านไฟล์...</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors ${isDragging ? 'bg-primary-100' : 'bg-gray-100'
-                      }`}>
-                      <Upload className={`w-10 h-10 ${isDragging ? 'text-primary-600' : 'text-gray-400'}`} />
+                  }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="csv-upload"
+                />
+                <label htmlFor="csv-upload" className="cursor-pointer block">
+                  {loading ? (
+                    <div className="flex flex-col items-center">
+                      <Loader className="w-16 h-16 text-primary-600 animate-spin mb-4" />
+                      <p className="text-lg font-semibold text-gray-700">กำลังอ่านไฟล์...</p>
                     </div>
-                    <p className="text-lg font-semibold text-gray-700 mb-2">
-                      {isDragging ? 'วางไฟล์ที่นี่' : 'คลิกเพื่อเลือกไฟล์ CSV'}
-                    </p>
-                    <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่</p>
-                    <p className="text-xs text-gray-400 mt-2">รองรับไฟล์ .csv เท่านั้น</p>
-                  </>
-                )}
-              </label>
-            </div>
-
-            {/* Instructions */}
-            <div className="mt-6 bg-gray-50 rounded-xl p-5">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <Info size={18} className="text-primary-600" />
-                คำแนะนำการเตรียมไฟล์
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">ไฟล์ต้องเป็นรูปแบบ <code className="bg-gray-200 px-1 rounded">.csv</code></span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">แถวแรกต้องเป็นหัวตาราง (Headers)</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">ฟิลด์จำเป็น: <code className="bg-gray-200 px-1 rounded">asset_name</code></span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">วันที่ต้องเป็นรูปแบบ YYYY-MM-DD</span>
-                </div>
+                  ) : (
+                    <>
+                      <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors ${isDragging ? 'bg-primary-100' : 'bg-gray-100'
+                        }`}>
+                        <Upload className={`w-10 h-10 ${isDragging ? 'text-primary-600' : 'text-gray-400'}`} />
+                      </div>
+                      <p className="text-lg font-semibold text-gray-700 mb-2">
+                        {isDragging ? 'วางไฟล์ที่นี่' : 'คลิกเพื่อเลือกไฟล์ CSV'}
+                      </p>
+                      <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่</p>
+                      <p className="text-xs text-gray-400 mt-2">รองรับไฟล์ .csv เท่านั้น</p>
+                    </>
+                  )}
+                </label>
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500">
-                  <strong>ฟิลด์ทั้งหมด:</strong> asset_name, serial_number, quantity, unit, price, received_date, department_id, location_id, status, barcode
-                </p>
+
+              {/* Instructions */}
+              <div className="mt-6 bg-gray-50 rounded-xl p-5">
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <Info size={18} className="text-primary-600" />
+                  คำแนะนำการเตรียมไฟล์
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600">ไฟล์ต้องเป็นรูปแบบ <code className="bg-gray-200 px-1 rounded">.csv</code></span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600">แถวแรกต้องเป็นหัวตาราง (Headers)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600">ฟิลด์จำเป็น: <code className="bg-gray-200 px-1 rounded">asset_name</code></span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600">วันที่ต้องเป็นรูปแบบ YYYY-MM-DD</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    <strong>ฟิลด์ทั้งหมด:</strong> asset_name, serial_number, quantity, unit, price, received_date, department_id, location_id, status, barcode
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Step 2: Preview */}
-      {step === 2 && (
-        <div className="card overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary-100 p-2 rounded-xl">
-                <FileText className="text-primary-600" size={20} />
+        {/* Step 2: Preview */}
+        {step === 2 && (
+          <div className="card overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary-100 p-2 rounded-xl">
+                  <FileText className="text-primary-600" size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">ตรวจสอบข้อมูลก่อนนำเข้า</h2>
+                  <p className="text-sm text-gray-500">พบข้อมูล {csvData.length} รายการ จากไฟล์ {file?.name}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">ตรวจสอบข้อมูลก่อนนำเข้า</h2>
-                <p className="text-sm text-gray-500">พบข้อมูล {csvData.length} รายการ จากไฟล์ {file?.name}</p>
-              </div>
+              <button
+                onClick={() => setPreviewExpanded(!previewExpanded)}
+                className="btn-secondary p-2"
+              >
+                {previewExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              </button>
             </div>
-            <button
-              onClick={() => setPreviewExpanded(!previewExpanded)}
-              className="btn-secondary p-2"
-            >
-              {previewExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            </button>
-          </div>
 
-          {previewExpanded && (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">#</th>
-                    {getColumns().slice(0, 6).map(col => (
-                      <th key={col} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{col}</th>
-                    ))}
-                    {getColumns().length > 6 && (
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">+{getColumns().length - 6} อื่นๆ</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {csvData.slice(0, 10).map((row, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-500">{index + 1}</td>
+            {previewExpanded && (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">#</th>
                       {getColumns().slice(0, 6).map(col => (
-                        <td key={col} className="px-4 py-3 text-sm text-gray-700 max-w-[200px] truncate">
-                          {row[col] || <span className="text-gray-300">-</span>}
-                        </td>
+                        <th key={col} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{col}</th>
                       ))}
                       {getColumns().length > 6 && (
-                        <td className="px-4 py-3 text-sm text-gray-400">...</td>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">+{getColumns().length - 6} อื่นๆ</th>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {csvData.length > 10 && (
-            <div className="px-6 py-3 bg-gray-50 text-center text-sm text-gray-500">
-              แสดง 10 จาก {csvData.length} รายการ
-            </div>
-          )}
-
-          <div className="p-6 border-t border-gray-100 flex gap-4">
-            <button
-              onClick={handleReset}
-              className="btn-secondary flex-1"
-            >
-              ยกเลิก
-            </button>
-            <button
-              onClick={handleValidate}
-              disabled={loading}
-              className="btn-primary flex-1 justify-center disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader size={18} className="animate-spin" />
-                  กำลังตรวจสอบ...
-                </>
-              ) : (
-                <>
-                  <ArrowRight size={18} />
-                  ตรวจสอบข้อมูล
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 3: Validation Results */}
-      {step === 3 && validationResult && (
-        <div className="space-y-6">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">ทั้งหมด</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{validationResult.summary.total}</p>
-                </div>
-                <div className="bg-gray-100 p-3 rounded-xl">
-                  <Package className="text-gray-600" size={24} />
-                </div>
-              </div>
-            </div>
-            <div className="card p-6 bg-success-50 border-success-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-success-600">ถูกต้อง</p>
-                  <p className="text-3xl font-bold text-success-700 mt-1">{validationResult.summary.valid_count}</p>
-                </div>
-                <div className="bg-success-100 p-3 rounded-xl">
-                  <CheckCircle className="text-success-600" size={24} />
-                </div>
-              </div>
-            </div>
-            <div className="card p-6 bg-danger-50 border-danger-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-danger-600">ผิดพลาด</p>
-                  <p className="text-3xl font-bold text-danger-700 mt-1">{validationResult.summary.invalid_count}</p>
-                </div>
-                <div className="bg-danger-100 p-3 rounded-xl">
-                  <XCircle className="text-danger-600" size={24} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Invalid Rows */}
-          {validationResult.invalid.length > 0 && (
-            <div className="card overflow-hidden">
-              <div className="p-4 border-b border-gray-100 bg-danger-50">
-                <h3 className="text-lg font-semibold text-danger-800 flex items-center gap-2">
-                  <AlertTriangle size={20} />
-                  ข้อมูลที่มีปัญหา ({validationResult.invalid.length} รายการ)
-                </h3>
-              </div>
-              <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-                {validationResult.invalid.map((item, index) => (
-                  <div
-                    key={index}
-                    className="p-4 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => toggleErrorExpanded(index)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="bg-danger-100 text-danger-700 px-2 py-1 rounded text-xs font-medium">
-                          แถว {item.row}
-                        </span>
-                        <span className="font-medium text-gray-900">{item.data.asset_name || '(ไม่มีชื่อ)'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-danger-600">{item.errors.length} ข้อผิดพลาด</span>
-                        {expandedErrors[index] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                      </div>
-                    </div>
-                    {expandedErrors[index] && (
-                      <ul className="mt-3 space-y-1 ml-16">
-                        {item.errors.map((error, i) => (
-                          <li key={i} className="text-sm text-danger-600 flex items-start gap-2">
-                            <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
-                            {error}
-                          </li>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {csvData.slice(0, 10).map((row, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm font-medium text-gray-500">{index + 1}</td>
+                        {getColumns().slice(0, 6).map(col => (
+                          <td key={col} className="px-4 py-3 text-sm text-gray-700 max-w-[200px] truncate">
+                            {row[col] || <span className="text-gray-300">-</span>}
+                          </td>
                         ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+                        {getColumns().length > 6 && (
+                          <td className="px-4 py-3 text-sm text-gray-400">...</td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Actions */}
-          <div className="card p-6">
-            <div className="flex gap-4">
+            {csvData.length > 10 && (
+              <div className="px-6 py-3 bg-gray-50 text-center text-sm text-gray-500">
+                แสดง 10 จาก {csvData.length} รายการ
+              </div>
+            )}
+
+            <div className="p-6 border-t border-gray-100 flex gap-4">
               <button
                 onClick={handleReset}
                 className="btn-secondary flex-1"
               >
                 ยกเลิก
               </button>
-              {validationResult.valid.length > 0 && (
-                <button
-                  onClick={handleImport}
-                  disabled={loading}
-                  className="btn-primary flex-1 justify-center bg-success-600 hover:bg-success-700 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <>
-                      <Loader size={18} className="animate-spin" />
-                      กำลังนำเข้า...
-                    </>
-                  ) : (
-                    <>
-                      <Database size={18} />
-                      นำเข้า {validationResult.valid.length} รายการ
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Step 4: Import Results */}
-      {step === 4 && importResult && (
-        <div className="space-y-6">
-          {/* Success Banner */}
-          <div className="card p-8 text-center bg-gradient-to-br from-success-50 to-success-100 border-success-200">
-            <div className="w-20 h-20 bg-success-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-success-glow">
-              <CheckCircle className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-success-800 mb-2">นำเข้าข้อมูลสำเร็จ!</h2>
-            <p className="text-success-700">
-              นำเข้าครุภัณฑ์สำเร็จ {importResult.summary.success_count} รายการ
-            </p>
-          </div>
-
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">ทั้งหมด</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{importResult.summary.total}</p>
-                </div>
-                <div className="bg-gray-100 p-3 rounded-xl">
-                  <Package className="text-gray-600" size={24} />
-                </div>
-              </div>
-            </div>
-            <div className="card p-6 bg-success-50 border-success-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-success-600">สำเร็จ</p>
-                  <p className="text-3xl font-bold text-success-700 mt-1">{importResult.summary.success_count}</p>
-                </div>
-                <div className="bg-success-100 p-3 rounded-xl">
-                  <CheckCircle className="text-success-600" size={24} />
-                </div>
-              </div>
-            </div>
-            <div className="card p-6 bg-danger-50 border-danger-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-danger-600">ล้มเหลว</p>
-                  <p className="text-3xl font-bold text-danger-700 mt-1">{importResult.summary.failed_count}</p>
-                </div>
-                <div className="bg-danger-100 p-3 rounded-xl">
-                  <XCircle className="text-danger-600" size={24} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="card p-6">
-            <div className="flex gap-4">
               <button
-                onClick={handleReset}
-                className="btn-primary flex-1 justify-center"
+                onClick={handleValidate}
+                disabled={loading}
+                className="btn-primary flex-1 justify-center disabled:opacity-50"
               >
-                <Upload size={18} />
-                นำเข้าไฟล์ใหม่
+                {loading ? (
+                  <>
+                    <Loader size={18} className="animate-spin" />
+                    กำลังตรวจสอบ...
+                  </>
+                ) : (
+                  <>
+                    <ArrowRight size={18} />
+                    ตรวจสอบข้อมูล
+                  </>
+                )}
               </button>
-              <a
-                href="/assets"
-                className="btn-secondary flex-1 justify-center flex items-center gap-2"
-              >
-                <Package size={18} />
-                ดูรายการครุภัณฑ์
-              </a>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Reference Modal */}
-      {showReferenceModal && references && (
-        <ReferenceModal
-          references={references}
-          onClose={() => setShowReferenceModal(false)}
-        />
-      )}
+        {/* Step 3: Validation Results */}
+        {step === 3 && validationResult && (
+          <div className="space-y-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="card p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">ทั้งหมด</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">{validationResult.summary.total}</p>
+                  </div>
+                  <div className="bg-gray-100 p-3 rounded-xl">
+                    <Package className="text-gray-600" size={24} />
+                  </div>
+                </div>
+              </div>
+              <div className="card p-6 bg-success-50 border-success-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-success-600">ถูกต้อง</p>
+                    <p className="text-3xl font-bold text-success-700 mt-1">{validationResult.summary.valid_count}</p>
+                  </div>
+                  <div className="bg-success-100 p-3 rounded-xl">
+                    <CheckCircle className="text-success-600" size={24} />
+                  </div>
+                </div>
+              </div>
+              <div className="card p-6 bg-danger-50 border-danger-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-danger-600">ผิดพลาด</p>
+                    <p className="text-3xl font-bold text-danger-700 mt-1">{validationResult.summary.invalid_count}</p>
+                  </div>
+                  <div className="bg-danger-100 p-3 rounded-xl">
+                    <XCircle className="text-danger-600" size={24} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Invalid Rows */}
+            {validationResult.invalid.length > 0 && (
+              <div className="card overflow-hidden">
+                <div className="p-4 border-b border-gray-100 bg-danger-50">
+                  <h3 className="text-lg font-semibold text-danger-800 flex items-center gap-2">
+                    <AlertTriangle size={20} />
+                    ข้อมูลที่มีปัญหา ({validationResult.invalid.length} รายการ)
+                  </h3>
+                </div>
+                <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                  {validationResult.invalid.map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-4 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => toggleErrorExpanded(index)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="bg-danger-100 text-danger-700 px-2 py-1 rounded text-xs font-medium">
+                            แถว {item.row}
+                          </span>
+                          <span className="font-medium text-gray-900">{item.data.asset_name || '(ไม่มีชื่อ)'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-danger-600">{item.errors.length} ข้อผิดพลาด</span>
+                          {expandedErrors[index] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                        </div>
+                      </div>
+                      {expandedErrors[index] && (
+                        <ul className="mt-3 space-y-1 ml-16">
+                          {item.errors.map((error, i) => (
+                            <li key={i} className="text-sm text-danger-600 flex items-start gap-2">
+                              <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+                              {error}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="card p-6">
+              <div className="flex gap-4">
+                <button
+                  onClick={handleReset}
+                  className="btn-secondary flex-1"
+                >
+                  ยกเลิก
+                </button>
+                {validationResult.valid.length > 0 && (
+                  <button
+                    onClick={handleImport}
+                    disabled={loading}
+                    className="btn-primary flex-1 justify-center bg-success-600 hover:bg-success-700 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader size={18} className="animate-spin" />
+                        กำลังนำเข้า...
+                      </>
+                    ) : (
+                      <>
+                        <Database size={18} />
+                        นำเข้า {validationResult.valid.length} รายการ
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Import Results */}
+        {step === 4 && importResult && (
+          <div className="space-y-6">
+            {/* Success Banner */}
+            <div className="card p-8 text-center bg-gradient-to-br from-success-50 to-success-100 border-success-200">
+              <div className="w-20 h-20 bg-success-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-success-glow">
+                <CheckCircle className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-success-800 mb-2">นำเข้าข้อมูลสำเร็จ!</h2>
+              <p className="text-success-700">
+                นำเข้าครุภัณฑ์สำเร็จ {importResult.summary.success_count} รายการ
+              </p>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="card p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">ทั้งหมด</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">{importResult.summary.total}</p>
+                  </div>
+                  <div className="bg-gray-100 p-3 rounded-xl">
+                    <Package className="text-gray-600" size={24} />
+                  </div>
+                </div>
+              </div>
+              <div className="card p-6 bg-success-50 border-success-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-success-600">สำเร็จ</p>
+                    <p className="text-3xl font-bold text-success-700 mt-1">{importResult.summary.success_count}</p>
+                  </div>
+                  <div className="bg-success-100 p-3 rounded-xl">
+                    <CheckCircle className="text-success-600" size={24} />
+                  </div>
+                </div>
+              </div>
+              <div className="card p-6 bg-danger-50 border-danger-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-danger-600">ล้มเหลว</p>
+                    <p className="text-3xl font-bold text-danger-700 mt-1">{importResult.summary.failed_count}</p>
+                  </div>
+                  <div className="bg-danger-100 p-3 rounded-xl">
+                    <XCircle className="text-danger-600" size={24} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="card p-6">
+              <div className="flex gap-4">
+                <button
+                  onClick={handleReset}
+                  className="btn-primary flex-1 justify-center"
+                >
+                  <Upload size={18} />
+                  นำเข้าไฟล์ใหม่
+                </button>
+                <a
+                  href="/assets"
+                  className="btn-secondary flex-1 justify-center flex items-center gap-2"
+                >
+                  <Package size={18} />
+                  ดูรายการครุภัณฑ์
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reference Modal */}
+        {showReferenceModal && references && (
+          <ReferenceModal
+            references={references}
+            onClose={() => setShowReferenceModal(false)}
+          />
+        )}
+      </>)}
     </div>
   );
 }
@@ -718,8 +751,8 @@ function ReferenceModal({ references, onClose }) {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-3 px-1 border-b-2 transition-colors ${activeTab === tab.id
-                    ? 'border-primary-600 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-primary-600 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 {tab.label} <span className="text-xs">({tab.count})</span>

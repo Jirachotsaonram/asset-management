@@ -21,7 +21,7 @@ import { Platform } from 'react-native';
 //   - PC จะได้ IP เช่น 10.103.131.243
 //   - Gateway จะเป็น IP ของมือถือ เช่น 10.103.131.17
 //   - แต่ API URL ต้องใช้ IP ของ PC (10.103.131.243) ไม่ใช่ gateway
-const YOUR_IP_ADDRESS = '10.58.49.243'; // IP ของ PC ที่เชื่อมต่อกับ hotspot จากมือถือ
+const YOUR_IP_ADDRESS = '10.88.226.98'; // IP ของ PC บน WiFi เดียวกัน
 
 // สำหรับ Expo Go บนอุปกรณ์จริง ต้องใช้ IP address ของเครื่องที่รัน API
 // สำหรับ Android Emulator ใช้ 10.0.2.2 แทน localhost
@@ -32,7 +32,7 @@ const DEV_API_URL = Platform.select({
   default: `http://${YOUR_IP_ADDRESS}/asset-management/asset_management_api`, // อุปกรณ์จริง
 });
 
-export const API_BASE_URL = __DEV__ 
+export const API_BASE_URL = __DEV__
   ? DEV_API_URL
   : 'https://your-api-domain.com/asset-management/asset_management_api';
 

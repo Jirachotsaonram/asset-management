@@ -156,6 +156,8 @@ class ImportController {
                     $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
                     $this->asset->status = $row->status ?? 'ใช้งานได้';
                     $this->asset->barcode = $row->barcode ?? 'QR' . uniqid();
+                    $this->asset->description = $row->description ?? '';
+                    $this->asset->reference_number = $row->reference_number ?? '';
                     $this->asset->image = '';
 
                     $asset_id = $this->asset->create();
@@ -216,7 +218,9 @@ class ImportController {
                 'department_id',
                 'location_id',
                 'status',
-                'barcode'
+                'barcode',
+                'description',
+                'reference_number'
             ]);
 
             // Example data
@@ -230,7 +234,9 @@ class ImportController {
                 '1',
                 '1',
                 'ใช้งานได้',
-                'QR001'
+                'QR001',
+                'คุณสมบัติ: CPU Intel Core i7, RAM 16GB',
+                'REF-2024-001'
             ]);
 
             fputcsv($output, [
@@ -243,7 +249,9 @@ class ImportController {
                 '1',
                 '2',
                 'ใช้งานได้',
-                'QR002'
+                'QR002',
+                'คุณสมบัติ: พิมพ์ขาวดำ 30 แผ่น/นาที',
+                'REF-2024-002'
             ]);
 
             fclose($output);
