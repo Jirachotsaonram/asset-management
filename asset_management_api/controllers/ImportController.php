@@ -15,7 +15,7 @@ class ImportController {
     }
 
     /**
-     * Validate CSV data before import
+     * Validate CSV/Excel data before import
      * POST /import/validate
      */
     public function validateCSV() {
@@ -56,7 +56,7 @@ class ImportController {
                     }
                 }
 
-                // Validate department_id
+                // Resolve department: by ID or by name
                 if (!empty($row->department_id)) {
                     $checkDept = "SELECT department_id FROM Departments WHERE department_id = :dept_id";
                     $stmtDept = $this->db->prepare($checkDept);
@@ -65,9 +65,21 @@ class ImportController {
                     if ($stmtDept->rowCount() === 0) {
                         $errors[] = "ไม่พบหน่วยงาน ID: {$row->department_id}";
                     }
+                } elseif (!empty($row->department_name_excel)) {
+                    // Try to find department by name
+                    $findDept = "SELECT department_id FROM Departments WHERE department_name LIKE :dept_name LIMIT 1";
+                    $stmtFind = $this->db->prepare($findDept);
+                    $deptSearch = '%' . $row->department_name_excel . '%';
+                    $stmtFind->bindParam(':dept_name', $deptSearch);
+                    $stmtFind->execute();
+                    if ($stmtFind->rowCount() > 0) {
+                        $found = $stmtFind->fetch(PDO::FETCH_ASSOC);
+                        $row->department_id = $found['department_id'];
+                    }
+                    // Not finding department is OK - just leave it null
                 }
 
-                // Validate location_id
+                // Resolve location: by ID or by name
                 if (!empty($row->location_id)) {
                     $checkLoc = "SELECT location_id FROM Locations WHERE location_id = :loc_id";
                     $stmtLoc = $this->db->prepare($checkLoc);
@@ -76,6 +88,19 @@ class ImportController {
                     if ($stmtLoc->rowCount() === 0) {
                         $errors[] = "ไม่พบสถานที่ ID: {$row->location_id}";
                     }
+                } elseif (!empty($row->location_name)) {
+                    // Try to find location by room_number or building_name
+                    $findLoc = "SELECT location_id FROM Locations WHERE room_number LIKE :loc_name OR building_name LIKE :loc_name2 LIMIT 1";
+                    $stmtFindLoc = $this->db->prepare($findLoc);
+                    $locSearch = '%' . $row->location_name . '%';
+                    $stmtFindLoc->bindParam(':loc_name', $locSearch);
+                    $stmtFindLoc->bindParam(':loc_name2', $locSearch);
+                    $stmtFindLoc->execute();
+                    if ($stmtFindLoc->rowCount() > 0) {
+                        $found = $stmtFindLoc->fetch(PDO::FETCH_ASSOC);
+                        $row->location_id = $found['location_id'];
+                    }
+                    // Not finding location is OK - just leave it null
                 }
 
                 // Validate price
@@ -92,6 +117,25 @@ class ImportController {
                 $validStatuses = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม'];
                 if (!empty($row->status) && !in_array($row->status, $validStatuses)) {
                     $errors[] = "สถานะไม่ถูกต้อง";
+                }
+
+                // Build description from extra Excel fields
+                $descParts = [];
+                if (!empty($row->description)) $descParts[] = $row->description;
+                if (!empty($row->location_name) && empty($row->location_id)) {
+                    $descParts[] = "ห้อง: {$row->location_name}";
+                }
+                if (!empty($row->vendor)) $descParts[] = "ผู้ขาย: {$row->vendor}";
+                if (!empty($row->requester)) $descParts[] = "ผู้เบิก: {$row->requester}";
+                if (!empty($row->budget_year)) $descParts[] = "ปีงบประมาณ: {$row->budget_year}";
+                if (!empty($row->delivery_number)) {
+                    $refParts = [];
+                    if (!empty($row->reference_number)) $refParts[] = $row->reference_number;
+                    $refParts[] = "ใบส่งของ: {$row->delivery_number}";
+                    $row->reference_number = implode(' | ', $refParts);
+                }
+                if (count($descParts) > 0) {
+                    $row->description = implode(' | ', $descParts);
                 }
 
                 if (empty($errors)) {
@@ -158,6 +202,11 @@ class ImportController {
                     $this->asset->barcode = $row->barcode ?? 'QR' . uniqid();
                     $this->asset->description = $row->description ?? '';
                     $this->asset->reference_number = $row->reference_number ?? '';
+                    $this->asset->faculty_name = $row->faculty_name ?? null;
+                    $this->asset->delivery_number = $row->delivery_number ?? null;
+                    $this->asset->fund_code = $row->fund_code ?? null;
+                    $this->asset->plan_code = $row->plan_code ?? null;
+                    $this->asset->project_code = $row->project_code ?? null;
                     $this->asset->image = '';
 
                     $asset_id = $this->asset->create();

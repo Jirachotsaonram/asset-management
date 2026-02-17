@@ -916,13 +916,13 @@ function GroupedView({
 
                                 {roomExpanded && (
                                   <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
+                                    <table className="min-w-full divide-y divide-gray-200 table-fixed">
                                       <thead className="bg-gray-50">
                                         <tr>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ชื่อครุภัณฑ์</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
+                                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase max-w-xs">ชื่อครุภัณฑ์</th>
+                                          <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
+                                          <th className="w-24 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                                          <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
                                         </tr>
                                       </thead>
                                       <tbody className="bg-white divide-y divide-gray-200">
@@ -932,8 +932,8 @@ function GroupedView({
 
                                           return (
                                             <tr key={asset.asset_id} className="hover:bg-gray-50">
-                                              <td className="px-4 py-3 text-sm text-gray-900">{asset.asset_name}</td>
-                                              <td className="px-4 py-3 text-sm text-gray-600">{asset.serial_number || '-'}</td>
+                                              <td className="px-2 py-2 text-sm text-gray-900"><div className="line-clamp-2" title={asset.asset_name}>{asset.asset_name}</div></td>
+                                              <td className="px-2 py-2 text-xs text-gray-600 break-all">{asset.serial_number || '-'}</td>
                                               <td className="px-4 py-3">
                                                 <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold border ${status.color}`}>
                                                   <StatusIcon size={12} />
@@ -998,15 +998,15 @@ function ListView({ assets, getCheckStatus, onCheck, onSchedule }) {
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full divide-y divide-gray-200 table-fixed">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">รหัส</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ชื่อครุภัณฑ์</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานที่</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
+              <th className="w-16 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">รหัส</th>
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase max-w-xs">ชื่อครุภัณฑ์</th>
+              <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานที่</th>
+              <th className="w-24 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+              <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -1017,8 +1017,8 @@ function ListView({ assets, getCheckStatus, onCheck, onSchedule }) {
               return (
                 <tr key={asset.asset_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">{asset.asset_id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{asset.asset_name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{asset.serial_number || '-'}</td>
+                  <td className="px-2 py-2 text-sm text-gray-900"><div className="line-clamp-2" title={asset.asset_name}>{asset.asset_name}</div></td>
+                  <td className="px-2 py-2 text-xs text-gray-600 break-all">{asset.serial_number || '-'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {asset.building_name} ชั้น {asset.floor} ห้อง {asset.room_number}
                   </td>

@@ -330,13 +330,13 @@ export default function AssetsPage() {
           )}
         </div>
       </td>
-      <td className="px-6 py-4">
-        <div className="text-sm font-medium text-gray-900">
+      <td className="px-2 py-2">
+        <div className="text-sm font-medium text-gray-900 line-clamp-2" title={asset.asset_name}>
           {asset.asset_name}
         </div>
-        <div className="text-sm text-gray-500">ID: {asset.asset_id}</div>
+        <div className="text-xs text-gray-500">ID: {asset.asset_id}</div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      <td className="px-2 py-2 text-xs text-gray-500 break-all">
         {asset.serial_number || "-"}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
@@ -512,14 +512,14 @@ export default function AssetsPage() {
 
                                   {/* Assets Table */}
                                   <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
+                                    <table className="min-w-full divide-y divide-gray-200 table-fixed">
                                       <thead className="bg-gray-50">
                                         <tr>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">รูปภาพ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">รหัส/ชื่อ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
+                                          <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">รูป</th>
+                                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase max-w-xs">ชื่อครุภัณฑ์</th>
+                                          <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
+                                          <th className="w-24 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                                          <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
                                         </tr>
                                       </thead>
                                       <tbody className="bg-white divide-y divide-gray-200">
@@ -548,26 +548,26 @@ export default function AssetsPage() {
   const renderListView = () => (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full divide-y divide-gray-200 table-fixed">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                รูปภาพ
+              <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                รูป
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                รหัส/ชื่อครุภัณฑ์
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase max-w-xs">
+                ชื่อครุภัณฑ์
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Serial Number
+              <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                Serial
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                 สถานที่
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="w-24 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                 สถานะ
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                การจัดการ
+              <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                จัดการ
               </th>
             </tr>
           </thead>
@@ -605,13 +605,13 @@ export default function AssetsPage() {
                     </label>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm font-medium text-gray-900">
+                <td className="px-2 py-2">
+                  <div className="text-sm font-medium text-gray-900 line-clamp-2" title={asset.asset_name}>
                     {asset.asset_name}
                   </div>
-                  <div className="text-sm text-gray-500">ID: {asset.asset_id}</div>
+                  <div className="text-xs text-gray-500">ID: {asset.asset_id}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-2 py-2 text-xs text-gray-500 break-all">
                   {asset.serial_number || "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

@@ -16,6 +16,11 @@ class Asset {
     public $barcode;
     public $description;
     public $reference_number;
+    public $faculty_name;
+    public $delivery_number;
+    public $fund_code;
+    public $plan_code;
+    public $project_code;
     public $image;
 
     public function __construct($db) {
@@ -28,7 +33,10 @@ class Asset {
                       quantity=:quantity, unit=:unit, price=:price, 
                       received_date=:received_date, department_id=:department_id, 
                       location_id=:location_id, status=:status, barcode=:barcode,
-                      description=:description, reference_number=:reference_number, image=:image";
+                      description=:description, reference_number=:reference_number,
+                      faculty_name=:faculty_name, delivery_number=:delivery_number,
+                      fund_code=:fund_code, plan_code=:plan_code, project_code=:project_code,
+                      image=:image";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":asset_name", $this->asset_name);
@@ -43,6 +51,11 @@ class Asset {
         $stmt->bindParam(":barcode", $this->barcode);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":reference_number", $this->reference_number);
+        $stmt->bindParam(":faculty_name", $this->faculty_name);
+        $stmt->bindParam(":delivery_number", $this->delivery_number);
+        $stmt->bindParam(":fund_code", $this->fund_code);
+        $stmt->bindParam(":plan_code", $this->plan_code);
+        $stmt->bindParam(":project_code", $this->project_code);
         $stmt->bindParam(":image", $this->image);
 
         if($stmt->execute()) {
@@ -76,7 +89,10 @@ class Asset {
                       quantity=:quantity, unit=:unit, price=:price, 
                       department_id=:department_id, location_id=:location_id, 
                       status=:status, description=:description,
-                      reference_number=:reference_number, image=:image
+                      reference_number=:reference_number,
+                      faculty_name=:faculty_name, delivery_number=:delivery_number,
+                      fund_code=:fund_code, plan_code=:plan_code, project_code=:project_code,
+                      image=:image
                   WHERE asset_id = :asset_id";
         
         $stmt = $this->conn->prepare($query);
@@ -90,6 +106,11 @@ class Asset {
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":reference_number", $this->reference_number);
+        $stmt->bindParam(":faculty_name", $this->faculty_name);
+        $stmt->bindParam(":delivery_number", $this->delivery_number);
+        $stmt->bindParam(":fund_code", $this->fund_code);
+        $stmt->bindParam(":plan_code", $this->plan_code);
+        $stmt->bindParam(":project_code", $this->project_code);
         $stmt->bindParam(":image", $this->image);
         $stmt->bindParam(":asset_id", $this->asset_id);
 

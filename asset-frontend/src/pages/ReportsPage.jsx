@@ -678,31 +678,31 @@ export default function ReportsPage() {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">รหัส</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ชื่อครุภัณฑ์</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Serial</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">จำนวน</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ราคา</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">สถานะ</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">หน่วยงาน</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">สถานที่</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">รหัส</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">ชื่อครุภัณฑ์</th>
+                    <th className="w-20 px-2 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">Serial</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">จำนวน</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">ราคา</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">สถานะ</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">หน่วยงาน</th>
+                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase">สถานที่</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {statusAssets.map((asset, index) => (
                     <tr key={asset.asset_id || index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm">{asset.asset_id || '-'}</td>
-                      <td className="px-6 py-4 text-sm font-medium">{asset.asset_name || '-'}</td>
-                      <td className="px-6 py-4 text-sm">{asset.serial_number || '-'}</td>
-                      <td className="px-6 py-4 text-sm">{asset.quantity || 0} {asset.unit || ''}</td>
-                      <td className="px-6 py-4 text-sm">{parseFloat(asset.price || 0).toLocaleString()}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2.5 text-sm">{asset.asset_id || '-'}</td>
+                      <td className="px-3 py-2.5 text-sm font-medium">{asset.asset_name || '-'}</td>
+                      <td className="px-2 py-2.5 text-xs break-all">{asset.serial_number || '-'}</td>
+                      <td className="px-3 py-2.5 text-sm">{asset.quantity || 0} {asset.unit || ''}</td>
+                      <td className="px-3 py-2.5 text-sm">{parseFloat(asset.price || 0).toLocaleString()}</td>
+                      <td className="px-3 py-2.5">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(asset.status)}`}>
                           {asset.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">{asset.department_name || asset.department || '-'}</td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-3 py-2.5 text-sm">{asset.department_name || asset.department || '-'}</td>
+                      <td className="px-3 py-2.5 text-sm">
                         {asset.building_name
                           ? `${asset.building_name}${asset.floor ? ` ชั้น ${asset.floor}` : ''}${asset.room_number ? ` ห้อง ${asset.room_number}` : ''}`
                           : '-'
@@ -913,7 +913,7 @@ function renderTableRows(reportType, data) {
       <tr key={index} className="hover:bg-gray-50">
         <td className="px-6 py-4 text-sm">{item.asset_id || '-'}</td>
         <td className="px-6 py-4 text-sm">{item.asset_name || '-'}</td>
-        <td className="px-6 py-4 text-sm">{item.serial_number || '-'}</td>
+        <td className="px-2 py-2 text-xs break-all">{item.serial_number || '-'}</td>
         <td className="px-6 py-4 text-sm">{item.quantity || 0} {item.unit || ''}</td>
         <td className="px-6 py-4 text-sm">{parseFloat(item.price || 0).toLocaleString()}</td>
         <td className="px-6 py-4">

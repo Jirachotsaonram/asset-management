@@ -3,12 +3,171 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Upload, Download, FileText, CheckCircle, AlertCircle, X, Info, HelpCircle,
   File, RefreshCw, Loader, ArrowRight, FileSpreadsheet, Package, Database,
-  AlertTriangle, Eye, ChevronDown, ChevronRight, RotateCcw, XCircle
+  AlertTriangle, Eye, ChevronDown, ChevronRight, RotateCcw, XCircle, List
 } from 'lucide-react';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import OcrImportTab from '../components/Import/OcrImportTab';
+
+// ============================================================
+// EXCEL COLUMN MAPPING UTILITIES
+// ============================================================
+const COLUMN_MAP = {
+  'ชื่อครุภัณฑ์': 'asset_name',
+  'ชื่อครุภัณฑ์ [รหัสชุด:ชื่อชุด]': 'asset_name',
+  'ชื่อตั้งเบิก': 'asset_name',
+  'หมายเลขครุภัณฑ์': 'barcode',
+  'หมายเลขซีเรียล': 'serial_number',
+  'มูลค่าครุภัณฑ์': 'price',
+  'หน่วยนับ': 'unit',
+  'วันที่รับเข้าคลัง': 'received_date',
+  'วันที่ส่งของ': 'received_date',
+  'วันที่ตรวจรับ': 'received_date',
+  'ใช้ประจำห้อง': 'location_name',
+  'หมวดสินทรัพย์': 'reference_number',
+  'ชื่อหมวดสินทรัพย์': 'reference_number',
+  'หมายเหตุ': 'description',
+  'รายละเอียด': 'description',
+  'คุณสมบัติ': 'description_extra',
+  'ปีงบประมาณ': 'budget_year',
+  'เลขที่ใบส่งของ': 'delivery_number',
+  'ผู้ขาย': 'vendor',
+  'ผู้เบิก': 'requester',
+  'ชื่อคณะ': 'faculty_name',
+  'ชื่อภาค/กอง': 'department_name_excel',
+  'รหัสสินทรัพย์': 'asset_code',
+  'รหัสหมวดสินทรัพย์': 'asset_category_code',
+  'รหัสกองทุน': 'fund_code',
+  'รหัสแผนงาน': 'plan_code',
+  'รหัสงาน/โครงการ': 'project_code',
+};
+
+// Convert Excel serial date or Thai date string to YYYY-MM-DD
+function parseExcelDate(value) {
+  if (!value || value === '-' || value === '') return '';
+  // Excel serial number
+  if (typeof value === 'number' && value > 1000) {
+    try {
+      const date = XLSX.SSF.parse_date_code(value);
+      if (date && date.y > 1900) {
+        let year = date.y;
+        // if year > 2400, it's Buddhist Era
+        if (year > 2400) year -= 543;
+        return `${year}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
+      }
+    } catch (e) { /* fallthrough */ }
+  }
+  // String date: DD/MM/YYYY (Thai Buddhist Era or CE)
+  if (typeof value === 'string') {
+    const m = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m) {
+      let year = parseInt(m[3]);
+      if (year > 2400) year -= 543;
+      return `${year}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    }
+    // Try YYYY-MM-DD directly
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  }
+  return String(value);
+}
+
+// Find the header row index (row with most known column names)
+function findHeaderRow(sheetData) {
+  let bestRow = 0, bestScore = 0;
+  const knownCols = Object.keys(COLUMN_MAP);
+  for (let i = 0; i < Math.min(sheetData.length, 10); i++) {
+    const row = sheetData[i];
+    let score = 0;
+    for (const cell of row) {
+      const s = String(cell).trim();
+      if (!s || s.length < 2) continue; // skip empty/single-char cells
+      // Exact match in COLUMN_MAP
+      if (COLUMN_MAP[s]) { score += 2; continue; }
+      // Fuzzy: check if cell text contains or is contained by any known column name
+      if (knownCols.some(k => k.length >= 3 && (s.includes(k) || k.includes(s)))) score++;
+    }
+    if (score > bestScore) { bestScore = score; bestRow = i; }
+  }
+  console.log('[Excel Import] Header detected at row', bestRow, 'score', bestScore);
+  return bestRow;
+}
+
+// Try to match a header string to a COLUMN_MAP field
+function matchColumnField(header) {
+  if (!header || header.length < 2) return null;
+  // Exact match first
+  if (COLUMN_MAP[header]) return COLUMN_MAP[header];
+  // Fuzzy: find a COLUMN_MAP key that is a substring of the header or vice-versa
+  for (const [key, field] of Object.entries(COLUMN_MAP)) {
+    if (key.length >= 3 && (header.includes(key) || key.includes(header))) return field;
+  }
+  return null;
+}
+
+// Convert Excel sheet data to mapped asset row objects
+function excelSheetToAssetRows(sheetData) {
+  const headerIdx = findHeaderRow(sheetData);
+  const headers = sheetData[headerIdx].map(h => String(h).trim());
+
+  // Build column index → asset field mapping
+  const colMapping = [];
+  headers.forEach((h, idx) => {
+    const field = matchColumnField(h);
+    if (field) colMapping.push({ idx, header: h, field });
+  });
+  console.log('[Excel Import] Column mapping:', colMapping.map(c => `${c.header} → ${c.field}`));
+
+  const rows = [];
+  for (let i = headerIdx + 1; i < sheetData.length; i++) {
+    const raw = sheetData[i];
+    if (!raw || raw.every(c => c === '' || c === null || c === undefined)) continue;
+
+    const obj = {};
+    const extras = [];
+    for (const { idx, field } of colMapping) {
+      let val = raw[idx];
+      if (val === undefined || val === null) val = '';
+      val = String(val).trim();
+
+      if (field === 'received_date') {
+        const existing = obj.received_date;
+        const parsed = parseExcelDate(raw[idx]);
+        if (!existing && parsed) obj.received_date = parsed;
+      } else if (field === 'description_extra') {
+        if (val) extras.push(val);
+      } else if (field === 'description') {
+        const prev = obj.description || '';
+        if (val && val !== '-') obj.description = prev ? prev + ' | ' + val : val;
+      } else if (field === 'price') {
+        obj.price = parseFloat(val) || 0;
+      } else {
+        if (!obj[field] && val && val !== '-') obj[field] = val;
+      }
+    }
+    if (extras.length) {
+      obj.description = (obj.description ? obj.description + ' | ' : '') + extras.join(' | ');
+    }
+
+    // Skip rows without asset_name
+    if (!obj.asset_name) continue;
+
+    // Defaults
+    obj.quantity = obj.quantity || 1;
+    obj.unit = obj.unit || 'เครื่อง';
+    obj.status = obj.status || 'ใช้งานได้';
+    obj.serial_number = obj.serial_number || '';
+    obj.barcode = obj.barcode || '';
+    obj.price = obj.price || 0;
+    obj.received_date = obj.received_date || '';
+    obj.reference_number = obj.reference_number || '';
+    obj.description = obj.description || '';
+
+    rows.push(obj);
+  }
+  return { rows, headerIdx, colMapping };
+}
 
 export default function ImportPage() {
   const [file, setFile] = useState(null);
@@ -24,6 +183,11 @@ export default function ImportPage() {
   const [previewExpanded, setPreviewExpanded] = useState(true);
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('csv');
+  // Excel-specific state
+  const [excelSheets, setExcelSheets] = useState([]);
+  const [selectedSheet, setSelectedSheet] = useState(null);
+  const [excelWorkbook, setExcelWorkbook] = useState(null);
+  const [colMapping, setColMapping] = useState([]);
 
   // Import history for notifications
   const [importHistory, setImportHistory] = useState([]);
@@ -111,35 +275,94 @@ export default function ImportPage() {
 
   const processFile = (uploadedFile) => {
     if (!uploadedFile) return;
+    const name = uploadedFile.name.toLowerCase();
+    const isExcel = name.endsWith('.xlsx') || name.endsWith('.xls');
+    const isCsv = name.endsWith('.csv');
 
-    if (!uploadedFile.name.endsWith('.csv')) {
-      toast.error('กรุณาเลือกไฟล์ .csv เท่านั้น');
+    if (!isExcel && !isCsv) {
+      toast.error('กรุณาเลือกไฟล์ .csv, .xlsx หรือ .xls');
       return;
     }
 
     setFile(uploadedFile);
     setLoading(true);
 
-    Papa.parse(uploadedFile, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        if (results.data.length === 0) {
-          toast.error('ไฟล์ CSV ไม่มีข้อมูล');
-          setLoading(false);
-          return;
-        }
+    if (isExcel) {
+      // Read Excel file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          setExcelWorkbook(wb);
 
-        setCsvData(results.data);
-        setStep(2);
+          if (wb.SheetNames.length > 1) {
+            // Multiple sheets - let user pick
+            setExcelSheets(wb.SheetNames);
+            setStep('sheet-select');
+            setLoading(false);
+            toast.success(`พบ ${wb.SheetNames.length} ชีทในไฟล์ Excel`);
+          } else {
+            // Single sheet - process directly
+            processExcelSheet(wb, wb.SheetNames[0]);
+          }
+        } catch (err) {
+          toast.error('ไม่สามารถอ่านไฟล์ Excel ได้: ' + err.message);
+          setLoading(false);
+        }
+      };
+      reader.readAsArrayBuffer(uploadedFile);
+    } else {
+      // CSV file (existing logic)
+      Papa.parse(uploadedFile, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          if (results.data.length === 0) {
+            toast.error('ไฟล์ CSV ไม่มีข้อมูล');
+            setLoading(false);
+            return;
+          }
+          setCsvData(results.data);
+          setStep(2);
+          setLoading(false);
+          toast.success(`อ่านไฟล์สำเร็จ (${results.data.length} รายการ)`);
+        },
+        error: (error) => {
+          toast.error('ไม่สามารถอ่านไฟล์ได้: ' + error.message);
+          setLoading(false);
+        }
+      });
+    }
+  };
+
+  const processExcelSheet = (wb, sheetName) => {
+    try {
+      const ws = wb.Sheets[sheetName];
+      const sheetData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      const { rows, headerIdx, colMapping: mapping } = excelSheetToAssetRows(sheetData);
+
+      if (rows.length === 0) {
+        toast.error('ไม่พบข้อมูลครุภัณฑ์ในชีทนี้');
         setLoading(false);
-        toast.success(`อ่านไฟล์สำเร็จ (${results.data.length} รายการ)`);
-      },
-      error: (error) => {
-        toast.error('ไม่สามารถอ่านไฟล์ได้: ' + error.message);
-        setLoading(false);
+        return;
       }
-    });
+
+      setSelectedSheet(sheetName);
+      setColMapping(mapping);
+      setCsvData(rows);
+      setStep(2);
+      setLoading(false);
+      toast.success(`อ่านชีท "${sheetName}" สำเร็จ (${rows.length} รายการ, header แถวที่ ${headerIdx + 1})`);
+    } catch (err) {
+      toast.error('เกิดข้อผิดพลาดในการประมวลผลชีท: ' + err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleSheetSelect = (sheetName) => {
+    setLoading(true);
+    processExcelSheet(excelWorkbook, sheetName);
   };
 
   const handleFileUpload = (e) => {
@@ -189,6 +412,10 @@ export default function ImportPage() {
     setImportResult(null);
     setStep(1);
     setExpandedErrors({});
+    setExcelSheets([]);
+    setSelectedSheet(null);
+    setExcelWorkbook(null);
+    setColMapping([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -256,8 +483,8 @@ export default function ImportPage() {
         <button
           onClick={() => setActiveTab('csv')}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'csv'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50'
+            ? 'bg-blue-600 text-white shadow-sm'
+            : 'text-gray-600 hover:bg-gray-50'
             }`}
         >
           <FileSpreadsheet size={18} />
@@ -266,8 +493,8 @@ export default function ImportPage() {
         <button
           onClick={() => setActiveTab('ocr')}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'ocr'
-              ? 'bg-purple-600 text-white shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50'
+            ? 'bg-purple-600 text-white shadow-sm'
+            : 'text-gray-600 hover:bg-gray-50'
             }`}
         >
           <Eye size={18} />
@@ -367,7 +594,7 @@ export default function ImportPage() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".csv"
+                  accept=".csv,.xlsx,.xls"
                   onChange={handleFileUpload}
                   className="hidden"
                   id="csv-upload"
@@ -385,10 +612,10 @@ export default function ImportPage() {
                         <Upload className={`w-10 h-10 ${isDragging ? 'text-primary-600' : 'text-gray-400'}`} />
                       </div>
                       <p className="text-lg font-semibold text-gray-700 mb-2">
-                        {isDragging ? 'วางไฟล์ที่นี่' : 'คลิกเพื่อเลือกไฟล์ CSV'}
+                        {isDragging ? 'วางไฟล์ที่นี่' : 'คลิกเพื่อเลือกไฟล์ CSV หรือ Excel'}
                       </p>
                       <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่</p>
-                      <p className="text-xs text-gray-400 mt-2">รองรับไฟล์ .csv เท่านั้น</p>
+                      <p className="text-xs text-gray-400 mt-2">รองรับไฟล์ .csv, .xlsx, .xls</p>
                     </>
                   )}
                 </label>
@@ -403,7 +630,7 @@ export default function ImportPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div className="flex items-start gap-2">
                     <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600">ไฟล์ต้องเป็นรูปแบบ <code className="bg-gray-200 px-1 rounded">.csv</code></span>
+                    <span className="text-gray-600">ไฟล์รองรับ <code className="bg-gray-200 px-1 rounded">.csv</code> <code className="bg-gray-200 px-1 rounded">.xlsx</code> <code className="bg-gray-200 px-1 rounded">.xls</code></span>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckCircle size={16} className="text-success-500 mt-0.5 flex-shrink-0" />
@@ -420,10 +647,51 @@ export default function ImportPage() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
-                    <strong>ฟิลด์ทั้งหมด:</strong> asset_name, serial_number, quantity, unit, price, received_date, department_id, location_id, status, barcode
+                    <strong>ฟิลด์ทั้งหมด:</strong> asset_name, serial_number, quantity, unit, price, received_date, department_id, location_id, status, barcode, description, reference_number
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    <strong>Excel:</strong> ระบบจะ map คอลัมน์ภาษาไทยอัตโนมัติ เช่น ชื่อครุภัณฑ์, หมายเลขครุภัณฑ์, มูลค่าครุภัณฑ์ เป็นต้น
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step: Sheet Selection (Excel only) */}
+        {step === 'sheet-select' && (
+          <div className="card p-8">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-green-100 p-3 rounded-xl">
+                  <List className="text-green-600" size={24} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">เลือกชีทที่ต้องการนำเข้า</h2>
+                  <p className="text-sm text-gray-500">ไฟล์ {file?.name} มี {excelSheets.length} ชีท</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {excelSheets.map((name, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSheetSelect(name)}
+                    disabled={loading}
+                    className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-primary-400 hover:bg-primary-50 transition-all flex items-center justify-between group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gray-100 group-hover:bg-primary-100 w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-gray-500 group-hover:text-primary-600">
+                        {i + 1}
+                      </div>
+                      <span className="font-medium text-gray-800 group-hover:text-primary-700">{name}</span>
+                    </div>
+                    <ArrowRight size={18} className="text-gray-400 group-hover:text-primary-600" />
+                  </button>
+                ))}
+              </div>
+              <button onClick={handleReset} className="btn-secondary mt-6 w-full justify-center">
+                <RotateCcw size={18} /> ยกเลิก
+              </button>
             </div>
           </div>
         )}
@@ -438,7 +706,10 @@ export default function ImportPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">ตรวจสอบข้อมูลก่อนนำเข้า</h2>
-                  <p className="text-sm text-gray-500">พบข้อมูล {csvData.length} รายการ จากไฟล์ {file?.name}</p>
+                  <p className="text-sm text-gray-500">
+                    พบข้อมูล {csvData.length} รายการ จากไฟล์ {file?.name}
+                    {selectedSheet && <span className="ml-1">(ชีท: {selectedSheet})</span>}
+                  </p>
                 </div>
               </div>
               <button
