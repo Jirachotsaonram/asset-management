@@ -263,10 +263,73 @@ function parseAssetTable(text) {
         }
 
         // Asset/barcode number (หมายเลขครุภัณฑ์): code with dashes like "5130000070003-30502-00003"
-        const assetNumMatch = rowText.match(/(\d{10,}-\d{3,6}-\d{3,6})/);
+        // OCR often introduces spaces, wrong chars, or completely drops dashes
+        // Strategy 1: strict match in row text
+        let assetNumMatch = rowText.match(/(\d{10,})\s*[-–—]\s*(\d{3,6})\s*[-–—]\s*(\d{3,6})/);
         if (assetNumMatch) {
-            asset.barcode = assetNumMatch[1];
+            asset.barcode = `${assetNumMatch[1]}-${assetNumMatch[2]}-${assetNumMatch[3]}`;
         }
+        // Strategy 2: flexible separators (spaces only, no dash needed)
+        if (!asset.barcode) {
+            const bm2 = rowText.match(/(\d{12,15})\s+(\d{4,6})\s*[-–—]?\s*(\d{4,6})/);
+            if (bm2 && !isCategoryCodeFragment(bm2[1])) {
+                asset.barcode = `${bm2[1]}-${bm2[2]}-${bm2[3]}`;
+            }
+        }
+        // Strategy 3: search ALL lines for any barcode pattern matching this row's asset code
+        if (!asset.barcode) {
+            const fullText = lines.join(' ');
+            // Find all barcode-like patterns in the full text with flexible separators
+            const barcodePatterns = [...fullText.matchAll(/(\d{12,15})\s*[-–—]\s*(\d{4,6})\s*[-–—]\s*(\d{4,6})/g)];
+            for (const bp of barcodePatterns) {
+                const bpCode = bp[1];
+                // Match if the barcode starts with same first 7+ digits as the asset code
+                if (bpCode === row.assetCode ||
+                    (bpCode.length >= 12 && row.assetCode.length >= 12 &&
+                        bpCode.substring(0, 7) === row.assetCode.substring(0, 7))) {
+                    const candidateBarcode = `${bpCode}-${bp[2]}-${bp[3]}`;
+                    // Don't use barcodes already assigned to earlier rows
+                    const alreadyUsed = assets.some(a => a.barcode === candidateBarcode);
+                    if (!alreadyUsed) {
+                        asset.barcode = candidateBarcode;
+                        break;
+                    }
+                }
+            }
+        }
+        // Strategy 4: OCR may completely merge the barcode with no separators
+        // e.g., "513000007000330502 00002" or "5130000070003 3050200002"
+        if (!asset.barcode) {
+            // Search for the asset code followed by department code (30502) within proximity
+            const escapedCode = row.assetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const merged = rowText.match(new RegExp(escapedCode + '\\s*[-–—]?\\s*3050[12]\\s*[-–—]?\\s*(\\d{4,6})'));
+            if (merged) {
+                const deptCode = rowText.match(new RegExp(escapedCode + '\\s*[-–—]?\\s*(3050[12])'));
+                if (deptCode) {
+                    asset.barcode = `${row.assetCode}-${deptCode[1]}-${merged[1]}`;
+                }
+            }
+        }
+        // Strategy 5: search full text for asset code near "30502" pattern 
+        if (!asset.barcode) {
+            for (const line of lines) {
+                if (!line.includes(row.assetCode)) continue;
+                // Find "30502" after the asset code on the same line
+                const idx = line.indexOf(row.assetCode);
+                const afterAsset = line.substring(idx + row.assetCode.length);
+                const deptMatch = afterAsset.match(/\s*[-–—]?\s*(3050[012])\s*[-–—]?\s*(\d{4,6})/);
+                if (deptMatch) {
+                    const candidateBarcode = `${row.assetCode}-${deptMatch[1]}-${deptMatch[2]}`;
+                    const alreadyUsed = assets.some(a => a.barcode === candidateBarcode);
+                    if (!alreadyUsed) {
+                        asset.barcode = candidateBarcode;
+                        break;
+                    }
+                }
+            }
+        }
+
+        console.log(`Row ${r + 1} (${row.assetCode}): barcode=${asset.barcode || 'NOT FOUND'}`);
 
         // Reference number (อ้างอิงใบตรวจรับ): typically 13-digit number
         // Look for it specifically — exclude the asset code itself
@@ -292,7 +355,7 @@ function parseAssetTable(text) {
         // Remove price
         if (priceMatch) nameText = nameText.replace(priceMatch[0], '');
         // Remove barcode number
-        if (assetNumMatch) nameText = nameText.replace(assetNumMatch[0], '');
+        if (asset.barcode) nameText = nameText.replace(asset.barcode, '');
         // Remove reference numbers
         if (asset.reference_number) nameText = nameText.replace(asset.reference_number, '');
         // Remove description part
