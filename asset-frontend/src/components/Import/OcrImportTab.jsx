@@ -48,18 +48,16 @@ function parseAssetTable(text) {
         }
     }
 
-    // --- STRATEGY: Detect row starts using multiple patterns ---
-    // Detected rows: { lineIdx, assetCode, matchEndPos }
+    // =============================================================
+    // STRATEGY: Multi-pass row detection with fallback
+    // =============================================================
     const detectedRows = [];
     const usedLines = new Set();
 
-    // Pass 1: "N  XXXXXXXXXXXXX" — row number + 10-15 digit asset code
-    // Allow noise/whitespace/symbols before the row number
+    // --- Pass 1: "N  XXXXXXXXXXXXX" — row number + 10-15 digit asset code ---
     for (let i = 0; i < lines.length; i++) {
         if (usedLines.has(i)) continue;
         const line = lines[i];
-
-        // Flexible: allow any non-digit chars before the order number
         const m = line.match(/(?:^|[^\d])(\d{1,3})\s+(\d{10,15})(?:\s|$|[^\d-])/);
         if (m) {
             const orderNum = parseInt(m[1]);
@@ -71,43 +69,90 @@ function parseAssetTable(text) {
         }
     }
 
-    // Pass 2: Lines containing a standalone 13-digit number (asset code like 5130000070003)
-    // that were NOT already matched
-    if (detectedRows.length === 0) {
+    // --- Pass 2: Find rows by standalone 10-15 digit asset codes on any line ---
+    // This is the KEY improvement: run even when Pass 1 found some rows,
+    // to catch rows where OCR mangled the row number
+    if (detectedRows.length < 3) {
+        // Reset if Pass 1 found very few — start fresh
+        detectedRows.length = 0;
+        usedLines.clear();
+
         for (let i = 0; i < lines.length; i++) {
-            if (usedLines.has(i)) continue;
             const line = lines[i];
 
             // Skip header/footer lines
-            if (line.match(/ลำดับ|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น/)) continue;
+            if (line.match(/ลำดับ|รหัสทรัพย์สิน|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น|มหาวิทยาลัย|ใบรับครุภัณฑ์|คณะเทคโนโลยี|รหัสแผนงาน|รหัสกองทุน|กองทุน|แผนงาน|รหัสหมวด|หมวดครุภัณฑ์|แหล่งเงิน|หน่วยงาน|กิจกรรม|เล่มที่|ปีงบประมาณ|วันที่นำเข้า|รหัสงาน/)) continue;
 
-            // Find 13-digit codes (not part of a barcode with dashes)
-            const codeMatches = [...line.matchAll(/(?<!\d)(\d{13})(?!\d|-)/g)];
+            // Find all 10-15 digit codes on this line
+            const codeMatches = [...line.matchAll(/(?<!\d)(\d{10,15})(?!\d)/g)];
             for (const cm of codeMatches) {
-                // Verify this looks like a data row: has a price OR unit keyword nearby
-                const hasPrice = line.match(/\d{1,3}(?:,\d{3})+\.\d{2}/);
-                const hasUnit = line.match(/(?:เครื่อง|ชุด|อัน|ตัว|ตู้|ชิ้น)/);
-                const hasItemText = line.length > 30; // has enough text to be a data row
+                const code = cm[1];
 
-                if (hasPrice || hasUnit || hasItemText) {
+                // Skip if this code is part of a barcode (has dash after it)
+                const afterCode = line.substring(cm.index + code.length);
+                if (afterCode.match(/^\s*-\s*\d/)) continue;
+
+                // Skip if already detected
+                if (detectedRows.some(r => r.assetCode === code && r.lineIdx === i)) continue;
+
+                // Skip very unlikely codes (all zeros, etc.)
+                if (/^0+$/.test(code)) continue;
+
+                // Check surrounding context: price, unit, or sufficient text
+                const hasPrice = line.match(/\d{1,3}(?:,\d{3})*\.\d{2}/);
+                const hasUnit = line.match(/(?:เครื่อง|ชุด|อัน|ตัว|ตู้|ชิ้น)/);
+                const hasThaiText = line.match(/[\u0E00-\u0E7F]{3,}/); // at least 3 Thai chars
+
+                if (hasPrice || hasUnit || hasThaiText || line.length > 25) {
+                    // Try to extract order number before the asset code
+                    let orderNum = detectedRows.length + 1;
+                    const beforeCode = line.substring(0, cm.index);
+                    const orderMatch = beforeCode.match(/(\d{1,3})\s*$/);
+                    if (orderMatch) {
+                        const num = parseInt(orderMatch[1]);
+                        if (num >= 1 && num <= 500) orderNum = num;
+                    }
+
                     detectedRows.push({
                         lineIdx: i,
-                        orderNum: detectedRows.length + 1,
-                        assetCode: cm[1],
-                        matchEnd: cm.index + cm[0].length
+                        orderNum,
+                        assetCode: code,
+                        matchEnd: cm.index + code.length
                     });
                     usedLines.add(i);
-                    break; // one code per line
+                    break; // one asset code per line
                 }
             }
         }
     }
 
-    // Pass 3: If still nothing, try 10+ digit codes more broadly
+    // --- Pass 3: Find rows by barcode patterns (XXXXX-XXXXX-XXXXX) ---
+    // If we still have very few rows, try finding barcode patterns
     if (detectedRows.length === 0) {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            if (line.match(/ลำดับ|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น/)) continue;
+            if (line.match(/ลำดับ|รหัสทรัพย์|ราคา.หน่วย|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น/)) continue;
+
+            const barcodeMatch = line.match(/(\d{10,})-(\d{3,6})-(\d{3,6})/);
+            if (barcodeMatch) {
+                const assetCode = barcodeMatch[1];
+                if (!detectedRows.some(r => r.lineIdx === i)) {
+                    detectedRows.push({
+                        lineIdx: i,
+                        orderNum: detectedRows.length + 1,
+                        assetCode,
+                        matchEnd: barcodeMatch.index + barcodeMatch[0].length
+                    });
+                }
+            }
+        }
+    }
+
+    // --- Pass 4: Fallback — lines with price patterns ---
+    if (detectedRows.length === 0) {
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (line.match(/ลำดับ|รหัสทรัพย์|ราคา.หน่วย|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น/)) continue;
 
             const m = line.match(/(?<!\d)(\d{10,15})(?!\d|-)/);
             if (m) {
@@ -124,28 +169,47 @@ function parseAssetTable(text) {
         }
     }
 
-    // Sort by line index
-    detectedRows.sort((a, b) => a.lineIdx - b.lineIdx);
+    // De-duplicate: remove rows where the same asset code appears on the same line
+    // (can happen if barcode "5130000070003-30502-00002" is on same line as asset code)
+    const uniqueRows = [];
+    const seenLineIdx = new Set();
+    for (const row of detectedRows) {
+        if (!seenLineIdx.has(row.lineIdx)) {
+            uniqueRows.push(row);
+            seenLineIdx.add(row.lineIdx);
+        }
+    }
 
-    console.log(`Detected ${detectedRows.length} asset rows:`, detectedRows.map(r => ({ line: r.lineIdx, code: r.assetCode })));
+    // Sort by line index
+    uniqueRows.sort((a, b) => a.lineIdx - b.lineIdx);
+
+    console.log(`Detected ${uniqueRows.length} asset rows:`, uniqueRows.map(r => ({ line: r.lineIdx, order: r.orderNum, code: r.assetCode })));
 
     // --- For each detected row, collect text and extract fields ---
-    for (let r = 0; r < detectedRows.length; r++) {
-        const row = detectedRows[r];
-        const nextLineIdx = r + 1 < detectedRows.length ? detectedRows[r + 1].lineIdx : lines.length;
+    for (let r = 0; r < uniqueRows.length; r++) {
+        const row = uniqueRows[r];
+        const nextLineIdx = r + 1 < uniqueRows.length ? uniqueRows[r + 1].lineIdx : lines.length;
 
         // Collect text from this line (after match) and following lines until next row
         let rowText = lines[row.lineIdx].substring(row.matchEnd);
+        // Also include text before the asset code on the same line (may have item name)
+        const beforeText = lines[row.lineIdx].substring(0, Math.max(0, row.matchEnd - row.assetCode.length - 5));
+
         for (let j = row.lineIdx + 1; j < nextLineIdx && j < lines.length; j++) {
             const line = lines[j];
             // Break on footer patterns
             if (line.match(/ลงชื่อ|ผู้นำเข้า|หัวหน้า|รวม.*ทั้งสิ้น/)) break;
+            // Break on header patterns (next page header)
+            if (line.match(/มหาวิทยาลัย|ใบรับครุภัณฑ์เข้าคลัง|คณะเทคโนโลยี/)) break;
             rowText += ' ' + line;
         }
 
+        // Also prepend text before match if it's on the same line
+        const fullRowText = (beforeText ? beforeText + ' ' : '') + row.assetCode + ' ' + rowText;
+
         // --- Extract fields from rowText ---
         const asset = {
-            id: Date.now() + Math.random(),
+            id: Date.now() + r + Math.random(),
             asset_name: '',
             serial_number: row.assetCode,
             quantity: 1,
@@ -194,9 +258,11 @@ function parseAssetTable(text) {
             asset.description = descMatch[1].trim().replace(/\s+/g, ' ').substring(0, 500);
         }
 
-        // Asset name: try to extract the item name from rowText
+        // Asset name: try to extract the item name from fullRowText
         // Remove known extracted parts to isolate the name
-        let nameText = rowText;
+        let nameText = fullRowText;
+        // Remove the asset code itself
+        nameText = nameText.replace(new RegExp(row.assetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
         // Remove price
         if (priceMatch) nameText = nameText.replace(priceMatch[0], '');
         // Remove barcode number
@@ -209,13 +275,22 @@ function parseAssetTable(text) {
         nameText = nameText.replace(/(เครื่อง|ชุด|อัน|ตัว|ตู้|ชิ้น)/g, '');
         // Remove คุณสมบัติ header and everything after
         nameText = nameText.replace(/คุณสมบัต[ิี]?.*/i, '');
-        // Clean up numbers that look like asset codes
-        nameText = nameText.replace(/\b\d{13}\b/g, '');
+        // Clean up numbers that look like asset codes (10+ digits)
+        nameText = nameText.replace(/\b\d{10,}\b/g, '');
+        // Remove order numbers at beginning
+        nameText = nameText.replace(/^\s*\d{1,3}\s+/, '');
         // Clean leftover symbols and whitespace
         nameText = nameText.replace(/[|/\\[\]{}()]/g, ' ');
         nameText = nameText.replace(/\s+/g, ' ').trim();
         // Remove leading/trailing punctuation
         nameText = nameText.replace(/^[\s,.\-:;]+/, '').replace(/[\s,.\-:;]+$/, '');
+
+        // Take only the first meaningful phrase as asset name (before long descriptions)
+        // Split on common separators and take the first meaningful chunk
+        const nameParts = nameText.split(/(?:ครุภัณฑ์ก่อสร้าง|ครุภัณฑ์สำนักงาน|ครุภัณฑ์โรงงาน|ครุภัณฑ์การศึกษา|\[S\d+)/);
+        if (nameParts[0] && nameParts[0].trim().length > 2) {
+            nameText = nameParts[0].trim();
+        }
 
         if (nameText.length > 2) {
             asset.asset_name = nameText.substring(0, 200);
