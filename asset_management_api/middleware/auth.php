@@ -1,4 +1,73 @@
 <?php
+// ==================== JWT Configuration ====================
+define('JWT_SECRET', 'asset_mgmt_secret_key_2026_FITM_@#$!'); // คีย์ลับสำหรับ HMAC-SHA256
+define('JWT_EXPIRY', 86400); // Token หมดอายุใน 24 ชั่วโมง (วินาที)
+
+// ==================== JWT Helper Functions ====================
+
+/**
+ * สร้าง JWT Token ด้วย HMAC-SHA256
+ */
+function generateToken($payload) {
+    $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
+    
+    // เพิ่ม iat (issued at) และ exp (expiry)
+    $payload['iat'] = time();
+    $payload['exp'] = time() + JWT_EXPIRY;
+    
+    $payloadEncoded = base64url_encode(json_encode($payload));
+    $signature = base64url_encode(hash_hmac('sha256', "$header.$payloadEncoded", JWT_SECRET, true));
+    
+    return "$header.$payloadEncoded.$signature";
+}
+
+/**
+ * ตรวจสอบ JWT Token
+ */
+function verifyToken($token) {
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) {
+        return false;
+    }
+    
+    list($header, $payload, $signature) = $parts;
+    
+    // ตรวจสอบ signature
+    $expectedSignature = base64url_encode(hash_hmac('sha256', "$header.$payload", JWT_SECRET, true));
+    if (!hash_equals($expectedSignature, $signature)) {
+        return false;
+    }
+    
+    // Decode payload
+    $data = json_decode(base64url_decode($payload), true);
+    if (!$data) {
+        return false;
+    }
+    
+    // ตรวจสอบ token หมดอายุ
+    if (isset($data['exp']) && $data['exp'] < time()) {
+        return false;
+    }
+    
+    return $data;
+}
+
+/**
+ * Base64 URL-safe encode
+ */
+function base64url_encode($data) {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+/**
+ * Base64 URL-safe decode
+ */
+function base64url_decode($data) {
+    return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', 3 - (3 + strlen($data)) % 4));
+}
+
+// ==================== Authentication Function ====================
+
 function authenticate() {
     // ใช้วิธีที่รองรับทุก environment (CGI, Apache, etc.)
     $authHeader = null;
@@ -6,7 +75,6 @@ function authenticate() {
     // ลองใช้ getallheaders() ก่อน (ทำงานบน Apache)
     if (function_exists('getallheaders')) {
         $headers = getallheaders();
-        // ตรวจสอบ Authorization header (case-insensitive)
         foreach ($headers as $key => $value) {
             if (strtolower($key) === 'authorization') {
                 $authHeader = $value;
@@ -17,14 +85,11 @@ function authenticate() {
     
     // ถ้ายังไม่เจอ ลองดู $_SERVER (สำหรับ CGI/FastCGI)
     if (!$authHeader) {
-        // ลองหา HTTP_AUTHORIZATION ใน $_SERVER
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
         } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-            // บาง server อาจ redirect header
             $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
         } else {
-            // ลองแปลงจาก $_SERVER headers
             foreach ($_SERVER as $key => $value) {
                 if (strpos($key, 'HTTP_') === 0) {
                     $headerKey = str_replace('_', '-', substr($key, 5));
@@ -38,8 +103,6 @@ function authenticate() {
     }
     
     if (!$authHeader) {
-        // Log สำหรับ debug (ถ้าต้องการ)
-        error_log('Auth failed: No Authorization header found. Available headers: ' . json_encode(array_keys($_SERVER)));
         Response::error('ไม่พบ Token การยืนยันตัวตน', 401);
     }
 
@@ -47,24 +110,27 @@ function authenticate() {
     $token = trim($token);
     
     if (empty($token)) {
-        Response::error('Token ไม่ถูกต้อง (empty)', 401);
+        Response::error('Token ไม่ถูกต้อง', 401);
     }
     
     try {
-        // ตรวจสอบ JWT token (ในตัวอย่างนี้ใช้วิธีง่ายๆ)
-        $decoded = base64_decode($token, true); // strict mode
-        if ($decoded === false) {
-            Response::error('Token ไม่ถูกต้อง (base64 decode failed)', 401);
-        }
+        // ลองตรวจสอบแบบ JWT (HMAC-SHA256) ก่อน
+        $user_data = verifyToken($token);
         
-        $user_data = json_decode($decoded, true);
+        // ถ้า JWT ไม่ผ่าน ลอง fallback เป็น base64 แบบเดิม (backward compatible)
+        if (!$user_data) {
+            $decoded = base64_decode($token, true);
+            if ($decoded !== false) {
+                $user_data = json_decode($decoded, true);
+            }
+        }
         
         if (!$user_data || !isset($user_data['user_id'])) {
-            Response::error('Token ไม่ถูกต้อง (invalid user data)', 401);
+            Response::error('Token ไม่ถูกต้องหรือหมดอายุ', 401);
         }
         
-        // ตรวจสอบสถานะผู้ใช้
-        require_once 'config/database.php';
+        // ตรวจสอบสถานะผู้ใช้ในฐานข้อมูล
+        require_once __DIR__ . '/../config/database.php';
         $database = new Database();
         $conn = $database->getConnection();
         
@@ -83,18 +149,19 @@ function authenticate() {
             Response::error('บัญชีผู้ใช้งานถูกปิดการใช้งาน', 403);
         }
         
-        // เพิ่ม role และข้อมูลผู้ใช้ใน user_data
+        // เพิ่มข้อมูลผู้ใช้ล่าสุดจาก DB
         $user_data['role'] = $user['role'];
         $user_data['fullname'] = $user['fullname'];
         $user_data['username'] = $user['username'];
         
         return $user_data;
     } catch (Exception $e) {
-        Response::error('Token ไม่ถูกต้อง', 401);
+        Response::error('Token ไม่ถูกต้อง: ' . $e->getMessage(), 401);
     }
 }
 
-// ฟังก์ชันตรวจสอบสิทธิ์ตามบทบาท
+// ==================== Role-based Access Control ====================
+
 function requireRole($allowedRoles) {
     $user_data = authenticate();
     
@@ -105,12 +172,10 @@ function requireRole($allowedRoles) {
     return $user_data;
 }
 
-// ฟังก์ชันตรวจสอบว่าเป็น Admin หรือไม่
 function requireAdmin() {
     return requireRole(['Admin']);
 }
 
-// ฟังก์ชันตรวจสอบว่าเป็น Admin หรือ Inspector หรือไม่
 function requireAdminOrInspector() {
     return requireRole(['Admin', 'Inspector']);
 }

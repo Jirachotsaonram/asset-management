@@ -1,70 +1,50 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import toast from "react-hot-toast";
 import {
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Eye,
-  Upload,
-  X,
-  Package,
-  QrCode,
-  ChevronDown,
-  ChevronRight,
-  Building,
-  Layers,
-  MapPin,
-  Grid,
-  List,
-  Filter,
-  RotateCcw,
-  RefreshCw
+  Plus, Edit, Trash2, Eye, Upload, X, Package, QrCode,
+  ChevronDown, ChevronRight, Building, Layers, MapPin,
+  Grid, List, Filter, RotateCcw, RefreshCw, BarChart3
 } from "lucide-react";
 import { API_BASE_URL } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
 import AssetForm from "../components/Assets/AssetForm";
 import QRCodeModal from "../components/Assets/QRCodeModal";
 import BulkQRGenerator from "../components/Assets/BulkQRGenerator";
+import VirtualTable from "../components/Common/VirtualTable";
 
 // ==================== Notifications Integration ====================
 export const getAssetNotifications = (assets) => {
   const notifications = [];
-
-  const missingAssets = assets.filter(a => a.status === 'ไม่พบ');
+  const list = Array.isArray(assets) ? assets : [];
+  const missingAssets = list.filter(a => a.status === 'ไม่พบ');
   if (missingAssets.length > 0) {
-    notifications.push({
-      id: 'missing-assets',
-      type: 'error',
-      title: `มี ${missingAssets.length} ครุภัณฑ์ไม่พบ`,
-      message: 'ครุภัณฑ์ที่ต้องตรวจสอบ',
-      link: '/assets',
-      read: false
-    });
+    notifications.push({ id: 'missing-assets', type: 'error', title: `มี ${missingAssets.length} ครุภัณฑ์ไม่พบ`, message: 'ครุภัณฑ์ที่ต้องตรวจสอบ', link: '/assets', read: false });
   }
-
-  const maintenanceAssets = assets.filter(a => a.status === 'รอซ่อม');
+  const maintenanceAssets = list.filter(a => a.status === 'รอซ่อม');
   if (maintenanceAssets.length > 0) {
-    notifications.push({
-      id: 'maintenance-assets',
-      type: 'warning',
-      title: `มี ${maintenanceAssets.length} ครุภัณฑ์รอซ่อม`,
-      message: 'ครุภัณฑ์ที่ต้องดำเนินการ',
-      link: '/assets',
-      read: false
-    });
+    notifications.push({ id: 'maintenance-assets', type: 'warning', title: `มี ${maintenanceAssets.length} ครุภัณฑ์รอซ่อม`, message: 'ครุภัณฑ์ที่ต้องดำเนินการ', link: '/assets', read: false });
   }
-
   return notifications;
 };
 
 export default function AssetsPage() {
   const { user } = useAuth();
   const canEdit = user?.role === 'Admin' || user?.role === 'Inspector';
+
+  // Data state
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalItems, setTotalItems] = useState(0);
+
+  // Pagination state (server-side)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [sortKey, setSortKey] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  // UI state
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -72,371 +52,277 @@ export default function AssetsPage() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrAsset, setQrAsset] = useState(null);
   const [showBulkQR, setShowBulkQR] = useState(false);
+  const [viewMode, setViewMode] = useState("list");
 
-  // สำหรับการจัดกลุ่ม
-  const [viewMode, setViewMode] = useState("grouped"); // "grouped" หรือ "list"
+  // Grouped view
   const [expandedBuildings, setExpandedBuildings] = useState({});
   const [expandedFloors, setExpandedFloors] = useState({});
 
-  // สำหรับ Filter
-  const [filters, setFilters] = useState({
-    status: "all",
-    department: "all",
-    building: "all",
-    floor: "all"
-  });
+  // Filters (for server-side pagination via query params)
+  const [filters, setFilters] = useState({ status: "all", department: "all", building: "all", floor: "all" });
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchParams] = useSearchParams();
 
-  // Read URL params on mount and set filters
-
+  // Debounce search
+  const [searchDebounce, setSearchDebounce] = useState(null);
 
   useEffect(() => {
-    fetchAssets();
     fetchDepartments();
     fetchLocations();
   }, []);
 
+  // เมื่อ filters, page, sort เปลี่ยน → fetch ใหม่
+  useEffect(() => {
+    fetchAssets();
+  }, [currentPage, itemsPerPage, sortKey, sortOrder, filters]);
+
   const fetchDepartments = async () => {
-    try {
-      const response = await api.get("/departments");
-      setDepartments(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching departments:", error);
-    }
+    try { const r = await api.get("/departments"); setDepartments(r.data.data || []); } catch (e) { console.error(e); }
   };
 
   const fetchLocations = async () => {
-    try {
-      const response = await api.get("/locations");
-      setLocations(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching locations:", error);
-    }
-  };
-
-  const formatLocation = (item) => {
-    if (!item) return "-";
-    const building = item.building_name || "";
-    const floor = item.floor || "-";
-    const room = item.room_number || "-";
-    return `${building} ชั้น ${floor} ห้อง ${room}`;
+    try { const r = await api.get("/locations"); setLocations(r.data.data || []); } catch (e) { console.error(e); }
   };
 
   const fetchAssets = async () => {
+    setLoading(true);
     try {
-      const response = await api.get("/assets");
-      setAssets(response.data.data);
+      const params = new URLSearchParams();
+      params.set('page', currentPage);
+      params.set('limit', itemsPerPage);
+      params.set('sort', sortKey);
+      params.set('order', sortOrder);
+
+      if (filters.status !== 'all') params.set('status', filters.status);
+      if (filters.department !== 'all') params.set('department_id', filters.department);
+      if (filters.building !== 'all') params.set('building', filters.building);
+      if (filters.floor !== 'all') params.set('floor', filters.floor);
+      if (searchTerm.trim()) params.set('search', searchTerm.trim());
+
+      const response = await api.get(`/assets?${params.toString()}`);
+      const data = response.data.data;
+
+      if (data && data.items) {
+        // Paginated response
+        setAssets(data.items);
+        setTotalItems(data.total);
+      } else {
+        // Legacy response (array)
+        setAssets(Array.isArray(data) ? data : []);
+        setTotalItems(Array.isArray(data) ? data.length : 0);
+      }
     } catch (error) {
       toast.error("ไม่สามารถโหลดข้อมูลได้");
+      setAssets([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+  const handleSearchChange = useCallback((value) => {
+    setSearchTerm(value);
+    if (searchDebounce) clearTimeout(searchDebounce);
+    const timeout = setTimeout(() => {
+      setCurrentPage(1);
       fetchAssets();
-      return;
-    }
+    }, 500);
+    setSearchDebounce(timeout);
+  }, [searchDebounce]);
 
-    try {
-      const response = await api.get(`/assets?q=${searchTerm}`);
-      setAssets(response.data.data);
-    } catch (error) {
-      toast.error("ค้นหาไม่สำเร็จ");
-    }
-  };
+  const handleSearch = () => { setCurrentPage(1); fetchAssets(); };
 
-  // ฟังก์ชัน Filter
-  const getFilteredAssets = () => {
-    return assets.filter((asset) => {
-      // Filter by Status
-      // Filter by Status
-      if (filters.status !== "all" && asset.status?.trim() !== filters.status) {
-        return false;
-      }
+  const handleSort = (key, order) => { setSortKey(key); setSortOrder(order); setCurrentPage(1); };
 
-      // Filter by Department
-      if (filters.department !== "all" && asset.department_id != filters.department) {
-        return false;
-      }
+  const handlePageChange = (page) => setCurrentPage(page);
 
-      // Filter by Building
-      if (filters.building !== "all" && asset.building_name !== filters.building) {
-        return false;
-      }
-
-      // Filter by Floor
-      if (filters.floor !== "all" && asset.floor !== filters.floor) {
-        return false;
-      }
-
-      return true;
-    });
-  };
+  const handleItemsPerPageChange = (value) => { setItemsPerPage(value); setCurrentPage(1); };
 
   const handleResetFilters = () => {
-    setFilters({
-      status: "all",
-      department: "all",
-      building: "all",
-      floor: "all"
-    });
-  };
-
-  // Get unique buildings and floors
-  const uniqueBuildings = [...new Set(assets.map(a => a.building_name).filter(Boolean))];
-  const uniqueFloors = [...new Set(assets.map(a => a.floor).filter(Boolean))];
-
-  const filteredAssets = getFilteredAssets();
-
-  // จัดกลุ่มครุภัณฑ์ตาม Location
-  const groupAssetsByLocation = (assetList) => {
-    const grouped = {};
-
-    assetList.forEach((asset) => {
-      const building = asset.building_name || "ไม่ระบุอาคาร";
-      const floor = asset.floor || "ไม่ระบุชั้น";
-      const room = asset.room_number || "ไม่ระบุห้อง";
-
-      if (!grouped[building]) {
-        grouped[building] = {};
-      }
-      if (!grouped[building][floor]) {
-        grouped[building][floor] = {};
-      }
-      if (!grouped[building][floor][room]) {
-        grouped[building][floor][room] = [];
-      }
-
-      grouped[building][floor][room].push(asset);
-    });
-
-    return grouped;
-  };
-
-  const toggleBuilding = (building) => {
-    setExpandedBuildings((prev) => ({
-      ...prev,
-      [building]: !prev[building],
-    }));
-  };
-
-  const toggleFloor = (building, floor) => {
-    const key = `${building}-${floor}`;
-    setExpandedFloors((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setFilters({ status: "all", department: "all", building: "all", floor: "all" });
+    setSearchTerm("");
+    setCurrentPage(1);
   };
 
   const handleUploadImage = async (assetId, file) => {
     const formData = new FormData();
     formData.append("image", file);
-
     try {
-      await api.post(`/upload/asset/${assetId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post(`/upload/asset/${assetId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
       toast.success("อัปโหลดรูปภาพสำเร็จ");
       fetchAssets();
-    } catch (error) {
-      toast.error("อัปโหลดไม่สำเร็จ");
-    }
+    } catch (error) { toast.error("อัปโหลดไม่สำเร็จ"); }
   };
 
   const handleDelete = async (assetId) => {
-    if (!window.confirm("ต้องการลบครุภัณฑ์นี้หรือไม่?")) {
-      return;
-    }
-
+    if (!window.confirm("ต้องการลบครุภัณฑ์นี้หรือไม่?")) return;
     try {
       await api.delete(`/assets/${assetId}`);
       toast.success("ลบครุภัณฑ์สำเร็จ");
       fetchAssets();
-    } catch (error) {
-      toast.error("ไม่สามารถลบได้");
-    }
-  };
-
-  const handleAdd = () => {
-    setEditingAsset(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (asset) => {
-    setEditingAsset(asset);
-    setShowForm(true);
+    } catch (error) { toast.error("ไม่สามารถลบได้"); }
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      ใช้งานได้: "bg-success-100 text-success-700 border border-success-200",
-      รอซ่อม: "bg-warning-100 text-warning-700 border border-warning-200",
-      รอจำหน่าย: "bg-orange-100 text-orange-700 border border-orange-200",
-      จำหน่ายแล้ว: "bg-gray-100 text-gray-600 border border-gray-200",
-      ไม่พบ: "bg-danger-100 text-danger-700 border border-danger-200",
+      'ใช้งานได้': 'bg-green-100 text-green-700 border border-green-200',
+      'รอซ่อม': 'bg-yellow-100 text-yellow-700 border border-yellow-200',
+      'รอจำหน่าย': 'bg-orange-100 text-orange-700 border border-orange-200',
+      'จำหน่ายแล้ว': 'bg-gray-100 text-gray-600 border border-gray-200',
+      'ไม่พบ': 'bg-red-100 text-red-700 border border-red-200',
     };
-    return colors[status] || "bg-gray-100 text-gray-600 border border-gray-200";
+    return colors[status?.trim()] || 'bg-gray-100 text-gray-600 border border-gray-200';
   };
 
-  // คำนวณสถิติ
-  const calculateStats = (assetList) => {
-    return {
-      total: assetList.length,
-      available: assetList.filter(a => a.status === 'ใช้งานได้').length,
-      maintenance: assetList.filter(a => a.status === 'รอซ่อม').length,
-      awaiting_disposal: assetList.filter(a => a.status === 'รอจำหน่าย').length,
-      disposed: assetList.filter(a => a.status === 'จำหน่ายแล้ว').length,
-      missing: assetList.filter(a => a.status === 'ไม่พบ').length
-    };
-  };
+  // Get unique values for filters
+  const uniqueBuildings = useMemo(() => [...new Set(assets.map(a => a.building_name).filter(Boolean))], [assets]);
+  const uniqueFloors = useMemo(() => [...new Set(assets.map(a => a.floor).filter(Boolean))].sort((a, b) => a - b), [assets]);
 
-  // Render Asset Row
-  const renderAssetRow = (asset) => (
-    <tr key={asset.asset_id} className="hover:bg-gray-50 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap">
+  // Active filter count
+  const activeFilterCount = [filters.status, filters.department, filters.building, filters.floor].filter(f => f !== 'all').length;
+
+  // ==================== ตาราง Columns สำหรับ VirtualTable ====================
+  const tableColumns = useMemo(() => [
+    {
+      key: 'image', label: 'รูป', sortable: false, width: '60px',
+      render: (val, row) => (
         <div className="relative group">
-          {asset.image ? (
-            <img
-              src={`${API_BASE_URL}/${asset.image}`}
-              alt={asset.asset_name}
-              className="h-12 w-12 rounded object-cover"
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/48?text=No+Image";
-              }}
-            />
+          {row.image ? (
+            <img src={`${API_BASE_URL}/${row.image}`} alt="" className="h-10 w-10 rounded-lg object-cover"
+              onError={(e) => { e.target.src = ''; e.target.className = 'h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center'; }} />
           ) : (
-            <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
-              No Image
+            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Package size={16} className="text-gray-400" />
             </div>
           )}
           {canEdit && (
-            <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 flex items-center justify-center rounded transition-opacity">
-              <Upload className="w-6 h-6 text-white" />
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files[0]) {
-                    handleUploadImage(asset.asset_id, e.target.files[0]);
-                  }
-                }}
-              />
+            <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 bg-black/50 flex items-center justify-center rounded-lg transition-opacity">
+              <Upload className="w-4 h-4 text-white" />
+              <input type="file" className="hidden" accept="image/*"
+                onChange={(e) => { if (e.target.files[0]) handleUploadImage(row.asset_id, e.target.files[0]); }} />
             </label>
           )}
         </div>
-      </td>
-      <td className="px-2 py-2">
-        <div className="text-sm font-medium text-gray-900 line-clamp-2" title={asset.asset_name}>
-          {asset.asset_name}
+      )
+    },
+    {
+      key: 'asset_name', label: 'ชื่อครุภัณฑ์', minWidth: '200px',
+      render: (val, row) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900 line-clamp-2" title={val}>{val}</div>
+          <div className="text-xs text-gray-400">ID: {row.asset_id}</div>
         </div>
-        <div className="text-xs text-gray-500">ID: {asset.asset_id}</div>
-      </td>
-      <td className="px-2 py-2 text-xs text-gray-500 break-all">
-        {asset.serial_number || "-"}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-            asset.status
-          )}`}
-        >
-          {asset.status}
-        </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <div className="flex space-x-2">
-          <button
-            onClick={() => {
-              setQrAsset(asset);
-              setShowQRModal(true);
-            }}
-            className="text-green-600 hover:text-green-900 transition-colors"
-            title="QR Code"
-          >
-            <QrCode className="w-5 h-5" />
+      )
+    },
+    { key: 'serial_number', label: 'Serial Number', minWidth: '130px', render: (val) => <span className="text-xs font-mono">{val || '-'}</span> },
+    { key: 'barcode', label: 'Barcode', minWidth: '120px', render: (val) => <span className="text-xs font-mono">{val || '-'}</span> },
+    {
+      key: 'status', label: 'สถานะ', width: '110px',
+      render: (val) => <span className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${getStatusColor(val)}`}>{val}</span>
+    },
+    { key: 'department_name', label: 'หน่วยงาน', minWidth: '120px', render: (val) => val || '-' },
+    {
+      key: 'building_name', label: 'สถานที่', minWidth: '180px',
+      render: (val, row) => {
+        const parts = [val, row.floor ? `ชั้น ${row.floor}` : null, row.room_number ? `ห้อง ${row.room_number}` : null].filter(Boolean);
+        return <span className="text-xs">{parts.join(' ') || row.room_text || '-'}</span>;
+      }
+    },
+    { key: 'price', label: 'ราคา (฿)', minWidth: '100px', render: (val) => val ? Number(val).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '-' },
+    { key: 'quantity', label: 'จำนวน', width: '70px' },
+    { key: 'unit', label: 'หน่วย', width: '70px' },
+    { key: 'received_date', label: 'วันที่ตรวจรับ', minWidth: '110px', render: (val) => val || '-' },
+    { key: 'fund_code', label: 'รหัสกองทุน', minWidth: '100px', render: (val) => val || '-' },
+    { key: 'plan_code', label: 'รหัสแผน', minWidth: '100px', render: (val) => val || '-' },
+    { key: 'project_code', label: 'รหัสโครงการ', minWidth: '100px', render: (val) => val || '-' },
+    { key: 'faculty_name', label: 'คณะ', minWidth: '120px', render: (val) => val || '-' },
+    { key: 'delivery_number', label: 'เลขที่ใบส่งของ', minWidth: '120px', render: (val) => val || '-' },
+    { key: 'description', label: 'รายละเอียด', minWidth: '180px', render: (val) => <span className="line-clamp-2 text-xs">{val || '-'}</span> },
+  ], [canEdit]);
+
+  // ==================== Row Actions ====================
+  const renderRowActions = (row) => (
+    <>
+      <button onClick={() => { setQrAsset(row); setShowQRModal(true); }}
+        className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="QR/Barcode">
+        <QrCode size={16} />
+      </button>
+      <button onClick={() => setSelectedAsset(row)}
+        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="ดูรายละเอียด">
+        <Eye size={16} />
+      </button>
+      {canEdit && (
+        <>
+          <button onClick={() => { setEditingAsset(row); setShowForm(true); }}
+            className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="แก้ไข">
+            <Edit size={16} />
           </button>
-          <button
-            onClick={() => setSelectedAsset(asset)}
-            className="text-blue-600 hover:text-blue-900 transition-colors"
-            title="ดูรายละเอียด"
-          >
-            <Eye className="w-5 h-5" />
+          <button onClick={() => handleDelete(row.asset_id)}
+            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition" title="ลบ">
+            <Trash2 size={16} />
           </button>
-          {canEdit && (
-            <>
-              <button
-                onClick={() => handleEdit(asset)}
-                className="text-yellow-600 hover:text-yellow-900 transition-colors"
-                title="แก้ไข"
-              >
-                <Edit className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => handleDelete(asset.asset_id)}
-                className="text-red-600 hover:text-red-900 transition-colors"
-                title="ลบ"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </>
-          )}
-        </div>
-      </td>
-    </tr>
+        </>
+      )}
+    </>
   );
 
-  // Render Grouped View
-  const renderGroupedView = () => {
-    const groupedAssets = groupAssetsByLocation(filteredAssets);
+  // ==================== Grouped View ====================
+  const groupAssetsByLocation = (assetList) => {
+    const grouped = {};
+    assetList.forEach((asset) => {
+      const building = asset.building_name || "ไม่ระบุอาคาร";
+      const floor = asset.floor || "ไม่ระบุชั้น";
+      const room = asset.room_number || asset.room_text || "ไม่ระบุห้อง";
+      if (!grouped[building]) grouped[building] = {};
+      if (!grouped[building][floor]) grouped[building][floor] = {};
+      if (!grouped[building][floor][room]) grouped[building][floor][room] = [];
+      grouped[building][floor][room].push(asset);
+    });
+    return grouped;
+  };
 
+  const toggleBuilding = (building) => setExpandedBuildings(prev => ({ ...prev, [building]: !prev[building] }));
+  const toggleFloor = (building, floor) => {
+    const key = `${building}-${floor}`;
+    setExpandedFloors(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const calculateStats = (assetList) => ({
+    total: assetList.length,
+    available: assetList.filter(a => a.status === 'ใช้งานได้').length,
+    maintenance: assetList.filter(a => a.status === 'รอซ่อม').length,
+    missing: assetList.filter(a => a.status === 'ไม่พบ').length,
+  });
+
+  const renderGroupedView = () => {
+    const groupedAssets = groupAssetsByLocation(assets);
     return (
       <div className="space-y-4">
         {Object.entries(groupedAssets).map(([building, floors]) => {
-          const buildingAssets = Object.values(floors)
-            .flatMap(rooms => Object.values(rooms))
-            .flat();
+          const buildingAssets = Object.values(floors).flatMap(rooms => Object.values(rooms)).flat();
           const stats = calculateStats(buildingAssets);
           const isExpanded = expandedBuildings[building];
-
           return (
             <div key={building} className="bg-white rounded-xl shadow-md overflow-hidden">
-              {/* Building Header */}
-              <div
-                onClick={() => toggleBuilding(building)}
-                className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-indigo-50 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors border-b-2 border-blue-200"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-600 p-3 rounded-lg">
-                    <Building className="text-white" size={28} />
-                  </div>
+              <div onClick={() => toggleBuilding(building)}
+                className="flex items-center justify-between p-5 bg-gradient-to-r from-blue-50 to-indigo-50 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors border-b-2 border-blue-200">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-600 p-2.5 rounded-lg"><Building className="text-white" size={22} /></div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">{building}</h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      ทั้งหมด: {stats.total} |
-                      <span className="text-green-600 ml-2">ใช้งานได้: {stats.available}</span> |
-                      <span className="text-orange-500 ml-2">รอซ่อม: {stats.maintenance}</span> |
-                      <span className="text-amber-500 ml-2">รอจำหน่าย: {stats.awaiting_disposal}</span> |
-                      <span className="text-slate-500 ml-2">จำหน่ายแล้ว: {stats.disposed}</span> |
-                      <span className="text-red-600 ml-2">ไม่พบ: {stats.missing}</span>
+                    <h3 className="text-lg font-bold text-gray-800">{building}</h3>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      {stats.total} รายการ | <span className="text-green-600">✓{stats.available}</span>
+                      {stats.maintenance > 0 && <span className="text-yellow-600 ml-1">🔧{stats.maintenance}</span>}
+                      {stats.missing > 0 && <span className="text-red-600 ml-1">⚠{stats.missing}</span>}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl font-bold text-blue-600">{stats.total}</span>
-                  {isExpanded ? (
-                    <ChevronDown className="text-gray-600" size={24} />
-                  ) : (
-                    <ChevronRight className="text-gray-600" size={24} />
-                  )}
+                <div className="flex items-center gap-3">
+                  <span className="text-xl font-bold text-blue-600">{stats.total}</span>
+                  {isExpanded ? <ChevronDown className="text-gray-500" size={20} /> : <ChevronRight className="text-gray-500" size={20} />}
                 </div>
               </div>
-
-              {/* Floors */}
               {isExpanded && (
                 <div className="p-4 space-y-3">
                   {Object.entries(floors).map(([floor, rooms]) => {
@@ -444,92 +330,59 @@ export default function AssetsPage() {
                     const isFloorExpanded = expandedFloors[floorKey];
                     const floorAssets = Object.values(rooms).flat();
                     const floorStats = calculateStats(floorAssets);
-
                     return (
                       <div key={floorKey} className="border-l-4 border-indigo-400 bg-gray-50 rounded-lg overflow-hidden">
-                        {/* Floor Header */}
-                        <div
-                          onClick={() => toggleFloor(building, floor)}
-                          className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="bg-indigo-500 p-2 rounded">
-                              <Layers className="text-white" size={20} />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-800">ชั้น {floor}</h4>
-                              <p className="text-xs text-gray-600">
-                                {floorStats.total} รายการ |
-                                <span className="text-green-600 ml-1">{floorStats.available} พร้อมใช้</span>
-                              </p>
-                            </div>
+                        <div onClick={() => toggleFloor(building, floor)}
+                          className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <Layers className="text-indigo-500" size={18} />
+                            <span className="font-semibold text-gray-800">ชั้น {floor}</span>
+                            <span className="text-xs text-gray-500">{floorStats.total} รายการ</span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg font-bold text-indigo-600">{floorStats.total}</span>
-                            {isFloorExpanded ? (
-                              <ChevronDown className="text-gray-500" size={20} />
-                            ) : (
-                              <ChevronRight className="text-gray-500" size={20} />
-                            )}
-                          </div>
+                          {isFloorExpanded ? <ChevronDown size={16} className="text-gray-400" /> : <ChevronRight size={16} className="text-gray-400" />}
                         </div>
-
-                        {/* Rooms */}
                         {isFloorExpanded && (
-                          <div className="p-4 space-y-2 bg-white">
-                            {Object.entries(rooms).map(([room, roomAssets]) => {
-                              const roomStats = calculateStats(roomAssets);
-
-                              return (
-                                <div key={room} className="border border-gray-200 rounded-lg overflow-hidden">
-                                  {/* Room Header */}
-                                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 border-b border-gray-200">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <MapPin className="text-purple-600" size={18} />
-                                        <span className="font-semibold text-gray-800">ห้อง {room}</span>
-                                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                                          {roomStats.total} รายการ
-                                        </span>
-                                      </div>
-                                      <div className="flex gap-2 text-xs">
-                                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
-                                          ✓ {roomStats.available}
-                                        </span>
-                                        {roomStats.maintenance > 0 && (
-                                          <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                                            🔧 {roomStats.maintenance}
-                                          </span>
-                                        )}
-                                        {roomStats.missing > 0 && (
-                                          <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
-                                            ⚠ {roomStats.missing}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Assets Table */}
-                                  <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200 table-fixed">
-                                      <thead className="bg-gray-50">
-                                        <tr>
-                                          <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">รูป</th>
-                                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase max-w-xs">ชื่อครุภัณฑ์</th>
-                                          <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-                                          <th className="w-24 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                                          <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="bg-white divide-y divide-gray-200">
-                                        {roomAssets.map((asset) => renderAssetRow(asset))}
-                                      </tbody>
-                                    </table>
-                                  </div>
+                          <div className="px-3 pb-3 space-y-2">
+                            {Object.entries(rooms).map(([room, roomAssets]) => (
+                              <div key={room} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                                <div className="bg-gray-50 px-3 py-2 border-b flex items-center gap-2">
+                                  <MapPin size={14} className="text-purple-600" />
+                                  <span className="text-sm font-semibold text-gray-800">ห้อง {room}</span>
+                                  <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{roomAssets.length}</span>
                                 </div>
-                              );
-                            })}
+                                <div className="overflow-x-auto">
+                                  <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                    <thead className="bg-gray-50">
+                                      <tr>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">รูป</th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">ชื่อครุภัณฑ์</th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Serial</th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">สถานะ</th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">จัดการ</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                      {roomAssets.map(a => (
+                                        <tr key={a.asset_id} className="hover:bg-blue-50/50">
+                                          <td className="px-3 py-2">
+                                            {a.image ? (
+                                              <img src={`${API_BASE_URL}/${a.image}`} alt="" className="h-8 w-8 rounded object-cover" onError={e => { e.target.style.display = 'none' }} />
+                                            ) : <div className="h-8 w-8 bg-gray-100 rounded flex items-center justify-center"><Package size={12} className="text-gray-400" /></div>}
+                                          </td>
+                                          <td className="px-3 py-2">
+                                            <div className="text-sm font-medium line-clamp-1">{a.asset_name}</div>
+                                            <div className="text-xs text-gray-400">ID: {a.asset_id}</div>
+                                          </td>
+                                          <td className="px-3 py-2 text-xs text-gray-500">{a.serial_number || '-'}</td>
+                                          <td className="px-3 py-2"><span className={`px-1.5 py-0.5 text-xs rounded-full ${getStatusColor(a.status)}`}>{a.status}</span></td>
+                                          <td className="px-3 py-2"><div className="flex gap-1">{renderRowActions(a)}</div></td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -540,499 +393,216 @@ export default function AssetsPage() {
             </div>
           );
         })}
+        {assets.length === 0 && !loading && (
+          <div className="text-center py-16 bg-white rounded-xl shadow-md">
+            <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg text-gray-500">ไม่พบข้อมูลครุภัณฑ์</p>
+          </div>
+        )}
       </div>
     );
   };
 
-  // Render List View
-  const renderListView = () => (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-fixed">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                รูป
-              </th>
-              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase max-w-xs">
-                ชื่อครุภัณฑ์
-              </th>
-              <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                Serial
-              </th>
-              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                สถานที่
-              </th>
-              <th className="w-24 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                สถานะ
-              </th>
-              <th className="w-20 px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                จัดการ
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredAssets.map((asset) => (
-              <tr key={asset.asset_id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="relative group">
-                    {asset.image ? (
-                      <img
-                        src={`${API_BASE_URL}/${asset.image}`}
-                        alt={asset.asset_name}
-                        className="h-12 w-12 rounded object-cover"
-                        onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/48?text=No+Image";
-                        }}
-                      />
-                    ) : (
-                      <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
-                        No Image
-                      </div>
-                    )}
-                    <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 flex items-center justify-center rounded transition-opacity">
-                      <Upload className="w-6 h-6 text-white" />
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files[0]) {
-                            handleUploadImage(asset.asset_id, e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                </td>
-                <td className="px-2 py-2">
-                  <div className="text-sm font-medium text-gray-900 line-clamp-2" title={asset.asset_name}>
-                    {asset.asset_name}
-                  </div>
-                  <div className="text-xs text-gray-500">ID: {asset.asset_id}</div>
-                </td>
-                <td className="px-2 py-2 text-xs text-gray-500 break-all">
-                  {asset.serial_number || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatLocation(asset)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                      asset.status
-                    )}`}
-                  >
-                    {asset.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => {
-                        setQrAsset(asset);
-                        setShowQRModal(true);
-                      }}
-                      className="text-green-600 hover:text-green-900 transition-colors"
-                      title="QR Code"
-                    >
-                      <QrCode className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setSelectedAsset(asset)}
-                      className="text-blue-600 hover:text-blue-900 transition-colors"
-                      title="ดูรายละเอียด"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    {canEdit && (
-                      <>
-                        <button
-                          onClick={() => handleEdit(asset)}
-                          className="text-yellow-600 hover:text-yellow-900 transition-colors"
-                          title="แก้ไข"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(asset.asset_id)}
-                          className="text-red-600 hover:text-red-900 transition-colors"
-                          title="ลบ"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {filteredAssets.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p className="text-lg">ไม่พบข้อมูลครุภัณฑ์</p>
-        </div>
-      )}
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
-          <Package className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-600" size={24} />
-        </div>
-        <p className="mt-4 text-gray-600 font-medium">กำลังโหลดข้อมูลครุภัณฑ์...</p>
-      </div>
-    );
-  }
-
+  // ==================== RENDER ====================
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">จัดการครุภัณฑ์</h1>
-          <p className="text-gray-600 mt-1">ค้นหา ตรวจสอบ และจัดการครุภัณฑ์ทั้งหมด</p>
+          <p className="text-sm text-gray-500 mt-0.5">
+            ค้นหา ตรวจสอบ และจัดการครุภัณฑ์ทั้งหมด
+            {totalItems > 0 && <span className="ml-1 text-blue-600 font-medium">({totalItems.toLocaleString()} รายการ)</span>}
+          </p>
         </div>
-        {canEdit && (
-          <div className="flex gap-3">
-            <button
-              onClick={fetchAssets}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
-            >
-              <RefreshCw size={18} />
-              รีเฟรช
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={fetchAssets} className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">
+            <RefreshCw size={16} /> รีเฟรช
+          </button>
+          {canEdit && (
+            <>
+              <button onClick={() => setShowBulkQR(true)} className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition text-sm shadow-lg shadow-emerald-600/20">
+                <QrCode size={16} /> สร้าง QR
+              </button>
+              <button onClick={() => { setEditingAsset(null); setShowForm(true); }}
+                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm shadow-lg shadow-blue-600/20">
+                <Plus size={16} /> เพิ่มครุภัณฑ์
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Controls Bar */}
+      <div className="bg-white rounded-xl shadow-md p-4">
+        <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+          {/* Search */}
+          <div className="flex-1 flex gap-2 w-full md:w-auto">
+            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="ค้นหาชื่อ, Serial, Barcode, รหัสกองทุน..."
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
+            <button onClick={handleSearch}
+              className="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm font-medium shadow-sm">
+              ค้นหา
             </button>
-            <button
-              onClick={() => setShowBulkQR(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-success-500/20"
-            >
-              <QrCode size={18} />
-              สร้าง QR
+          </div>
+
+          {/* View Toggle + Filter Toggle */}
+          <div className="flex gap-2">
+            <div className="flex bg-gray-100 p-1 rounded-xl">
+              <button onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition ${viewMode === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600"}`}>
+                <List size={16} /> รายการ
+              </button>
+              <button onClick={() => setViewMode("grouped")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition ${viewMode === "grouped" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600"}`}>
+                <Grid size={16} /> จัดกลุ่ม
+              </button>
+            </div>
+            <button onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm border transition ${showFilters || activeFilterCount > 0 ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}>
+              <Filter size={16} />
+              ตัวกรอง
+              {activeFilterCount > 0 && (
+                <span className="bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{activeFilterCount}</span>
+              )}
             </button>
-            <button
-              onClick={handleAdd}
-              className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/20"
-            >
-              <Plus size={18} />
-              เพิ่มครุภัณฑ์
-            </button>
+          </div>
+        </div>
+
+        {/* Filter Section */}
+        {showFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-800">ตัวกรอง</h3>
+              <button onClick={handleResetFilters} className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+                <RotateCcw size={12} /> รีเซ็ต
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <select value={filters.status} onChange={(e) => { setFilters(f => ({ ...f, status: e.target.value })); setCurrentPage(1); }}
+                className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="all">สถานะ: ทั้งหมด</option>
+                <option value="ใช้งานได้">ใช้งานได้</option>
+                <option value="รอซ่อม">รอซ่อม</option>
+                <option value="รอจำหน่าย">รอจำหน่าย</option>
+                <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
+                <option value="ไม่พบ">ไม่พบ</option>
+              </select>
+              <select value={filters.department} onChange={(e) => { setFilters(f => ({ ...f, department: e.target.value })); setCurrentPage(1); }}
+                className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="all">หน่วยงาน: ทั้งหมด</option>
+                {departments.map(d => <option key={d.department_id} value={d.department_id}>{d.department_name}</option>)}
+              </select>
+              <select value={filters.building} onChange={(e) => { setFilters(f => ({ ...f, building: e.target.value })); setCurrentPage(1); }}
+                className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="all">อาคาร: ทั้งหมด</option>
+                {uniqueBuildings.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
+              <select value={filters.floor} onChange={(e) => { setFilters(f => ({ ...f, floor: e.target.value })); setCurrentPage(1); }}
+                className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="all">ชั้น: ทั้งหมด</option>
+                {uniqueFloors.map(f => <option key={f} value={f}>ชั้น {f}</option>)}
+              </select>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Search & View Mode Toggle */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 flex space-x-4">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="ค้นหาครุภัณฑ์..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              onClick={handleSearch}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Search className="w-5 h-5" />
-              <span>ค้นหา</span>
-            </button>
-          </div>
-
-          {/* View Mode Toggle */}
-          <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
-            <button
-              onClick={() => setViewMode("grouped")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === "grouped"
-                ? "bg-white text-blue-600 shadow"
-                : "text-gray-600 hover:text-gray-800"
-                }`}
-            >
-              <Grid size={18} />
-              <span className="font-medium">จัดกลุ่ม</span>
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === "list"
-                ? "bg-white text-blue-600 shadow"
-                : "text-gray-600 hover:text-gray-800"
-                }`}
-            >
-              <List size={18} />
-              <span className="font-medium">รายการ</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Section */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Filter className="text-blue-600" size={20} />
-            <h3 className="text-lg font-semibold text-gray-800">ตัวกรอง</h3>
-          </div>
-          <button
-            onClick={handleResetFilters}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <RotateCcw size={16} />
-            <span>รีเซ็ตตัวกรอง</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Filter by Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              สถานะ
-            </label>
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              <option value="all">ทั้งหมด</option>
-              <option value="ใช้งานได้">ใช้งานได้</option>
-              <option value="รอซ่อม">รอซ่อม</option>
-              <option value="รอจำหน่าย">รอจำหน่าย</option>
-              <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
-              <option value="ไม่พบ">ไม่พบ</option>
-            </select>
-          </div>
-
-          {/* Filter by Department */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              หน่วยงาน
-            </label>
-            <select
-              value={filters.department}
-              onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              <option value="all">ทั้งหมด</option>
-              {departments.map((dept) => (
-                <option key={dept.department_id} value={dept.department_id}>
-                  {dept.department_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filter by Building */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              อาคาร
-            </label>
-            <select
-              value={filters.building}
-              onChange={(e) => setFilters({ ...filters, building: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              <option value="all">ทั้งหมด</option>
-              {uniqueBuildings.map((building) => (
-                <option key={building} value={building}>
-                  {building}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filter by Floor */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              ชั้น
-            </label>
-            <select
-              value={filters.floor}
-              onChange={(e) => setFilters({ ...filters, floor: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              <option value="all">ทั้งหมด</option>
-              {uniqueFloors.sort((a, b) => a - b).map((floor) => (
-                <option key={floor} value={floor}>
-                  ชั้น {floor}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Active Filters Display */}
-        {(filters.status !== "all" || filters.department !== "all" ||
-          filters.building !== "all" || filters.floor !== "all") && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm text-gray-600 font-medium">ตัวกรองที่ใช้งาน:</span>
-
-                {filters.status !== "all" && (
-                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                    สถานะ: {filters.status}
-                    <button
-                      onClick={() => setFilters({ ...filters, status: "all" })}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
-                    >
-                      <XIcon size={14} />
-                    </button>
-                  </span>
-                )}
-
-                {filters.department !== "all" && (
-                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                    หน่วยงาน: {departments.find(d => d.department_id == filters.department)?.department_name}
-                    <button
-                      onClick={() => setFilters({ ...filters, department: "all" })}
-                      className="hover:bg-green-200 rounded-full p-0.5"
-                    >
-                      <XIcon size={14} />
-                    </button>
-                  </span>
-                )}
-
-                {filters.building !== "all" && (
-                  <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                    อาคาร: {filters.building}
-                    <button
-                      onClick={() => setFilters({ ...filters, building: "all" })}
-                      className="hover:bg-purple-200 rounded-full p-0.5"
-                    >
-                      <XIcon size={14} />
-                    </button>
-                  </span>
-                )}
-
-                {filters.floor !== "all" && (
-                  <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
-                    ชั้น: {filters.floor}
-                    <button
-                      onClick={() => setFilters({ ...filters, floor: "all" })}
-                      className="hover:bg-orange-200 rounded-full p-0.5"
-                    >
-                      <XIcon size={14} />
-                    </button>
-                  </span>
-                )}
-
-                <span className="text-sm text-gray-500">
-                  ({filteredAssets.length} จาก {assets.length} รายการ)
-                </span>
-              </div>
-            </div>
-          )}
-      </div>
-
       {/* Content */}
-      {viewMode === "grouped" ? renderGroupedView() : renderListView()}
+      {viewMode === "list" ? (
+        <VirtualTable
+          columns={tableColumns}
+          data={assets}
+          loading={loading}
+          totalItems={totalItems}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          sortKey={sortKey}
+          sortOrder={sortOrder}
+          onSort={handleSort}
+          onRowClick={(row) => setSelectedAsset(row)}
+          rowActions={renderRowActions}
+          searchable={false}
+          showColumnConfig={true}
+          stickyFirstColumn={false}
+          emptyIcon={<Package size={48} className="text-gray-300" />}
+          emptyMessage="ไม่พบข้อมูลครุภัณฑ์"
+          maxHeight="calc(100vh - 340px)"
+        />
+      ) : (
+        renderGroupedView()
+      )}
 
-      {/* Asset Detail Modal */}
+      {/* ==================== Asset Detail Modal ==================== */}
       {selectedAsset && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold">รายละเอียดครุภัณฑ์</h2>
-                <button
-                  onClick={() => setSelectedAsset(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+              <h2 className="text-xl font-bold text-gray-800">รายละเอียดครุภัณฑ์</h2>
+              <button onClick={() => setSelectedAsset(null)} className="text-gray-400 hover:text-gray-600"><X size={22} /></button>
+            </div>
 
+            <div className="p-6">
               {selectedAsset.image && (
-                <img
-                  src={`${API_BASE_URL}/${selectedAsset.image}`}
-                  alt={selectedAsset.asset_name}
-                  className="w-full h-64 object-cover rounded mb-4"
-                />
+                <img src={`${API_BASE_URL}/${selectedAsset.image}`} alt={selectedAsset.asset_name}
+                  className="w-full h-56 object-cover rounded-xl mb-5" />
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-gray-600">รหัสครุภัณฑ์</label>
-                  <p className="font-semibold">{selectedAsset.asset_id}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">ชื่อครุภัณฑ์</label>
-                  <p className="font-semibold">{selectedAsset.asset_name}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">Serial Number</label>
-                  <p className="font-semibold">
-                    {selectedAsset.serial_number || "-"}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">ราคา</label>
-                  <p className="font-semibold">
-                    {selectedAsset.price?.toLocaleString()} บาท
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">สถานะ</label>
-                  <p>
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                        selectedAsset.status
-                      )}`}
-                    >
-                      {selectedAsset.status}
-                    </span>
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">วันที่ตรวจรับ</label>
-                  <p className="font-semibold">{selectedAsset.received_date}</p>
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'รหัสครุภัณฑ์', value: selectedAsset.asset_id },
+                  { label: 'ชื่อครุภัณฑ์', value: selectedAsset.asset_name, span: 2 },
+                  { label: 'Serial Number', value: selectedAsset.serial_number },
+                  { label: 'Barcode', value: selectedAsset.barcode },
+                  { label: 'สถานะ', value: selectedAsset.status, badge: true },
+                  { label: 'ราคา', value: selectedAsset.price ? `${Number(selectedAsset.price).toLocaleString('th-TH')} บาท` : '-' },
+                  { label: 'จำนวน', value: `${selectedAsset.quantity || 1} ${selectedAsset.unit || ''}` },
+                  { label: 'วันที่ตรวจรับ', value: selectedAsset.received_date },
+                  { label: 'หน่วยงาน', value: selectedAsset.department_name },
+                  { label: 'สถานที่', value: [selectedAsset.building_name, selectedAsset.floor ? `ชั้น ${selectedAsset.floor}` : null, selectedAsset.room_number ? `ห้อง ${selectedAsset.room_number}` : null].filter(Boolean).join(' ') || selectedAsset.room_text },
+                  { label: 'รหัสกองทุน', value: selectedAsset.fund_code },
+                  { label: 'รหัสแผน', value: selectedAsset.plan_code },
+                  { label: 'รหัสโครงการ', value: selectedAsset.project_code },
+                  { label: 'คณะ', value: selectedAsset.faculty_name },
+                  { label: 'เลขที่ใบส่งของ', value: selectedAsset.delivery_number },
+                  { label: 'รายละเอียด', value: selectedAsset.description, span: 3 },
+                  { label: 'อ้างอิงใบตรวจรับ', value: selectedAsset.reference_number },
+                ].map((item, idx) => (
+                  <div key={idx} className={item.span ? `col-span-${item.span}` : ''}>
+                    <label className="text-xs text-gray-500 block mb-0.5">{item.label}</label>
+                    {item.badge ? (
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(item.value)}`}>{item.value}</span>
+                    ) : (
+                      <p className="text-sm font-medium text-gray-800">{item.value || '-'}</p>
+                    )}
+                  </div>
+                ))}
               </div>
 
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setSelectedAsset(null)}
-                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  ปิด
+              <div className="mt-6 flex justify-end gap-3">
+                <button onClick={() => { setQrAsset(selectedAsset); setShowQRModal(true); }}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition text-sm flex items-center gap-1.5">
+                  <QrCode size={16} /> QR/Barcode
                 </button>
+                <button onClick={() => setSelectedAsset(null)}
+                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition text-sm">ปิด</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Asset Form Modal */}
+      {/* Forms & Modals */}
       {showForm && (
-        <AssetForm
-          asset={editingAsset}
-          onClose={() => {
-            setShowForm(false);
-            setEditingAsset(null);
-          }}
-          onSuccess={fetchAssets}
-        />
+        <AssetForm asset={editingAsset} onClose={() => { setShowForm(false); setEditingAsset(null); }} onSuccess={fetchAssets} />
       )}
-
-      {/* QR Code Modal */}
       {showQRModal && qrAsset && (
-        <QRCodeModal
-          asset={qrAsset}
-          onClose={() => {
-            setShowQRModal(false);
-            setQrAsset(null);
-          }}
-        />
+        <QRCodeModal asset={qrAsset} onClose={() => { setShowQRModal(false); setQrAsset(null); }} />
       )}
-
-      {/* Bulk QR Generator */}
       {showBulkQR && (
         <BulkQRGenerator assets={assets} onClose={() => setShowBulkQR(false)} />
       )}

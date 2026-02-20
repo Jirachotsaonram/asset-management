@@ -66,12 +66,121 @@ class Asset {
         return false;
     }
 
+    // ==================== อ่านข้อมูลทั้งหมด (backward compatible) ====================
     public function readAll() {
-        // ใช้ View ที่มีข้อมูลครบถ้วน
         $query = "SELECT * FROM v_assets_with_check_info ORDER BY created_at DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
+    }
+
+    // ==================== อ่านข้อมูลแบบแบ่งหน้า (ประสิทธิภาพสูง) ====================
+    public function readPaginated($page = 1, $limit = 50, $filters = [], $sort = 'created_at', $order = 'DESC') {
+        // จำกัดค่า sort ที่อนุญาต เพื่อป้องกัน SQL Injection
+        $allowedSorts = [
+            'asset_id', 'asset_name', 'serial_number', 'status', 'price', 
+            'received_date', 'created_at', 'barcode', 'quantity',
+            'building_name', 'floor', 'room_number', 'department_name',
+            'fund_code', 'plan_code', 'project_code', 'faculty_name'
+        ];
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'created_at';
+        }
+        $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+
+        $offset = ($page - 1) * $limit;
+        $conditions = [];
+        $params = [];
+
+        // Filter by status
+        if (!empty($filters['status'])) {
+            $conditions[] = "status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        // Filter by department
+        if (!empty($filters['department_id'])) {
+            $conditions[] = "department_id = :department_id";
+            $params[':department_id'] = $filters['department_id'];
+        }
+
+        // Filter by building
+        if (!empty($filters['building'])) {
+            $conditions[] = "building_name = :building";
+            $params[':building'] = $filters['building'];
+        }
+
+        // Filter by floor
+        if (!empty($filters['floor'])) {
+            $conditions[] = "floor = :floor";
+            $params[':floor'] = $filters['floor'];
+        }
+
+        // Search
+        if (!empty($filters['search'])) {
+            $conditions[] = "(asset_name LIKE :search OR serial_number LIKE :search OR barcode LIKE :search OR fund_code LIKE :search OR plan_code LIKE :search OR project_code LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        $whereClause = '';
+        if (!empty($conditions)) {
+            $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $query = "SELECT * FROM v_assets_with_check_info $whereClause ORDER BY $sort $order LIMIT :limit OFFSET :offset";
+        $stmt = $this->conn->prepare($query);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+    // ==================== นับจำนวนรายการ ====================
+    public function getCount($filters = []) {
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['status'])) {
+            $conditions[] = "status = :status";
+            $params[':status'] = $filters['status'];
+        }
+        if (!empty($filters['department_id'])) {
+            $conditions[] = "department_id = :department_id";
+            $params[':department_id'] = $filters['department_id'];
+        }
+        if (!empty($filters['building'])) {
+            $conditions[] = "building_name = :building";
+            $params[':building'] = $filters['building'];
+        }
+        if (!empty($filters['floor'])) {
+            $conditions[] = "floor = :floor";
+            $params[':floor'] = $filters['floor'];
+        }
+        if (!empty($filters['search'])) {
+            $conditions[] = "(asset_name LIKE :search OR serial_number LIKE :search OR barcode LIKE :search OR fund_code LIKE :search OR plan_code LIKE :search OR project_code LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        $whereClause = '';
+        if (!empty($conditions)) {
+            $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $query = "SELECT COUNT(*) as total FROM v_assets_with_check_info $whereClause";
+        $stmt = $this->conn->prepare($query);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return (int)$row['total'];
     }
 
     public function readOne() {
@@ -125,6 +234,9 @@ class Asset {
                   WHERE asset_name LIKE :keyword 
                      OR serial_number LIKE :keyword 
                      OR barcode LIKE :keyword
+                     OR fund_code LIKE :keyword
+                     OR plan_code LIKE :keyword
+                     OR project_code LIKE :keyword
                   ORDER BY created_at DESC";
         
         $stmt = $this->conn->prepare($query);
