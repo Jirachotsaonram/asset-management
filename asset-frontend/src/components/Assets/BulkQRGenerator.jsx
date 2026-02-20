@@ -13,7 +13,7 @@ export default function BulkQRGenerator({ assets, onClose }) {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      
+
       // ขนาด QR Code (mm)
       const qrSize = 40;
       const margin = 10;
@@ -44,7 +44,12 @@ export default function BulkQRGenerator({ assets, onClose }) {
         const qrData = JSON.stringify({
           id: asset.asset_id,
           name: asset.asset_name,
-          barcode: asset.barcode
+          barcode: asset.barcode,
+          status: asset.status,
+          dept: asset.department_name,
+          faculty: asset.faculty_name,
+          price: asset.price,
+          date: asset.received_date
         });
 
         // สร้าง container ชั่วคราวสำหรับ QR Code
@@ -60,7 +65,7 @@ export default function BulkQRGenerator({ assets, onClose }) {
         // สร้าง QRCodeCanvas โดยใช้ React
         const { createRoot } = await import('react-dom/client');
         const React = await import('react');
-        
+
         const qrElement = React.createElement(QRCodeCanvas, {
           value: qrData,
           size: 200,
@@ -150,9 +155,14 @@ export default function BulkQRGenerator({ assets, onClose }) {
                 const qrData = JSON.stringify({
                   id: asset.asset_id,
                   name: asset.asset_name,
-                  barcode: asset.barcode
+                  barcode: asset.barcode,
+                  status: asset.status,
+                  dept: asset.department_name,
+                  faculty: asset.faculty_name,
+                  price: asset.price,
+                  date: asset.received_date
                 });
-                
+
                 return (
                   <div key={asset.asset_id} className="text-center">
                     <QRCodeCanvas

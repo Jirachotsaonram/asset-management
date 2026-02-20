@@ -15,11 +15,26 @@ export default function QRCodeModal({ asset, onClose }) {
     id: asset.asset_id,
     name: asset.asset_name,
     serial: asset.serial_number,
-    barcode: asset.barcode
+    barcode: asset.barcode,
+    status: asset.status,
+    dept: asset.department_name,
+    faculty: asset.faculty_name,
+    price: asset.price,
+    date: asset.received_date
   });
 
   // ข้อมูลสำหรับ Barcode (ใช้ barcode หรือ asset_id)
   const barcodeData = asset.barcode || `A${asset.asset_id}`;
+
+  // คำนวณปีงบประมาณจากวันที่ตรวจรับ
+  const getFiscalYear = (dateStr) => {
+    if (!dateStr) return '-';
+    // ปีงบประมาณไทย เริ่ม 1 ต.ค. ของปีก่อนหน้า
+    const date = new Date(dateStr);
+    const year = date.getFullYear() + 543;
+    const month = date.getMonth() + 1;
+    return month >= 10 ? year + 1 : year;
+  };
 
   // สร้าง Barcode เมื่อเปลี่ยนเป็น barcode mode
   useEffect(() => {
@@ -72,30 +87,56 @@ export default function QRCodeModal({ asset, onClose }) {
         <head>
           <title>Print ${mode === 'qr' ? 'QR Code' : 'Barcode'} - ${asset.asset_name}</title>
           <style>
+            @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
             body {
               display: flex; flex-direction: column; align-items: center;
               justify-content: center; min-height: 100vh; margin: 0;
-              font-family: 'Segoe UI', Arial, sans-serif;
+              font-family: 'Sarabun', 'Segoe UI', Arial, sans-serif;
+              background-color: white;
             }
-            .container { text-align: center; padding: 20px; border: 2px solid #000; border-radius: 8px; }
-            img { margin: 15px 0; }
-            h2 { margin: 10px 0; font-size: 16px; }
-            p { margin: 4px 0; font-size: 12px; color: #333; }
-            .label { font-weight: bold; color: #000; }
-            @media print { .no-print { display: none; } }
+            .container { 
+              text-align: center; padding: 15px; border: 1px solid #000; 
+              border-radius: 4px; width: 300px;
+            }
+            img { margin: 5px 0; max-width: 100%; height: auto; }
+            h2 { margin: 8px 0; font-size: 14px; color: #000; font-weight: bold; line-height: 1.4; }
+            .info-text { margin: 2px 0; font-size: 11px; color: #000; text-align: left; }
+            .label { font-weight: bold; }
+            .qr-image { width: 140px; height: 140px; }
+            .barcode-image { width: 250px; }
+            @media print { 
+              .no-print { display: none; }
+              body { min-height: auto; }
+              .container { border: none; padding: 0; }
+            }
           </style>
         </head>
         <body>
           <div class="container">
+            <!-- 1. QR Code / Barcode -->
+            <img src="${imageUrl}" class="${mode === 'qr' ? 'qr-image' : 'barcode-image'}" />
+            
+            <!-- 2. ชื่อครุภัณฑ์ -->
             <h2>${asset.asset_name}</h2>
-            <img src="${imageUrl}" ${mode === 'qr' ? 'width="200" height="200"' : 'width="280"'} />
-            <p><span class="label">รหัส:</span> ${asset.asset_id}</p>
-            <p><span class="label">Barcode:</span> ${asset.barcode || '-'}</p>
-            <p><span class="label">Serial:</span> ${asset.serial_number || '-'}</p>
+            
+            <!-- 3. ราคาต่อหน่วย -->
+            <p class="info-text"><span class="label">ราคา:</span> ${asset.price ? Number(asset.price).toLocaleString('th-TH') : '-'} บาท</p>
+            
+            <!-- 4. ปีงบประมาณ -->
+            <p class="info-text"><span class="label">ปีงบประมาณ:</span> ${getFiscalYear(asset.received_date)}</p>
+            
+            <!-- 5. หน่วยงาน/คณะ -->
+            <p class="info-text"><span class="label">หน่วยงาน:</span> ${asset.department_name || '-'}</p>
+            <p class="info-text"><span class="label">คณะ:</span> ${asset.faculty_name || '-'}</p>
           </div>
-          <button class="no-print" onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; cursor: pointer; border: 1px solid #ccc; border-radius: 8px; background: #f0f0f0;">
-            พิมพ์
-          </button>
+          <div class="no-print" style="margin-top: 20px;">
+            <button onclick="window.print()" style="padding: 10px 25px; cursor: pointer; border: none; border-radius: 8px; background: #2563eb; color: white; font-weight: bold;">
+              พิมพ์
+            </button>
+            <button onclick="window.close()" style="margin-left: 10px; padding: 10px 25px; cursor: pointer; border: 1px solid #ccc; border-radius: 8px; background: white; color: #333;">
+              ปิด
+            </button>
+          </div>
         </body>
       </html>
     `);
@@ -123,8 +164,8 @@ export default function QRCodeModal({ asset, onClose }) {
             <button
               onClick={() => setMode('qr')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${mode === 'qr'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <QrCode size={16} /> QR Code
@@ -132,8 +173,8 @@ export default function QRCodeModal({ asset, onClose }) {
             <button
               onClick={() => setMode('barcode')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${mode === 'barcode'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <BarChart3 size={16} /> Barcode

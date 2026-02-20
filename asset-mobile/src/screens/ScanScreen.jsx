@@ -51,17 +51,38 @@ export default function ScanScreen({ navigation }) {
     setIsOfflineResult(false);
     try {
       let foundAsset = null;
-      
+
       // Parse QR Code data (อาจเป็น JSON หรือ string)
       let searchValue = barcode;
+      let richData = null;
       try {
         const qrData = JSON.parse(barcode);
         if (qrData.id) {
           searchValue = qrData.id;
+          richData = qrData;
         }
       } catch {
         // ไม่ใช่ JSON ใช้ค่าเดิม
         searchValue = barcode;
+      }
+
+      // ถ้าเป็น Rich Data (ผลจาก QR Code ที่มีข้อมูลครบ)
+      // เราสามารถใช้ข้อมูลเบื้องต้นแสดงให้ผู้ใช้เห็นก่อนได้ทันที
+      if (richData) {
+        foundAsset = {
+          asset_id: richData.id,
+          asset_name: richData.name,
+          barcode: richData.barcode,
+          serial_number: richData.serial,
+          status: richData.status,
+          department_name: richData.dept,
+          faculty_name: richData.faculty,
+          price: richData.price,
+          received_date: richData.date
+        };
+        // แสดงข้อมูลจาก QR ก่อน (Offline-friendly)
+        setScannedAsset(foundAsset);
+        setCheckStatus(foundAsset.status || 'ใช้งานได้');
       }
 
       // ===== OFFLINE FIRST: ค้นหาจาก Cache ก่อน =====
@@ -104,7 +125,7 @@ export default function ScanScreen({ navigation }) {
         Alert.alert('สำเร็จ', `พบครุภัณฑ์: ${foundAsset.asset_name}${mode}`);
       } else {
         Alert.alert(
-          'ไม่พบข้อมูล', 
+          'ไม่พบข้อมูล',
           `ไม่พบครุภัณฑ์ที่ตรงกับรหัส: ${searchValue}\n\n${!isConnected ? 'กำลังใช้โหมดออฟไลน์ - ลองดาวน์โหลดข้อมูลใหม่เมื่อมีอินเทอร์เน็ต' : 'ลองตรวจสอบรหัสครุภัณฑ์'}`
         );
       }
@@ -175,7 +196,7 @@ export default function ScanScreen({ navigation }) {
         } catch (refreshError) {
           console.log('Could not refresh asset data:', refreshError);
         }
-        
+
         Alert.alert('สำเร็จ', 'บันทึกการตรวจสอบสำเร็จ\nสถานะครุภัณฑ์ได้ถูกอัพเดตแล้ว', [
           { text: 'OK', onPress: handleReset },
         ]);
@@ -184,7 +205,7 @@ export default function ScanScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Error checking asset:', error);
-      
+
       // ===== FALLBACK: ถ้าส่งไม่สำเร็จ เก็บลงคิว =====
       if (!error.response || error.message?.includes('Network')) {
         const requestData = {
@@ -204,14 +225,14 @@ export default function ScanScreen({ navigation }) {
           return;
         }
       }
-      
+
       // แสดง error message ที่ชัดเจนขึ้น
       let errorMessage = 'ไม่สามารถบันทึกการตรวจสอบได้';
-      
+
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error || '';
-        
+
         if (status === 401) {
           errorMessage = 'Session หมดอายุ กรุณา Logout และ Login ใหม่';
         } else if (status === 403) {
@@ -226,7 +247,7 @@ export default function ScanScreen({ navigation }) {
       } else if (error.message) {
         errorMessage = `เกิดข้อผิดพลาด: ${error.message}`;
       }
-      
+
       Alert.alert('ผิดพลาด', errorMessage);
     } finally {
       setLoading(false);
