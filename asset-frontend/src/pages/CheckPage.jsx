@@ -535,32 +535,46 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                 {rExpanded && (
                                   <div className="overflow-x-auto">
                                     <table className="w-full">
-                                      <thead className="bg-gray-50">
+                                      <thead className="bg-gray-50 border-b border-gray-200">
                                         <tr>
+                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-10">#</th>
+                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-16">รหัส</th>
+                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-10">รูป</th>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase">ชื่อ</th>
-                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-24">Serial</th>
-                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-28">สถานะ</th>
+                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-24">Serial/Barcode</th>
+                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-28">สถานะการตรวจ</th>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-16"></th>
                                         </tr>
                                       </thead>
                                       <tbody className="divide-y divide-gray-100">
-                                        {roomAssets.map(asset => {
+                                        {roomAssets.map((asset, idx) => {
                                           const Icon = asset._status.icon;
                                           return (
-                                            <tr key={asset.asset_id} className="hover:bg-blue-50/40 transition-colors">
-                                              <td className="px-3 py-2 text-xs text-gray-900">
+                                            <tr key={asset.asset_id} className="hover:bg-blue-50/40 transition-colors border-b border-gray-100 last:border-0">
+                                              <td className="px-3 py-2 text-[10px] text-gray-400">{idx + 1}</td>
+                                              <td className="px-3 py-2 text-[11px] font-medium text-gray-700">{asset.asset_id}</td>
+                                              <td className="px-3 py-2">
+                                                {asset.image ? (
+                                                  <img src={`${api.defaults.baseURL.replace('/api', '')}/${asset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200"
+                                                    onError={(e) => { e.target.style.display = 'none'; }} />
+                                                ) : <div className="h-7 w-7 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Grid size={10} className="text-gray-300" /></div>}
+                                              </td>
+                                              <td className="px-3 py-2 text-[11px] text-gray-900">
                                                 <div className="line-clamp-1" title={asset.asset_name}>{asset.asset_name}</div>
                                               </td>
-                                              <td className="px-3 py-2 text-[10px] text-gray-500 font-mono">{asset.serial_number || '-'}</td>
                                               <td className="px-3 py-2">
-                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color}`}>
+                                                <div className="text-[10px] text-gray-600 font-mono leading-tight">{asset.serial_number || '-'}</div>
+                                                <div className="text-[9px] text-gray-400 font-mono leading-tight">{asset.barcode || '-'}</div>
+                                              </td>
+                                              <td className="px-3 py-2">
+                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color} whitespace-nowrap`}>
                                                   <Icon size={10} /> {asset._status.label}
                                                 </span>
                                               </td>
                                               <td className="px-3 py-2">
-                                                <div className="flex gap-1.5">
-                                                  <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800" title="ตรวจสอบ"><Eye size={15} /></button>
-                                                  <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800" title="กำหนดรอบ"><Settings size={15} /></button>
+                                                <div className="flex gap-2">
+                                                  <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800 transition" title="ตรวจสอบ"><CheckSquare size={14} /></button>
+                                                  <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800 transition" title="กำหนดรอบ"><Settings size={14} /></button>
                                                 </div>
                                               </td>
                                             </tr>

@@ -352,30 +352,38 @@ export default function AssetsPage() {
                                 </div>
                                 <div className="overflow-x-auto">
                                   <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                    <thead className="bg-gray-50">
+                                    <thead className="bg-gray-50 border-b border-gray-200">
                                       <tr>
-                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">รูป</th>
-                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">ชื่อครุภัณฑ์</th>
-                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Serial</th>
-                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">สถานะ</th>
-                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">จัดการ</th>
+                                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-10">รูป</th>
+                                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-16">รหัส</th>
+                                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase">ชื่อครุภัณฑ์</th>
+                                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-32">Serial/Barcode</th>
+                                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-24">สถานะ</th>
+                                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-20">จัดการ</th>
                                       </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
                                       {roomAssets.map(a => (
-                                        <tr key={a.asset_id} className="hover:bg-blue-50/50">
+                                        <tr key={a.asset_id} className="hover:bg-blue-50/50 border-b border-gray-100 last:border-0 transition-colors">
                                           <td className="px-3 py-2">
                                             {a.image ? (
-                                              <img src={`${API_BASE_URL}/${a.image}`} alt="" className="h-8 w-8 rounded object-cover" onError={e => { e.target.style.display = 'none' }} />
-                                            ) : <div className="h-8 w-8 bg-gray-100 rounded flex items-center justify-center"><Package size={12} className="text-gray-400" /></div>}
+                                              <img src={`${API_BASE_URL.replace('/api', '')}/${a.image}`} alt="" className="h-8 w-8 rounded object-cover shadow-sm border border-gray-100" onError={e => { e.target.style.display = 'none' }} />
+                                            ) : <div className="h-8 w-8 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Package size={12} className="text-gray-300" /></div>}
+                                          </td>
+                                          <td className="px-3 py-2 text-[11px] font-medium text-gray-700">{a.asset_id}</td>
+                                          <td className="px-3 py-2">
+                                            <div className="text-[11px] font-semibold text-gray-800 line-clamp-1" title={a.asset_name}>{a.asset_name}</div>
                                           </td>
                                           <td className="px-3 py-2">
-                                            <div className="text-sm font-medium line-clamp-1">{a.asset_name}</div>
-                                            <div className="text-xs text-gray-400">ID: {a.asset_id}</div>
+                                            <div className="text-[10px] text-gray-600 font-mono leading-tight">{a.serial_number || '-'}</div>
+                                            <div className="text-[9px] text-gray-400 font-mono leading-tight">{a.barcode || '-'}</div>
                                           </td>
-                                          <td className="px-3 py-2 text-xs text-gray-500">{a.serial_number || '-'}</td>
-                                          <td className="px-3 py-2"><span className={`px-1.5 py-0.5 text-xs rounded-full ${getStatusColor(a.status)}`}>{a.status}</span></td>
-                                          <td className="px-3 py-2"><div className="flex gap-1">{renderRowActions(a)}</div></td>
+                                          <td className="px-3 py-2">
+                                            <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full border whitespace-nowrap ${getStatusColor(a.status)}`}>{a.status}</span>
+                                          </td>
+                                          <td className="px-3 py-2">
+                                            <div className="flex gap-1.5 opacity-70 hover:opacity-100 transition">{renderRowActions(a)}</div>
+                                          </td>
                                         </tr>
                                       ))}
                                     </tbody>
