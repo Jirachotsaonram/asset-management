@@ -21,6 +21,7 @@ class Asset {
     public $fund_code;
     public $plan_code;
     public $project_code;
+    public $room_text;
     public $image;
 
     public function __construct($db) {
@@ -32,7 +33,7 @@ class Asset {
                   SET asset_name=:asset_name, serial_number=:serial_number, 
                       quantity=:quantity, unit=:unit, price=:price, 
                       received_date=:received_date, department_id=:department_id, 
-                      location_id=:location_id, status=:status, barcode=:barcode,
+                      location_id=:location_id, room_text=:room_text, status=:status, barcode=:barcode,
                       description=:description, reference_number=:reference_number,
                       faculty_name=:faculty_name, delivery_number=:delivery_number,
                       fund_code=:fund_code, plan_code=:plan_code, project_code=:project_code,
@@ -47,6 +48,7 @@ class Asset {
         $stmt->bindParam(":received_date", $this->received_date);
         $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":location_id", $this->location_id);
+        $stmt->bindParam(":room_text", $this->room_text);
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":barcode", $this->barcode);
         $stmt->bindParam(":description", $this->description);
@@ -87,7 +89,7 @@ class Asset {
         $query = "UPDATE " . $this->table_name . " 
                   SET asset_name=:asset_name, serial_number=:serial_number, 
                       quantity=:quantity, unit=:unit, price=:price, 
-                      department_id=:department_id, location_id=:location_id, 
+                      department_id=:department_id, location_id=:location_id, room_text=:room_text,
                       status=:status, description=:description,
                       reference_number=:reference_number,
                       faculty_name=:faculty_name, delivery_number=:delivery_number,
@@ -103,6 +105,7 @@ class Asset {
         $stmt->bindParam(":price", $this->price);
         $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":location_id", $this->location_id);
+        $stmt->bindParam(":room_text", $this->room_text);
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":reference_number", $this->reference_number);

@@ -721,31 +721,25 @@ export default function ImportPage() {
             </div>
 
             {previewExpanded && (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
+              <div className="overflow-x-auto" style={{ maxHeight: '500px' }}>
+                <table className="min-w-max">
+                  <thead className="bg-gray-50 sticky top-0 z-10">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">#</th>
-                      {getColumns().slice(0, 6).map(col => (
-                        <th key={col} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{col}</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase bg-gray-50 sticky left-0 z-20">#</th>
+                      {getColumns().map(col => (
+                        <th key={col} className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase whitespace-nowrap bg-gray-50">{col}</th>
                       ))}
-                      {getColumns().length > 6 && (
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">+{getColumns().length - 6} อื่นๆ</th>
-                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {csvData.slice(0, 10).map((row, index) => (
+                    {csvData.slice(0, 20).map((row, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-medium text-gray-500">{index + 1}</td>
-                        {getColumns().slice(0, 6).map(col => (
-                          <td key={col} className="px-4 py-3 text-sm text-gray-700 max-w-[200px] truncate">
+                        <td className="px-3 py-2.5 text-sm font-medium text-gray-500 bg-white sticky left-0 z-10 border-r border-gray-100">{index + 1}</td>
+                        {getColumns().map(col => (
+                          <td key={col} className="px-3 py-2.5 text-sm text-gray-700 whitespace-nowrap max-w-[250px] truncate" title={row[col] || ''}>
                             {row[col] || <span className="text-gray-300">-</span>}
                           </td>
                         ))}
-                        {getColumns().length > 6 && (
-                          <td className="px-4 py-3 text-sm text-gray-400">...</td>
-                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -753,9 +747,9 @@ export default function ImportPage() {
               </div>
             )}
 
-            {csvData.length > 10 && (
+            {csvData.length > 20 && (
               <div className="px-6 py-3 bg-gray-50 text-center text-sm text-gray-500">
-                แสดง 10 จาก {csvData.length} รายการ
+                แสดง 20 จาก {csvData.length} รายการ
               </div>
             )}
 

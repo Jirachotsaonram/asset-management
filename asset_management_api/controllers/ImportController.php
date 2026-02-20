@@ -45,9 +45,9 @@ class ImportController {
                     $errors[] = 'ไม่พบชื่อครุภัณฑ์';
                 }
 
-                // Validate serial_number uniqueness
-                if (!empty($row->serial_number)) {
-                    $checkQuery = "SELECT asset_id FROM Assets WHERE serial_number = :serial";
+                // Validate serial_number uniqueness (skip if empty or '-')
+                if (!empty($row->serial_number) && $row->serial_number !== '-') {
+                    $checkQuery = "SELECT asset_id FROM Assets WHERE serial_number = :serial AND serial_number != '' AND serial_number != '-'";
                     $stmt = $this->db->prepare($checkQuery);
                     $stmt->bindParam(':serial', $row->serial_number);
                     $stmt->execute();
@@ -122,8 +122,9 @@ class ImportController {
                 // Build description from extra Excel fields
                 $descParts = [];
                 if (!empty($row->description)) $descParts[] = $row->description;
+                // Store location_name in room_text if no location_id found
                 if (!empty($row->location_name) && empty($row->location_id)) {
-                    $descParts[] = "ห้อง: {$row->location_name}";
+                    $row->room_text = $row->location_name;
                 }
                 if (!empty($row->vendor)) $descParts[] = "ผู้ขาย: {$row->vendor}";
                 if (!empty($row->requester)) $descParts[] = "ผู้เบิก: {$row->requester}";
@@ -191,7 +192,7 @@ class ImportController {
                 try {
                     // Prepare asset data
                     $this->asset->asset_name = $row->asset_name ?? '';
-                    $this->asset->serial_number = $row->serial_number ?? '';
+                    $this->asset->serial_number = (!empty($row->serial_number) && $row->serial_number !== '-') ? $row->serial_number : '';
                     $this->asset->quantity = $row->quantity ?? 1;
                     $this->asset->unit = $row->unit ?? 'เครื่อง';
                     $this->asset->price = $row->price ?? 0;
@@ -199,7 +200,7 @@ class ImportController {
                     $this->asset->department_id = !empty($row->department_id) ? $row->department_id : null;
                     $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
                     $this->asset->status = $row->status ?? 'ใช้งานได้';
-                    $this->asset->barcode = $row->barcode ?? 'QR' . uniqid();
+                    $this->asset->barcode = !empty($row->barcode) ? $row->barcode : 'QR' . time() . rand(1000, 9999) . $index;
                     $this->asset->description = $row->description ?? '';
                     $this->asset->reference_number = $row->reference_number ?? '';
                     $this->asset->faculty_name = $row->faculty_name ?? null;
@@ -207,6 +208,7 @@ class ImportController {
                     $this->asset->fund_code = $row->fund_code ?? null;
                     $this->asset->plan_code = $row->plan_code ?? null;
                     $this->asset->project_code = $row->project_code ?? null;
+                    $this->asset->room_text = $row->room_text ?? null;
                     $this->asset->image = '';
 
                     $asset_id = $this->asset->create();
