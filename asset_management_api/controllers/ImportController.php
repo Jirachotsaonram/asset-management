@@ -65,18 +65,18 @@ class ImportController {
                     if ($stmtDept->rowCount() === 0) {
                         $errors[] = "ไม่พบหน่วยงาน ID: {$row->department_id}";
                     }
-                } elseif (!empty($row->department_name_excel)) {
-                    // Try to find department by name
-                    $findDept = "SELECT department_id FROM Departments WHERE department_name LIKE :dept_name LIMIT 1";
+                } elseif (!empty($row->department_name_excel) || !empty($row->faculty_name)) {
+                    // Try to find department by name or faculty
+                    $deptName = !empty($row->department_name_excel) ? $row->department_name_excel : $row->faculty_name;
+                    $findDept = "SELECT department_id FROM Departments WHERE department_name = :dept_name OR faculty = :dept_name LIMIT 1";
                     $stmtFind = $this->db->prepare($findDept);
-                    $deptSearch = '%' . $row->department_name_excel . '%';
-                    $stmtFind->bindParam(':dept_name', $deptSearch);
+                    $stmtFind->bindParam(':dept_name', $deptName);
                     $stmtFind->execute();
                     if ($stmtFind->rowCount() > 0) {
                         $found = $stmtFind->fetch(PDO::FETCH_ASSOC);
                         $row->department_id = $found['department_id'];
                     }
-                    // Not finding department is OK - just leave it null
+                    // Not finding department is OK - importAssets will create it
                 }
 
                 // Resolve location: by ID or by name
@@ -88,19 +88,18 @@ class ImportController {
                     if ($stmtLoc->rowCount() === 0) {
                         $errors[] = "ไม่พบสถานที่ ID: {$row->location_id}";
                     }
-                } elseif (!empty($row->location_name)) {
-                    // Try to find location by room_number or building_name
-                    $findLoc = "SELECT location_id FROM Locations WHERE room_number LIKE :loc_name OR building_name LIKE :loc_name2 LIMIT 1";
+                } elseif (!empty($row->room_text) || !empty($row->location_name)) {
+                    // Try to find location by room_number
+                    $locName = !empty($row->room_text) ? $row->room_text : $row->location_name;
+                    $findLoc = "SELECT location_id FROM Locations WHERE room_number = :loc_name LIMIT 1";
                     $stmtFindLoc = $this->db->prepare($findLoc);
-                    $locSearch = '%' . $row->location_name . '%';
-                    $stmtFindLoc->bindParam(':loc_name', $locSearch);
-                    $stmtFindLoc->bindParam(':loc_name2', $locSearch);
+                    $stmtFindLoc->bindParam(':loc_name', $locName);
                     $stmtFindLoc->execute();
                     if ($stmtFindLoc->rowCount() > 0) {
                         $found = $stmtFindLoc->fetch(PDO::FETCH_ASSOC);
                         $row->location_id = $found['location_id'];
                     }
-                    // Not finding location is OK - just leave it null
+                    // Not finding location is OK - importAssets will create it
                 }
 
                 // Validate price
@@ -197,6 +196,51 @@ class ImportController {
                     $this->asset->unit = $row->unit ?? 'เครื่อง';
                     $this->asset->price = $row->price ?? 0;
                     $this->asset->received_date = $row->received_date ?? date('Y-m-d');
+                    // Auto-resolve or create Department
+                    if (empty($row->department_id) && (!empty($row->faculty_name) || !empty($row->department_name_excel))) {
+                        $deptName = !empty($row->faculty_name) ? $row->faculty_name : $row->department_name_excel;
+                        
+                        $check = $this->db->prepare("SELECT department_id FROM Departments WHERE department_name = ? OR faculty = ? LIMIT 1");
+                        $check->execute([$deptName, $deptName]);
+                        $found = $check->fetch();
+                        
+                        if ($found) {
+                            $row->department_id = $found['department_id'];
+                        } else {
+                            $ins = $this->db->prepare("INSERT INTO Departments (department_name, faculty) VALUES (?, ?)");
+                            if ($ins->execute([$deptName, $deptName])) {
+                                $row->department_id = $this->db->lastInsertId();
+                            }
+                        }
+                    }
+
+                    // Auto-resolve or create Location
+                    if (empty($row->location_id) && (!empty($row->room_text) || !empty($row->location_name))) {
+                        $locName = !empty($row->room_text) ? $row->room_text : $row->location_name;
+                        
+                        $check = $this->db->prepare("SELECT location_id FROM Locations WHERE room_number = ? LIMIT 1");
+                        $check->execute([$locName]);
+                        $found = $check->fetch();
+                        
+                        if ($found) {
+                            $row->location_id = $found['location_id'];
+                        } else {
+                            $newBuilding = 'ไม่ระบุอาคาร';
+                            $newFloor = '1';
+                            if (preg_match('/^([A-Za-z]+)(\d+)-/', $locName, $m)) {
+                                $newBuilding = "อาคาร " . strtoupper($m[1]);
+                                $newFloor = $m[2];
+                            } elseif (preg_match('/^(\d)\d{2}/', $locName, $m)) {
+                                $newFloor = $m[1];
+                            }
+
+                            $ins = $this->db->prepare("INSERT INTO Locations (building_name, floor, room_number) VALUES (?, ?, ?)");
+                            if ($ins->execute([$newBuilding, $newFloor, $locName])) {
+                                $row->location_id = $this->db->lastInsertId();
+                            }
+                        }
+                    }
+
                     $this->asset->department_id = !empty($row->department_id) ? $row->department_id : null;
                     $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
                     $this->asset->status = $row->status ?? 'ใช้งานได้';
