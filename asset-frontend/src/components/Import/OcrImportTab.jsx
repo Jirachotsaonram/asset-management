@@ -9,6 +9,25 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 // ============================================================
+// Helper: detect category code fragments from OCR noise
+// OCR often reads [S30502-0004] as "530502-0004", "3050200004",
+// "!530502-000411", "66100025000", etc. These are NOT asset codes.
+// Real asset codes are 13 digits like 5130000070003, 6630000260009.
+// ============================================================
+function isCategoryCodeFragment(code) {
+    if (!code) return false;
+    // Pattern: starts with 30502 (the category/subcategory code in this document)
+    if (/^30502/.test(code)) return true;
+    // Pattern: looks like "530502..." — S30502 with S→5
+    if (/^530502/.test(code)) return true;
+    // Pattern: 10-11 digit codes are rarely real asset codes (real ones are 13 digits)
+    if (code.length < 12) return true;
+    // Pattern: starts with 00 — unlikely real asset code
+    if (/^00/.test(code)) return true;
+    return false;
+}
+
+// ============================================================
 // TABLE PARSER — parse OCR text for ใบรับครุภัณฑ์เข้าคลัง format
 // Robust multi-strategy parser for Tesseract OCR output
 // ============================================================
@@ -54,26 +73,29 @@ function parseAssetTable(text) {
     const detectedRows = [];
     const usedLines = new Set();
 
-    // --- Pass 1: "N  XXXXXXXXXXXXX" — row number + 10-15 digit asset code ---
+    // --- Pass 1: "N  XXXXXXXXXXXXX" — row number + 12-15 digit asset code ---
+    // Real asset codes are 13 digits (e.g., 5130000070003)
     for (let i = 0; i < lines.length; i++) {
         if (usedLines.has(i)) continue;
         const line = lines[i];
-        const m = line.match(/(?:^|[^\d])(\d{1,3})\s+(\d{10,15})(?:\s|$|[^\d-])/);
+        const m = line.match(/(?:^|[^\d])(\d{1,3})\s+(\d{12,15})(?:\s|$|[^\d-])/);
         if (m) {
             const orderNum = parseInt(m[1]);
+            const code = m[2];
+            // Skip category code fragments (OCR reads [S30502-0004] as numbers)
+            if (isCategoryCodeFragment(code)) continue;
             if (orderNum >= 1 && orderNum <= 500) {
                 const matchEnd = m.index + m[0].length;
-                detectedRows.push({ lineIdx: i, orderNum, assetCode: m[2], matchEnd });
+                detectedRows.push({ lineIdx: i, orderNum, assetCode: code, matchEnd });
                 usedLines.add(i);
             }
         }
     }
 
-    // --- Pass 2: Find rows by standalone 10-15 digit asset codes on any line ---
-    // This is the KEY improvement: run even when Pass 1 found some rows,
-    // to catch rows where OCR mangled the row number
+    // --- Pass 2: Find rows by standalone 12-15 digit asset codes on any line ---
+    // Real asset codes are 13 digits; using 12+ to allow OCR noise
+    // This runs when Pass 1 found fewer than 3 rows
     if (detectedRows.length < 3) {
-        // Reset if Pass 1 found very few — start fresh
         detectedRows.length = 0;
         usedLines.clear();
 
@@ -83,8 +105,11 @@ function parseAssetTable(text) {
             // Skip header/footer lines
             if (line.match(/ลำดับ|รหัสทรัพย์สิน|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น|มหาวิทยาลัย|ใบรับครุภัณฑ์|คณะเทคโนโลยี|รหัสแผนงาน|รหัสกองทุน|กองทุน|แผนงาน|รหัสหมวด|หมวดครุภัณฑ์|แหล่งเงิน|หน่วยงาน|กิจกรรม|เล่มที่|ปีงบประมาณ|วันที่นำเข้า|รหัสงาน/)) continue;
 
-            // Find all 10-15 digit codes on this line
-            const codeMatches = [...line.matchAll(/(?<!\d)(\d{10,15})(?!\d)/g)];
+            // Skip lines that look like category code fragments: [S30502-0004] → "530502-0004", "!530502-000411"
+            if (line.match(/^[^a-zA-Z\u0E00-\u0E7F]*[S!|]?\s*30502\s*[-]?\s*0{2,}/i)) continue;
+
+            // Find all 12-15 digit codes on this line (real asset codes are 13 digits)
+            const codeMatches = [...line.matchAll(/(?<!\d)(\d{12,15})(?!\d)/g)];
             for (const cm of codeMatches) {
                 const code = cm[1];
 
@@ -92,19 +117,20 @@ function parseAssetTable(text) {
                 const afterCode = line.substring(cm.index + code.length);
                 if (afterCode.match(/^\s*-\s*\d/)) continue;
 
+                // Skip category code fragments
+                if (isCategoryCodeFragment(code)) continue;
+
                 // Skip if already detected
                 if (detectedRows.some(r => r.assetCode === code && r.lineIdx === i)) continue;
 
                 // Skip very unlikely codes (all zeros, etc.)
                 if (/^0+$/.test(code)) continue;
 
-                // Check surrounding context: price, unit, or sufficient text
+                // Check surrounding context: price, unit, or sufficient Thai text
                 const hasPrice = line.match(/\d{1,3}(?:,\d{3})*\.\d{2}/);
                 const hasUnit = line.match(/(?:เครื่อง|ชุด|อัน|ตัว|ตู้|ชิ้น)/);
-                const hasThaiText = line.match(/[\u0E00-\u0E7F]{3,}/); // at least 3 Thai chars
 
-                if (hasPrice || hasUnit || hasThaiText || line.length > 25) {
-                    // Try to extract order number before the asset code
+                if (hasPrice || hasUnit || line.length > 40) {
                     let orderNum = detectedRows.length + 1;
                     const beforeCode = line.substring(0, cm.index);
                     const orderMatch = beforeCode.match(/(\d{1,3})\s*$/);
@@ -154,8 +180,8 @@ function parseAssetTable(text) {
             const line = lines[i];
             if (line.match(/ลำดับ|รหัสทรัพย์|ราคา.หน่วย|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น/)) continue;
 
-            const m = line.match(/(?<!\d)(\d{10,15})(?!\d|-)/);
-            if (m) {
+            const m = line.match(/(?<!\d)(\d{12,15})(?!\d|-)/);
+            if (m && !isCategoryCodeFragment(m[1])) {
                 const hasPrice = line.match(/\d{1,3}(?:,\d{3})*\.\d{2}/);
                 if (hasPrice) {
                     detectedRows.push({
