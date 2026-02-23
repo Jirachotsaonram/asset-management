@@ -1,5 +1,5 @@
 // FILE: src/pages/BorrowsPage.jsx
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -7,14 +7,16 @@ import { useAuth } from '../hooks/useAuth';
 import {
   Plus, Search, Package, Clock, CheckCircle, AlertTriangle, X,
   Calendar, User, FileText, RotateCcw, RefreshCw, Filter,
-  ArrowUpRight, ArrowDownLeft, Eye, ChevronDown, Bell
+  ArrowUpRight, ArrowDownLeft, Eye, ChevronDown, Bell, ChevronLeft, ChevronRight
 } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 50;
 
 export default function BorrowsPage() {
   const { user } = useAuth();
   const [borrows, setBorrows] = useState([]);
-  const [assets, setAssets] = useState([]);
-  const [allAssetsMap, setAllAssetsMap] = useState({}); // To store all assets for lookup
+  const [allAssets, setAllAssets] = useState([]);
+  const [allAssetsMap, setAllAssetsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -24,6 +26,7 @@ export default function BorrowsPage() {
   const [selectedBorrow, setSelectedBorrow] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [sortBy, setSortBy] = useState('date_desc');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [formData, setFormData] = useState({
     asset_id: '',
@@ -36,23 +39,17 @@ export default function BorrowsPage() {
   const [returnRemark, setReturnRemark] = useState('');
   const [returnCondition, setReturnCondition] = useState('ใช้งานได้');
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-  // Read URL params on mount and set filters
   useEffect(() => {
     const statusFromUrl = searchParams.get('status');
     if (statusFromUrl) {
-      if (statusFromUrl === 'borrowed' || statusFromUrl === 'ยืม') {
-        setFilterStatus('borrowed');
-      } else if (statusFromUrl === 'overdue') {
-        setFilterStatus('overdue');
-      }
+      if (statusFromUrl === 'borrowed' || statusFromUrl === 'ยืม') setFilterStatus('borrowed');
+      else if (statusFromUrl === 'overdue') setFilterStatus('overdue');
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -63,14 +60,9 @@ export default function BorrowsPage() {
       ]);
 
       setBorrows(borrowsRes.data.data || []);
-
-      const allAssets = assetsRes.data.data || [];
-      // Create lookup map
-      const assetMap = allAssets.reduce((acc, curr) => ({ ...acc, [curr.asset_id]: curr }), {});
-      setAllAssetsMap(assetMap);
-
-      // Filter only available assets for dropdown
-      setAssets(allAssets.filter(a => a.status === 'ใช้งานได้'));
+      const assetsList = assetsRes.data.data || [];
+      setAllAssets(assetsList);
+      setAllAssetsMap(assetsList.reduce((acc, curr) => ({ ...acc, [curr.asset_id]: curr }), {}));
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('ไม่สามารถโหลดข้อมูลได้');
@@ -79,35 +71,30 @@ export default function BorrowsPage() {
     }
   };
 
-  // Calculate days borrowed
-  const getDaysBorrowed = (borrowDate) => {
-    const start = new Date(borrowDate);
-    const now = new Date();
-    const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-    return diff;
-  };
-
-  // Check if overdue
-  const isOverdue = (borrow) => {
-    if (borrow.status === 'คืนแล้ว') return false;
-    if (borrow.expected_return_date) {
-      return new Date() > new Date(borrow.expected_return_date);
-    }
-    // Default: consider overdue after 30 days
-    return getDaysBorrowed(borrow.borrow_date) > 30;
-  };
-
-  // Enhanced borrow data with computed fields
   const enhancedBorrows = useMemo(() => {
-    return borrows.map(borrow => ({
-      ...borrow,
-      daysBorrowed: getDaysBorrowed(borrow.borrow_date),
-      isOverdue: isOverdue(borrow),
-      serial_number: allAssetsMap[borrow.asset_id]?.serial_number || '-'
-    }));
+    const now = new Date();
+    return borrows.map(borrow => {
+      const start = new Date(borrow.borrow_date);
+      const daysBorrowed = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+
+      let isOverdue = false;
+      if (borrow.status !== 'คืนแล้ว') {
+        if (borrow.expected_return_date) {
+          isOverdue = now > new Date(borrow.expected_return_date);
+        } else {
+          isOverdue = daysBorrowed > 30;
+        }
+      }
+
+      return {
+        ...borrow,
+        daysBorrowed,
+        isOverdue,
+        serial_number: allAssetsMap[borrow.asset_id]?.serial_number || '-'
+      };
+    });
   }, [borrows, allAssetsMap]);
 
-  // Filter and sort
   const filteredBorrows = useMemo(() => {
     let result = enhancedBorrows.filter(borrow => {
       const matchSearch =
@@ -125,86 +112,40 @@ export default function BorrowsPage() {
       return matchSearch && matchStatus;
     });
 
-    // Sort
     switch (sortBy) {
-      case 'date_desc':
-        result.sort((a, b) => new Date(b.borrow_date) - new Date(a.borrow_date));
-        break;
-      case 'date_asc':
-        result.sort((a, b) => new Date(a.borrow_date) - new Date(b.borrow_date));
-        break;
-      case 'name':
-        result.sort((a, b) => (a.asset_name || '').localeCompare(b.asset_name || ''));
-        break;
-      case 'borrower':
-        result.sort((a, b) => (a.borrower_name || '').localeCompare(b.borrower_name || ''));
-        break;
+      case 'date_desc': result.sort((a, b) => new Date(b.borrow_date) - new Date(a.borrow_date)); break;
+      case 'date_asc': result.sort((a, b) => new Date(a.borrow_date) - new Date(b.borrow_date)); break;
+      case 'name': result.sort((a, b) => (a.asset_name || '').localeCompare(b.asset_name || '')); break;
+      case 'borrower': result.sort((a, b) => (a.borrower_name || '').localeCompare(b.borrower_name || '')); break;
     }
-
     return result;
   }, [enhancedBorrows, searchTerm, filterStatus, sortBy]);
 
-  // Stats
   const stats = useMemo(() => {
     const total = borrows.length;
     const borrowed = enhancedBorrows.filter(b => b.status === 'ยืม').length;
     const returned = enhancedBorrows.filter(b => b.status === 'คืนแล้ว').length;
     const overdue = enhancedBorrows.filter(b => b.status === 'ยืม' && b.isOverdue).length;
-    const activeRate = total > 0 ? Math.round((borrowed / total) * 100) : 0;
-
-    return { total, borrowed, returned, overdue, activeRate };
+    return { total, borrowed, returned, overdue };
   }, [borrows, enhancedBorrows]);
 
-  // Notifications data for Navbar integration
-  const getBorrowNotifications = () => {
-    const notifications = [];
+  const paginatedBorrows = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredBorrows.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredBorrows, currentPage]);
 
-    // Overdue items
-    const overdueItems = enhancedBorrows.filter(b => b.status === 'ยืม' && b.isOverdue);
-    overdueItems.forEach(item => {
-      notifications.push({
-        id: `overdue-${item.borrow_id}`,
-        type: 'error',
-        title: `ค้างคืน: ${item.asset_name}`,
-        message: `${item.borrower_name} ยืมมา ${item.daysBorrowed} วัน`,
-        link: '/borrows',
-        read: false
-      });
-    });
+  const totalPages = Math.ceil(filteredBorrows.length / ITEMS_PER_PAGE);
 
-    // Long borrows (> 14 days)
-    const longBorrows = enhancedBorrows.filter(b =>
-      b.status === 'ยืม' && !b.isOverdue && b.daysBorrowed > 14
-    );
-    if (longBorrows.length > 0) {
-      notifications.push({
-        id: 'long-borrows',
-        type: 'warning',
-        title: `มี ${longBorrows.length} รายการยืมนาน`,
-        message: 'ครุภัณฑ์ที่ยืมเกิน 14 วัน',
-        link: '/borrows',
-        read: false
-      });
-    }
-
-    return notifications;
-  };
-
-  // Form validation
   const validateForm = () => {
     const errors = {};
     if (!formData.asset_id) errors.asset_id = 'กรุณาเลือกครุภัณฑ์';
     if (!formData.borrower_name.trim()) errors.borrower_name = 'กรุณาระบุชื่อผู้ยืม';
     if (!formData.borrow_date) errors.borrow_date = 'กรุณาระบุวันที่ยืม';
 
-    // Check if asset is already borrowed
     const alreadyBorrowed = borrows.find(b =>
-      b.asset_id.toString() === formData.asset_id.toString() &&
-      b.status === 'ยืม'
+      b.asset_id.toString() === formData.asset_id.toString() && b.status === 'ยืม'
     );
-    if (alreadyBorrowed) {
-      errors.asset_id = 'ครุภัณฑ์นี้ถูกยืมอยู่แล้ว';
-    }
+    if (alreadyBorrowed) errors.asset_id = 'ครุภัณฑ์นี้ถูกยืมอยู่แล้ว';
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -222,35 +163,16 @@ export default function BorrowsPage() {
     setShowModal(true);
   };
 
-  const handleOpenReturnModal = (borrow) => {
-    setSelectedBorrow(borrow);
-    setReturnRemark('');
-    setReturnCondition('ใช้งานได้');
-    setShowReturnModal(true);
-  };
-
-  const handleOpenDetailModal = (borrow) => {
-    setSelectedBorrow(borrow);
-    setShowDetailModal(true);
-  };
-
   const handleSubmitBorrow = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setSubmitting(true);
     try {
-      await api.post('/borrows', {
-        ...formData,
-        user_id: user.user_id,
-        status: 'ยืม'
-      });
-
+      await api.post('/borrows', { ...formData, user_id: user.user_id, status: 'ยืม' });
       toast.success('บันทึกการยืมสำเร็จ');
       setShowModal(false);
       fetchData();
     } catch (error) {
-      console.error('Error creating borrow:', error);
       toast.error('ไม่สามารถบันทึกได้');
     } finally {
       setSubmitting(false);
@@ -259,213 +181,79 @@ export default function BorrowsPage() {
 
   const handleSubmitReturn = async () => {
     if (!selectedBorrow) return;
-
-    const returnDate = new Date().toISOString().split('T')[0];
     setSubmitting(true);
-
     try {
       const returnData = {
         borrow_id: selectedBorrow.borrow_id,
-        return_date: returnDate,
+        return_date: new Date().toISOString().split('T')[0],
         return_remark: returnRemark || `คืน${returnCondition}`,
         return_condition: returnCondition,
         status: 'คืนแล้ว'
       };
-
-      let response;
-      try {
-        response = await api.put(`/borrows/${selectedBorrow.borrow_id}/return`, returnData);
-      } catch (err) {
-        try {
-          response = await api.put(`/borrows/${selectedBorrow.borrow_id}`, returnData);
-        } catch (err2) {
-          response = await api.post('/return_borrow', returnData);
-        }
-      }
-
-      if (response.data.success) {
-        toast.success('บันทึกการคืนสำเร็จ');
-        setShowReturnModal(false);
-        setSelectedBorrow(null);
-        fetchData();
-      } else {
-        toast.error('เกิดข้อผิดพลาด: ' + response.data.message);
-      }
+      await api.put(`/borrows/${selectedBorrow.borrow_id}/return`, returnData);
+      toast.success('บันทึกการคืนสำเร็จ');
+      setShowReturnModal(false);
+      setSelectedBorrow(null);
+      fetchData();
     } catch (error) {
-      console.error('Error returning:', error);
       toast.error('ไม่สามารถบันทึกการคืนได้');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getStatusConfig = (borrow) => {
-    if (borrow.status === 'คืนแล้ว') {
-      return {
-        label: 'คืนแล้ว',
-        color: 'bg-success-100 text-success-700 border-success-200',
-        icon: CheckCircle,
-        iconColor: 'text-success-500'
-      };
-    }
-    if (borrow.isOverdue) {
-      return {
-        label: 'เกินกำหนด',
-        color: 'bg-danger-100 text-danger-700 border-danger-200',
-        icon: AlertTriangle,
-        iconColor: 'text-danger-500'
-      };
-    }
-    return {
-      label: 'กำลังยืม',
-      color: 'bg-warning-100 text-warning-700 border-warning-200',
-      icon: Clock,
-      iconColor: 'text-warning-500'
-    };
-  };
-
-  if (loading) {
+  if (loading && borrows.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">กำลังโหลดข้อมูล...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">จัดการยืม-คืน</h1>
           <p className="text-gray-500 mt-1">บันทึกและติดตามการยืมครุภัณฑ์</p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={fetchData}
-            className="btn-secondary flex items-center gap-2"
-            title="รีเฟรชข้อมูล"
-          >
-            <RefreshCw size={18} />
-            <span className="hidden sm:inline">รีเฟรช</span>
-          </button>
-          <button
-            onClick={handleOpenBorrowModal}
-            className="btn-primary flex items-center gap-2"
-          >
-            <ArrowUpRight size={20} />
-            บันทึกการยืม
-          </button>
+          <button onClick={fetchData} className="btn-secondary flex items-center gap-2"><RefreshCw size={18} /><span>รีเฟรช</span></button>
+          <button onClick={handleOpenBorrowModal} className="btn-primary flex items-center gap-2"><ArrowUpRight size={20} />บันทึกการยืม</button>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="card p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">รายการทั้งหมด</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
-            </div>
-            <div className="bg-primary-100 p-3 rounded-xl">
-              <FileText className="text-primary-600" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">กำลังยืม</p>
-              <p className="text-2xl font-bold text-warning-600 mt-1">{stats.borrowed}</p>
-            </div>
-            <div className="bg-warning-100 p-3 rounded-xl">
-              <Clock className="text-warning-600" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">คืนแล้ว</p>
-              <p className="text-2xl font-bold text-success-600 mt-1">{stats.returned}</p>
-            </div>
-            <div className="bg-success-100 p-3 rounded-xl">
-              <CheckCircle className="text-success-600" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">เกินกำหนด</p>
-              <p className="text-2xl font-bold text-danger-600 mt-1">{stats.overdue}</p>
-              {stats.overdue > 0 && (
-                <p className="text-xs text-danger-500 mt-1">⚠️ ต้องติดตาม</p>
-              )}
-            </div>
-            <div className="bg-danger-100 p-3 rounded-xl">
-              <AlertTriangle className="text-danger-600" size={24} />
-            </div>
-          </div>
-        </div>
+        <StatCard label="รายการทั้งหมด" value={stats.total} icon={FileText} color="primary" />
+        <StatCard label="กำลังยืม" value={stats.borrowed} icon={Clock} color="warning" />
+        <StatCard label="คืนแล้ว" value={stats.returned} icon={CheckCircle} color="success" />
+        <StatCard label="เกินกำหนด" value={stats.overdue} icon={AlertTriangle} color="danger" />
       </div>
 
-      {/* Alert for overdue */}
       {stats.overdue > 0 && (
         <div className="bg-danger-50 border border-danger-200 rounded-xl p-4 flex items-start gap-3">
           <Bell className="text-danger-500 flex-shrink-0 mt-0.5" size={20} />
           <div>
             <h3 className="text-danger-700 font-semibold">มีครุภัณฑ์ค้างคืน {stats.overdue} รายการ</h3>
-            <p className="text-danger-600 text-sm mt-1">
-              กรุณาติดตามผู้ยืมเพื่อดำเนินการคืนครุภัณฑ์โดยเร็ว
-            </p>
-            <button
-              onClick={() => setFilterStatus('overdue')}
-              className="text-danger-700 text-sm font-medium mt-2 hover:underline"
-            >
-              ดูรายการที่เกินกำหนด →
-            </button>
+            <button onClick={() => setFilterStatus('overdue')} className="text-danger-700 text-sm font-medium mt-1 hover:underline">ดูรายการที่เกินกำหนด →</button>
           </div>
         </div>
       )}
 
-      {/* Search & Filter */}
-      <div className="card p-4">
+      <div className="card p-4 space-y-4">
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="ค้นหาครุภัณฑ์, ผู้ยืม, หรือวัตถุประสงค์..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input pl-10"
-              />
-            </div>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input type="text" placeholder="ค้นหาครุภัณฑ์, ผู้ยืม..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="form-input pl-10" />
           </div>
           <div className="flex gap-2">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="form-select min-w-[140px]"
-            >
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="form-select min-w-[140px]">
               <option value="all">ทุกสถานะ</option>
               <option value="borrowed">กำลังยืม</option>
               <option value="returned">คืนแล้ว</option>
               <option value="overdue">เกินกำหนด</option>
             </select>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="form-select min-w-[140px]"
-            >
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="form-select min-w-[140px]">
               <option value="date_desc">ล่าสุด</option>
               <option value="date_asc">เก่าสุด</option>
               <option value="name">ชื่อครุภัณฑ์</option>
@@ -473,84 +261,50 @@ export default function BorrowsPage() {
             </select>
           </div>
         </div>
-      </div>
 
-      {/* Borrows List */}
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto border rounded-xl">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ครุภัณฑ์</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ผู้ยืม</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">วันที่ยืม</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ระยะเวลา</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">สถานะ</th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">จัดการ</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ครุภัณฑ์</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ผู้ยืม</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">วันที่ยืม</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ระยะเวลา</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">สถานะ</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredBorrows.map((borrow) => {
-                const statusConfig = getStatusConfig(borrow);
-                const StatusIcon = statusConfig.icon;
+              {paginatedBorrows.map((borrow) => {
+                const isReturned = borrow.status === 'คืนแล้ว';
+                const statusColor = isReturned ? 'success' : (borrow.isOverdue ? 'danger' : 'warning');
+                const StatusIcon = isReturned ? CheckCircle : (borrow.isOverdue ? AlertTriangle : Clock);
 
                 return (
                   <tr key={borrow.borrow_id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-gray-100 p-2 rounded-lg">
-                          <Package className="text-gray-500" size={18} />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{borrow.asset_name}</p>
-                          <p className="text-sm text-gray-500">Serial: {borrow.serial_number}</p>
-                        </div>
-                      </div>
+                      <p className="font-medium text-gray-900">{borrow.asset_name}</p>
+                      <p className="text-xs text-gray-500">SN: {borrow.serial_number}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">{borrow.borrower_name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{borrow.borrow_date}</td>
+                    <td className="px-6 py-4 text-sm">
+                      {isReturned ? <span className="text-gray-400">คืน: {borrow.return_date}</span> :
+                        <span className={borrow.isOverdue ? 'text-danger-600 font-bold' : 'text-gray-700'}>{borrow.daysBorrowed} วัน</span>
+                      }
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <User className="text-gray-400" size={16} />
-                        <span className="text-gray-800">{borrow.borrower_name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {borrow.borrow_date}
-                    </td>
-                    <td className="px-6 py-4">
-                      {borrow.status === 'คืนแล้ว' ? (
-                        <span className="text-gray-500">
-                          คืน: {borrow.return_date}
-                        </span>
-                      ) : (
-                        <span className={`font-medium ${borrow.isOverdue ? 'text-danger-600' : 'text-gray-700'}`}>
-                          {borrow.daysBorrowed} วัน
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusConfig.color}`}>
-                        <StatusIcon size={14} />
-                        {statusConfig.label}
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border 
+                        ${statusColor === 'success' ? 'bg-success-50 border-success-200 text-success-700' :
+                          statusColor === 'danger' ? 'bg-danger-50 border-danger-200 text-danger-700' :
+                            'bg-warning-50 border-warning-200 text-warning-700'}`}>
+                        <StatusIcon size={14} /> {isReturned ? 'คืนแล้ว' : (borrow.isOverdue ? 'เกินกำหนด' : 'กำลังยืม')}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-1">
-                        <button
-                          onClick={() => handleOpenDetailModal(borrow)}
-                          className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition"
-                          title="ดูรายละเอียด"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        {borrow.status === 'ยืม' && (
-                          <button
-                            onClick={() => handleOpenReturnModal(borrow)}
-                            className="p-2 text-success-600 hover:bg-success-50 rounded-lg transition flex items-center gap-1"
-                            title="บันทึกการคืน"
-                          >
-                            <ArrowDownLeft size={18} />
-                          </button>
-                        )}
+                        <button onClick={() => { setSelectedBorrow(borrow); setShowDetailModal(true); }} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"><Eye size={18} /></button>
+                        {!isReturned && <button onClick={() => { setSelectedBorrow(borrow); setShowReturnModal(true); }} className="p-2 text-success-600 hover:bg-success-100 rounded-lg"><ArrowDownLeft size={18} /></button>}
                       </div>
                     </td>
                   </tr>
@@ -560,213 +314,164 @@ export default function BorrowsPage() {
           </table>
         </div>
 
-        {filteredBorrows.length === 0 && (
-          <div className="text-center py-12">
-            <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg text-gray-500">
-              {searchTerm || filterStatus !== 'all'
-                ? 'ไม่พบรายการตามเงื่อนไข'
-                : 'ยังไม่มีรายการยืม-คืน'
-              }
-            </p>
-            <p className="text-sm text-gray-400 mt-2">
-              {searchTerm || filterStatus !== 'all'
-                ? 'ลองปรับเงื่อนไขการค้นหา'
-                : 'กดปุ่ม "บันทึกการยืม" เพื่อเริ่มต้น'
-              }
-            </p>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4 border-t">
+            <p className="text-sm text-gray-500">แสดงรายการที่ {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredBorrows.length)} จาก {filteredBorrows.length}</p>
+            <div className="flex gap-2">
+              <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="p-2 rounded-lg border hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={18} /></button>
+              <span className="flex items-center px-4 font-medium text-sm text-gray-700">{currentPage} / {totalPages}</span>
+              <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="p-2 rounded-lg border hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={18} /></button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Borrow Modal */}
       {showModal && (
         <BorrowModal
-          formData={formData}
-          setFormData={setFormData}
-          formErrors={formErrors}
-          assets={assets}
-          onSubmit={handleSubmitBorrow}
-          onClose={() => setShowModal(false)}
-          submitting={submitting}
+          formData={formData} setFormData={setFormData} formErrors={formErrors}
+          allAssets={allAssets} onSubmit={handleSubmitBorrow} onClose={() => setShowModal(false)} submitting={submitting}
         />
       )}
 
-      {/* Return Modal */}
       {showReturnModal && selectedBorrow && (
         <ReturnModal
-          borrow={selectedBorrow}
-          returnRemark={returnRemark}
-          setReturnRemark={setReturnRemark}
-          returnCondition={returnCondition}
-          setReturnCondition={setReturnCondition}
-          onSubmit={handleSubmitReturn}
-          onClose={() => setShowReturnModal(false)}
-          submitting={submitting}
+          borrow={selectedBorrow} returnRemark={returnRemark} setReturnRemark={setReturnRemark}
+          returnCondition={returnCondition} setReturnCondition={setReturnCondition}
+          onSubmit={handleSubmitReturn} onClose={() => setShowReturnModal(false)} submitting={submitting}
         />
       )}
 
-      {/* Detail Modal */}
       {showDetailModal && selectedBorrow && (
         <DetailModal
-          borrow={selectedBorrow}
-          onClose={() => setShowDetailModal(false)}
-          onReturn={() => {
-            setShowDetailModal(false);
-            handleOpenReturnModal(selectedBorrow);
-          }}
+          borrow={selectedBorrow} onClose={() => setShowDetailModal(false)}
+          onReturn={() => { setShowDetailModal(false); setShowReturnModal(true); }}
         />
       )}
     </div>
   );
 }
 
-// ============================================================
-// BORROW MODAL
-// ============================================================
-function BorrowModal({ formData, setFormData, formErrors, assets, onSubmit, onClose, submitting }) {
+function StatCard({ label, value, icon: Icon, color }) {
+  const colors = {
+    primary: 'bg-primary-50 text-primary-600',
+    warning: 'bg-warning-50 text-warning-600',
+    success: 'bg-success-50 text-success-600',
+    danger: 'bg-danger-50 text-danger-600'
+  };
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full animate-fade-in">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary-100 p-2 rounded-xl">
-                <ArrowUpRight className="text-primary-600" size={24} />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">บันทึกการยืม</h2>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition p-1"
-            >
-              <X size={24} />
-            </button>
-          </div>
+    <div className="card p-5 flex items-center justify-between">
+      <div>
+        <p className="text-gray-500 text-xs font-semibold uppercase">{label}</p>
+        <p className="text-2xl font-bold text-gray-900 mt-1">{value.toLocaleString()}</p>
+      </div>
+      <div className={`${colors[color]} p-3 rounded-2xl`}><Icon size={24} /></div>
+    </div>
+  );
+}
+
+function BorrowModal({ formData, setFormData, formErrors, allAssets, onSubmit, onClose, submitting }) {
+  const [search, setSearch] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const availableAssets = useMemo(() =>
+    allAssets.filter(a => a.status === 'ใช้งานได้' &&
+      (a.asset_name?.toLowerCase().includes(search.toLowerCase()) ||
+        a.serial_number?.toLowerCase().includes(search.toLowerCase()) ||
+        a.asset_id?.toString().includes(search))
+    ).slice(0, 20),
+    [allAssets, search]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedAsset = allAssets.find(a => a.asset_id.toString() === formData.asset_id.toString());
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden">
+        <div className="p-6 border-b flex justify-between items-center bg-gray-50/50">
+          <h2 className="text-xl font-bold text-gray-800">บันทึกการยืม</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition"><X size={20} /></button>
         </div>
-
         <form onSubmit={onSubmit} className="p-6 space-y-4">
-          {/* Asset Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              เลือกครุภัณฑ์ <span className="text-danger-500">*</span>
-            </label>
-            <div className="relative">
-              <Package className="absolute left-3 top-3 text-gray-400" size={18} />
-              <select
-                value={formData.asset_id}
-                onChange={(e) => setFormData({ ...formData, asset_id: e.target.value })}
-                className={`form-select pl-10 ${formErrors.asset_id ? 'border-danger-500' : ''}`}
-                required
-              >
-                <option value="">-- เลือกครุภัณฑ์ --</option>
-                {assets.map(asset => (
-                  <option key={asset.asset_id} value={asset.asset_id}>
-                    {asset.asset_id} - {asset.asset_name}
-                  </option>
-                ))}
-              </select>
+          <div className="relative" ref={dropdownRef}>
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">เลือกครุภัณฑ์ <span className="text-danger-500">*</span></label>
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className={`flex items-center gap-3 p-3 border-2 rounded-2xl cursor-pointer transition ${isOpen ? 'border-primary-500 ring-4 ring-primary-100' : 'border-gray-200 hover:border-gray-300'} ${formErrors.asset_id ? 'border-danger-500 bg-danger-50' : ''}`}
+            >
+              <Package size={20} className="text-gray-400" />
+              <div className="flex-1">
+                {selectedAsset ? (
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">{selectedAsset.asset_name}</p>
+                    <p className="text-xs text-gray-500">ID: {selectedAsset.asset_id} • SN: {selectedAsset.serial_number || '-'}</p>
+                  </div>
+                ) : <span className="text-gray-400 text-sm">ค้นหาครุภัณฑ์ที่ต้องการยืม...</span>}
+              </div>
+              <ChevronDown size={20} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </div>
-            {formErrors.asset_id && (
-              <p className="text-danger-500 text-xs mt-1">{formErrors.asset_id}</p>
+
+            {isOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-2xl shadow-xl z-10 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                <div className="p-3 border-b bg-gray-50">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                    <input autoFocus placeholder="พิมพ์เพื่อค้นหา..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 text-sm border-2 border-gray-200 rounded-xl focus:border-primary-500 outline-none" />
+                  </div>
+                </div>
+                <div className="max-h-60 overflow-y-auto">
+                  {availableAssets.length > 0 ? availableAssets.map(asset => (
+                    <div
+                      key={asset.asset_id}
+                      onClick={() => { setFormData({ ...formData, asset_id: asset.asset_id }); setIsOpen(false); }}
+                      className="p-3 hover:bg-primary-50 cursor-pointer border-b last:border-0"
+                    >
+                      <p className="font-bold text-sm text-gray-800">{asset.asset_name}</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-wider">ID: {asset.asset_id} • SN: {asset.serial_number || '-'}</p>
+                    </div>
+                  )) : <div className="p-8 text-center text-gray-400 text-sm italic">ไม่พบครุภัณฑ์ที่สามารถยืมได้</div>}
+                </div>
+              </div>
             )}
+            {formErrors.asset_id && <p className="text-danger-500 text-xs mt-1.5 ml-1">{formErrors.asset_id}</p>}
           </div>
 
-          {/* Borrower Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              ชื่อผู้ยืม <span className="text-danger-500">*</span>
-            </label>
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">ชื่อผู้ยืม <span className="text-danger-500">*</span></label>
             <div className="relative">
               <User className="absolute left-3 top-3 text-gray-400" size={18} />
-              <input
-                type="text"
-                value={formData.borrower_name}
-                onChange={(e) => setFormData({ ...formData, borrower_name: e.target.value })}
-                placeholder="ชื่อ-นามสกุล ผู้ยืม"
-                className={`form-input pl-10 ${formErrors.borrower_name ? 'border-danger-500' : ''}`}
-                required
-              />
+              <input type="text" value={formData.borrower_name} onChange={(e) => setFormData({ ...formData, borrower_name: e.target.value })} placeholder="ระบุชื่อ-นามสกุล ผู้ยืม" className={`form-input pl-10 h-12 rounded-2xl ${formErrors.borrower_name ? 'border-danger-500 bg-danger-50' : ''}`} required />
             </div>
-            {formErrors.borrower_name && (
-              <p className="text-danger-500 text-xs mt-1">{formErrors.borrower_name}</p>
-            )}
           </div>
 
-          {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                วันที่ยืม <span className="text-danger-500">*</span>
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-3 text-gray-400" size={18} />
-                <input
-                  type="date"
-                  value={formData.borrow_date}
-                  onChange={(e) => setFormData({ ...formData, borrow_date: e.target.value })}
-                  className="form-input pl-10"
-                  required
-                />
-              </div>
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">วันที่ยืม <span className="text-danger-500">*</span></label>
+              <input type="date" value={formData.borrow_date} onChange={(e) => setFormData({ ...formData, borrow_date: e.target.value })} className="form-input h-12 rounded-2xl" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                กำหนดคืน
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-3 text-gray-400" size={18} />
-                <input
-                  type="date"
-                  value={formData.expected_return_date}
-                  onChange={(e) => setFormData({ ...formData, expected_return_date: e.target.value })}
-                  className="form-input pl-10"
-                  min={formData.borrow_date}
-                />
-              </div>
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">กำหนดคืน</label>
+              <input type="date" value={formData.expected_return_date} onChange={(e) => setFormData({ ...formData, expected_return_date: e.target.value })} className="form-input h-12 rounded-2xl" min={formData.borrow_date} />
             </div>
           </div>
 
-          {/* Purpose */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              วัตถุประสงค์
-            </label>
-            <textarea
-              value={formData.purpose}
-              onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-              placeholder="ระบุวัตถุประสงค์การยืม..."
-              className="form-input resize-none"
-              rows={3}
-            />
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">วัตถุประสงค์</label>
+            <textarea value={formData.purpose} onChange={(e) => setFormData({ ...formData, purpose: e.target.value })} placeholder="ระบุเหตุผลในการยืม..." className="form-input rounded-2xl resize-none" rows={2} />
           </div>
 
-          {/* Buttons */}
           <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="btn-primary flex-1 justify-center disabled:opacity-50"
-            >
-              {submitting ? (
-                <>
-                  <RefreshCw size={18} className="animate-spin" />
-                  กำลังบันทึก...
-                </>
-              ) : (
-                <>
-                  <CheckCircle size={18} />
-                  บันทึกการยืม
-                </>
-              )}
+            <button type="submit" disabled={submitting} className="btn-primary flex-1 h-12 rounded-2xl justify-center font-bold disabled:opacity-50">
+              {submitting ? <RefreshCw className="animate-spin" /> : 'ยืนยันการยืม'}
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary flex-1 justify-center"
-            >
-              ยกเลิก
-            </button>
+            <button type="button" onClick={onClose} className="btn-secondary flex-1 h-12 rounded-2xl justify-center font-bold">ยกเลิก</button>
           </div>
         </form>
       </div>
@@ -774,118 +479,39 @@ function BorrowModal({ formData, setFormData, formErrors, assets, onSubmit, onCl
   );
 }
 
-// ============================================================
-// RETURN MODAL
-// ============================================================
 function ReturnModal({ borrow, returnRemark, setReturnRemark, returnCondition, setReturnCondition, onSubmit, onClose, submitting }) {
-  const daysBorrowed = Math.floor((new Date() - new Date(borrow.borrow_date)) / (1000 * 60 * 60 * 24));
-
+  const days = Math.floor((new Date() - new Date(borrow.borrow_date)) / 86400000);
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fade-in">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="bg-success-100 p-2 rounded-xl">
-                <ArrowDownLeft className="text-success-600" size={24} />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">บันทึกการคืน</h2>
-            </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1">
-              <X size={24} />
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+        <div className="p-6 border-b bg-success-50/50 flex justify-between items-center text-success-800">
+          <h2 className="text-xl font-bold">บันทึกการคืน</h2>
+          <button onClick={onClose} className="p-2 hover:bg-success-100 rounded-full transition"><X size={20} /></button>
         </div>
-
         <div className="p-6 space-y-4">
-          {/* Borrow Info */}
-          <div className="bg-primary-50 border border-primary-100 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <Package className="text-primary-500 mt-1" size={20} />
-              <div className="flex-1">
-                <p className="font-bold text-gray-900">{borrow.asset_name}</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  ผู้ยืม: {borrow.borrower_name}
-                </p>
-                <div className="flex gap-4 mt-2 text-sm">
-                  <span className="text-gray-500">
-                    ยืมเมื่อ: {borrow.borrow_date}
-                  </span>
-                  <span className="font-medium text-primary-600">
-                    รวม {daysBorrowed} วัน
-                  </span>
-                </div>
-              </div>
-            </div>
+          <div className="bg-primary-50 rounded-2xl p-4 border border-primary-100">
+            <p className="font-bold text-gray-900">{borrow.asset_name}</p>
+            <p className="text-xs text-gray-600 mt-1">ผู้ยืม: {borrow.borrower_name} • รวม {days} วัน</p>
           </div>
-
-          {/* Return Condition */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              สถานะครุภัณฑ์หลังคืน
-            </label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">สถานะครุภัณฑ์หลังคืน</label>
             <div className="grid grid-cols-2 gap-2">
-              {['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'ไม่พบ'].map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => setReturnCondition(status)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium border transition ${returnCondition === status
-                    ? status === 'ใช้งานได้'
-                      ? 'bg-success-100 border-success-500 text-success-700'
-                      : status === 'รอซ่อม'
-                        ? 'bg-warning-100 border-warning-500 text-warning-700'
-                        : status === 'รอจำหน่าย'
-                          ? 'bg-orange-100 border-orange-500 text-orange-700'
-                          : 'bg-danger-100 border-danger-500 text-danger-700'
-                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                    }`}
-                >
-                  {status}
-                </button>
+              {['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'ไม่พบ'].map((s) => (
+                <button key={s} type="button" onClick={() => setReturnCondition(s)}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border-2 transition ${returnCondition === s ? 'bg-success-600 border-success-600 text-white' : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200'}`}
+                >{s}</button>
               ))}
             </div>
           </div>
-
-          {/* Return Remark */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              หมายเหตุ
-            </label>
-            <textarea
-              value={returnRemark}
-              onChange={(e) => setReturnRemark(e.target.value)}
-              placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)..."
-              className="form-input resize-none"
-              rows={3}
-            />
+            <label className="block text-sm font-bold text-gray-700 mb-2">หมายเหตุ</label>
+            <textarea value={returnRemark} onChange={(e) => setReturnRemark(e.target.value)} placeholder="รายละเอียดเพิ่มเติม..." className="form-input rounded-2xl resize-none" rows={2} />
           </div>
-
-          {/* Buttons */}
           <div className="flex gap-3 pt-4">
-            <button
-              onClick={onSubmit}
-              disabled={submitting}
-              className="btn-primary flex-1 justify-center bg-success-600 hover:bg-success-700 disabled:opacity-50"
-            >
-              {submitting ? (
-                <>
-                  <RefreshCw size={18} className="animate-spin" />
-                  กำลังบันทึก...
-                </>
-              ) : (
-                <>
-                  <CheckCircle size={18} />
-                  ยืนยันการคืน
-                </>
-              )}
+            <button onClick={onSubmit} disabled={submitting} className="btn-primary flex-1 h-12 rounded-2xl justify-center bg-success-600 hover:bg-success-700 font-bold border-0">
+              {submitting ? <RefreshCw className="animate-spin" /> : 'ยืนยันการคืน'}
             </button>
-            <button
-              onClick={onClose}
-              className="btn-secondary flex-1 justify-center"
-            >
-              ยกเลิก
-            </button>
+            <button onClick={onClose} className="btn-secondary flex-1 h-12 rounded-2xl justify-center font-bold">ยกเลิก</button>
           </div>
         </div>
       </div>
@@ -893,99 +519,47 @@ function ReturnModal({ borrow, returnRemark, setReturnRemark, returnCondition, s
   );
 }
 
-// ============================================================
-// DETAIL MODAL
-// ============================================================
 function DetailModal({ borrow, onClose, onReturn }) {
-  const daysBorrowed = Math.floor((new Date() - new Date(borrow.borrow_date)) / (1000 * 60 * 60 * 24));
   const isReturned = borrow.status === 'คืนแล้ว';
+  const stats = [
+    { label: 'รหัสครุภัณฑ์', value: borrow.asset_id },
+    { label: 'Serial Number', value: borrow.serial_number, mono: true },
+    { label: 'ผู้ยืม', value: borrow.borrower_name },
+    { label: 'วันที่ยืม', value: borrow.borrow_date },
+    { label: 'กำหนดคืน', value: borrow.expected_return_date || '-', highlight: borrow.isOverdue },
+    { label: 'สถานะปัจจุบัน', value: isReturned ? 'คืนแล้ว' : (borrow.isOverdue ? 'เกินกำหนด' : 'กำลังยืม') }
+  ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fade-in">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">รายละเอียดการยืม</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1">
-              <X size={24} />
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="p-6 border-b flex justify-between items-center bg-gray-50/50">
+          <h2 className="text-xl font-bold text-gray-800">รายละเอียด</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition"><X size={20} /></button>
         </div>
-
-        <div className="p-6 space-y-4">
-          <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-500">ครุภัณฑ์</span>
-              <span className="font-medium text-gray-900">{borrow.asset_name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">รหัส</span>
-              <span className="text-gray-700">{borrow.asset_id}</span>
-            </div>
-            {borrow.serial_number && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Serial Number</span>
-                <span className="text-gray-700 font-mono text-sm">{borrow.serial_number}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-gray-500">ผู้ยืม</span>
-              <span className="font-medium text-gray-900">{borrow.borrower_name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">วันที่ยืม</span>
-              <span className="text-gray-700">{borrow.borrow_date}</span>
-            </div>
-            {borrow.expected_return_date && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">กำหนดคืน</span>
-                <span className={`font-medium ${borrow.isOverdue ? 'text-danger-600' : 'text-warning-600'}`}>
-                  {borrow.expected_return_date}
-                </span>
-              </div>
-            )}
-            {isReturned && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">วันที่คืน</span>
-                <span className="text-success-600 font-medium">{borrow.return_date}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-gray-500">ระยะเวลา</span>
-              <span className={`font-medium ${borrow.isOverdue ? 'text-danger-600' : 'text-gray-700'}`}>
-                {daysBorrowed} วัน
-              </span>
-            </div>
-            {borrow.purpose && (
-              <div className="pt-2 border-t border-gray-200">
-                <span className="text-gray-500 block mb-1">วัตถุประสงค์</span>
-                <p className="text-gray-700">{borrow.purpose}</p>
-              </div>
-            )}
-            {borrow.return_remark && (
-              <div className="pt-2 border-t border-gray-200">
-                <span className="text-gray-500 block mb-1">หมายเหตุการคืน</span>
-                <p className="text-gray-700">{borrow.return_remark}</p>
-              </div>
-            )}
+        <div className="p-6 space-y-6">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner"><Package size={32} /></div>
+            <h3 className="font-bold text-xl text-gray-900">{borrow.asset_name}</h3>
+            <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">Borrow Details</p>
           </div>
-
+          <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+            {stats.map((s, i) => (
+              <div key={i} className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">{s.label}</span>
+                <span className={`font-bold ${s.mono ? 'font-mono' : ''} ${s.highlight ? 'text-danger-600' : 'text-gray-900'}`}>{s.value}</span>
+              </div>
+            ))}
+          </div>
+          {borrow.purpose && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold text-gray-400 uppercase ml-1">วัตถุประสงค์</p>
+              <div className="bg-blue-50/50 p-3 rounded-xl border-l-4 border-primary-500 text-sm italic text-gray-700">{borrow.purpose}</div>
+            </div>
+          )}
           <div className="flex gap-3">
-            {!isReturned && (
-              <button
-                onClick={onReturn}
-                className="btn-primary flex-1 justify-center bg-success-600 hover:bg-success-700"
-              >
-                <ArrowDownLeft size={18} />
-                บันทึกการคืน
-              </button>
-            )}
-            <button
-              onClick={onClose}
-              className={`btn-secondary ${isReturned ? 'flex-1' : ''} justify-center`}
-            >
-              ปิด
-            </button>
+            {!isReturned && <button onClick={onReturn} className="btn-primary flex-1 h-12 rounded-2xl justify-center bg-success-600 hover:bg-success-700 font-bold border-0"><ArrowDownLeft size={18} /> บันทึกการคืน</button>}
+            <button onClick={onClose} className={`btn-secondary ${isReturned ? 'flex-1' : ''} h-12 rounded-2xl justify-center font-bold`}>ปิด</button>
           </div>
         </div>
       </div>
