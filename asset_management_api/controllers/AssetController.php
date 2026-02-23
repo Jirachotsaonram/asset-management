@@ -19,11 +19,11 @@ class AssetController {
 
     // ==================== GET ALL - รองรับ pagination ====================
     public function getAll() {
-        // ตรวจสอบว่ามี pagination params หรือไม่
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 0;
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 0;
         
-        if ($page > 0 && $limit > 0) {
+        if ($limit > 0) {
+            if ($page <= 0) $page = 1;
             // ใช้ pagination mode
             $filters = [];
             if (!empty($_GET['status'])) $filters['status'] = $_GET['status'];

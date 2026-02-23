@@ -38,14 +38,22 @@ class ImageUpload {
             return ['success' => false, 'message' => 'ขนาดไฟล์เกิน 5MB'];
         }
 
-        // สร้างชื่อไฟล์ใหม่
+        // Create new filename
         $extension = $this->getExtension($mime_type);
         $filename = uniqid('asset_', true) . '.' . $extension;
         $filepath = $this->upload_dir . $filename;
 
-        // Resize และบันทึกรูปภาพ
-        if ($this->resizeImage($file['tmp_name'], $filepath, $mime_type)) {
-            // ลบรูปเก่าถ้ามี
+        // Try to Resize if GD is available, otherwise just move the file
+        $upload_success = false;
+        if (function_exists('imagecreatefromjpeg')) {
+            $upload_success = $this->resizeImage($file['tmp_name'], $filepath, $mime_type);
+        } else {
+            // Fallback: Just move the file
+            $upload_success = move_uploaded_file($file['tmp_name'], $filepath);
+        }
+
+        if ($upload_success) {
+            // Delete old if exists
             if ($old_image && file_exists($old_image)) {
                 unlink($old_image);
             }
@@ -57,7 +65,7 @@ class ImageUpload {
                 'filepath' => $filepath
             ];
         } else {
-            return ['success' => false, 'message' => 'ไม่สามารถบันทึกรูปภาพได้'];
+            return ['success' => false, 'message' => 'ไม่สามารถบันทึกรูปภาพได้ (โปรดตรวจสอบสิทธิ์โฟลเดอร์หรือเปิดใช้งาน GD extension)'];
         }
     }
 

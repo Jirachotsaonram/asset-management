@@ -8,13 +8,15 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  SafeAreaView,
   Platform,
   StatusBar,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import api from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { API_BASE_URL, ASSET_STATUS } from '../utils/constants';
 
@@ -26,10 +28,12 @@ export default function AssetDetailScreen() {
   const { asset: initialAsset } = route.params || {};
   const [asset, setAsset] = useState(initialAsset);
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     if (initialAsset?.asset_id) {
       fetchAssetDetail();
+      fetchAssetHistory();
     }
   }, []);
 
@@ -44,6 +48,133 @@ export default function AssetDetailScreen() {
       console.error('Error fetching asset detail:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAssetHistory = async () => {
+    try {
+      const response = await api.get(`/audits/asset/${initialAsset.asset_id}`);
+      if (response.data.success) {
+        setHistory(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching asset history:', error);
+    }
+  };
+
+  const handlePickImage = async () => {
+    // Request permissions
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('ขออภัย', 'เราต้องการสิทธิ์การเข้าถึงกล้องเพื่อถ่ายรูป');
+      return;
+    }
+
+    Alert.alert(
+      'เลือกรูปภาพ',
+      'กรุณาเลือกช่องทาง',
+      [
+        {
+          text: 'ถ่ายรูป',
+          onPress: () => launchCamera(),
+        },
+        {
+          text: 'เลือกจากคลังภาพ',
+          onPress: () => launchImageLibrary(),
+        },
+        {
+          text: 'ยกเลิก',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const launchCamera = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      uploadImage(result.assets[0].uri);
+    }
+  };
+
+  const launchImageLibrary = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      uploadImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadImage = async (uri) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      const filename = uri.split('/').pop() || 'photo.jpg';
+
+      // Infer mime type from extension or default to jpeg
+      const ext = filename.split('.').pop().toLowerCase();
+      const type = ext === 'png' ? 'image/png' : 'image/jpeg';
+
+      formData.append('image', {
+        uri: uri,
+        name: filename,
+        type: type,
+      });
+
+      console.log('Attempting upload to:', `${api.defaults.baseURL}/upload/asset/${asset.asset_id}`);
+
+      const token = await AsyncStorage.getItem('token');
+      const uploadUrl = `${api.defaults.baseURL}/upload/asset/${asset.asset_id}`;
+
+      console.log('Using XHR for upload to:', uploadUrl);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', uploadUrl);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.setRequestHeader('Accept', 'application/json');
+
+      xhr.onload = () => {
+        setLoading(false);
+        console.log('XHR Status:', xhr.status);
+        console.log('XHR Response:', xhr.responseText);
+        try {
+          const responseData = JSON.parse(xhr.responseText);
+          if (xhr.status === 200 && responseData.success) {
+            Alert.alert('สำเร็จ', 'อัปโหลดรูปภาพเรียบร้อยแล้ว');
+            fetchAssetDetail();
+          } else {
+            Alert.alert('ผิดพลาด', responseData.message || `Server Error ${xhr.status}`);
+          }
+        } catch (e) {
+          console.error('Error parsing XHR response:', e);
+          Alert.alert('ผิดพลาด', 'Server ตอบกลับมาไม่ถูกต้อง');
+        }
+      };
+
+      xhr.onerror = (e) => {
+        setLoading(false);
+        console.error('XHR Network Error:', e);
+        Alert.alert('ผิดพลาด', 'ปัญหาการเชื่อมต่อ (Network Error)');
+      };
+
+      xhr.send(formData);
+      return;
+    } catch (error) {
+      console.error('Upload error details:', error);
+      Alert.alert('ผิดพลาด', 'เกิดปัญหาขณะเตรียมอัปโหลด');
+    } finally {
+      // Loading is handled in XHR
     }
   };
 
@@ -102,6 +233,18 @@ export default function AssetDetailScreen() {
             </View>
           )}
 
+          {/* Asset Title Overlay */}
+          <View style={styles.titleOverlay}>
+            <Text style={styles.assetIdLabel}>{asset?.asset_id}</Text>
+            <Text style={styles.assetNameTitle}>{asset?.asset_name}</Text>
+          </View>
+
+          {/* Edit Photo Button */}
+          <TouchableOpacity style={styles.editPhotoButton} onPress={handlePickImage} activeOpacity={0.8}>
+            <Ionicons name="camera" size={18} color="#fff" />
+            <Text style={styles.editPhotoText}>เปลี่ยนรูป</Text>
+          </TouchableOpacity>
+
           {/* Top Actions */}
           <SafeAreaView style={styles.headerActions}>
             <TouchableOpacity style={styles.headerActionButton} onPress={() => navigation.goBack()}>
@@ -112,14 +255,14 @@ export default function AssetDetailScreen() {
                 <View style={[styles.statusDot, { backgroundColor: statusStyle.color }]} />
                 <Text style={[styles.statusText, { color: statusStyle.color }]}>{asset?.status}</Text>
               </View>
+              <TouchableOpacity
+                style={styles.headerActionButton}
+                onPress={() => navigation.navigate('AssetEdit', { asset: asset, mode: 'edit' })}
+              >
+                <Ionicons name="create-outline" size={24} color="#fff" />
+              </TouchableOpacity>
             </View>
           </SafeAreaView>
-
-          {/* Asset Title Overlay */}
-          <View style={styles.titleOverlay}>
-            <Text style={styles.assetIdLabel}>{asset?.asset_id}</Text>
-            <Text style={styles.assetNameTitle}>{asset?.asset_name}</Text>
-          </View>
         </View>
 
         <View style={styles.detailsContainer}>
@@ -149,7 +292,7 @@ export default function AssetDetailScreen() {
               <InfoItem label="อาคาร" value={asset?.building_name} icon="map-outline" />
               <InfoItem label="อาคาร (ระบุเอง)" value={asset?.room_text} icon="create-outline" />
               <InfoItem label="ชั้น" value={asset?.floor} icon="layers-outline" />
-              <InfoItem label="ห้อง" value={asset?.room_number} icon="door-open-outline" />
+              <InfoItem label="ห้อง" value={asset?.room_number} icon="enter-outline" />
               <InfoItem label="คณะ" value={asset?.faculty_name} icon="school-outline" fullWidth />
             </View>
           </View>
@@ -185,12 +328,55 @@ export default function AssetDetailScreen() {
             )}
           </View>
 
+          {/* History Card (Audit Trail) */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="time" size={20} color="#2563EB" />
+              <Text style={styles.cardTitle}>ประวัติการดำเนินการ</Text>
+            </View>
+            {history.length > 0 ? (
+              <View style={styles.historyTimeline}>
+                {history.map((item, index) => (
+                  <View key={item.audit_id || index} style={styles.historyItem}>
+                    <View style={styles.timelineLineContainer}>
+                      <View style={[styles.timelineDot, { backgroundColor: index === 0 ? '#10B981' : '#D1D5DB' }]} />
+                      {index !== history.length - 1 && <View style={styles.timelineLine} />}
+                    </View>
+                    <View style={styles.historyContent}>
+                      <View style={styles.historyHeader}>
+                        <Text style={styles.historyAction}>{item.action}</Text>
+                        <Text style={styles.historyDate}>
+                          {new Date(item.action_date).toLocaleDateString('th-TH', {
+                            day: 'numeric', month: 'short', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </Text>
+                      </View>
+                      <Text style={styles.historyUser}>โดย: {item.fullname}</Text>
+                      {item.action === 'Edit' && item.new_value && (
+                        <View style={styles.changesBox}>
+                          {Object.entries(JSON.parse(item.new_value)).map(([key, val]) => (
+                            <Text key={key} style={styles.changeText}>
+                              • {key}: {val}
+                            </Text>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyHistory}>ไม่มีประวัติการดำเนินการ</Text>
+            )}
+          </View>
+
           <View style={{ height: 100 }} />
         </View>
-      </ScrollView>
+      </ScrollView >
 
       {/* Floating Action Button */}
-      <View style={styles.bottomActions}>
+      < View style={styles.bottomActions} >
         <TouchableOpacity
           style={styles.mainActionButton}
           onPress={() => navigation.navigate('Scan', { assetId: asset?.asset_id })}
@@ -198,14 +384,15 @@ export default function AssetDetailScreen() {
           <Ionicons name="checkmark-done-circle" size={24} color="#fff" />
           <Text style={styles.mainActionButtonText}>ตรวจสอบครุภัณฑ์นี้</Text>
         </TouchableOpacity>
-      </View>
+      </View >
 
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#fff" />
         </View>
-      )}
-    </View>
+      )
+      }
+    </View >
   );
 }
 
@@ -252,6 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
   },
   headerActionRight: {
     flexDirection: 'row',
@@ -296,6 +484,26 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     lineHeight: 30,
+  },
+  editPhotoButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: 'rgba(37, 99, 235, 0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    zIndex: 10,
+  },
+  editPhotoText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   detailsContainer: {
     flex: 1,
@@ -456,6 +664,71 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+  },
+  historyTimeline: {
+    paddingLeft: 5,
+  },
+  historyItem: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  timelineLineContainer: {
+    width: 20,
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  timelineDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    zIndex: 1,
+  },
+  timelineLine: {
+    width: 2,
+    flex: 1,
+    backgroundColor: '#E5E7EB',
+    marginTop: -5,
+  },
+  historyContent: {
+    flex: 1,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  historyAction: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#374151',
+  },
+  historyDate: {
+    fontSize: 11,
+    color: '#9CA3AF',
+  },
+  historyUser: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 5,
+  },
+  emptyHistory: {
+    textAlign: 'center',
+    color: '#9CA3AF',
+    fontStyle: 'italic',
+    paddingVertical: 10,
+  },
+  changesBox: {
+    backgroundColor: '#f8fafc',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
+  changeText: {
+    fontSize: 12,
+    color: '#64748b',
   },
 });
 

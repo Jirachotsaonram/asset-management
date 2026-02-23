@@ -34,6 +34,16 @@ class AuthController {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if (password_verify($password, $row['password'])) {
+                    // ตรวจสอบสถานะบัญชี
+                    if ($row['status'] === 'Pending') {
+                        Response::error('บัญชีของคุณอยู่ระหว่างรอการอนุมัติจากผู้ดูแลระบบ', 403);
+                        return;
+                    }
+                    if ($row['status'] === 'Inactive') {
+                        Response::error('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ', 403);
+                        return;
+                    }
+
                     // ล้าง login attempts เมื่อ login สำเร็จ
                     $this->clearLoginAttempts($username);
 
@@ -80,6 +90,7 @@ class AuthController {
             $this->user->password = $data->password;
             $this->user->fullname = trim(htmlspecialchars($data->fullname, ENT_QUOTES, 'UTF-8'));
             $this->user->role = $data->role;
+            $this->user->status = 'Pending'; // Default status for new registration
             $this->user->email = isset($data->email) ? trim($data->email) : '';
             $this->user->phone = isset($data->phone) ? trim($data->phone) : '';
 

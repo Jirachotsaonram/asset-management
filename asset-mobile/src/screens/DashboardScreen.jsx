@@ -200,6 +200,14 @@ export default function DashboardScreen({ navigation }) {
             <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
             <Text style={styles.actionText}>ยืม/คืน</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('RoomCheck')}
+          >
+            <Ionicons name="business-outline" size={32} color="#2563EB" />
+            <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>

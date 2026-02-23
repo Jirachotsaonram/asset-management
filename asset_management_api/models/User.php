@@ -20,7 +20,7 @@ class User {
     public function login() {
         $query = "SELECT user_id, username, password, fullname, role, status, email, phone 
                   FROM " . $this->table_name . " 
-                  WHERE username = :username AND status = 'Active'";
+                  WHERE username = :username";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":username", $this->username);

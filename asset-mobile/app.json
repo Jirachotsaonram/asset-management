@@ -34,6 +34,13 @@
           "cameraPermission": "Allow Asset Management to access your camera to scan QR codes."
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Asset Management to access your photos.",
+          "cameraPermission": "Allow Asset Management to access your camera to take asset photos."
+        }
+      ],
       "expo-font"
     ]
   }

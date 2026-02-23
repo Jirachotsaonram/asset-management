@@ -99,3 +99,26 @@ Stack trace:
 #2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
 #3 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 16:21:39 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:21:55 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:22:52 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:22:52 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:23:01 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:23:01 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:23:33 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:23:34 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:23:34 Europe/Berlin] PHP Warning:  Undefined variable $limit in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php on line 23
+[23-Feb-2026 16:40:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatefrompng() in D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php:72
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php(47): ImageUpload->resizeImage('D:\\xampp_assets...', 'uploads/assets/...', 'image/png')
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\UploadController.php(56): ImageUpload->upload(Array, '')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(294): UploadController->uploadAssetImage('3882')
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php on line 72
+[23-Feb-2026 16:42:04 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatefrompng() in D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php:72
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php(47): ImageUpload->resizeImage('D:\\xampp_assets...', 'uploads/assets/...', 'image/png')
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\UploadController.php(56): ImageUpload->upload(Array, '')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(294): UploadController->uploadAssetImage('3882')
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php on line 72

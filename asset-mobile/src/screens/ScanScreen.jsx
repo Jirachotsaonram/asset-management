@@ -8,13 +8,12 @@ import {
   ActivityIndicator,
   TextInput,
   ScrollView,
-  SafeAreaView,
-  Platform,
   StatusBar,
   Dimensions,
   Image,
   Vibration,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
@@ -411,6 +410,27 @@ export default function ScanScreen({ navigation }) {
                   <Text style={styles.offlineIndicatorText}>แสดงผลจากข้อมูลออฟไลน์</Text>
                 </View>
               )}
+
+              {/* Borrow/Return Quick Action */}
+              <View style={styles.quickActionContainer}>
+                {scannedAsset.status === ASSET_STATUS.AVAILABLE ? (
+                  <TouchableOpacity
+                    style={styles.borrowQuickBtn}
+                    onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
+                  >
+                    <Ionicons name="share-outline" size={20} color="#fff" />
+                    <Text style={styles.borrowQuickBtnText}>ยืมครุภัณฑ์นี้</Text>
+                  </TouchableOpacity>
+                ) : scannedAsset.status === 'ยืม' ? (
+                  <TouchableOpacity
+                    style={[styles.borrowQuickBtn, { backgroundColor: '#F59E0B' }]}
+                    onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
+                  >
+                    <Ionicons name="return-down-back-outline" size={20} color="#fff" />
+                    <Text style={styles.borrowQuickBtnText}>คืนครุภัณฑ์นี้</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             </View>
 
             {/* Checkin Form */}
@@ -674,6 +694,26 @@ const styles = StyleSheet.create({
   offlineIndicatorText: {
     color: '#9CA3AF',
     fontSize: 11,
+  },
+  quickActionContainer: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#374151',
+    paddingTop: 15,
+  },
+  borrowQuickBtn: {
+    backgroundColor: '#3B82F6',
+    height: 48,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },
+  borrowQuickBtnText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: 'bold',
   },
   formCard: {
     backgroundColor: '#fff',

@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { useAuth } from './src/hooks/useAuth';
@@ -16,6 +17,8 @@ import AssetDetailScreen from './src/screens/AssetDetailScreen';
 import CheckScreen from './src/screens/CheckScreen';
 import BorrowsScreen from './src/screens/BorrowsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import RoomCheckScreen from './src/screens/RoomCheckScreen';
+import AssetEditScreen from './src/screens/AssetEditScreen';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -104,10 +107,20 @@ function AppNavigator() {
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen 
-              name="AssetDetail" 
+            <Stack.Screen
+              name="AssetDetail"
               component={AssetDetailScreen}
               options={{ presentation: 'card' }}
+            />
+            <Stack.Screen
+              name="RoomCheck"
+              component={RoomCheckScreen}
+              options={{ title: 'ตรวจสอบรายห้อง' }}
+            />
+            <Stack.Screen
+              name="AssetEdit"
+              component={AssetEditScreen}
+              options={{ presentation: 'modal' }}
             />
           </>
         ) : (
@@ -120,10 +133,12 @@ function AppNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <StatusBar style="auto" />
-      <AppNavigator />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <StatusBar style="auto" />
+        <AppNavigator />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 

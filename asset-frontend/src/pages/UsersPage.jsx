@@ -27,7 +27,7 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active'
+    username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Pending'
   });
   const [formLoading, setFormLoading] = useState(false);
 
@@ -79,7 +79,8 @@ export default function UsersPage() {
     total: users.length,
     active: users.filter(u => u.status === 'Active').length,
     admins: users.filter(u => u.role === 'Admin').length,
-    inactive: users.filter(u => u.status === 'Inactive').length
+    inactive: users.filter(u => u.status === 'Inactive').length,
+    pending: users.filter(u => u.status === 'Pending').length
   }), [users]);
 
   const handleOpenEdit = (u) => {
@@ -136,7 +137,7 @@ export default function UsersPage() {
         </div>
         <div className="flex gap-2">
           <button onClick={fetchUsers} className="btn-secondary rounded-2xl"><RefreshCw size={18} /></button>
-          <button onClick={() => { setEditingUser(null); setFormData({ username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active' }); setShowModal(true); }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
+          <button onClick={() => { setEditingUser(null); setFormData({ username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Pending' }); setShowModal(true); }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
             <Plus size={20} /> เพิ่มผู้ใช้
           </button>
         </div>
@@ -146,6 +147,7 @@ export default function UsersPage() {
         <UserStat label="ผู้ใช้ทั้งหมด" value={stats.total} icon={Users} color="primary" />
         <UserStat label="ใช้งานอยู่" value={stats.active} icon={UserCheck} color="success" />
         <UserStat label="ผู้ดูแลระบบ" value={stats.admins} icon={ShieldCheck} color="indigo" />
+        <UserStat label="รออนุมัติ" value={stats.pending} icon={RefreshCw} color="warning" />
         <UserStat label="ระงับการใช้งาน" value={stats.inactive} icon={UserX} color="danger" />
       </div>
 
@@ -170,6 +172,7 @@ export default function UsersPage() {
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-select rounded-2xl border-gray-100 bg-gray-50/50 px-4">
               <option value="all">ทุกสถานะ</option>
               <option value="Active">ใช้งาน</option>
+              <option value="Pending">รออนุมัติ</option>
               <option value="Inactive">ระงับ</option>
             </select>
           </div>
@@ -210,8 +213,11 @@ export default function UsersPage() {
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-black border uppercase tracking-widest flex items-center gap-1 ${u.role === 'Admin' ? 'bg-primary-50 border-primary-200 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
                         {u.role === 'Admin' ? <Shield size={10} /> : <Users size={10} />} {u.role}
                       </span>
-                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black border uppercase tracking-widest ${u.status === 'Active' ? 'bg-success-50 border-success-200 text-success-700' : 'bg-danger-50 border-danger-200 text-danger-700'}`}>
-                        {u.status === 'Active' ? 'Active' : 'Banned'}
+                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black border uppercase tracking-widest ${u.status === 'Active' ? 'bg-success-50 border-success-200 text-success-700' :
+                          u.status === 'Pending' ? 'bg-warning-50 border-warning-200 text-warning-700' :
+                            'bg-danger-50 border-danger-200 text-danger-700'
+                        }`}>
+                        {u.status === 'Active' ? 'Active' : u.status === 'Pending' ? 'Pending' : 'Banned'}
                       </span>
                     </div>
                   </td>
@@ -255,7 +261,8 @@ function UserStat({ label, value, icon: Icon, color }) {
     primary: 'bg-primary-50 text-primary-600',
     success: 'bg-success-50 text-success-600',
     indigo: 'bg-indigo-50 text-indigo-600',
-    danger: 'bg-danger-50 text-danger-600'
+    danger: 'bg-danger-50 text-danger-600',
+    warning: 'bg-warning-50 text-warning-600'
   };
   return (
     <div className="card p-5 flex items-center justify-between overflow-hidden relative">
@@ -328,6 +335,7 @@ function UserModal({ formData, setFormData, editingUser, showPassword, setShowPa
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">System Status</label>
               <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer">
                 <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
                 <option value="Inactive">Banned</option>
               </select>
             </div>

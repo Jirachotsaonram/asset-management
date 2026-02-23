@@ -12,10 +12,10 @@ import {
   Modal,
   Image,
   ScrollView,
-  SafeAreaView,
   Platform,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '../services/api';
 import offlineService from '../services/offlineService';
 import { useNetwork } from '../hooks/useNetwork';
@@ -315,6 +315,13 @@ export default function AssetsScreen({ navigation }) {
             size={22}
             color={Object.values(filters).some(v => v !== 'all') ? "#fff" : "#4B5563"}
           />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.filterButton, { backgroundColor: '#10B981', borderColor: '#059669' }]}
+          onPress={() => navigation.navigate('AssetEdit', { mode: 'add' })}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
