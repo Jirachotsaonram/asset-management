@@ -13,6 +13,7 @@ import {
   StatusBar,
   Dimensions,
   Image,
+  Vibration,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useAuth } from '../hooks/useAuth';
@@ -37,6 +38,7 @@ export default function ScanScreen({ navigation }) {
   const [showCamera, setShowCamera] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [isOfflineResult, setIsOfflineResult] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   // Load pending count on mount
   useEffect(() => {
@@ -55,6 +57,11 @@ export default function ScanScreen({ navigation }) {
   };
 
   const searchAsset = async (barcode) => {
+    if (!barcode || !barcode.trim()) return;
+
+    if (Platform.OS !== 'web') {
+      Vibration.vibrate(100);
+    }
     setLoading(true);
     setIsOfflineResult(false);
     try {
@@ -119,9 +126,6 @@ export default function ScanScreen({ navigation }) {
         setCheckStatus(foundAsset.status || ASSET_STATUS.AVAILABLE);
         setRemark('');
         setShowCamera(false);
-        if (Platform.OS !== 'web') {
-          // Add a subtle vibrational feedback here if possible
-        }
       } else {
         Alert.alert(
           'ไม่พบข้อมูล',
@@ -207,6 +211,7 @@ export default function ScanScreen({ navigation }) {
     setRemark('');
     setScanned(false);
     setShowCamera(false);
+    setShowMore(false);
   };
 
   const getStatusColor = (status) => {
@@ -218,13 +223,35 @@ export default function ScanScreen({ navigation }) {
     }
   };
 
-  if (showCamera && permission?.granted) {
+  if (showCamera) {
+    if (!permission) {
+      // Camera permissions are still loading
+      return <View style={styles.container}><ActivityIndicator size="large" color="#2563EB" /></View>;
+    }
+
+    if (!permission.granted) {
+      // Camera permissions are not granted yet
+      return (
+        <View style={styles.permissionContainer}>
+          <Text style={styles.permissionText}>เราต้องขอสิทธิ์เข้าถึงกล้องเพื่อสแกนรหัส</Text>
+          <TouchableOpacity style={styles.permissionBtn} onPress={requestPermission}>
+            <Text style={styles.permissionBtnText}>ขอสิทธิ์ใช้งานกล้อง</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelLink} onPress={() => setShowCamera(false)}>
+            <Text style={styles.cancelLinkText}>ย้อนกลับ</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.cameraContainer}>
         <StatusBar hidden />
         <CameraView
           style={StyleSheet.absoluteFillObject}
-          barcodeScannerSettings={{ barcodeTypes: ['qr', 'ean13', 'code128'] }}
+          barcodeScannerSettings={{
+            barcodeTypes: ['qr', 'ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'codabar']
+          }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         />
         <View style={styles.cameraOverlay}>
@@ -317,6 +344,66 @@ export default function ScanScreen({ navigation }) {
                   <Text style={[styles.detailValue, { color: getStatusColor(scannedAsset.status) }]}>{scannedAsset.status}</Text>
                 </View>
               </View>
+
+              {/* Show More Button */}
+              <TouchableOpacity
+                style={styles.showMoreBtn}
+                onPress={() => setShowMore(!showMore)}
+              >
+                <Text style={styles.showMoreText}>
+                  {showMore ? 'ย่อรายละเอียด' : 'ดูรายละเอียดเพิ่มเติม'}
+                </Text>
+                <Ionicons
+                  name={showMore ? "chevron-up" : "chevron-down"}
+                  size={16}
+                  color="#3B82F6"
+                />
+              </TouchableOpacity>
+
+              {/* Expandable Info */}
+              {showMore && (
+                <View style={styles.expandedInfo}>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.expandLabel}>ราคาต่อหน่วย:</Text>
+                    <Text style={styles.expandValue}>
+                      {scannedAsset.price ? Number(scannedAsset.price).toLocaleString('th-TH') + ' บาท' : '-'}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.expandLabel}>ปีงบประมาณ:</Text>
+                    <Text style={styles.expandValue}>
+                      {(() => {
+                        if (!scannedAsset.received_date) return '-';
+                        const date = new Date(scannedAsset.received_date);
+                        const year = date.getFullYear() + 543;
+                        return date.getMonth() + 1 >= 10 ? year + 1 : year;
+                      })()}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.expandLabel}>หน่วยงาน:</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.department_name || '-'}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.expandLabel}>คณะ/ภาควิชา:</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.faculty_name || '-'}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.expandLabel}>รหัสโครงการ:</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.project_code || '-'}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.expandLabel}>รหัสกองทุน/แผน:</Text>
+                    <Text style={styles.expandValue}>
+                      {scannedAsset.fund_code || '-'}{scannedAsset.plan_code ? ` / ${scannedAsset.plan_code}` : ''}
+                    </Text>
+                  </View>
+                  <View style={styles.descSection}>
+                    <Text style={styles.expandLabel}>รายละเอียด:</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.description || '-'}</Text>
+                  </View>
+                </View>
+              )}
 
               {isOfflineResult && (
                 <View style={styles.offlineIndicator}>
@@ -744,6 +831,84 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+  },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+    backgroundColor: '#fff',
+  },
+  permissionText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#374151',
+    lineHeight: 26,
+  },
+  permissionBtn: {
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  permissionBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cancelLink: {
+    marginTop: 20,
+    padding: 10,
+  },
+  cancelLinkText: {
+    color: '#6B7280',
+    fontSize: 15,
+  },
+  showMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#374151',
+    marginTop: 15,
+    gap: 8,
+  },
+  showMoreText: {
+    color: '#3B82F6',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  expandedInfo: {
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#374151',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  expandLabel: {
+    color: '#9CA3AF',
+    fontSize: 13,
+  },
+  expandValue: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '500',
+    flex: 1,
+    textAlign: 'right',
+    paddingLeft: 10,
+  },
+  descSection: {
+    marginTop: 10,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    padding: 10,
+    borderRadius: 8,
   },
 });
 

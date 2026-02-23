@@ -80,18 +80,6 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <View style={styles.section}>
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="settings-outline" size={24} color="#374151" />
-          <Text style={styles.menuText}>ตั้งค่า</Text>
-          <Ionicons name="chevron-forward" size={24} color="#9CA3AF" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="help-circle-outline" size={24} color="#374151" />
-          <Text style={styles.menuText}>ช่วยเหลือ</Text>
-          <Ionicons name="chevron-forward" size={24} color="#9CA3AF" />
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={24} color="#EF4444" />
           <Text style={[styles.menuText, styles.logoutText]}>ออกจากระบบ</Text>

@@ -1,6 +1,6 @@
 // FILE: src/pages/ScanPage.jsx
 import { useState, useRef, useCallback } from 'react';
-import { Camera, CheckCircle, AlertCircle, RefreshCw, Search, Upload, QrCode, Package, MapPin, Building2, Clock, FileCheck } from 'lucide-react';
+import { Camera, CheckCircle, AlertCircle, RefreshCw, Search, Upload, QrCode, Package, MapPin, Building2, Clock, FileCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
@@ -55,6 +55,7 @@ export default function ScanPage() {
   const [remark, setRemark] = useState('');
   const [scanHistory, setScanHistory] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // ค้นหาครุภัณฑ์จาก Barcode
   const handleScan = async () => {
@@ -194,6 +195,7 @@ export default function ScanPage() {
     setScannedAsset(null);
     setCheckStatus('ใช้งานได้');
     setRemark('');
+    setShowDetails(false);
   };
 
   const handleKeyPress = (e) => {
@@ -455,10 +457,10 @@ export default function ScanPage() {
             {/* Upload Area */}
             <div
               className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${isDragging
-                  ? 'border-primary-500 bg-primary-50'
-                  : processingImage || loading
-                    ? 'border-gray-200 bg-gray-50'
-                    : 'border-gray-200 hover:border-primary-400 hover:bg-primary-50/50'
+                ? 'border-primary-500 bg-primary-50'
+                : processingImage || loading
+                  ? 'border-gray-200 bg-gray-50'
+                  : 'border-gray-200 hover:border-primary-400 hover:bg-primary-50/50'
                 }`}
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
@@ -578,6 +580,61 @@ export default function ScanPage() {
                       {scannedAsset.status}
                     </span>
                   </div>
+
+                  {/* Expand Button */}
+                  <button
+                    onClick={() => setShowDetails(!showDetails)}
+                    className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-xl transition-all"
+                  >
+                    {showDetails ? (
+                      <>แสดงข้อมูลน้อยลง <ChevronUp size={16} /></>
+                    ) : (
+                      <>แสดงรายละเอียดเพิ่มเติม <ChevronDown size={16} /></>
+                    )}
+                  </button>
+
+                  {/* Collapsible Details */}
+                  {showDetails && (
+                    <div className="pt-2 grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div>
+                        <p className="text-xs text-gray-500">ราคาต่อหน่วย</p>
+                        <p className="font-medium text-gray-800">
+                          {scannedAsset.price ? Number(scannedAsset.price).toLocaleString('th-TH') + ' บาท' : '-'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">ปีงบประมาณ</p>
+                        <p className="font-medium text-gray-800">
+                          {(() => {
+                            if (!scannedAsset.received_date) return '-';
+                            const date = new Date(scannedAsset.received_date);
+                            const year = date.getFullYear() + 543;
+                            return date.getMonth() + 1 >= 10 ? year + 1 : year;
+                          })()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">รหัสกองทุน</p>
+                        <p className="font-medium text-gray-800">{scannedAsset.fund_code || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">รหัสแผน</p>
+                        <p className="font-medium text-gray-800">{scannedAsset.plan_code || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">รหัสโครงการ</p>
+                        <p className="font-medium text-gray-800">{scannedAsset.project_code || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">คณะ</p>
+                        <p className="font-medium text-gray-800">{scannedAsset.faculty_name || '-'}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-xs text-gray-500">รายละเอียด</p>
+                        <p className="text-sm font-medium text-gray-800 line-clamp-3">{scannedAsset.description || '-'}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Check Form */}

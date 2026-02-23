@@ -32,23 +32,32 @@ export default function DashboardScreen({ navigation }) {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [assetsRes, uncheckedRes] = await Promise.all([
-        api.get('/assets'),
+      // Optimized: Fetch summary stats instead of full asset list
+      const [statusRes, uncheckedRes] = await Promise.all([
+        api.get('/reports/by-status').catch(() => ({ data: { data: [] } })),
         api.get('/reports/unchecked?days=365').catch(() => ({ data: { data: [] } })),
       ]);
 
-      const assets = assetsRes.data.data || [];
+      const statusData = statusRes.data.data || [];
       const uncheckedAssets = uncheckedRes.data.data || [];
 
-      const total = assets.length;
-      const checked = total - uncheckedAssets.length;
-      const available = assets.filter((a) => a.status === 'ใช้งานได้').length;
-      const maintenance = assets.filter((a) => a.status === 'รอซ่อม').length;
-      const missing = assets.filter((a) => a.status === 'ไม่พบ').length;
+      // Map status data to stats
+      let total = 0;
+      let available = 0;
+      let maintenance = 0;
+      let missing = 0;
+
+      statusData.forEach(item => {
+        const count = parseInt(item.count);
+        total += count;
+        if (item.status === 'ใช้งานได้') available = count;
+        if (item.status === 'รอซ่อม') maintenance = count;
+        if (item.status === 'ไม่พบ') missing = count;
+      });
 
       setStats({
         total,
-        checked,
+        checked: total - uncheckedAssets.length,
         unchecked: uncheckedAssets.length,
         available,
         maintenance,
@@ -117,6 +126,7 @@ export default function DashboardScreen({ navigation }) {
           icon="checkmark-circle-outline"
           color="#10B981"
           bgColor="#D1FAE5"
+          onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
         />
 
         <StatCard
@@ -125,7 +135,7 @@ export default function DashboardScreen({ navigation }) {
           icon="alert-circle-outline"
           color="#F59E0B"
           bgColor="#FEF3C7"
-          onPress={() => navigation.navigate('Check')}
+          onPress={() => navigation.navigate('Assets', { unchecked: true })}
         />
 
         <StatCard
@@ -134,6 +144,7 @@ export default function DashboardScreen({ navigation }) {
           icon="checkmark-outline"
           color="#10B981"
           bgColor="#D1FAE5"
+          onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
         />
 
         <StatCard
@@ -142,6 +153,7 @@ export default function DashboardScreen({ navigation }) {
           icon="build-outline"
           color="#F59E0B"
           bgColor="#FEF3C7"
+          onPress={() => navigation.navigate('Assets', { status: 'รอซ่อม' })}
         />
 
         <StatCard
@@ -150,6 +162,7 @@ export default function DashboardScreen({ navigation }) {
           icon="close-circle-outline"
           color="#EF4444"
           bgColor="#FEE2E2"
+          onPress={() => navigation.navigate('Assets', { status: 'ไม่พบ' })}
         />
       </View>
 

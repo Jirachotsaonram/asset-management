@@ -1,3 +1,101 @@
 [29-Jan-2026 05:46:53 Europe/Berlin] Auth failed: No Authorization header found. Available headers: ["REDIRECT_MIBDIRS","REDIRECT_MYSQL_HOME","REDIRECT_OPENSSL_CONF","REDIRECT_PHP_PEAR_SYSCONF_DIR","REDIRECT_PHPRC","REDIRECT_TMP","REDIRECT_STATUS","MIBDIRS","MYSQL_HOME","OPENSSL_CONF","PHP_PEAR_SYSCONF_DIR","PHPRC","TMP","HTTP_HOST","HTTP_CONNECTION","HTTP_SEC_CH_UA","HTTP_SEC_CH_UA_MOBILE","HTTP_SEC_CH_UA_PLATFORM","HTTP_UPGRADE_INSECURE_REQUESTS","HTTP_USER_AGENT","HTTP_ACCEPT","HTTP_SEC_FETCH_SITE","HTTP_SEC_FETCH_MODE","HTTP_SEC_FETCH_USER","HTTP_SEC_FETCH_DEST","HTTP_REFERER","HTTP_ACCEPT_ENCODING","HTTP_ACCEPT_LANGUAGE","PATH","SystemRoot","COMSPEC","PATHEXT","WINDIR","SERVER_SIGNATURE","SERVER_SOFTWARE","SERVER_NAME","SERVER_ADDR","SERVER_PORT","REMOTE_ADDR","DOCUMENT_ROOT","REQUEST_SCHEME","CONTEXT_PREFIX","CONTEXT_DOCUMENT_ROOT","SERVER_ADMIN","SCRIPT_FILENAME","REMOTE_PORT","REDIRECT_URL","REDIRECT_QUERY_STRING","GATEWAY_INTERFACE","SERVER_PROTOCOL","REQUEST_METHOD","QUERY_STRING","REQUEST_URI","SCRIPT_NAME","PHP_SELF","REQUEST_TIME_FLOAT","REQUEST_TIME"]
 [06-Feb-2026 15:41:07 Europe/Berlin] Auth failed: No Authorization header found. Available headers: ["REDIRECT_MIBDIRS","REDIRECT_MYSQL_HOME","REDIRECT_OPENSSL_CONF","REDIRECT_PHP_PEAR_SYSCONF_DIR","REDIRECT_PHPRC","REDIRECT_TMP","REDIRECT_STATUS","MIBDIRS","MYSQL_HOME","OPENSSL_CONF","PHP_PEAR_SYSCONF_DIR","PHPRC","TMP","HTTP_HOST","HTTP_CONNECTION","HTTP_SEC_CH_UA","HTTP_SEC_CH_UA_MOBILE","HTTP_SEC_CH_UA_PLATFORM","HTTP_UPGRADE_INSECURE_REQUESTS","HTTP_USER_AGENT","HTTP_ACCEPT","HTTP_SEC_FETCH_SITE","HTTP_SEC_FETCH_MODE","HTTP_SEC_FETCH_USER","HTTP_SEC_FETCH_DEST","HTTP_REFERER","HTTP_ACCEPT_ENCODING","HTTP_ACCEPT_LANGUAGE","PATH","SystemRoot","COMSPEC","PATHEXT","WINDIR","SERVER_SIGNATURE","SERVER_SOFTWARE","SERVER_NAME","SERVER_ADDR","SERVER_PORT","REMOTE_ADDR","DOCUMENT_ROOT","REQUEST_SCHEME","CONTEXT_PREFIX","CONTEXT_DOCUMENT_ROOT","SERVER_ADMIN","SCRIPT_FILENAME","REMOTE_PORT","REDIRECT_URL","REDIRECT_QUERY_STRING","GATEWAY_INTERFACE","SERVER_PROTOCOL","REQUEST_METHOD","QUERY_STRING","REQUEST_URI","SCRIPT_NAME","PHP_SELF","REQUEST_TIME_FLOAT","REQUEST_TIME"]
 [06-Feb-2026 15:41:11 Europe/Berlin] Auth failed: No Authorization header found. Available headers: ["REDIRECT_MIBDIRS","REDIRECT_MYSQL_HOME","REDIRECT_OPENSSL_CONF","REDIRECT_PHP_PEAR_SYSCONF_DIR","REDIRECT_PHPRC","REDIRECT_TMP","REDIRECT_STATUS","MIBDIRS","MYSQL_HOME","OPENSSL_CONF","PHP_PEAR_SYSCONF_DIR","PHPRC","TMP","HTTP_HOST","HTTP_CONNECTION","HTTP_SEC_CH_UA","HTTP_SEC_CH_UA_MOBILE","HTTP_SEC_CH_UA_PLATFORM","HTTP_UPGRADE_INSECURE_REQUESTS","HTTP_USER_AGENT","HTTP_ACCEPT","HTTP_SEC_FETCH_SITE","HTTP_SEC_FETCH_MODE","HTTP_SEC_FETCH_USER","HTTP_SEC_FETCH_DEST","HTTP_REFERER","HTTP_ACCEPT_ENCODING","HTTP_ACCEPT_LANGUAGE","PATH","SystemRoot","COMSPEC","PATHEXT","WINDIR","SERVER_SIGNATURE","SERVER_SOFTWARE","SERVER_NAME","SERVER_ADDR","SERVER_PORT","REMOTE_ADDR","DOCUMENT_ROOT","REQUEST_SCHEME","CONTEXT_PREFIX","CONTEXT_DOCUMENT_ROOT","SERVER_ADMIN","SCRIPT_FILENAME","REMOTE_PORT","REDIRECT_URL","REDIRECT_QUERY_STRING","GATEWAY_INTERFACE","SERVER_PROTOCOL","REQUEST_METHOD","QUERY_STRING","REQUEST_URI","SCRIPT_NAME","PHP_SELF","REQUEST_TIME_FLOAT","REQUEST_TIME"]
+[23-Feb-2026 15:42:03 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:42:06 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:42:09 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:43:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:43:42 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:43:44 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:43:47 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:17 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:43 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:44 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32
+[23-Feb-2026 15:47:53 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`asset_history`, CONSTRAINT `fk_history_old_location` FOREIGN KEY (`old_location_id`) REFERENCES `locations` (`location_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php:32
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php(32): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetHistoryController.php(53): AssetHistory->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(172): AssetHistoryController->create(Array)
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\AssetHistory.php on line 32

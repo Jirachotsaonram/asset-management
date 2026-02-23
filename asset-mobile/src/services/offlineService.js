@@ -8,7 +8,10 @@ const STORAGE_KEYS = {
     LAST_SYNC: '@last_sync',
     LOCATIONS: '@offline_locations',
     DEPARTMENTS: '@offline_departments',
+    ASSET_CHUNKS_COUNT: '@asset_chunks_count',
 };
+
+const CHUNK_SIZE = 500; // Number of items per chunk
 
 class OfflineService {
     constructor() {
@@ -31,12 +34,34 @@ class OfflineService {
             const response = await api.get('/assets');
             if (response.data.success) {
                 const assets = response.data.data || [];
-                await AsyncStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(assets));
+
+                // Optimized: Clear old chunks first
+                await this.clearAssetChunks();
+
+                if (assets.length === 0) {
+                    await AsyncStorage.setItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT, '0');
+                    return { success: true, count: 0, message: 'ไม่มีข้อมูลสะสม' };
+                }
+
+                // Chunk the data
+                const chunks = [];
+                for (let i = 0; i < assets.length; i += CHUNK_SIZE) {
+                    chunks.push(assets.slice(i, i + CHUNK_SIZE));
+                }
+
+                // Save each chunk
+                const savePromises = chunks.map((chunk, index) =>
+                    AsyncStorage.setItem(`${STORAGE_KEYS.ASSETS}_${index}`, JSON.stringify(chunk))
+                );
+
+                await Promise.all(savePromises);
+                await AsyncStorage.setItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT, chunks.length.toString());
                 await AsyncStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
+
                 return {
                     success: true,
                     count: assets.length,
-                    message: `ดาวน์โหลด ${assets.length} รายการสำเร็จ`
+                    message: `ดาวน์โหลด ${assets.length} รายการสำเร็จ (${chunks.length} ส่วน)`
                 };
             }
             return { success: false, count: 0, message: 'ไม่สามารถดาวน์โหลดข้อมูลได้' };
@@ -50,14 +75,60 @@ class OfflineService {
         }
     }
 
+    async clearAssetChunks() {
+        try {
+            const countStr = await AsyncStorage.getItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT);
+            if (countStr) {
+                const count = parseInt(countStr);
+                const keys = [];
+                for (let i = 0; i < count; i++) {
+                    keys.push(`${STORAGE_KEYS.ASSETS}_${i}`);
+                }
+                if (keys.length > 0) await AsyncStorage.multiRemove(keys);
+            }
+            await AsyncStorage.removeItem(STORAGE_KEYS.ASSETS); // Old legacy key
+        } catch (err) {
+            console.error('Error clearing chunks:', err);
+        }
+    }
+
     /**
      * Get cached assets from local storage
      * @returns {Promise<Array>}
      */
     async getCachedAssets() {
         try {
-            const data = await AsyncStorage.getItem(STORAGE_KEYS.ASSETS);
-            return data ? JSON.parse(data) : [];
+            const countStr = await AsyncStorage.getItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT);
+
+            // Fallback for legacy data (single row)
+            if (countStr === null) {
+                const legacyData = await AsyncStorage.getItem(STORAGE_KEYS.ASSETS);
+                return legacyData ? JSON.parse(legacyData) : [];
+            }
+
+            const count = parseInt(countStr);
+            if (count === 0) return [];
+
+            const keys = [];
+            for (let i = 0; i < count; i++) {
+                keys.push(`${STORAGE_KEYS.ASSETS}_${i}`);
+            }
+
+            const chunkData = await AsyncStorage.multiGet(keys);
+            let allAssets = [];
+
+            chunkData.forEach(([key, value]) => {
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed)) allAssets = allAssets.concat(parsed);
+                    } catch (e) {
+                        console.error(`Error parsing chunk ${key}:`, e);
+                    }
+                }
+            });
+
+            return allAssets;
         } catch (error) {
             console.error('Error getting cached assets:', error);
             return [];
@@ -82,15 +153,17 @@ class OfflineService {
      * @returns {Promise<Object|null>}
      */
     async searchCachedAsset(query) {
+        if (!query) return null;
+
         try {
             const assets = await this.getCachedAssets();
-            const searchValue = query.toLowerCase();
+            const searchValue = String(query).toLowerCase();
 
             // Try to parse JSON QR code
             let parsedId = searchValue;
             try {
-                const qrData = JSON.parse(query);
-                if (qrData.id) parsedId = String(qrData.id).toLowerCase();
+                const qrData = typeof query === 'string' && query.startsWith('{') ? JSON.parse(query) : null;
+                if (qrData && qrData.id) parsedId = String(qrData.id).toLowerCase();
             } catch {
                 // Not JSON, use as is
             }

@@ -118,7 +118,20 @@ class Asset {
 
         // Search
         if (!empty($filters['search'])) {
-            $conditions[] = "(asset_name LIKE :search OR serial_number LIKE :search OR barcode LIKE :search OR fund_code LIKE :search OR plan_code LIKE :search OR project_code LIKE :search)";
+            $conditions[] = "(asset_name LIKE :search 
+                OR asset_id LIKE :search 
+                OR serial_number LIKE :search 
+                OR barcode LIKE :search 
+                OR fund_code LIKE :search 
+                OR plan_code LIKE :search 
+                OR project_code LIKE :search 
+                OR department_name LIKE :search 
+                OR building_name LIKE :search 
+                OR room_number LIKE :search 
+                OR room_text LIKE :search 
+                OR faculty_name LIKE :search 
+                OR delivery_number LIKE :search 
+                OR description LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
         }
 
@@ -162,7 +175,20 @@ class Asset {
             $params[':floor'] = $filters['floor'];
         }
         if (!empty($filters['search'])) {
-            $conditions[] = "(asset_name LIKE :search OR serial_number LIKE :search OR barcode LIKE :search OR fund_code LIKE :search OR plan_code LIKE :search OR project_code LIKE :search)";
+            $conditions[] = "(asset_name LIKE :search 
+                OR asset_id LIKE :search 
+                OR serial_number LIKE :search 
+                OR barcode LIKE :search 
+                OR fund_code LIKE :search 
+                OR plan_code LIKE :search 
+                OR project_code LIKE :search 
+                OR department_name LIKE :search 
+                OR building_name LIKE :search 
+                OR room_number LIKE :search 
+                OR room_text LIKE :search 
+                OR faculty_name LIKE :search 
+                OR delivery_number LIKE :search 
+                OR description LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
         }
 

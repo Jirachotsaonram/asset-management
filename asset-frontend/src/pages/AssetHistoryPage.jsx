@@ -28,8 +28,10 @@ export default function AssetHistoryPage() {
 
   const [formData, setFormData] = useState({
     asset_id: "",
-    old_location_id: "",
+    old_location_id: null,
+    old_room_text: "",
     new_location_id: "",
+    room_text: "", // new room text
     move_date: new Date().toISOString().split("T")[0],
     remark: "",
   });
@@ -114,11 +116,17 @@ export default function AssetHistoryPage() {
 
   const handleAssetChange = (assetId) => {
     if (!assetId) {
-      setFormData({ ...formData, asset_id: "", old_location_id: "" });
+      setFormData({ ...formData, asset_id: "", old_location_id: null, old_room_text: "", room_text: "" });
       return;
     }
     const selectedAsset = assets.find(a => String(a.asset_id) === String(assetId));
-    setFormData({ ...formData, asset_id: assetId, old_location_id: selectedAsset?.location_id || "" });
+    setFormData({
+      ...formData,
+      asset_id: assetId,
+      old_location_id: selectedAsset?.location_id || null,
+      old_room_text: selectedAsset?.room_text || "",
+      room_text: selectedAsset?.room_text || "" // Default new room to old room
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -131,9 +139,17 @@ export default function AssetHistoryPage() {
     setSubmitting(true);
     try {
       await api.post("/history", { ...formData, moved_by: user.user_id });
-      await api.put(`/assets/${formData.asset_id}`, { location_id: formData.new_location_id });
       toast.success("บันทึกการย้ายสำเร็จ");
       setShowModal(false);
+      setFormData({
+        asset_id: "",
+        old_location_id: null,
+        old_room_text: "",
+        new_location_id: "",
+        room_text: "",
+        move_date: new Date().toISOString().split("T")[0],
+        remark: "",
+      });
       fetchData();
     } catch (error) {
       toast.error("ไม่สามารถบันทึกได้");
@@ -390,7 +406,12 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
             <div className="space-y-1.5">
               <label className="block text-sm font-bold text-gray-700">สถานที่ปัจจุบัน</label>
               <div className="bg-gray-50 p-3 rounded-2xl border-2 border-gray-100 text-xs text-gray-600 italic">
-                {currentLocation ? `${currentLocation.building_name} ชั้น ${currentLocation.floor} ห้อง ${currentLocation.room_number}` : '-'}
+                {currentLocation ? (
+                  <>
+                    {currentLocation.building_name} ชั้น {currentLocation.floor} ห้อง {currentLocation.room_number}
+                    {formData.old_room_text && <span className="block text-primary-600 mt-1 font-bold">({formData.old_room_text})</span>}
+                  </>
+                ) : (formData.old_room_text || '-')}
               </div>
             </div>
             <div className="space-y-1.5">
@@ -420,9 +441,14 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
               <input type="date" value={formData.move_date} onChange={e => setFormData({ ...formData, move_date: e.target.value })} className="form-input h-11 rounded-2xl border-2" required />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">หมายเหตุ</label>
-              <input type="text" value={formData.remark} onChange={e => setFormData({ ...formData, remark: e.target.value })} placeholder="..." className="form-input h-11 rounded-2xl border-2" />
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">ห้อง/สถานที่ใหม่ (ระบุเอง)</label>
+              <input type="text" value={formData.room_text} onChange={e => setFormData({ ...formData, room_text: e.target.value })} placeholder="เช่น ห้อง 405 (เดิม), ตึกวิศวกรรม..." className="form-input h-11 rounded-2xl border-2" />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">หมายเหตุ</label>
+            <textarea rows="2" value={formData.remark} onChange={e => setFormData({ ...formData, remark: e.target.value })} placeholder="รายละเอียดเพิ่มเติม..." className="form-input rounded-2xl border-2 p-3 resize-none" />
           </div>
 
           <div className="flex gap-3 pt-4">
