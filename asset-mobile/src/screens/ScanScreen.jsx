@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,11 @@ import {
   ActivityIndicator,
   TextInput,
   ScrollView,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  Dimensions,
+  Image,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useAuth } from '../hooks/useAuth';
@@ -15,6 +20,9 @@ import api from '../services/api';
 import offlineService from '../services/offlineService';
 import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
+import { ASSET_STATUS } from '../utils/constants';
+
+const { width } = Dimensions.get('window');
 
 export default function ScanScreen({ navigation }) {
   const { user } = useAuth();
@@ -23,7 +31,7 @@ export default function ScanScreen({ navigation }) {
   const [scanned, setScanned] = useState(false);
   const [scannedAsset, setScannedAsset] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [checkStatus, setCheckStatus] = useState('ใช้งานได้');
+  const [checkStatus, setCheckStatus] = useState(ASSET_STATUS.AVAILABLE);
   const [remark, setRemark] = useState('');
   const [manualBarcode, setManualBarcode] = useState('');
   const [showCamera, setShowCamera] = useState(false);
@@ -51,10 +59,9 @@ export default function ScanScreen({ navigation }) {
     setIsOfflineResult(false);
     try {
       let foundAsset = null;
-
-      // Parse QR Code data (อาจเป็น JSON หรือ string)
       let searchValue = barcode;
       let richData = null;
+
       try {
         const qrData = JSON.parse(barcode);
         if (qrData.id) {
@@ -62,12 +69,10 @@ export default function ScanScreen({ navigation }) {
           richData = qrData;
         }
       } catch {
-        // ไม่ใช่ JSON ใช้ค่าเดิม
         searchValue = barcode;
       }
 
-      // ถ้าเป็น Rich Data (ผลจาก QR Code ที่มีข้อมูลครบ)
-      // เราสามารถใช้ข้อมูลเบื้องต้นแสดงให้ผู้ใช้เห็นก่อนได้ทันที
+      // 1. Try Rich Data first
       if (richData) {
         foundAsset = {
           asset_id: richData.id,
@@ -76,62 +81,56 @@ export default function ScanScreen({ navigation }) {
           serial_number: richData.serial,
           status: richData.status,
           department_name: richData.dept,
-          faculty_name: richData.faculty,
-          price: richData.price,
-          received_date: richData.date
+          building_name: richData.building,
+          room_number: richData.room
         };
-        // แสดงข้อมูลจาก QR ก่อน (Offline-friendly)
-        setScannedAsset(foundAsset);
-        setCheckStatus(foundAsset.status || 'ใช้งานได้');
       }
 
-      // ===== OFFLINE FIRST: ค้นหาจาก Cache ก่อน =====
-      foundAsset = await offlineService.searchCachedAsset(searchValue);
-      if (foundAsset) {
+      // 2. Try Cache
+      const cached = await offlineService.searchCachedAsset(searchValue);
+      if (cached) {
+        foundAsset = cached;
         setIsOfflineResult(true);
       }
 
-      // ===== ถ้ามีเน็ต พยายามดึงข้อมูลล่าสุดจาก Server =====
+      // 3. Try API if online
       if (isConnected) {
         try {
-          const response = await api.get('/assets');
-          if (response.data.success) {
-            const serverAsset = response.data.data.find(
-              (a) =>
-                a.barcode === searchValue ||
-                a.serial_number === searchValue ||
-                String(a.asset_id) === String(searchValue) ||
-                a.barcode === barcode ||
-                a.serial_number === barcode ||
-                String(a.asset_id) === String(barcode)
-            );
-            if (serverAsset) {
-              foundAsset = serverAsset;
+          // In the new API structure, searching by ID is better
+          const response = await api.get(`/assets/${searchValue}`).catch(() => null);
+          if (response?.data?.success) {
+            foundAsset = response.data.data;
+            setIsOfflineResult(false);
+          } else {
+            // Fallback: search in list if direct ID lookup fails
+            const listRes = await api.get('/assets', { params: { search: searchValue, limit: 1 } });
+            if (listRes.data.success && listRes.data.data.items.length > 0) {
+              foundAsset = listRes.data.data.items[0];
               setIsOfflineResult(false);
             }
           }
         } catch (err) {
           console.log('Server search failed, using cache:', err.message);
-          // ใช้ผลจาก cache ถ้ามี
         }
       }
 
       if (foundAsset) {
         setScannedAsset(foundAsset);
-        setCheckStatus(foundAsset.status || 'ใช้งานได้');
+        setCheckStatus(foundAsset.status || ASSET_STATUS.AVAILABLE);
         setRemark('');
         setShowCamera(false);
-        const mode = isOfflineResult ? ' (ข้อมูลออฟไลน์)' : '';
-        Alert.alert('สำเร็จ', `พบครุภัณฑ์: ${foundAsset.asset_name}${mode}`);
+        if (Platform.OS !== 'web') {
+          // Add a subtle vibrational feedback here if possible
+        }
       } else {
         Alert.alert(
           'ไม่พบข้อมูล',
-          `ไม่พบครุภัณฑ์ที่ตรงกับรหัส: ${searchValue}\n\n${!isConnected ? 'กำลังใช้โหมดออฟไลน์ - ลองดาวน์โหลดข้อมูลใหม่เมื่อมีอินเทอร์เน็ต' : 'ลองตรวจสอบรหัสครุภัณฑ์'}`
+          `ไม่พบครุภัณฑ์ที่ตรงกับรหัส: ${searchValue}\n\n${!isConnected ? 'กำลังใช้โหมดออฟไลน์' : 'ลองตรวจสอบรหัสครุภัณฑ์อีกครั้ง'}`
         );
       }
     } catch (error) {
       console.error('Error searching asset:', error);
-      Alert.alert('เกิดข้อผิดพลาด', `ไม่สามารถค้นหาครุภัณฑ์ได้: ${error.message || 'Unknown error'}`);
+      Alert.alert('เกิดข้อผิดพลาด', `ไม่สามารถค้นหาครุภัณฑ์ได้`);
     } finally {
       setLoading(false);
       setScanned(false);
@@ -147,392 +146,243 @@ export default function ScanScreen({ navigation }) {
   };
 
   const handleCheckAsset = async () => {
-    if (!scannedAsset) {
-      Alert.alert('ผิดพลาด', 'ไม่พบข้อมูลครุภัณฑ์');
-      return;
-    }
-
-    if (!user) {
-      Alert.alert('ผิดพลาด', 'ไม่พบข้อมูลผู้ใช้ กรุณา Login ใหม่');
-      return;
-    }
-
+    if (!scannedAsset) return;
     setLoading(true);
+
     try {
-      // API จะใช้ user_id จาก authentication token ไม่ต้องส่งใน body
       const requestData = {
         asset_id: scannedAsset.asset_id,
         check_status: checkStatus,
-        remark: remark || 'ตรวจสอบผ่าน Mobile App',
+        remark: remark || 'Mobile Scan Check',
         check_date: new Date().toISOString().split('T')[0],
       };
 
-      // ===== OFFLINE MODE: บันทึกลงคิวถ้าไม่มีเน็ต =====
       if (!isConnected) {
         const queued = await offlineService.queueCheck(requestData);
         if (queued) {
           await loadPendingCount();
-          Alert.alert(
-            '📋 บันทึกลงคิวแล้ว',
-            `ระบบได้บันทึก "${scannedAsset.asset_name}" ไว้ในคิวเรียบร้อย\n\nจะซิงค์ขึ้น Server อัตโนมัติเมื่อมีอินเทอร์เน็ต`,
-            [{ text: 'OK', onPress: handleReset }]
-          );
-        } else {
-          Alert.alert('ผิดพลาด', 'ไม่สามารถบันทึกลงคิวได้');
+          Alert.alert('📋 บันทึกลงคิวแล้ว', 'ข้อมูลจะถูกซิงค์เมื่อเชื่อมต่อเน็ต', [{ text: 'ตกลง', onPress: handleReset }]);
         }
         return;
       }
 
-      // ===== ONLINE MODE: ส่งขึ้น Server ทันที =====
       const response = await api.post('/checks', requestData);
-
       if (response.data.success) {
-        // ดึงข้อมูล asset ใหม่เพื่อแสดงสถานะที่อัพเดตแล้ว
-        try {
-          const assetResponse = await api.get(`/assets/${scannedAsset.asset_id}`);
-          if (assetResponse.data.success) {
-            setScannedAsset(assetResponse.data.data);
-          }
-        } catch (refreshError) {
-          console.log('Could not refresh asset data:', refreshError);
-        }
-
-        Alert.alert('สำเร็จ', 'บันทึกการตรวจสอบสำเร็จ\nสถานะครุภัณฑ์ได้ถูกอัพเดตแล้ว', [
-          { text: 'OK', onPress: handleReset },
-        ]);
-      } else {
-        Alert.alert('ผิดพลาด', response.data.message || 'ไม่สามารถบันทึกได้');
+        Alert.alert('สำเร็จ', 'บันทึกการตรวจสอบเรียบร้อยแล้ว', [{ text: 'ตกลง', onPress: handleReset }]);
       }
     } catch (error) {
-      console.error('Error checking asset:', error);
-
-      // ===== FALLBACK: ถ้าส่งไม่สำเร็จ เก็บลงคิว =====
-      if (!error.response || error.message?.includes('Network')) {
-        const requestData = {
-          asset_id: scannedAsset.asset_id,
-          check_status: checkStatus,
-          remark: remark || 'ตรวจสอบผ่าน Mobile App',
-          check_date: new Date().toISOString().split('T')[0],
-        };
-        const queued = await offlineService.queueCheck(requestData);
-        if (queued) {
-          await loadPendingCount();
-          Alert.alert(
-            '📋 บันทึกลงคิวแล้ว',
-            'เครือข่ายมีปัญหา ระบบได้บันทึกไว้ในคิวเรียบร้อย\n\nจะซิงค์ขึ้น Server อัตโนมัติเมื่อมีอินเทอร์เน็ต',
-            [{ text: 'OK', onPress: handleReset }]
-          );
-          return;
-        }
+      console.error('Check failed:', error);
+      // Fallback to offline queue
+      const queued = await offlineService.queueCheck({
+        asset_id: scannedAsset.asset_id,
+        check_status: checkStatus,
+        remark: remark || 'Mobile Scan Check (Offline Fallback)',
+        check_date: new Date().toISOString().split('T')[0],
+      });
+      if (queued) {
+        await loadPendingCount();
+        Alert.alert('📋 ระบบบันทึกลงคิว', 'เกิดข้อผิดพลาดในการส่งข้อมูล แต่เราบันทึกไว้ให้แล้ว', [{ text: 'ตกลง', onPress: handleReset }]);
       }
-
-      // แสดง error message ที่ชัดเจนขึ้น
-      let errorMessage = 'ไม่สามารถบันทึกการตรวจสอบได้';
-
-      if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data?.message || error.response.data?.error || '';
-
-        if (status === 401) {
-          errorMessage = 'Session หมดอายุ กรุณา Logout และ Login ใหม่';
-        } else if (status === 403) {
-          errorMessage = 'คุณไม่มีสิทธิ์บันทึกการตรวจสอบ\n\nต้องเป็น Admin หรือ Inspector เท่านั้น';
-        } else if (status === 400) {
-          errorMessage = message || 'ข้อมูลไม่ถูกต้อง';
-        } else if (status === 500) {
-          errorMessage = 'เกิดข้อผิดพลาดที่ server: ' + message;
-        } else {
-          errorMessage = `เกิดข้อผิดพลาด (${status}): ${message}`;
-        }
-      } else if (error.message) {
-        errorMessage = `เกิดข้อผิดพลาด: ${error.message}`;
-      }
-
-      Alert.alert('ผิดพลาด', errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // ===== ฟังก์ชันซิงค์ข้อมูลที่รอส่ง =====
   const handleSyncPending = async () => {
     if (!isConnected) {
-      Alert.alert('ออฟไลน์', 'กรุณาเชื่อมต่ออินเทอร์เน็ตเพื่อซิงค์ข้อมูล');
+      Alert.alert('ออฟไลน์', 'กรุณาเชื่อมต่ออินเทอร์เน็ต');
       return;
     }
-
     setLoading(true);
     const results = await offlineService.syncPendingChecks();
     setLoading(false);
     await loadPendingCount();
-
-    if (results.success > 0 || results.failed > 0) {
-      Alert.alert(
-        '🔄 ผลการซิงค์',
-        `สำเร็จ: ${results.success} รายการ\nล้มเหลว: ${results.failed} รายการ`
-      );
-    } else {
-      Alert.alert('ข้อมูล', 'ไม่มีข้อมูลที่ต้องซิงค์');
-    }
+    Alert.alert('🔄 ซิงค์เสร็จสิ้น', `สำเร็จ: ${results.success}, ล้มเหลว: ${results.failed}`);
   };
 
   const handleReset = () => {
     setScannedAsset(null);
     setManualBarcode('');
-    setCheckStatus('ใช้งานได้');
+    setCheckStatus(ASSET_STATUS.AVAILABLE);
     setRemark('');
     setScanned(false);
     setShowCamera(false);
   };
 
-  if (!permission) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={styles.errorText}>กำลังโหลด...</Text>
-      </View>
-    );
-  }
+  const getStatusColor = (status) => {
+    switch (status) {
+      case ASSET_STATUS.AVAILABLE: return '#10B981';
+      case ASSET_STATUS.MAINTENANCE: return '#F59E0B';
+      case ASSET_STATUS.PENDING_DISPOSAL: return '#EF4444';
+      default: return '#6B7280';
+    }
+  };
 
-  if (!permission.granted) {
-    return (
-      <View style={styles.centerContainer}>
-        <Ionicons name="camera-outline" size={64} color="#9CA3AF" />
-        <Text style={styles.errorText}>ไม่ได้รับสิทธิ์ใช้งานกล้อง</Text>
-        <Text style={styles.errorSubtext}>
-          กรุณาอนุญาตการใช้งานกล้องเพื่อสแกน QR Code
-        </Text>
-        <TouchableOpacity
-          style={styles.permissionButton}
-          onPress={requestPermission}
-        >
-          <Text style={styles.permissionButtonText}>ขอสิทธิ์ใช้งานกล้อง</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  if (showCamera && permission.granted) {
+  if (showCamera && permission?.granted) {
     return (
       <View style={styles.cameraContainer}>
+        <StatusBar hidden />
         <CameraView
           style={StyleSheet.absoluteFillObject}
-          barcodeScannerSettings={{
-            barcodeTypes: ['qr', 'ean13', 'ean8', 'upc_a', 'upc_e'],
-          }}
+          barcodeScannerSettings={{ barcodeTypes: ['qr', 'ean13', 'code128'] }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         />
         <View style={styles.cameraOverlay}>
-          <View style={styles.scanFrame} />
-          <Text style={styles.scanText}>สแกน QR Code</Text>
+          <View style={styles.scanTarget}>
+            <View style={[styles.corner, styles.topLeft]} />
+            <View style={[styles.corner, styles.topRight]} />
+            <View style={[styles.corner, styles.bottomLeft]} />
+            <View style={[styles.corner, styles.bottomRight]} />
+          </View>
+          <Text style={styles.scanInstruction}>วางรหัสในกรอบเพื่อสแกน</Text>
         </View>
-        <TouchableOpacity
-          style={styles.closeCameraButton}
-          onPress={() => {
-            setShowCamera(false);
-            setScanned(false);
-          }}
-        >
-          <Ionicons name="close" size={32} color="#fff" />
+        <TouchableOpacity style={styles.cameraCloseBtn} onPress={() => setShowCamera(false)}>
+          <Ionicons name="close-circle" size={44} color="#fff" />
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Offline Status Bar */}
-      {!isConnected && (
-        <View style={styles.offlineBanner}>
-          <Ionicons name="cloud-offline-outline" size={16} color="#fff" />
-          <Text style={styles.offlineBannerText}>โหมดออฟไลน์</Text>
-        </View>
-      )}
-
-      {/* Pending Sync Bar */}
-      {pendingCount > 0 && (
-        <TouchableOpacity style={styles.pendingBanner} onPress={handleSyncPending}>
-          <View style={styles.pendingInfo}>
-            <Ionicons name="time-outline" size={20} color="#F59E0B" />
-            <Text style={styles.pendingText}>รอส่งข้อมูล {pendingCount} รายการ</Text>
-          </View>
-          {isConnected && (
-            <View style={styles.syncButton}>
-              <Ionicons name="sync-outline" size={16} color="#fff" />
-              <Text style={styles.syncButtonText}>ซิงค์</Text>
-            </View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>ตรวจสอบครุภัณฑ์</Text>
+        <View style={styles.headerRight}>
+          {!isConnected && <Ionicons name="cloud-offline" size={20} color="#EF4444" />}
+          {pendingCount > 0 && (
+            <TouchableOpacity style={styles.badgeBtn} onPress={handleSyncPending}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{pendingCount}</Text>
+              </View>
+              <Ionicons name="sync" size={24} color="#2563EB" />
+            </TouchableOpacity>
           )}
-        </TouchableOpacity>
-      )}
+        </View>
+      </View>
 
-      {!scannedAsset ? (
-        <View style={styles.searchContainer}>
-          <View style={styles.searchSection}>
-            <Text style={styles.sectionTitle}>ค้นหาครุภัณฑ์</Text>
-            <Text style={styles.sectionSubtitle}>
-              สแกน QR Code หรือกรอกรหัสครุภัณฑ์
-            </Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
+        {!scannedAsset ? (
+          <View style={styles.mainContent}>
+            <View style={styles.introCard}>
+              <View style={styles.introIconContainer}>
+                <Ionicons name="qr-code" size={40} color="#2563EB" />
+              </View>
+              <Text style={styles.introTitle}>พร้อมสแกนหรือยัง?</Text>
+              <Text style={styles.introText}>สแกน QR Code หรือ Barcode บนตัวครุภัณฑ์เพื่อเริ่มการตรวจสอบ</Text>
 
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Barcode / Serial Number / Asset ID"
-                placeholderTextColor="#9CA3AF"
-                value={manualBarcode}
-                onChangeText={setManualBarcode}
-                onSubmitEditing={handleManualSearch}
-              />
-              <TouchableOpacity
-                style={styles.searchButton}
-                onPress={handleManualSearch}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Ionicons name="search" size={24} color="#fff" />
-                )}
+              <TouchableOpacity style={styles.bigScanBtn} onPress={() => setShowCamera(true)}>
+                <Ionicons name="camera" size={28} color="#fff" />
+                <Text style={styles.bigScanBtnText}>เปิดกล้องสแกน</Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.dividerText}>หรือ</Text>
-
-            <TouchableOpacity
-              style={styles.scanButton}
-              onPress={() => setShowCamera(true)}
-              disabled={loading}
-            >
-              <Ionicons name="qr-code-outline" size={32} color="#fff" />
-              <Text style={styles.scanButtonText}>สแกน QR Code</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.placeholderContainer}>
-            <Ionicons name="cube-outline" size={80} color="#D1D5DB" />
-            <Text style={styles.placeholderText}>ยังไม่ได้สแกนครุภัณฑ์</Text>
-            <Text style={styles.placeholderSubtext}>
-              กรุณาสแกน QR Code หรือกรอกรหัสครุภัณฑ์
-            </Text>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.assetContainer}>
-          <View style={styles.assetHeader}>
-            <Ionicons name="checkmark-circle" size={32} color="#10B981" />
-            <Text style={styles.assetHeaderText}>พบครุภัณฑ์</Text>
-          </View>
-
-          <View style={styles.assetInfo}>
-            <View style={styles.assetInfoRow}>
-              <Text style={styles.assetLabel}>รหัสครุภัณฑ์</Text>
-              <Text style={styles.assetValue}>{scannedAsset.asset_id}</Text>
-            </View>
-
-            <View style={styles.assetInfoRow}>
-              <Text style={styles.assetLabel}>ชื่อครุภัณฑ์</Text>
-              <Text style={styles.assetValue}>{scannedAsset.asset_name}</Text>
-            </View>
-
-            {scannedAsset.serial_number && (
-              <View style={styles.assetInfoRow}>
-                <Text style={styles.assetLabel}>Serial Number</Text>
-                <Text style={styles.assetValue}>{scannedAsset.serial_number}</Text>
-              </View>
-            )}
-
-            <View style={styles.assetInfoRow}>
-              <Text style={styles.assetLabel}>สถานที่</Text>
-              <Text style={styles.assetValue}>
-                {scannedAsset.building_name} {scannedAsset.room_number}
-              </Text>
-            </View>
-
-            <View style={styles.assetInfoRow}>
-              <Text style={styles.assetLabel}>สถานะปัจจุบัน</Text>
-              <View
-                style={[
-                  styles.statusBadge,
-                  scannedAsset.status === 'ใช้งานได้' && styles.statusBadgeSuccess,
-                  scannedAsset.status === 'รอซ่อม' && styles.statusBadgeWarning,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.statusText,
-                    scannedAsset.status === 'ใช้งานได้' && styles.statusTextSuccess,
-                  ]}
-                >
-                  {scannedAsset.status}
-                </Text>
+            <View style={styles.manualSearchCard}>
+              <Text style={styles.manualLabel}>ค้นหาด้วยรหัสด้วยตนเอง</Text>
+              <View style={styles.searchInputWrapper}>
+                <TextInput
+                  style={styles.manualInput}
+                  placeholder="รหัสครุภัณฑ์ / บาร์โค้ด"
+                  value={manualBarcode}
+                  onChangeText={setManualBarcode}
+                  onSubmitEditing={handleManualSearch}
+                />
+                <TouchableOpacity style={styles.manualSearchBtn} onPress={handleManualSearch}>
+                  <Ionicons name="search" size={20} color="#fff" />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
-
-          <View style={styles.checkForm}>
-            <Text style={styles.formTitle}>บันทึกการตรวจสอบ</Text>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>สถานะหลังตรวจสอบ</Text>
-              <View style={styles.statusButtons}>
-                {['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ'].map(
-                  (status) => (
-                    <TouchableOpacity
-                      key={status}
-                      style={[
-                        styles.statusButton,
-                        checkStatus === status && styles.statusButtonActive,
-                      ]}
-                      onPress={() => setCheckStatus(status)}
-                    >
-                      <Text
-                        style={[
-                          styles.statusButtonText,
-                          checkStatus === status && styles.statusButtonTextActive,
-                        ]}
-                      >
-                        {status}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                )}
+        ) : (
+          <View style={styles.resultContainer}>
+            {/* Found Asset Card */}
+            <View style={styles.assetCard}>
+              <View style={styles.assetCardHeader}>
+                <View style={styles.assetIconBox}>
+                  <Ionicons name="cube" size={24} color="#fff" />
+                </View>
+                <View style={styles.assetHeaderInfo}>
+                  <Text style={styles.assetIdText}>{scannedAsset.asset_id}</Text>
+                  <Text style={styles.assetNameText} numberOfLines={2}>{scannedAsset.asset_name}</Text>
+                </View>
               </View>
+
+              <View style={styles.assetDetailsGrid}>
+                <View style={styles.assetDetailItem}>
+                  <Text style={styles.detailLabel}>สถานที่</Text>
+                  <Text style={styles.detailValue}>{scannedAsset.building_name || '-'} {scannedAsset.room_number || ''}</Text>
+                </View>
+                <View style={styles.assetDetailItem}>
+                  <Text style={styles.detailLabel}>สถานะเดิม</Text>
+                  <Text style={[styles.detailValue, { color: getStatusColor(scannedAsset.status) }]}>{scannedAsset.status}</Text>
+                </View>
+              </View>
+
+              {isOfflineResult && (
+                <View style={styles.offlineIndicator}>
+                  <Ionicons name="cloud-offline" size={12} color="#6B7280" />
+                  <Text style={styles.offlineIndicatorText}>แสดงผลจากข้อมูลออฟไลน์</Text>
+                </View>
+              )}
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>หมายเหตุ</Text>
+            {/* Checkin Form */}
+            <View style={styles.formCard}>
+              <Text style={styles.formTitle}>ผลการตรวจสอบ</Text>
+
+              <View style={styles.statusGrid}>
+                {[ASSET_STATUS.AVAILABLE, ASSET_STATUS.MAINTENANCE, ASSET_STATUS.PENDING_DISPOSAL, ASSET_STATUS.DISPOSED, ASSET_STATUS.MISSING].map((status) => (
+                  <TouchableOpacity
+                    key={status}
+                    style={[
+                      styles.statusSelectBtn,
+                      checkStatus === status && { backgroundColor: getStatusColor(status) + '20', borderColor: getStatusColor(status) }
+                    ]}
+                    onPress={() => setCheckStatus(status)}
+                  >
+                    <View style={[styles.statusRadio, checkStatus === status && { backgroundColor: getStatusColor(status) }]} />
+                    <Text style={[styles.statusSelectText, checkStatus === status && { color: getStatusColor(status), fontWeight: 'bold' }]}>
+                      {status}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.formLabel}>หมายเหตุ (ถ้ามี)</Text>
               <TextInput
-                style={styles.textArea}
+                style={styles.remarkInput}
                 placeholder="ระบุรายละเอียดเพิ่มเติม..."
-                placeholderTextColor="#9CA3AF"
                 value={remark}
                 onChangeText={setRemark}
                 multiline
-                numberOfLines={4}
+                numberOfLines={3}
               />
+
+              <TouchableOpacity style={styles.submitBtn} onPress={handleCheckAsset} disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="save" size={22} color="#fff" />
+                    <Text style={styles.submitBtnText}>บันทึกการตรวจสอบ</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.cancelBtn} onPress={handleReset}>
+                <Text style={styles.cancelBtnText}>ยกเลิกและสแกนใหม่</Text>
+              </TouchableOpacity>
             </View>
-
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleCheckAsset}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Ionicons name="checkmark-circle" size={24} color="#fff" />
-                  <Text style={styles.submitButtonText}>บันทึกการตรวจสอบ</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-              <Text style={styles.resetButtonText}>สแกนใหม่</Text>
-            </TouchableOpacity>
           </View>
+        )}
+      </ScrollView>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
         </View>
       )}
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -541,333 +391,361 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F3F4F6',
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  header: {
+    height: 60,
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginTop: 16,
-  },
-  errorSubtext: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 8,
-    textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-  cameraContainer: {
-    flex: 1,
-  },
-  cameraOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanFrame: {
-    width: 250,
-    height: 250,
-    borderWidth: 2,
-    borderColor: '#fff',
-    borderRadius: 12,
-  },
-  scanText: {
-    color: '#fff',
-    fontSize: 18,
-    marginTop: 20,
-    fontWeight: '600',
-  },
-  closeCameraButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 25,
-    padding: 8,
-  },
-  searchContainer: {
-    padding: 16,
-  },
-  searchSection: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
-  sectionTitle: {
+  headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#111827',
-    marginBottom: 4,
   },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: '#6B7280',
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  badgeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  badge: {
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    height: 18,
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    zIndex: 1,
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  mainContent: {
+    padding: 20,
+  },
+  introCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
     marginBottom: 20,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#111827',
-  },
-  searchButton: {
-    backgroundColor: '#2563EB',
-    borderRadius: 8,
-    padding: 12,
+  introIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#EFF6FF',
     justifyContent: 'center',
     alignItems: 'center',
-    width: 50,
+    marginBottom: 20,
   },
-  dividerText: {
-    textAlign: 'center',
-    color: '#6B7280',
-    marginVertical: 16,
-  },
-  scanButton: {
-    backgroundColor: '#10B981',
-    borderRadius: 8,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  scanButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  placeholderContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  placeholderText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginTop: 16,
-  },
-  placeholderSubtext: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 8,
-  },
-  assetContainer: {
-    padding: 16,
-  },
-  assetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  assetHeaderText: {
-    fontSize: 20,
+  introTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#111827',
+    marginBottom: 10,
   },
-  assetInfo: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  assetInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  assetLabel: {
+  introText: {
     fontSize: 14,
     color: '#6B7280',
-    flex: 1,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
   },
-  assetValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    flex: 2,
-    textAlign: 'right',
+  bigScanBtn: {
+    backgroundColor: '#2563EB',
+    width: '100%',
+    height: 56,
+    borderRadius: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+  bigScanBtnText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
   },
-  statusBadgeSuccess: {
-    backgroundColor: '#D1FAE5',
+  manualSearchCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
   },
-  statusBadgeWarning: {
-    backgroundColor: '#FEF3C7',
-  },
-  statusText: {
+  manualLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
+    marginBottom: 12,
   },
-  statusTextSuccess: {
-    color: '#065F46',
+  searchInputWrapper: {
+    flexDirection: 'row',
+    gap: 10,
   },
-  checkForm: {
-    backgroundColor: '#fff',
+  manualInput: {
+    flex: 1,
+    height: 48,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     borderRadius: 12,
-    padding: 16,
+    paddingHorizontal: 16,
+    fontSize: 15,
+  },
+  manualSearchBtn: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#4B5563',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  resultContainer: {
+    padding: 20,
+  },
+  assetCard: {
+    backgroundColor: '#1F2937',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 20,
+  },
+  assetCardHeader: {
+    flexDirection: 'row',
+    gap: 15,
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#374151',
+    paddingBottom: 15,
+  },
+  assetIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#3B82F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  assetHeaderInfo: {
+    flex: 1,
+  },
+  assetIdText: {
+    color: '#3B82F6',
+    fontSize: 13,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  assetNameText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    lineHeight: 24,
+  },
+  assetDetailsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  assetDetailItem: {
+    flex: 1,
+  },
+  detailLabel: {
+    color: '#9CA3AF',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  detailValue: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  offlineIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+    gap: 5,
+  },
+  offlineIndicatorText: {
+    color: '#9CA3AF',
+    fontSize: 11,
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   formTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#111827',
-    marginBottom: 16,
-  },
-  formGroup: {
     marginBottom: 20,
+  },
+  statusGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 20,
+  },
+  statusSelectBtn: {
+    width: (width - 100) / 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  statusRadio: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+  },
+  statusSelectText: {
+    fontSize: 13,
+    color: '#4B5563',
   },
   formLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  statusButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  statusButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+  remarkInput: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
-    backgroundColor: '#fff',
-  },
-  statusButtonActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  statusButtonText: {
-    fontSize: 14,
-    color: '#374151',
-  },
-  statusButtonTextActive: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  textArea: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
+    borderColor: '#E5E7EB',
     padding: 12,
-    fontSize: 16,
-    color: '#111827',
+    fontSize: 15,
+    minHeight: 80,
     textAlignVertical: 'top',
-    minHeight: 100,
+    marginBottom: 24,
   },
-  submitButton: {
+  submitBtn: {
     backgroundColor: '#10B981',
-    borderRadius: 8,
-    padding: 16,
+    height: 56,
+    borderRadius: 16,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    alignItems: 'center',
+    gap: 10,
     marginBottom: 12,
   },
-  submitButtonText: {
+  submitBtnText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: 'bold',
   },
-  resetButton: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-  },
-  resetButtonText: {
-    color: '#374151',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  permissionButton: {
-    backgroundColor: '#2563EB',
-    borderRadius: 8,
-    padding: 16,
-    marginTop: 20,
-  },
-  permissionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  // Offline mode styles
-  offlineBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  cancelBtn: {
+    height: 48,
     justifyContent: 'center',
-    backgroundColor: '#EF4444',
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    color: '#6B7280',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  cameraContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  cameraOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  scanTarget: {
+    width: 250,
+    height: 250,
+    position: 'relative',
+  },
+  corner: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderColor: '#3B82F6',
+    borderWidth: 4,
+  },
+  topLeft: {
+    top: 0,
+    left: 0,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 20,
+  },
+  topRight: {
+    top: 0,
+    right: 0,
+    borderLeftWidth: 0,
+    borderBottomWidth: 0,
+    borderTopRightRadius: 20,
+  },
+  bottomLeft: {
+    bottom: 0,
+    left: 0,
+    borderRightWidth: 0,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 20,
+  },
+  bottomRight: {
+    bottom: 0,
+    right: 0,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    borderBottomRightRadius: 20,
+  },
+  scanInstruction: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 40,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 20,
     paddingVertical: 10,
-    gap: 8,
+    borderRadius: 20,
   },
-  offlineBannerText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+  cameraCloseBtn: {
+    position: 'absolute',
+    bottom: 50,
+    alignSelf: 'center',
   },
-  pendingBanner: {
-    flexDirection: 'row',
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FEF3C7',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F59E0B',
-  },
-  pendingInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  pendingText: {
-    color: '#92400E',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  syncButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#10B981',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    gap: 4,
-  },
-  syncButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    zIndex: 1000,
   },
 });
+
+
 

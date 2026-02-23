@@ -8,319 +8,456 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import api from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
+import { API_BASE_URL, ASSET_STATUS } from '../utils/constants';
+
+const { width } = Dimensions.get('window');
 
 export default function AssetDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { asset } = route.params || {};
-  const [loading, setLoading] = useState(!asset);
+  const { asset: initialAsset } = route.params || {};
+  const [asset, setAsset] = useState(initialAsset);
+  const [loading, setLoading] = useState(false);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'ใช้งานได้':
-        return '#10B981';
-      case 'รอซ่อม':
-        return '#F59E0B';
-      case 'รอจำหน่าย':
-        return '#EF4444';
-      case 'จำหน่ายแล้ว':
-        return '#6B7280';
-      case 'ไม่พบ':
-        return '#EF4444';
-      default:
-        return '#6B7280';
+  useEffect(() => {
+    if (initialAsset?.asset_id) {
+      fetchAssetDetail();
+    }
+  }, []);
+
+  const fetchAssetDetail = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/assets/${initialAsset.asset_id}`);
+      if (response.data.success) {
+        setAsset(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching asset detail:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const InfoRow = ({ label, value, icon }) => (
-    <View style={styles.infoRow}>
-      {icon && <Ionicons name={icon} size={20} color="#6B7280" style={styles.infoIcon} />}
-      <View style={styles.infoContent}>
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case ASSET_STATUS.AVAILABLE: return { color: '#10B981', bg: '#D1FAE5' };
+      case ASSET_STATUS.MAINTENANCE: return { color: '#F59E0B', bg: '#FEF3C7' };
+      case ASSET_STATUS.PENDING_DISPOSAL: return { color: '#EF4444', bg: '#FEE2E2' };
+      case ASSET_STATUS.DISPOSED: return { color: '#6B7280', bg: '#F3F4F6' };
+      case ASSET_STATUS.MISSING: return { color: '#991B1B', bg: '#FEE2E2' };
+      default: return { color: '#6B7280', bg: '#F3F4F6' };
+    }
+  };
+
+  const InfoItem = ({ label, value, icon, fullWidth = false }) => (
+    <View style={[styles.infoItem, fullWidth && styles.infoItemFull]}>
+      <View style={styles.iconContainer}>
+        <Ionicons name={icon} size={20} color="#2563EB" />
+      </View>
+      <View style={styles.infoTextContainer}>
         <Text style={styles.infoLabel}>{label}</Text>
         <Text style={styles.infoValue}>{value || '-'}</Text>
       </View>
     </View>
   );
 
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
-      </View>
-    );
-  }
-
-  if (!asset) {
+  if (!asset && !loading) {
     return (
       <View style={styles.centerContainer}>
         <Ionicons name="alert-circle-outline" size={64} color="#9CA3AF" />
         <Text style={styles.errorText}>ไม่พบข้อมูลครุภัณฑ์</Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>กลับ</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.retryButtonText}>กลับหน้าหลัก</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  const statusStyle = getStatusStyle(asset?.status);
+  const imageUrl = asset?.image
+    ? { uri: `${API_BASE_URL.replace('/api', '')}/${asset.image}` }
+    : null;
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>รายละเอียดครุภัณฑ์</Text>
-        <View style={styles.placeholder} />
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      <View style={styles.content}>
-        {/* Asset ID Badge */}
-        <View style={styles.assetIdBadge}>
-          <Text style={styles.assetIdText}>{asset.asset_id}</Text>
-        </View>
+      <ScrollView bounces={false} style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Header Image Section */}
+        <View style={styles.imageHeaderContainer}>
+          {imageUrl ? (
+            <Image source={imageUrl} style={styles.headerImage} />
+          ) : (
+            <View style={[styles.headerImage, styles.placeholderImage]}>
+              <Ionicons name="cube-outline" size={80} color="#D1D5DB" />
+            </View>
+          )}
 
-        {/* Asset Name */}
-        <Text style={styles.assetName}>{asset.asset_name}</Text>
+          {/* Top Actions */}
+          <SafeAreaView style={styles.headerActions}>
+            <TouchableOpacity style={styles.headerActionButton} onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.headerActionRight}>
+              <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
+                <View style={[styles.statusDot, { backgroundColor: statusStyle.color }]} />
+                <Text style={[styles.statusText, { color: statusStyle.color }]}>{asset?.status}</Text>
+              </View>
+            </View>
+          </SafeAreaView>
 
-        {/* Status Badge */}
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(asset.status) + '20' },
-          ]}
-        >
-          <Text style={[styles.statusText, { color: getStatusColor(asset.status) }]}>
-            {asset.status}
-          </Text>
-        </View>
-
-        {/* Image */}
-        {asset.image && (
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: asset.image }}
-              style={styles.assetImage}
-              resizeMode="cover"
-            />
-          </View>
-        )}
-
-        {/* Information Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>ข้อมูลครุภัณฑ์</Text>
-          <View style={styles.infoCard}>
-            <InfoRow label="รหัสครุภัณฑ์" value={asset.asset_id} icon="barcode-outline" />
-            <InfoRow label="Serial Number" value={asset.serial_number} icon="code-outline" />
-            <InfoRow label="Barcode" value={asset.barcode} icon="qr-code-outline" />
-            <InfoRow label="จำนวน" value={`${asset.quantity} ${asset.unit || 'หน่วย'}`} icon="cube-outline" />
-            <InfoRow label="ราคา" value={`${parseFloat(asset.price || 0).toLocaleString('th-TH')} บาท`} icon="cash-outline" />
-            <InfoRow label="วันที่ได้รับ" value={asset.received_date ? new Date(asset.received_date).toLocaleDateString('th-TH') : '-'} icon="calendar-outline" />
+          {/* Asset Title Overlay */}
+          <View style={styles.titleOverlay}>
+            <Text style={styles.assetIdLabel}>{asset?.asset_id}</Text>
+            <Text style={styles.assetNameTitle}>{asset?.asset_name}</Text>
           </View>
         </View>
 
-        {/* Location Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>สถานที่ตั้ง</Text>
-          <View style={styles.infoCard}>
-            <InfoRow label="อาคาร" value={asset.building_name} icon="business-outline" />
-            <InfoRow label="ชั้น" value={asset.floor} icon="layers-outline" />
-            <InfoRow label="ห้อง" value={asset.room_number} icon="location-outline" />
-            <InfoRow label="หน่วยงาน" value={asset.department_name} icon="people-outline" />
-          </View>
-        </View>
-
-        {/* Check History Section */}
-        {asset.last_check_date && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>ประวัติการตรวจสอบ</Text>
-            <View style={styles.infoCard}>
-              <InfoRow label="ตรวจสอบล่าสุด" value={new Date(asset.last_check_date).toLocaleDateString('th-TH')} icon="checkmark-circle-outline" />
-              <InfoRow label="ผู้ตรวจสอบ" value={asset.last_checker} icon="person-outline" />
-              {asset.last_check_status && (
-                <InfoRow label="สถานะการตรวจสอบ" value={asset.last_check_status} icon="clipboard-outline" />
-              )}
-              {asset.next_check_date && (
-                <InfoRow label="ตรวจสอบครั้งต่อไป" value={new Date(asset.next_check_date).toLocaleDateString('th-TH')} icon="calendar-outline" />
-              )}
+        <View style={styles.detailsContainer}>
+          {/* Main Info Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="information-circle" size={20} color="#2563EB" />
+              <Text style={styles.cardTitle}>ข้อมูลพื้นฐาน</Text>
+            </View>
+            <View style={styles.grid}>
+              <InfoItem label="Serial Number" value={asset?.serial_number} icon="barcode-outline" />
+              <InfoItem label="Barcode" value={asset?.barcode} icon="qr-code-outline" />
+              <InfoItem label="จำนวน" value={`${asset?.quantity || 1} ${asset?.unit || ''}`} icon="apps-outline" />
+              <InfoItem label="ราคา" value={asset?.price ? `${Number(asset.price).toLocaleString('th-TH')} ฿` : '-'} icon="cash-outline" />
+              <InfoItem label="วันที่ได้รับ" value={asset?.received_date} icon="calendar-outline" />
+              <InfoItem label="หน่วยงาน" value={asset?.department_name} icon="business-outline" />
             </View>
           </View>
-        )}
 
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.scanButton}
-            onPress={() => navigation.navigate('Scan', { assetId: asset.asset_id })}
-          >
-            <Ionicons name="qr-code-outline" size={24} color="#fff" />
-            <Text style={styles.scanButtonText}>สแกน QR Code</Text>
-          </TouchableOpacity>
+          {/* Location Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="location" size={20} color="#2563EB" />
+              <Text style={styles.cardTitle}>สถานที่และตำแหน่ง</Text>
+            </View>
+            <View style={styles.grid}>
+              <InfoItem label="อาคาร" value={asset?.building_name} icon="map-outline" />
+              <InfoItem label="อาคาร (ระบุเอง)" value={asset?.room_text} icon="create-outline" />
+              <InfoItem label="ชั้น" value={asset?.floor} icon="layers-outline" />
+              <InfoItem label="ห้อง" value={asset?.room_number} icon="door-open-outline" />
+              <InfoItem label="คณะ" value={asset?.faculty_name} icon="school-outline" fullWidth />
+            </View>
+          </View>
+
+          {/* Finance & Project Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="wallet" size={20} color="#2563EB" />
+              <Text style={styles.cardTitle}>การเงินและโครงการ</Text>
+            </View>
+            <View style={styles.grid}>
+              <InfoItem label="รหัสกองทุน" value={asset?.fund_code} icon="cash-outline" />
+              <InfoItem label="รหัสแผน" value={asset?.plan_code} icon="document-text-outline" />
+              <InfoItem label="รหัสโครงการ" value={asset?.project_code} icon="construct-outline" />
+              <InfoItem label="เลขที่ใบส่งของ" value={asset?.delivery_number} icon="clipboard-outline" />
+            </View>
+          </View>
+
+          {/* Extra Info Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="document-attach" size={20} color="#2563EB" />
+              <Text style={styles.cardTitle}>รายละเอียดเพิ่มเติม</Text>
+            </View>
+            <View style={styles.descriptionBox}>
+              <Text style={styles.descriptionText}>{asset?.description || 'ไม่มีรายละเอียดเพิ่มเติม'}</Text>
+            </View>
+            {asset?.reference_number && (
+              <View style={styles.refBox}>
+                <Text style={styles.refLabel}>อ้างอิงใบตรวจรับ:</Text>
+                <Text style={styles.refValue}>{asset.reference_number}</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={{ height: 100 }} />
         </View>
+      </ScrollView>
+
+      {/* Floating Action Button */}
+      <View style={styles.bottomActions}>
+        <TouchableOpacity
+          style={styles.mainActionButton}
+          onPress={() => navigation.navigate('Scan', { assetId: asset?.asset_id })}
+        >
+          <Ionicons name="checkmark-done-circle" size={24} color="#fff" />
+          <Text style={styles.mainActionButtonText}>ตรวจสอบครุภัณฑ์นี้</Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  imageHeaderContainer: {
+    height: 350,
+    width: '100%',
+    position: 'relative',
+  },
+  headerImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  placeholderImage: {
     backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerActions: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? 40 : 10,
+  },
+  headerActionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerActionRight: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  titleOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 24,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  assetIdLabel: {
+    color: '#3B82F6',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  assetNameTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    lineHeight: 30,
+  },
+  detailsContainer: {
+    flex: 1,
+    marginTop: -20,
+    backgroundColor: '#F9FAFB',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 20,
+  },
+  infoItem: {
+    width: (width - 100) / 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  infoItemFull: {
+    width: '100%',
+  },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoTextContainer: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 11,
+    color: '#6B7280',
+    marginBottom: 2,
+    textTransform: 'uppercase',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: '#111827',
+    fontWeight: '600',
+  },
+  descriptionBox: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: '#4B5563',
+    lineHeight: 20,
+  },
+  refBox: {
+    marginTop: 12,
+    flexDirection: 'row',
+    gap: 6,
+  },
+  refLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  refValue: {
+    fontSize: 12,
+    color: '#111827',
+    fontWeight: '500',
+  },
+  bottomActions: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+    paddingTop: 16,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  mainActionButton: {
+    backgroundColor: '#10B981',
+    height: 56,
+    borderRadius: 18,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  mainActionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    padding: 16,
-    paddingTop: 60,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
-    padding: 16,
-  },
-  assetIdBadge: {
-    backgroundColor: '#2563EB',
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  assetIdText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  assetName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  statusBadge: {
-    alignSelf: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 24,
-  },
-  statusText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  imageContainer: {
-    marginBottom: 24,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  assetImage: {
-    width: '100%',
-    height: 200,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 12,
-  },
-  infoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  infoIcon: {
-    marginRight: 12,
-    marginTop: 2,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: '#111827',
-    fontWeight: '500',
-  },
-  actionButtons: {
-    marginTop: 8,
-    marginBottom: 32,
-  },
-  scanButton: {
-    backgroundColor: '#2563EB',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  scanButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    padding: 40,
   },
   errorText: {
     fontSize: 18,
     color: '#6B7280',
     marginTop: 16,
     marginBottom: 24,
+    textAlign: 'center',
   },
-  backButtonText: {
-    color: '#2563EB',
-    fontSize: 16,
-    fontWeight: '600',
+  retryButton: {
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });
+
+
 
