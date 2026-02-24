@@ -95,7 +95,7 @@ export default function AssetDetailScreen() {
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.7,
+      quality: 0.4,
     });
 
     if (!result.canceled) {
@@ -108,7 +108,7 @@ export default function AssetDetailScreen() {
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.7,
+      quality: 0.4,
     });
 
     if (!result.canceled) {
@@ -116,7 +116,7 @@ export default function AssetDetailScreen() {
     }
   };
 
-  const uploadImage = async (uri) => {
+  const uploadImage = async (uri, retryCount = 0) => {
     setLoading(true);
     try {
       const formData = new FormData();
@@ -141,6 +141,7 @@ export default function AssetDetailScreen() {
 
       const xhr = new XMLHttpRequest();
       xhr.open('POST', uploadUrl);
+      xhr.timeout = 120000; // 120 seconds timeout
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('Accept', 'application/json');
 
@@ -154,27 +155,42 @@ export default function AssetDetailScreen() {
             Alert.alert('สำเร็จ', 'อัปโหลดรูปภาพเรียบร้อยแล้ว');
             fetchAssetDetail();
           } else {
-            Alert.alert('ผิดพลาด', responseData.message || `Server Error ${xhr.status}`);
+            Alert.alert('ผิดพลาด', responseData.message || 'ไม่สามารถอัปโหลดรูปภาพได้');
           }
         } catch (e) {
-          console.error('Error parsing XHR response:', e);
-          Alert.alert('ผิดพลาด', 'Server ตอบกลับมาไม่ถูกต้อง');
+          Alert.alert('ผิดพลาด', 'ข้อผิดพลาดจากเซิร์ฟเวอร์');
         }
       };
 
       xhr.onerror = (e) => {
+        if (retryCount < 1) {
+          console.log('Upload failed, retrying...');
+          setTimeout(() => uploadImage(uri, retryCount + 1), 1000);
+          return;
+        }
         setLoading(false);
-        console.error('XHR Network Error:', e);
-        Alert.alert('ผิดพลาด', 'ปัญหาการเชื่อมต่อ (Network Error)');
+        console.error('XHR Network Error after retry:', e);
+        Alert.alert('ผิดพลาด', 'ปัญหาการเชื่อมต่อ (Network Error) รบกวนตรวจสอบสัญญาณ Wi-Fi ครับ');
+      };
+
+      xhr.ontimeout = () => {
+        if (retryCount < 1) {
+          console.log('Upload timeout, retrying...');
+          setTimeout(() => uploadImage(uri, retryCount + 1), 1000);
+          return;
+        }
+        setLoading(false);
+        console.error('XHR Timeout after retry');
+        Alert.alert('ผิดพลาด', 'หมดเวลาการเชื่อมต่อ (Timeout)');
       };
 
       xhr.send(formData);
       return;
     } catch (error) {
-      console.error('Upload error details:', error);
-      Alert.alert('ผิดพลาด', 'เกิดปัญหาขณะเตรียมอัปโหลด');
+      console.error('Upload preparation error:', error);
+      Alert.alert('ผิดพลาด', 'ไม่สามารถเตรียมข้อมูลอัปโหลดได้');
     } finally {
-      // Loading is handled in XHR
+      // Handled in XHR callbacks
     }
   };
 
@@ -470,6 +486,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 24,
+    paddingRight: 120, // Add space for the edit button to prevent overlap
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   assetIdLabel: {

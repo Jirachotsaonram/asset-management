@@ -122,3 +122,33 @@ Stack trace:
 #2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(294): UploadController->uploadAssetImage('3882')
 #3 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\utils\ImageUpload.php on line 72
+[23-Feb-2026 17:22:51 Europe/Berlin] ImageUpload: Received file: b571bdaa-08de-4883-8648-7e7b98d295e3.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:22:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:22:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c7edb006318.17634209.jpg
+[23-Feb-2026 17:23:04 Europe/Berlin] ImageUpload: Received file: 7e1206ff-0b3f-4a32-aa8e-64aff58c1ad0.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:23:04 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:23:04 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c7ee84797a0.24180977.jpg
+[23-Feb-2026 17:24:15 Europe/Berlin] ImageUpload: Received file: 0dc7e314-643f-46f6-afcc-8307a69f46c7.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:24:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:24:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c7f2f16fe83.43455550.jpg
+[23-Feb-2026 17:28:22 Europe/Berlin] ImageUpload: Received file: b1be1757-10f1-404a-9575-bc7d3cd7d74c.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:28:22 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:28:22 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c8026147e33.40389981.jpg
+[23-Feb-2026 17:29:16 Europe/Berlin] ImageUpload: Received file: 499b32b5-ee5e-4d02-95ee-2974b6075b90.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:29:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:29:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c805cad4048.02272696.jpg
+[23-Feb-2026 17:29:38 Europe/Berlin] ImageUpload: Received file: 388b4fe5-34de-4656-8efa-52fb15c24a9d.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:29:38 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:29:38 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c8072cf68d8.51647154.jpg
+[23-Feb-2026 17:29:57 Europe/Berlin] ImageUpload: Received file: a6a1c23d-c989-4689-9118-479adcc8cf5d.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:29:57 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:29:57 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c80858ac573.07303568.jpg
+[23-Feb-2026 17:31:41 Europe/Berlin] ImageUpload: Received file: 0eec5988-4be9-4745-88fd-b2e8af4cf0d1.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:31:41 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:31:41 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c80eddffdd9.01774277.jpg
+[23-Feb-2026 17:31:53 Europe/Berlin] ImageUpload: Received file: 33c73b4c-4867-4472-aeb1-3a5854481c11.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:31:53 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:31:53 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c80f9922d16.06761159.jpg
+[23-Feb-2026 17:32:06 Europe/Berlin] ImageUpload: Received file: cf10fdb8-02b4-4ed2-8821-c5a6e159750c.jpeg size: 30089 type: image/jpeg
+[23-Feb-2026 17:32:06 Europe/Berlin] ImageUpload: Attempting to resize image
+[23-Feb-2026 17:32:06 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c810616e8f2.89993475.jpg

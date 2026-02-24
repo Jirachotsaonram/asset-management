@@ -2,7 +2,7 @@
 class ImageUpload {
     private $upload_dir = 'uploads/assets/';
     private $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    private $max_size = 5242880; // 5MB
+    private $max_size = 41943040; // 40MB (40 * 1024 * 1024)
     private $max_width = 1920;
     private $max_height = 1080;
 
@@ -16,12 +16,16 @@ class ImageUpload {
     public function upload($file, $old_image = null) {
         // ตรวจสอบว่ามีไฟล์หรือไม่
         if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+            error_log("ImageUpload: No file received");
             return ['success' => false, 'message' => 'ไม่พบไฟล์'];
         }
 
+        error_log("ImageUpload: Received file: " . $file['name'] . " size: " . $file['size'] . " type: " . $file['type']);
+
         // ตรวจสอบ error
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปโหลด'];
+            error_log("ImageUpload: Upload error: " . $file['error']);
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปโหลด (' . $file['error'] . ')'];
         }
 
         // ตรวจสอบประเภทไฟล์
@@ -30,12 +34,14 @@ class ImageUpload {
         finfo_close($finfo);
 
         if (!in_array($mime_type, $this->allowed_types)) {
+            error_log("ImageUpload: Invalid mime type: " . $mime_type);
             return ['success' => false, 'message' => 'ประเภทไฟล์ไม่ถูกต้อง (รองรับเฉพาะ JPG, PNG, GIF)'];
         }
 
         // ตรวจสอบขนาดไฟล์
         if ($file['size'] > $this->max_size) {
-            return ['success' => false, 'message' => 'ขนาดไฟล์เกิน 5MB'];
+            error_log("ImageUpload: File size too large: " . $file['size']);
+            return ['success' => false, 'message' => 'ขนาดไฟล์เกิน 40MB'];
         }
 
         // Create new filename
@@ -46,16 +52,22 @@ class ImageUpload {
         // Try to Resize if GD is available, otherwise just move the file
         $upload_success = false;
         if (function_exists('imagecreatefromjpeg')) {
+            error_log("ImageUpload: Attempting to resize image");
             $upload_success = $this->resizeImage($file['tmp_name'], $filepath, $mime_type);
+            if (!$upload_success) {
+                error_log("ImageUpload: Resize failed, falling back to move_uploaded_file");
+                $upload_success = move_uploaded_file($file['tmp_name'], $filepath);
+            }
         } else {
-            // Fallback: Just move the file
+            error_log("ImageUpload: GD not available, using move_uploaded_file");
             $upload_success = move_uploaded_file($file['tmp_name'], $filepath);
         }
 
         if ($upload_success) {
+            error_log("ImageUpload: Upload successful: " . $filepath);
             // Delete old if exists
             if ($old_image && file_exists($old_image)) {
-                unlink($old_image);
+                @unlink($old_image);
             }
 
             return [
