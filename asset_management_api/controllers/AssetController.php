@@ -31,6 +31,7 @@ class AssetController {
             if (!empty($_GET['building'])) $filters['building'] = $_GET['building'];
             if (!empty($_GET['floor'])) $filters['floor'] = $_GET['floor'];
             if (!empty($_GET['search'])) $filters['search'] = $_GET['search'];
+            if (!empty($_GET['unchecked'])) $filters['unchecked'] = $_GET['unchecked'];
 
             $sort = $_GET['sort'] ?? 'created_at';
             $order = $_GET['order'] ?? 'DESC';

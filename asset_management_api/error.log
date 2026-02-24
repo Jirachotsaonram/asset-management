@@ -152,3 +152,7 @@ Stack trace:
 [23-Feb-2026 17:32:06 Europe/Berlin] ImageUpload: Received file: cf10fdb8-02b4-4ed2-8821-c5a6e159750c.jpeg size: 30089 type: image/jpeg
 [23-Feb-2026 17:32:06 Europe/Berlin] ImageUpload: Attempting to resize image
 [23-Feb-2026 17:32:06 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699c810616e8f2.89993475.jpg
+[24-Feb-2026 19:06:49 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public" in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ImportController.php on line 398
+[24-Feb-2026 19:43:59 Europe/Berlin] ImageUpload: Received file: 89d122bd-fec7-4388-960f-146bfd96c214.jpeg size: 22137 type: image/jpeg
+[24-Feb-2026 19:43:59 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-Feb-2026 19:43:59 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699df16f2356b5.14641438.jpg

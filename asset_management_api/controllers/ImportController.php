@@ -36,6 +36,10 @@ class ImportController {
                 ]
             ];
 
+            // Tracks for intra-batch duplicates
+            $seenSerials = [];
+            $seenBarcodes = [];
+
             foreach ($data->rows as $index => $row) {
                 $rowNumber = $index + 1;
                 $errors = [];
@@ -47,12 +51,39 @@ class ImportController {
 
                 // Validate serial_number uniqueness (skip if empty or '-')
                 if (!empty($row->serial_number) && $row->serial_number !== '-') {
+                    // Check intra-batch
+                    if (isset($seenSerials[$row->serial_number])) {
+                        $errors[] = "Serial Number ซ้ำในไฟล์นำเข้า (ซ้ำกับแถวที่ {$seenSerials[$row->serial_number]})";
+                    } else {
+                        $seenSerials[$row->serial_number] = $rowNumber;
+                    }
+
+                    // Check Database
                     $checkQuery = "SELECT asset_id FROM Assets WHERE serial_number = :serial AND serial_number != '' AND serial_number != '-'";
                     $stmt = $this->db->prepare($checkQuery);
                     $stmt->bindParam(':serial', $row->serial_number);
                     $stmt->execute();
                     if ($stmt->rowCount() > 0) {
-                        $errors[] = "Serial Number ซ้ำกับครุภัณฑ์ที่มีอยู่แล้ว";
+                        $errors[] = "Serial Number ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ";
+                    }
+                }
+
+                // Validate barcode uniqueness (skip if empty)
+                if (!empty($row->barcode)) {
+                    // Check intra-batch
+                    if (isset($seenBarcodes[$row->barcode])) {
+                        $errors[] = "หมายเลขครุภัณฑ์ (Barcode) ซ้ำในไฟล์นำเข้า (ซ้ำกับแถวที่ {$seenBarcodes[$row->barcode]})";
+                    } else {
+                        $seenBarcodes[$row->barcode] = $rowNumber;
+                    }
+
+                    // Check Database
+                    $checkBarcode = "SELECT asset_id FROM Assets WHERE barcode = :barcode AND barcode != ''";
+                    $stmtB = $this->db->prepare($checkBarcode);
+                    $stmtB->bindParam(':barcode', $row->barcode);
+                    $stmtB->execute();
+                    if ($stmtB->rowCount() > 0) {
+                        $errors[] = "หมายเลขครุภัณฑ์ (Barcode) ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ";
                     }
                 }
 
@@ -185,6 +216,8 @@ class ImportController {
                 ]
             ];
 
+            error_log("Import: Starting import of " . count($data->rows) . " rows");
+
             foreach ($data->rows as $index => $row) {
                 $rowNumber = $index + 1;
                 
@@ -244,7 +277,14 @@ class ImportController {
                     $this->asset->department_id = !empty($row->department_id) ? $row->department_id : null;
                     $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
                     $this->asset->status = $row->status ?? 'ใช้งานได้';
-                    $this->asset->barcode = !empty($row->barcode) ? $row->barcode : 'QR' . time() . rand(1000, 9999) . $index;
+                    
+                    // Robust barcode generation if not provided
+                    if (empty($row->barcode)) {
+                        $this->asset->barcode = 'QR' . time() . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . $index;
+                    } else {
+                        $this->asset->barcode = $row->barcode;
+                    }
+                    
                     $this->asset->description = $row->description ?? '';
                     $this->asset->reference_number = $row->reference_number ?? '';
                     $this->asset->faculty_name = $row->faculty_name ?? null;
@@ -265,10 +305,12 @@ class ImportController {
                         ];
                         $results['summary']['success_count']++;
                     } else {
-                        throw new Exception('ไม่สามารถเพิ่มครุภัณฑ์ได้');
+                        error_log("Import: Failed to create asset at row $rowNumber. DB Error.");
+                        throw new Exception('ไม่สามารถเพิ่มครุภัณฑ์ได้ (Database Error)');
                     }
 
                 } catch (Exception $e) {
+                    error_log("Import: Error at row $rowNumber: " . $e->getMessage());
                     $results['failed'][] = [
                         'row' => $rowNumber,
                         'data' => $row,
@@ -389,6 +431,113 @@ class ImportController {
             ]);
 
         } catch (Exception $e) {
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Process OCR on uploaded image (for Mobile or Web)
+     * POST /import/ocr
+     */
+    public function processOCR() {
+        try {
+            // Ensure uploads directory exists
+            $uploadDir = 'uploads/ocr_temp/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $imagePath = '';
+            
+            // 1. Check for Base64 (JSON)
+            $json = json_decode(file_get_contents("php://input"));
+            if (isset($json->image)) {
+                $imageData = $json->image;
+                // Remove data:image/xxx;base64, prefix if exists
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                }
+                $decodedData = base64_decode($imageData);
+                if ($decodedData === false) {
+                    Response::error('ข้อมูลรูปภาพ (Base64) ไม่ถูกต้อง', 400);
+                }
+                $imagePath = $uploadDir . 'ocr_' . time() . '_' . rand(1000, 9999) . '.jpg';
+                file_put_contents($imagePath, $decodedData);
+            } 
+            // 2. Check for File Upload (Multipart)
+            elseif (isset($_FILES['image'])) {
+                $file = $_FILES['image'];
+                $imagePath = $uploadDir . 'ocr_' . time() . '_' . basename($file['name']);
+                if (!move_uploaded_file($file['tmp_name'], $imagePath)) {
+                    Response::error('ไม่สามารถบันทึกไฟล์รูปภาพได้', 500);
+                }
+            } else {
+                Response::error('ไม่พบรูปภาพที่ต้องการตรวจสอบ (ต้องการ "image" ใน JSON หรือ Multipart)', 400);
+            }
+
+            // --- RUN TESSERACT ---
+            error_log("OCR: Starting process for " . $imagePath);
+            if (isset($_FILES['image'])) {
+                error_log("OCR: Received file via Multipart. Size: " . $_FILES['image']['size']);
+            } else {
+                error_log("OCR: Received data via Base64/JSON");
+            }
+            
+            // Common paths for Tesseract on Windows
+            $tesseractBin = 'tesseract'; // Default in PATH
+            
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $possiblePaths = [
+                    'tesseract',
+                    '"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"',
+                    '"C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"',
+                    '"D:\\Program Files\\Tesseract-OCR\\tesseract.exe"',
+                    '"D:\\xampp\\Tesseract-OCR\\tesseract.exe"'
+                ];
+                
+                // Try to find which one works
+                foreach ($possiblePaths as $path) {
+                    $testCmd = "$path --version 2>&1";
+                    exec($testCmd, $out, $ret);
+                    if ($ret === 0) {
+                        $tesseractBin = $path;
+                        error_log("OCR: Found Tesseract at " . $path);
+                        break;
+                    }
+                }
+            }
+
+            $command = "$tesseractBin " . escapeshellarg($imagePath) . " stdout -l tha+eng 2>&1";
+            error_log("OCR: Running command: " . $command);
+            
+            $output = [];
+            $return_var = 0;
+            exec($command, $output, $return_var);
+            
+            error_log("OCR: Return code: " . $return_var);
+            
+            if (file_exists($imagePath)) {
+                @unlink($imagePath);
+            }
+
+            if ($return_var !== 0) {
+                // Return a more helpful error for Windows users
+                $errorMsg = 'เกิดข้อผิดพลาดในการประมวลผล OCR (Tesseract failed)';
+                if (empty($output)) {
+                    $errorMsg .= '. กรุณาตรวจสอบว่าได้ติดตั้ง Tesseract OCR บนเครื่อง Server แล้ว';
+                }
+                Response::error($errorMsg, 500, ['tesseract_return' => $return_var, 'output' => $output]);
+            }
+
+            $textResult = implode("\n", $output);
+            
+            // Send back the raw text
+            Response::success('ประมวลผล OCR สำเร็จ', [
+                'text' => $textResult
+            ]);
+
+        } catch (Exception $e) {
+            if (isset($imagePath) && file_exists($imagePath)) @unlink($imagePath);
             Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
         }
     }

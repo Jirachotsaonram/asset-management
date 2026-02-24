@@ -39,7 +39,8 @@ export function NotificationProvider({ children }) {
             const overdueAssets = overdueRes.data.data || [];
             const upcomingChecks = upcomingRes.data.data || [];
             const statusReport = statusRes.data.data || [];
-            const uncheckedAssets = uncheckedRes.data.data || [];
+            const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
+            const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (Array.isArray(uncheckedData) ? uncheckedData.length : 0);
             const pendingBorrows = borrowsRes.data.data || [];
 
             // Calculate stats from status report
@@ -58,7 +59,7 @@ export function NotificationProvider({ children }) {
             });
 
             setStats({
-                unchecked: uncheckedAssets.length,
+                unchecked: uncheckedCount,
                 missing: statusCounts['ไม่พบ'],
                 maintenance: statusCounts['รอซ่อม'],
                 pendingDisposal: statusCounts['รอจำหน่าย']
@@ -123,11 +124,11 @@ export function NotificationProvider({ children }) {
             }
 
             // 5. Unchecked Assets - WARNING
-            if (uncheckedAssets.length > 0) {
+            if (uncheckedCount > 0) {
                 allNotifications.push({
                     id: 'unchecked-assets',
                     type: 'warning',
-                    title: `ยังไม่ได้ตรวจ ${uncheckedAssets.length} รายการ`,
+                    title: `ยังไม่ได้ตรวจ ${uncheckedCount} รายการ`,
                     message: 'ครุภัณฑ์ที่ยังไม่เคยตรวจสอบในรอบปี',
                     time: 'รอดำเนินการ',
                     read: false,

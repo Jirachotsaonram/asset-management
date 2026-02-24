@@ -32,7 +32,7 @@ export default function BorrowsPage() {
     asset_id: '',
     borrower_name: '',
     borrow_date: new Date().toISOString().split('T')[0],
-    expected_return_date: '',
+    due_date: '',
     purpose: ''
   });
   const [formErrors, setFormErrors] = useState({});
@@ -79,8 +79,8 @@ export default function BorrowsPage() {
 
       let isOverdue = false;
       if (borrow.status !== 'คืนแล้ว') {
-        if (borrow.expected_return_date) {
-          isOverdue = now > new Date(borrow.expected_return_date);
+        if (borrow.due_date) {
+          isOverdue = now > new Date(borrow.due_date);
         } else {
           isOverdue = daysBorrowed > 30;
         }
@@ -185,6 +185,7 @@ export default function BorrowsPage() {
     try {
       const returnData = {
         borrow_id: selectedBorrow.borrow_id,
+        asset_id: selectedBorrow.asset_id,
         return_date: new Date().toISOString().split('T')[0],
         return_remark: returnRemark || `คืน${returnCondition}`,
         return_condition: returnCondition,
@@ -289,9 +290,23 @@ export default function BorrowsPage() {
                     <td className="px-6 py-4 text-sm text-gray-800">{borrow.borrower_name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{borrow.borrow_date}</td>
                     <td className="px-6 py-4 text-sm">
-                      {isReturned ? <span className="text-gray-400">คืน: {borrow.return_date}</span> :
-                        <span className={borrow.isOverdue ? 'text-danger-600 font-bold' : 'text-gray-700'}>{borrow.daysBorrowed} วัน</span>
-                      }
+                      {isReturned ? (
+                        <div className="flex flex-col">
+                          <span className="text-success-600 font-medium">คืนแล้ว</span>
+                          <span className="text-xs text-gray-500">เมื่อ: {borrow.return_date}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col">
+                          <span className={borrow.isOverdue ? 'text-danger-600 font-bold' : 'text-gray-700'}>
+                            {borrow.daysBorrowed === 0 ? 'วันนี้' : `${borrow.daysBorrowed} วัน`}
+                          </span>
+                          {borrow.due_date && (
+                            <span className={`text-[10px] ${borrow.isOverdue ? 'text-danger-500' : 'text-gray-500'}`}>
+                              กำหนดคืน: {borrow.due_date}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border 
@@ -458,7 +473,7 @@ function BorrowModal({ formData, setFormData, formErrors, allAssets, onSubmit, o
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">กำหนดคืน</label>
-              <input type="date" value={formData.expected_return_date} onChange={(e) => setFormData({ ...formData, expected_return_date: e.target.value })} className="form-input h-12 rounded-2xl" min={formData.borrow_date} />
+              <input type="date" value={formData.due_date} onChange={(e) => setFormData({ ...formData, due_date: e.target.value })} className="form-input h-12 rounded-2xl" min={formData.borrow_date} />
             </div>
           </div>
 
@@ -526,7 +541,7 @@ function DetailModal({ borrow, onClose, onReturn }) {
     { label: 'Serial Number', value: borrow.serial_number, mono: true },
     { label: 'ผู้ยืม', value: borrow.borrower_name },
     { label: 'วันที่ยืม', value: borrow.borrow_date },
-    { label: 'กำหนดคืน', value: borrow.expected_return_date || '-', highlight: borrow.isOverdue },
+    { label: 'กำหนดคืน', value: borrow.due_date || '-', highlight: borrow.isOverdue },
     { label: 'สถานะปัจจุบัน', value: isReturned ? 'คืนแล้ว' : (borrow.isOverdue ? 'เกินกำหนด' : 'กำลังยืม') }
   ];
 

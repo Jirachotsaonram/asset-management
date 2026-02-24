@@ -39,7 +39,8 @@ export default function DashboardScreen({ navigation }) {
       ]);
 
       const statusData = statusRes.data.data || [];
-      const uncheckedAssets = uncheckedRes.data.data || [];
+      const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
+      const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (uncheckedData.items?.length || 0);
 
       // Map status data to stats
       let total = 0;
@@ -57,8 +58,8 @@ export default function DashboardScreen({ navigation }) {
 
       setStats({
         total,
-        checked: total - uncheckedAssets.length,
-        unchecked: uncheckedAssets.length,
+        checked: Math.max(0, total - uncheckedCount),
+        unchecked: uncheckedCount,
         available,
         maintenance,
         missing,

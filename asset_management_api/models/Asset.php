@@ -116,6 +116,24 @@ class Asset {
             $params[':floor'] = $filters['floor'];
         }
 
+        // Filter by room_number
+        if (!empty($filters['room_number'])) {
+            $conditions[] = "room_number = :room_number";
+            $params[':room_number'] = $filters['room_number'];
+        }
+
+        // Filter by location_id
+        if (!empty($filters['location_id'])) {
+            $conditions[] = "location_id = :location_id";
+            $params[':location_id'] = $filters['location_id'];
+        }
+
+        // Filter by unchecked (not checked in more than 365 days)
+        if (!empty($filters['unchecked'])) {
+            $conditions[] = "(last_check_date IS NULL OR DATEDIFF(NOW(), last_check_date) > :days)";
+            $params[':days'] = 365;
+        }
+
         // Search
         if (!empty($filters['search'])) {
             $conditions[] = "(asset_name LIKE :search 
@@ -173,6 +191,14 @@ class Asset {
         if (!empty($filters['floor'])) {
             $conditions[] = "floor = :floor";
             $params[':floor'] = $filters['floor'];
+        }
+        if (!empty($filters['location_id'])) {
+            $conditions[] = "location_id = :location_id";
+            $params[':location_id'] = $filters['location_id'];
+        }
+        if (!empty($filters['unchecked'])) {
+            $conditions[] = "(last_check_date IS NULL OR DATEDIFF(NOW(), last_check_date) > :days)";
+            $params[':days'] = 365;
         }
         if (!empty($filters['search'])) {
             $conditions[] = "(asset_name LIKE :search 

@@ -85,7 +85,8 @@ export default function DashboardPage() {
       if (!Array.isArray(assets)) assets = [];
 
       const statusReport = statusRes.data.data || [];
-      const uncheckedAssets = uncheckedRes.data.data || [];
+      const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
+      const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (Array.isArray(uncheckedData) ? uncheckedData.length : 0);
 
       const sc = { 'ใช้งานได้': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
       let tv = 0;
@@ -102,7 +103,9 @@ export default function DashboardPage() {
       })).filter(d => d.value > 0);
 
       setStats({
-        total, checked: total - uncheckedAssets.length, unchecked: uncheckedAssets.length,
+        total,
+        checked: total - uncheckedCount,
+        unchecked: uncheckedCount,
         available: sc['ใช้งานได้'], maintenance: sc['รอซ่อม'],
         pendingDisposal: sc['รอจำหน่าย'], disposed: sc['จำหน่ายแล้ว'],
         missing: sc['ไม่พบ'], totalValue: tv,
@@ -372,7 +375,7 @@ export default function DashboardPage() {
               </div>
               <div className="bg-red-50 rounded-xl p-4 flex flex-col items-center justify-center">
                 <AlertTriangle size={28} className="text-red-500 mb-2" />
-                <p className="text-2xl font-bold text-red-700">{stats.unchecked.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-red-700">{(stats.unchecked || 0).toLocaleString()}</p>
                 <p className="text-xs text-gray-500 mt-1">ยังไม่ได้ตรวจ</p>
                 {stats.unchecked > 0 && (
                   <button onClick={() => navigate('/check')}

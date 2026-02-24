@@ -191,7 +191,10 @@ switch ($endpoint) {
             $controller->getByAsset($action);
         } 
         // POST, PUT - เฉพาะ Admin และ Inspector เท่านั้น
-        elseif ($request_method === 'POST') {
+        elseif (($request_method === 'POST' || $request_method === 'PUT') && $id && $action === 'return') {
+            $user_data = requireAdminOrInspector();
+            $controller->returnAsset($id, $user_data);
+        } elseif ($request_method === 'POST') {
             $user_data = requireAdminOrInspector();
             $controller->create($user_data);
         } elseif ($request_method === 'PUT' && $id) {
@@ -331,9 +334,8 @@ switch ($endpoint) {
                 $controller->assetByDepartment();
                 
             } elseif ($id === 'unchecked') {
-                // GET /reports/unchecked?days=365
-                $days = $_GET['days'] ?? 365;
-                $controller->uncheckedAssets($days);
+                // GET /reports/unchecked?days=365&page=1&limit=50&search=xxx&building=xxx...
+                $controller->uncheckedAssets($_GET);
                 
             } elseif ($id === 'movement-history') {
                 // GET /reports/movement-history?start_date=xxx&end_date=xxx
@@ -404,6 +406,9 @@ switch ($endpoint) {
             // POST /import/validate - Validate CSV data
             authenticate();
             $controller->validateCSV();
+        } elseif ($request_method === 'POST' && $id === 'ocr') {
+            // POST /import/ocr - Process OCR on image
+            $controller->processOCR();
         } elseif ($request_method === 'POST' && $id === 'assets') {
             // POST /import/assets - Import assets
             $user_data = authenticate();

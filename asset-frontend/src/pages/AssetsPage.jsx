@@ -48,6 +48,7 @@ export default function AssetsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
+  const [currentBorrow, setCurrentBorrow] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrAsset, setQrAsset] = useState(null);
@@ -164,9 +165,34 @@ export default function AssetsPage() {
     } catch (error) { toast.error("ไม่สามารถลบได้"); }
   };
 
+  const fetchCurrentBorrow = async (assetId) => {
+    try {
+      const response = await api.get(`/borrows/asset/${assetId}`);
+      if (response.data.success && response.data.data.length > 0) {
+        const active = response.data.data.find(b => b.status === 'ยืม');
+        setCurrentBorrow(active);
+      } else {
+        setCurrentBorrow(null);
+      }
+    } catch (error) {
+      console.error('Error fetching current borrow:', error);
+      setCurrentBorrow(null);
+    }
+  };
+
+  const handleViewDetails = (asset) => {
+    setSelectedAsset(asset);
+    if (asset.status === 'ยืม') {
+      fetchCurrentBorrow(asset.asset_id);
+    } else {
+      setCurrentBorrow(null);
+    }
+  };
+
   const getStatusColor = (status) => {
     const colors = {
       'ใช้งานได้': 'bg-green-100 text-green-700 border border-green-200',
+      'ยืม': 'bg-blue-100 text-blue-700 border border-blue-200',
       'รอซ่อม': 'bg-yellow-100 text-yellow-700 border border-yellow-200',
       'รอจำหน่าย': 'bg-orange-100 text-orange-700 border border-orange-200',
       'จำหน่ายแล้ว': 'bg-gray-100 text-gray-600 border border-gray-200',
@@ -248,7 +274,7 @@ export default function AssetsPage() {
         className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="QR/Barcode">
         <QrCode size={16} />
       </button>
-      <button onClick={() => setSelectedAsset(row)}
+      <button onClick={() => handleViewDetails(row)}
         className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="ดูรายละเอียด">
         <Eye size={16} />
       </button>
@@ -532,7 +558,7 @@ export default function AssetsPage() {
           sortKey={sortKey}
           sortOrder={sortOrder}
           onSort={handleSort}
-          onRowClick={(row) => setSelectedAsset(row)}
+          onRowClick={(row) => handleViewDetails(row)}
           rowActions={renderRowActions}
           searchable={false}
           showColumnConfig={true}
@@ -555,6 +581,26 @@ export default function AssetsPage() {
             </div>
 
             <div className="p-6">
+              {selectedAsset.status === 'ยืม' && currentBorrow && (
+                <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-blue-600 font-bold uppercase tracking-wider">กำลังถูกยืมโดย</p>
+                      <p className="text-sm font-bold text-gray-900">{currentBorrow.borrower_name}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">กำหนดคืน</p>
+                    <p className={`text-sm font-bold ${new Date(currentBorrow.due_date) < new Date() ? 'text-red-600' : 'text-gray-900'}`}>
+                      {currentBorrow.due_date || '-'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {selectedAsset.image && (
                 <img src={`${API_BASE_URL}/${selectedAsset.image}`} alt={selectedAsset.asset_name}
                   className="w-full h-56 object-cover rounded-xl mb-5" />

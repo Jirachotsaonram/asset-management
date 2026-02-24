@@ -43,21 +43,30 @@ export default function RoomCheckScreen({ navigation }) {
         setLoading(true);
         setCheckedIds(new Set());
         try {
-            // Use the existing assets endpoint with location filter
+            // ใช้ API filtering ที่สร้างใหม่ เพื่อลดภาระของ Client
             const response = await api.get('/assets', {
                 params: {
                     building: location.building_name,
                     floor: location.floor,
-                    limit: 100
+                    room_number: location.room_number,
+                    location_id: location.location_id,
+                    limit: 200 // ดึงมาให้ครบในห้องเดียวเลย
                 }
             });
             if (response.data.success) {
                 const fetchedItems = response.data.data?.items || (Array.isArray(response.data.data) ? response.data.data : []);
-                // Filter specifically for the room number if it exists
-                const filtered = fetchedItems.filter(a =>
-                    a.room_number === location.room_number || a.location_id === location.location_id
-                );
-                setAssets(filtered);
+
+                // ไม่ต้อง filter ใน JS แล้ว เพราะเรียกตรงจาก API
+                // ป้องกันรายการซ้ำ (Duplicate Keys)
+                const uniqueAssets = [];
+                const seenIds = new Set();
+                fetchedItems.forEach(item => {
+                    if (!seenIds.has(item.asset_id)) {
+                        seenIds.add(item.asset_id);
+                        uniqueAssets.push(item);
+                    }
+                });
+                setAssets(uniqueAssets);
             }
         } catch (error) {
             console.error('Error fetching assets:', error);
@@ -76,6 +85,23 @@ export default function RoomCheckScreen({ navigation }) {
         }
         setCheckedIds(newChecked);
     };
+
+    const renderAssetItem = React.useCallback(({ item }) => (
+        <TouchableOpacity
+            style={[styles.assetItem, checkedIds.has(item.asset_id) && styles.assetItemChecked]}
+            onPress={() => toggleCheck(item.asset_id)}
+        >
+            <View style={styles.assetInfo}>
+                <Text style={styles.assetId}>{item.asset_id}</Text>
+                <Text style={styles.assetName} numberOfLines={1}>{item.asset_name}</Text>
+            </View>
+            <Ionicons
+                name={checkedIds.has(item.asset_id) ? "checkmark-circle" : "ellipse-outline"}
+                size={28}
+                color={checkedIds.has(item.asset_id) ? "#10B981" : "#D1D5DB"}
+            />
+        </TouchableOpacity>
+    ), [checkedIds]);
 
     const handleFinishCheck = async () => {
         if (checkedIds.size === 0) {
@@ -159,24 +185,13 @@ export default function RoomCheckScreen({ navigation }) {
             <FlatList
                 data={assets}
                 keyExtractor={(item) => item.asset_id.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={[styles.assetItem, checkedIds.has(item.asset_id) && styles.assetItemChecked]}
-                        onPress={() => toggleCheck(item.asset_id)}
-                    >
-                        <View style={styles.assetInfo}>
-                            <Text style={styles.assetId}>{item.asset_id}</Text>
-                            <Text style={styles.assetName} numberOfLines={1}>{item.asset_name}</Text>
-                        </View>
-                        <Ionicons
-                            name={checkedIds.has(item.asset_id) ? "checkmark-circle" : "ellipse-outline"}
-                            size={28}
-                            color={checkedIds.has(item.asset_id) ? "#10B981" : "#D1D5DB"}
-                        />
-                    </TouchableOpacity>
-                )}
+                renderItem={renderAssetItem}
                 ListEmptyComponent={loading ? <ActivityIndicator size="large" /> : <Text style={styles.emptyText}>ไม่พบครุภัณฑ์ในห้องนี้</Text>}
                 contentContainerStyle={styles.listContent}
+                removeClippedSubviews={true}
+                initialNumToRender={15}
+                maxToRenderPerBatch={10}
+                windowSize={5}
             />
 
             <View style={styles.footer}>

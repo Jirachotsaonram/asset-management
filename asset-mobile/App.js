@@ -19,6 +19,7 @@ import BorrowsScreen from './src/screens/BorrowsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import RoomCheckScreen from './src/screens/RoomCheckScreen';
 import AssetEditScreen from './src/screens/AssetEditScreen';
+import ImportScreen from './src/screens/ImportScreen';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -121,6 +122,16 @@ function AppNavigator() {
               name="AssetEdit"
               component={AssetEditScreen}
               options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="Import"
+              component={ImportScreen}
+              options={{
+                title: 'นำเข้าข้อมูล',
+                headerShown: true,
+                headerStyle: { backgroundColor: '#FFF' },
+                headerTintColor: '#1F2937',
+              }}
             />
           </>
         ) : (

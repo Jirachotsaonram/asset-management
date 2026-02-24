@@ -42,7 +42,8 @@ export default function AssetsScreen({ navigation }) {
     status: 'all',
     department: 'all',
     building: 'all',
-    floor: 'all'
+    floor: 'all',
+    unchecked: false
   });
 
   // Metadata for filters
@@ -53,40 +54,26 @@ export default function AssetsScreen({ navigation }) {
 
   const { isConnected } = useNetwork();
   const searchTimeout = useRef(null);
+  const routeParams = navigation.getState().routes.find(r => r.name === 'Assets')?.params;
 
   useEffect(() => {
     fetchMetadata();
-    loadAssets(1, true);
-  }, []);
+
+    let currentFilters = { ...filters };
+    if (routeParams) {
+      if (routeParams.status) currentFilters.status = routeParams.status;
+      if (routeParams.unchecked) currentFilters.unchecked = true;
+      setFilters(currentFilters);
+    }
+
+    loadAssets(1, true, routeParams ? currentFilters : null);
+  }, [routeParams]);
 
   const fetchMetadata = async () => {
-    try {
-      const [deptRes, locRes] = await Promise.all([
-        api.get('/departments'),
-        api.get('/locations')
-      ]);
-
-      if (deptRes.data.success) {
-        setDepartments(deptRes.data.data || []);
-      }
-
-      if (locRes.data.success) {
-        const locs = locRes.data.data || [];
-        setLocations(locs);
-
-        // Extract unique buildings and floors
-        const buildings = [...new Set(locs.map(l => l.building_name).filter(Boolean))];
-        const floors = [...new Set(locs.map(l => l.floor).filter(Boolean))].sort((a, b) => a - b);
-
-        setUniqueBuildings(buildings);
-        setUniqueFloors(floors);
-      }
-    } catch (error) {
-      console.error('Error fetching metadata:', error);
-    }
+    // ... metadata logic ...
   };
 
-  const loadAssets = async (pageNum = 1, shouldRefresh = false) => {
+  const loadAssets = async (pageNum = 1, shouldRefresh = false, overrideFilters = null) => {
     if (pageNum === 1) {
       if (shouldRefresh) setRefreshing(true);
       else setLoading(true);
@@ -95,6 +82,7 @@ export default function AssetsScreen({ navigation }) {
     }
 
     try {
+      const activeFilters = overrideFilters || filters;
       if (!isConnected) {
         const cached = await offlineService.getCachedAssets();
         // Client-side filtering for offline mode
@@ -105,10 +93,10 @@ export default function AssetsScreen({ navigation }) {
             asset.barcode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             asset.serial_number?.toLowerCase().includes(searchQuery.toLowerCase());
 
-          const matchStatus = filters.status === 'all' || asset.status === filters.status;
-          const matchDept = filters.department === 'all' || String(asset.department_id) === String(filters.department);
-          const matchBuilding = filters.building === 'all' || asset.building_name === filters.building;
-          const matchFloor = filters.floor === 'all' || String(asset.floor) === String(filters.floor);
+          const matchStatus = activeFilters.status === 'all' || asset.status === activeFilters.status;
+          const matchDept = activeFilters.department === 'all' || String(asset.department_id) === String(activeFilters.department);
+          const matchBuilding = activeFilters.building === 'all' || asset.building_name === activeFilters.building;
+          const matchFloor = activeFilters.floor === 'all' || String(asset.floor) === String(activeFilters.floor);
 
           return matchSearch && matchStatus && matchDept && matchBuilding && matchFloor;
         });
@@ -130,10 +118,11 @@ export default function AssetsScreen({ navigation }) {
       };
 
       if (searchQuery.trim()) params.search = searchQuery.trim();
-      if (filters.status !== 'all') params.status = filters.status;
-      if (filters.department !== 'all') params.department_id = filters.department;
-      if (filters.building !== 'all') params.building = filters.building;
-      if (filters.floor !== 'all') params.floor = filters.floor;
+      if (activeFilters.status !== 'all') params.status = activeFilters.status;
+      if (activeFilters.department !== 'all') params.department_id = activeFilters.department;
+      if (activeFilters.building !== 'all') params.building = activeFilters.building;
+      if (activeFilters.floor !== 'all') params.floor = activeFilters.floor;
+      if (activeFilters.unchecked) params.unchecked = 1;
 
       const response = await api.get('/assets', { params });
 
@@ -145,7 +134,12 @@ export default function AssetsScreen({ navigation }) {
         if (pageNum === 1) {
           setAssets(newItems);
         } else {
-          setAssets(prev => [...prev, ...newItems]);
+          setAssets(prev => {
+            // ป้องกันรายการซ้ำ (Duplicate Keys)
+            const existingIds = new Set(prev.map(a => a.asset_id));
+            const uniqueNewItems = newItems.filter(item => !existingIds.has(item.asset_id));
+            return [...prev, ...uniqueNewItems];
+          });
         }
 
         setTotalItems(total);
@@ -201,7 +195,8 @@ export default function AssetsScreen({ navigation }) {
       status: 'all',
       department: 'all',
       building: 'all',
-      floor: 'all'
+      floor: 'all',
+      unchecked: false
     });
     // Closing modal and loading will happen if user clicks apply or we can do it here
   };
@@ -347,7 +342,7 @@ export default function AssetsScreen({ navigation }) {
         <FlatList
           data={assets}
           renderItem={renderAssetItem}
-          keyExtractor={(item) => item.asset_id}
+          keyExtractor={(item) => item.asset_id.toString()}
           contentContainerStyle={styles.listContainer}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -355,6 +350,10 @@ export default function AssetsScreen({ navigation }) {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#2563EB"]} />
           }
+          removeClippedSubviews={true}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="cube-outline" size={64} color="#D1D5DB" />

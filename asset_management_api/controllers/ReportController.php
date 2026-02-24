@@ -126,8 +126,74 @@ class ReportController {
         Response::success('ดึงข้อมูลสำเร็จ', $summary);
     }
 
-    // รายงานครุภัณฑ์ที่ยังไม่ได้ตรวจสอบ
-    public function uncheckedAssets($days = 365) {
+    // รายงานครุภัณฑ์ที่ยังไม่ได้ตรวจสอบ พร้อมระบบแบ่งหนา ค้นหา และฟิลเตอร์
+    public function uncheckedAssets($params) {
+        $days = $params['days'] ?? 365;
+        $page = $params['page'] ?? 1;
+        $limit = $params['limit'] ?? 50;
+        $search = $params['search'] ?? null;
+        $building = $params['building'] ?? null;
+        $floor = $params['floor'] ?? null;
+        $department_id = $params['department_id'] ?? null;
+        
+        $offset = ($page - 1) * $limit;
+        
+        $conditions = ["(ac.check_date IS NULL OR DATEDIFF(NOW(), ac.check_date) > :days)"];
+        $queryParams = [':days' => $days];
+        
+        if ($search) {
+            $conditions[] = "(a.asset_name LIKE :search OR a.asset_id LIKE :search OR a.serial_number LIKE :search)";
+            $queryParams[':search'] = "%$search%";
+        }
+        
+        if ($building) {
+            if ($building === 'unspecified' || $building === 'ไม่ระบุอาคาร') {
+                $conditions[] = "(l.building_name IS NULL OR l.building_name = '')";
+            } else {
+                $conditions[] = "l.building_name = :building";
+                $queryParams[':building'] = $building;
+            }
+        }
+        
+        if ($floor) {
+            if ($floor === 'unspecified' || $floor === 'ไม่ระบุชั้น') {
+                $conditions[] = "(l.floor IS NULL OR l.floor = '')";
+            } else {
+                $conditions[] = "l.floor = :floor";
+                $queryParams[':floor'] = $floor;
+            }
+        }
+        
+        if ($department_id) {
+            if ($department_id === 'unspecified') {
+                $conditions[] = "a.department_id IS NULL";
+            } else {
+                $conditions[] = "a.department_id = :department_id";
+                $queryParams[':department_id'] = $department_id;
+            }
+        }
+        
+        $whereClause = "WHERE " . implode(" AND ", $conditions);
+
+        // นับจำนวนทั้งหมดก่อน
+        $countQuery = "SELECT COUNT(*) as total
+                       FROM Assets a
+                       LEFT JOIN Locations l ON a.location_id = l.location_id
+                       LEFT JOIN (
+                           SELECT asset_id, MAX(check_date) as check_date
+                           FROM Asset_Check
+                           GROUP BY asset_id
+                       ) ac ON a.asset_id = ac.asset_id
+                       $whereClause";
+        
+        $countStmt = $this->conn->prepare($countQuery);
+        foreach ($queryParams as $key => $val) {
+            $countStmt->bindValue($key, $val);
+        }
+        $countStmt->execute();
+        $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+        // ดึงข้อมูลรายหน้า
         $query = "SELECT 
                     a.asset_id,
                     a.asset_name,
@@ -136,7 +202,10 @@ class ReportController {
                     d.department_name,
                     CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
                     ac.check_date as last_check_date,
-                    DATEDIFF(NOW(), ac.check_date) as days_since_check
+                    DATEDIFF(NOW(), ac.check_date) as days_since_check,
+                    l.building_name,
+                    l.room_number,
+                    l.floor
                 FROM Assets a
                 LEFT JOIN Departments d ON a.department_id = d.department_id
                 LEFT JOIN Locations l ON a.location_id = l.location_id
@@ -145,16 +214,26 @@ class ReportController {
                     FROM Asset_Check
                     GROUP BY asset_id
                 ) ac ON a.asset_id = ac.asset_id
-                WHERE ac.check_date IS NULL 
-                   OR DATEDIFF(NOW(), ac.check_date) > :days
-                ORDER BY days_since_check DESC";
+                $whereClause
+                ORDER BY days_since_check DESC, a.asset_id ASC
+                LIMIT :limit OFFSET :offset";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':days', $days, PDO::PARAM_INT);
+        foreach ($queryParams as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
         
         $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        Response::success('ดึงข้อมูลสำเร็จ', $assets);
+        
+        Response::success('ดึงข้อมูลสำเร็จ', [
+            'items' => $assets,
+            'total' => (int)$total,
+            'page' => (int)$page,
+            'limit' => (int)$limit
+        ]);
     }
 
     // รายงานประวัติการเคลื่อนย้าย

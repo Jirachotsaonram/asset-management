@@ -29,11 +29,15 @@ export default function AssetDetailScreen() {
   const [asset, setAsset] = useState(initialAsset);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
+  const [currentBorrow, setCurrentBorrow] = useState(null);
 
   useEffect(() => {
     if (initialAsset?.asset_id) {
       fetchAssetDetail();
       fetchAssetHistory();
+      if (initialAsset.status === 'ยืม') {
+        fetchCurrentBorrow();
+      }
     }
   }, []);
 
@@ -59,6 +63,19 @@ export default function AssetDetailScreen() {
       }
     } catch (error) {
       console.error('Error fetching asset history:', error);
+    }
+  };
+
+  const fetchCurrentBorrow = async () => {
+    try {
+      const response = await api.get(`/borrows/asset/${initialAsset.asset_id}`);
+      if (response.data.success && response.data.data.length > 0) {
+        // Find the active one (status 'ยืม')
+        const active = response.data.data.find(b => b.status === 'ยืม');
+        setCurrentBorrow(active);
+      }
+    } catch (error) {
+      console.error('Error fetching current borrow:', error);
     }
   };
 
@@ -282,6 +299,38 @@ export default function AssetDetailScreen() {
         </View>
 
         <View style={styles.detailsContainer}>
+          {/* Active Borrow Info Card */}
+          {asset?.status === 'ยืม' && currentBorrow && (
+            <View style={styles.borrowInfoCard}>
+              <View style={styles.borrowInfoBadge}>
+                <Ionicons name="warning" size={14} color="#B45309" />
+                <Text style={styles.borrowInfoBadgeText}>กำลังถูกยืม</Text>
+              </View>
+              <View style={styles.borrowInfoRow}>
+                <View style={styles.borrowInfoCol}>
+                  <Text style={styles.borrowInfoLabel}>ผู้ยืม</Text>
+                  <Text style={styles.borrowInfoValue}>{currentBorrow.borrower_name}</Text>
+                </View>
+                <View style={styles.borrowInfoCol}>
+                  <Text style={styles.borrowInfoLabel}>กำหนดคืน</Text>
+                  <Text style={[
+                    styles.borrowInfoValue,
+                    new Date(currentBorrow.due_date) < new Date() && { color: '#EF4444' }
+                  ]}>
+                    {currentBorrow.due_date ? new Date(currentBorrow.due_date).toLocaleDateString('th-TH') : '-'}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.borrowViewBtn}
+                onPress={() => navigation.navigate('Borrows')}
+              >
+                <Text style={styles.borrowViewBtnText}>ดูประวัติการยืมในแถบการยืม-คืน</Text>
+                <Ionicons name="arrow-forward" size={14} color="#6366F1" />
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* Main Info Card */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
@@ -353,7 +402,7 @@ export default function AssetDetailScreen() {
             {history.length > 0 ? (
               <View style={styles.historyTimeline}>
                 {history.map((item, index) => (
-                  <View key={item.audit_id || index} style={styles.historyItem}>
+                  <View key={`audit-${item.audit_id || index}-${index}`} style={styles.historyItem}>
                     <View style={styles.timelineLineContainer}>
                       <View style={[styles.timelineDot, { backgroundColor: index === 0 ? '#10B981' : '#D1D5DB' }]} />
                       {index !== history.length - 1 && <View style={styles.timelineLine} />}
@@ -530,6 +579,63 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingTop: 24,
+  },
+  borrowInfoCard: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
+  },
+  borrowInfoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginBottom: 16,
+  },
+  borrowInfoBadgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#B45309',
+  },
+  borrowInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  borrowInfoCol: {
+    flex: 1,
+  },
+  borrowInfoLabel: {
+    fontSize: 11,
+    color: '#92400E',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  borrowInfoValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  borrowViewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#FEF3C7',
+    paddingTop: 12,
+  },
+  borrowViewBtnText: {
+    fontSize: 13,
+    color: '#6366F1',
+    fontWeight: '600',
   },
   card: {
     backgroundColor: '#fff',
