@@ -378,6 +378,8 @@ switch ($endpoint) {
             $controller->getNotifications();
         } elseif ($request_method === 'GET' && $id === 'overdue') {
             $controller->getOverdue();
+        } elseif ($request_method === 'GET' && $id === 'all-notifications') {
+            $controller->getAllNotifications();
         } elseif ($request_method === 'POST' && $id === 'assign-asset') {
             $controller->assignToAsset();
         } elseif ($request_method === 'POST' && $id === 'assign-location') {

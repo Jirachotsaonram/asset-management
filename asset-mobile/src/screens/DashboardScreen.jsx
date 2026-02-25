@@ -17,8 +17,7 @@ export default function DashboardScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({ total: 0, checked: 0, unchecked: 0, available: 0, maintenance: 0, missing: 0 });
-  const [notifications, setNotifications] = useState([]);
-  const [overdueAssets, setOverdueAssets] = useState([]);
+  const [allNotifications, setAllNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
@@ -28,12 +27,10 @@ export default function DashboardScreen({ navigation }) {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      // Optimized: Fetch summary stats instead of full asset list
-      const [statusRes, uncheckedRes, notifsRes, overdueRes] = await Promise.all([
-        api.get('/reports/by-status').catch(() => ({ data: { data: [] } })),
-        api.get('/reports/unchecked?days=365').catch(() => ({ data: { data: [] } })),
-        api.get('/check-schedules/notifications?days=30').catch(() => ({ data: { data: [] } })),
-        api.get('/check-schedules/overdue').catch(() => ({ data: { data: [] } })),
+      const [statusRes, uncheckedRes, allNotifsRes] = await Promise.all([
+        api.get('/reports/by-status').catch((e) => { console.warn('Status API error:', e.message); return { data: { data: [] } }; }),
+        api.get('/reports/unchecked?days=365').catch((e) => { console.warn('Unchecked API error:', e.message); return { data: { data: [] } }; }),
+        api.get('/check-schedules/all-notifications').catch((e) => { console.warn('Notifications API error:', e.message); return { data: { data: [] } }; }),
       ]);
 
       const statusData = statusRes.data.data || [];
@@ -63,8 +60,7 @@ export default function DashboardScreen({ navigation }) {
         missing,
       });
 
-      setNotifications(notifsRes.data.data || []);
-      setOverdueAssets(overdueRes.data.data || []);
+      setAllNotifications(allNotifsRes.data.data || []);
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -102,6 +98,21 @@ export default function DashboardScreen({ navigation }) {
     </TouchableOpacity>
   );
 
+  // จัดกลุ่ม notifications ตามประเภท
+  const groupedNotifications = allNotifications.reduce((groups, notif) => {
+    const type = notif.type;
+    if (!groups[type]) groups[type] = [];
+    groups[type].push(notif);
+    return groups;
+  }, {});
+
+  const typeLabels = {
+    overdue_check: '🔴 เลยกำหนดตรวจสอบ',
+    upcoming_check: '🟡 ใกล้ถึงกำหนดตรวจสอบ',
+    active_borrow: '🟣 ยืมค้าง',
+    never_checked: '🟠 ยังไม่เคยตรวจสอบ',
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -117,10 +128,10 @@ export default function DashboardScreen({ navigation }) {
           onPress={() => setShowNotifications(true)}
         >
           <Ionicons name="notifications-outline" size={28} color="#1F2937" />
-          {(notifications.length + overdueAssets.length) > 0 && (
+          {allNotifications.length > 0 && (
             <View style={styles.notificationBadge}>
               <Text style={styles.notificationBadgeText}>
-                {notifications.length + overdueAssets.length}
+                {allNotifications.length}
               </Text>
             </View>
           )}
@@ -240,59 +251,39 @@ export default function DashboardScreen({ navigation }) {
             </View>
 
             <ScrollView style={styles.notificationList}>
-              {overdueAssets.length > 0 && (
-                <View style={styles.notificationSection}>
-                  <Text style={styles.sectionTitleSmall}>เลยกำหนดตรวจสอบ ({overdueAssets.length})</Text>
-                  {overdueAssets.map(item => (
+              {Object.entries(groupedNotifications).map(([type, items]) => (
+                <View key={type} style={styles.notificationSection}>
+                  <Text style={styles.sectionTitleSmall}>
+                    {typeLabels[type] || type} ({items.length})
+                  </Text>
+                  {items.map((item, idx) => (
                     <TouchableOpacity
-                      key={item.asset_id}
+                      key={`${type}-${idx}`}
                       style={styles.notificationItem}
                       onPress={() => {
                         setShowNotifications(false);
-                        navigation.navigate('Scan', { assetId: item.asset_id });
+                        if (type === 'active_borrow') {
+                          navigation.navigate('Borrows');
+                        } else {
+                          navigation.navigate('Scan', { assetId: item.asset_id });
+                        }
                       }}
                     >
-                      <View style={[styles.notifIcon, { backgroundColor: '#FEE2E2' }]}>
-                        <Ionicons name="alert-circle" size={20} color="#EF4444" />
+                      <View style={[styles.notifIcon, { backgroundColor: item.bgColor }]}>
+                        <Ionicons name={item.icon} size={20} color={item.color} />
                       </View>
                       <View style={styles.notifText}>
-                        <Text style={styles.notifTitle}>{item.asset_name}</Text>
-                        <Text style={styles.notifDesc}>เกินกำหนด {item.days_overdue} วัน</Text>
+                        <Text style={styles.notifTitle}>{item.title}</Text>
+                        <Text style={styles.notifDesc}>{item.message}</Text>
+                        {item.detail ? <Text style={styles.notifDetail}>{item.detail}</Text> : null}
                       </View>
                       <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
                     </TouchableOpacity>
                   ))}
                 </View>
-              )}
+              ))}
 
-              {notifications.length > 0 && (
-                <View style={styles.notificationSection}>
-                  <Text style={styles.sectionTitleSmall}>ใกล้ถึงกำหนด ({notifications.length})</Text>
-                  {notifications.map((item, idx) => (
-                    <TouchableOpacity
-                      key={idx}
-                      style={styles.notificationItem}
-                      onPress={() => {
-                        setShowNotifications(false);
-                        navigation.navigate('Scan', { assetId: item.asset_id });
-                      }}
-                    >
-                      <View style={[styles.notifIcon, { backgroundColor: '#FEF3C7' }]}>
-                        <Ionicons name="time" size={20} color="#F59E0B" />
-                      </View>
-                      <View style={styles.notifText}>
-                        <Text style={styles.notifTitle}>{item.asset_name}</Text>
-                        <Text style={styles.notifDesc}>
-                          {item.urgency_level === 'วันนี้' ? 'ครบกำหนดวันนี้' : `อีก ${item.days_until_check} วัน`}
-                        </Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {overdueAssets.length === 0 && notifications.length === 0 && (
+              {allNotifications.length === 0 && (
                 <View style={styles.emptyNotif}>
                   <Ionicons name="happy-outline" size={48} color="#D1D5DB" />
                   <Text style={styles.emptyNotifText}>ไม่มีการแจ้งเตือนใหม่</Text>
@@ -508,6 +499,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
     marginTop: 2,
+  },
+  notifDetail: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    marginTop: 1,
   },
   emptyNotif: {
     alignItems: 'center',

@@ -116,5 +116,15 @@ class CheckScheduleController {
             Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
         }
     }
+
+    // ดึงการแจ้งเตือนทั้งหมดรวม (check schedules + borrows + never checked)
+    public function getAllNotifications() {
+        try {
+            $notifications = $this->checkSchedule->getAllNotifications();
+            Response::success('ดึงการแจ้งเตือนทั้งหมดสำเร็จ', $notifications);
+        } catch (Exception $e) {
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
 }
 ?>

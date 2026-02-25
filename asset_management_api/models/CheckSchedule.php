@@ -144,5 +144,166 @@ class CheckSchedule {
         $stmt->execute();
         return $stmt;
     }
+
+    // ดึงรายการยืมที่ยังไม่คืน
+    public function getActiveBorrows() {
+        $query = "SELECT 
+                    b.borrow_id,
+                    b.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    b.borrower_name,
+                    b.borrow_date,
+                    DATEDIFF(CURDATE(), b.borrow_date) AS days_borrowed,
+                    l.building_name,
+                    l.floor,
+                    l.room_number,
+                    d.department_name
+                  FROM borrow b
+                  INNER JOIN assets a ON b.asset_id = a.asset_id
+                  LEFT JOIN locations l ON a.location_id = l.location_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
+                  WHERE b.status = 'ยืม'
+                  ORDER BY b.borrow_date ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    // ดึงครุภัณฑ์ที่ไม่เคยตรวจสอบเลย
+    public function getNeverCheckedAssets() {
+        $query = "SELECT 
+                    a.asset_id,
+                    a.asset_name,
+                    a.serial_number,
+                    a.status as asset_status,
+                    a.created_at,
+                    DATEDIFF(CURDATE(), a.created_at) AS days_since_added,
+                    l.building_name,
+                    l.floor,
+                    l.room_number,
+                    d.department_name
+                  FROM assets a
+                  LEFT JOIN locations l ON a.location_id = l.location_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
+                  WHERE a.asset_id NOT IN (
+                      SELECT DISTINCT ac.asset_id FROM asset_check ac
+                  )
+                  AND a.status NOT IN ('จำหน่ายแล้ว')
+                  ORDER BY a.created_at ASC
+                  LIMIT 20";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    // ดึงการแจ้งเตือนทั้งหมดรวมกัน
+    public function getAllNotifications() {
+        $notifications = [];
+
+        // 1. ครุภัณฑ์เลยกำหนดตรวจสอบ
+        try {
+            $stmt = $this->getOverdue();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $notifications[] = [
+                    'type' => 'overdue_check',
+                    'priority' => 1,
+                    'icon' => 'alert-circle',
+                    'color' => '#EF4444',
+                    'bgColor' => '#FEE2E2',
+                    'asset_id' => $row['asset_id'],
+                    'title' => $row['asset_name'],
+                    'message' => 'เกินกำหนดตรวจสอบ ' . $row['days_overdue'] . ' วัน',
+                    'detail' => $row['building_name'] ? $row['building_name'] . ' ชั้น ' . $row['floor'] . ' ห้อง ' . $row['room_number'] : '',
+                    'date' => $row['next_check_date'],
+                    'data' => $row
+                ];
+            }
+        } catch (Exception $e) {
+            // table อาจไม่มี ข้ามไป
+        }
+
+        // 2. ครุภัณฑ์ใกล้ถึงกำหนดตรวจสอบ (30 วัน)
+        try {
+            $stmt = $this->getNotifications(30);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $days = $row['days_until_check'];
+                if ($days >= 0) { // ไม่ซ้ำกับ overdue
+                    $msg = $days == 0 ? 'ครบกำหนดตรวจสอบวันนี้' : 'อีก ' . $days . ' วันถึงกำหนดตรวจสอบ';
+                    $notifications[] = [
+                        'type' => 'upcoming_check',
+                        'priority' => 2,
+                        'icon' => 'time',
+                        'color' => '#F59E0B',
+                        'bgColor' => '#FEF3C7',
+                        'asset_id' => $row['asset_id'],
+                        'title' => $row['asset_name'],
+                        'message' => $msg,
+                        'detail' => $row['building_name'] ? $row['building_name'] . ' ชั้น ' . $row['floor'] . ' ห้อง ' . $row['room_number'] : '',
+                        'date' => $row['next_check_date'],
+                        'data' => $row
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            // table อาจไม่มี ข้ามไป
+        }
+
+        // 3. ยืมค้าง
+        try {
+            $stmt = $this->getActiveBorrows();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $notifications[] = [
+                    'type' => 'active_borrow',
+                    'priority' => 3,
+                    'icon' => 'swap-horizontal',
+                    'color' => '#8B5CF6',
+                    'bgColor' => '#EDE9FE',
+                    'asset_id' => $row['asset_id'],
+                    'title' => $row['asset_name'],
+                    'message' => 'ยืมโดย ' . $row['borrower_name'] . ' (' . $row['days_borrowed'] . ' วัน)',
+                    'detail' => 'ยืมตั้งแต่ ' . $row['borrow_date'],
+                    'date' => $row['borrow_date'],
+                    'data' => $row
+                ];
+            }
+        } catch (Exception $e) {
+            // ข้ามไป
+        }
+
+        // 4. ไม่เคยตรวจสอบ
+        try {
+            $stmt = $this->getNeverCheckedAssets();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $notifications[] = [
+                    'type' => 'never_checked',
+                    'priority' => 4,
+                    'icon' => 'warning',
+                    'color' => '#F97316',
+                    'bgColor' => '#FFF7ED',
+                    'asset_id' => $row['asset_id'],
+                    'title' => $row['asset_name'],
+                    'message' => 'ยังไม่เคยตรวจสอบ (เพิ่มมาแล้ว ' . $row['days_since_added'] . ' วัน)',
+                    'detail' => $row['building_name'] ? $row['building_name'] . ' ชั้น ' . $row['floor'] . ' ห้อง ' . $row['room_number'] : '',
+                    'date' => $row['created_at'],
+                    'data' => $row
+                ];
+            }
+        } catch (Exception $e) {
+            // ข้ามไป
+        }
+
+        // Sort: priority (1=สูงสุด), then date
+        usort($notifications, function($a, $b) {
+            if ($a['priority'] !== $b['priority']) {
+                return $a['priority'] - $b['priority'];
+            }
+            return strcmp($a['date'], $b['date']);
+        });
+
+        return $notifications;
+    }
 }
 ?>
