@@ -24,6 +24,7 @@ $request_uri = $_SERVER['REQUEST_URI'];
 // Parse URL
 $path = parse_url($request_uri, PHP_URL_PATH);
 $path = str_replace('/asset-management/asset_management_api/', '', $path);
+$path = str_replace('/asset_management_api/', '', $path); // local dev fallback
 $segments = explode('/', trim($path, '/'));
 
 $endpoint = $segments[0] ?? '';
@@ -307,8 +308,6 @@ switch ($endpoint) {
         break;
 
         // ==================== REPORTS ====================
-    // เพิ่มส่วนนี้ใน index.php ก่อน default case
-    
     case 'reports':
         require_once 'controllers/ReportController.php';
         require_once 'middleware/auth.php';
@@ -413,6 +412,21 @@ switch ($endpoint) {
             // POST /import/assets - Import assets
             $user_data = authenticate();
             $controller->importAssets($user_data);
+        } else {
+            Response::error('ไม่พบเส้นทาง API', 404);
+        }
+        break;
+
+    // ==================== BACKUP ====================
+    case 'backup':
+        require_once 'controllers/BackupController.php';
+        require_once 'middleware/auth.php';
+        
+        requireAdmin(); // เฉพาะ Admin เท่านั้น
+        $controller = new BackupController();
+        
+        if ($request_method === 'GET') {
+            $controller->export();
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }

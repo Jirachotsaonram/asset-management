@@ -14,16 +14,12 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
-  const [stats, setStats] = useState({
-    total: 0,
-    checked: 0,
-    unchecked: 0,
-    available: 0,
-    maintenance: 0,
-    missing: 0,
-  });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState({ total: 0, checked: 0, unchecked: 0, available: 0, maintenance: 0, missing: 0 });
+  const [notifications, setNotifications] = useState([]);
+  const [overdueAssets, setOverdueAssets] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -33,9 +29,11 @@ export default function DashboardScreen({ navigation }) {
     try {
       setLoading(true);
       // Optimized: Fetch summary stats instead of full asset list
-      const [statusRes, uncheckedRes] = await Promise.all([
+      const [statusRes, uncheckedRes, notifsRes, overdueRes] = await Promise.all([
         api.get('/reports/by-status').catch(() => ({ data: { data: [] } })),
         api.get('/reports/unchecked?days=365').catch(() => ({ data: { data: [] } })),
+        api.get('/check-schedules/notifications?days=30').catch(() => ({ data: { data: [] } })),
+        api.get('/check-schedules/overdue').catch(() => ({ data: { data: [] } })),
       ]);
 
       const statusData = statusRes.data.data || [];
@@ -64,6 +62,9 @@ export default function DashboardScreen({ navigation }) {
         maintenance,
         missing,
       });
+
+      setNotifications(notifsRes.data.data || []);
+      setOverdueAssets(overdueRes.data.data || []);
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -107,8 +108,23 @@ export default function DashboardScreen({ navigation }) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>ยินดีต้อนรับ,</Text>
-        <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.welcomeText}>ยินดีต้อนรับ,</Text>
+          <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.notificationBell}
+          onPress={() => setShowNotifications(true)}
+        >
+          <Ionicons name="notifications-outline" size={28} color="#1F2937" />
+          {(notifications.length + overdueAssets.length) > 0 && (
+            <View style={styles.notificationBadge}>
+              <Text style={styles.notificationBadgeText}>
+                {notifications.length + overdueAssets.length}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.statsContainer}>
@@ -211,6 +227,81 @@ export default function DashboardScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Notification Modal */}
+      {showNotifications && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>การแจ้งเตือน</Text>
+              <TouchableOpacity onPress={() => setShowNotifications(false)}>
+                <Ionicons name="close" size={24} color="#374151" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.notificationList}>
+              {overdueAssets.length > 0 && (
+                <View style={styles.notificationSection}>
+                  <Text style={styles.sectionTitleSmall}>เลยกำหนดตรวจสอบ ({overdueAssets.length})</Text>
+                  {overdueAssets.map(item => (
+                    <TouchableOpacity
+                      key={item.asset_id}
+                      style={styles.notificationItem}
+                      onPress={() => {
+                        setShowNotifications(false);
+                        navigation.navigate('Scan', { assetId: item.asset_id });
+                      }}
+                    >
+                      <View style={[styles.notifIcon, { backgroundColor: '#FEE2E2' }]}>
+                        <Ionicons name="alert-circle" size={20} color="#EF4444" />
+                      </View>
+                      <View style={styles.notifText}>
+                        <Text style={styles.notifTitle}>{item.asset_name}</Text>
+                        <Text style={styles.notifDesc}>เกินกำหนด {item.days_overdue} วัน</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {notifications.length > 0 && (
+                <View style={styles.notificationSection}>
+                  <Text style={styles.sectionTitleSmall}>ใกล้ถึงกำหนด ({notifications.length})</Text>
+                  {notifications.map((item, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={styles.notificationItem}
+                      onPress={() => {
+                        setShowNotifications(false);
+                        navigation.navigate('Scan', { assetId: item.asset_id });
+                      }}
+                    >
+                      <View style={[styles.notifIcon, { backgroundColor: '#FEF3C7' }]}>
+                        <Ionicons name="time" size={20} color="#F59E0B" />
+                      </View>
+                      <View style={styles.notifText}>
+                        <Text style={styles.notifTitle}>{item.asset_name}</Text>
+                        <Text style={styles.notifDesc}>
+                          {item.urgency_level === 'วันนี้' ? 'ครบกำหนดวันนี้' : `อีก ${item.days_until_check} วัน`}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {overdueAssets.length === 0 && notifications.length === 0 && (
+                <View style={styles.emptyNotif}>
+                  <Ionicons name="happy-outline" size={48} color="#D1D5DB" />
+                  <Text style={styles.emptyNotifText}>ไม่มีการแจ้งเตือนใหม่</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -231,6 +322,39 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  notificationBell: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: '#EF4444',
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    paddingHorizontal: 2,
+  },
+  notificationBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   welcomeText: {
     fontSize: 16,
@@ -285,6 +409,14 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 16,
   },
+  sectionTitleSmall: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    marginBottom: 12,
+    letterSpacing: 0.5,
+  },
   actionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -309,6 +441,83 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontWeight: '500',
     textAlign: 'center',
+  },
+  // Modal Styles
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 100,
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  notificationList: {
+    paddingBottom: 20,
+  },
+  notificationSection: {
+    marginBottom: 20,
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    marginBottom: 10,
+    gap: 12,
+  },
+  notifIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notifText: {
+    flex: 1,
+  },
+  notifTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  notifDesc: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  emptyNotif: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyNotifText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
 });
 

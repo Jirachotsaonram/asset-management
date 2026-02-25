@@ -17,6 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import api from '../services/api';
+import * as FileSystem from 'expo-file-system';
 
 const { width } = Dimensions.get('window');
 
@@ -441,37 +442,35 @@ const ImportScreen = ({ navigation }) => {
     const runOcr = async (imageUri) => {
         setProcessing(true);
         setOcrProgress(0);
-        setOcrStatus('กำลังส่งรูปประมวลผลไปยัง Server...');
+        setOcrStatus('กำลังอ่านรูปภาพ...');
 
         try {
-            // Prepare FormData (Multipart) for more efficient upload
-            const formData = new FormData();
-            const filename = imageUri.split('/').pop();
-            const match = /\.(\w+)$/.exec(filename);
-            const type = match ? `image/${match[1]}` : `image`;
-
-            formData.append('image', {
-                uri: Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri,
-                name: filename,
-                type: type
+            // Read image as Base64 using expo-file-system
+            // This avoids React Native's broken FormData/multipart file upload
+            const base64Data = await FileSystem.readAsStringAsync(imageUri, {
+                encoding: FileSystem.EncodingType.Base64,
             });
 
-            setOcrStatus('กำลังรอผลลัพธ์จาก Server (อาจใช้เวลา 30-60 วินาที)...');
+            setOcrProgress(20);
+            setOcrStatus('กำลังส่งรูปประมวลผลไปยัง Server...');
 
             // Fast progress simulation
             const progressInterval = setInterval(() => {
                 setOcrProgress(prev => (prev < 90 ? prev + 5 : prev));
             }, 500);
 
-            // Use extended timeout for OCR (60s)
-            const apiRes = await api.post('/import/ocr', formData, {
-                timeout: 60000
+            // Send as JSON with base64 image data
+            // The backend processOCR() already supports $json->image with base64
+            const apiRes = await api.post('/import/ocr', {
+                image: `data:image/jpeg;base64,${base64Data}`
+            }, {
+                timeout: 60000,
             });
 
             clearInterval(progressInterval);
             setOcrProgress(100);
 
-            if (apiRes.data.success && apiRes.data.data.text) {
+            if (apiRes.data.success && apiRes.data.data?.text) {
                 const text = apiRes.data.data.text;
                 const assets = parseAssetTable(text);
                 if (assets.length > 0) {
@@ -488,15 +487,11 @@ const ImportScreen = ({ navigation }) => {
                 message: err.message,
                 code: err.code,
                 response: err.response?.data,
-                config: {
-                    url: err.config?.url,
-                    method: err.config?.method,
-                    headers: err.config?.headers
-                }
             });
             let msg = 'ไม่สามารถเชื่อมต่อกับ Server OCR ได้';
             if (err.code === 'ECONNABORTED') msg = 'การประมวลผลใช้เวลานานเกินไป (Timeout)';
-            Alert.alert('ข้อผิดพลาด', `${msg}. กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต และตรวจสอบว่า Server ได้ติดตั้ง Tesseract OCR แล้ว`);
+            if (err.response?.data?.message) msg = err.response.data.message;
+            Alert.alert('ข้อผิดพลาด', `${msg}`);
         } finally {
             setProcessing(false);
         }

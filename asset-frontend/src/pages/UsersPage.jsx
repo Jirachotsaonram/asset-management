@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {
   Plus, Search, Edit2, Trash2, Users, UserCheck, UserX, Shield, X,
   Eye, EyeOff, ChevronDown, ChevronUp, Mail, Phone, RefreshCw, Filter,
-  ChevronLeft, ChevronRight, AlertTriangle, ShieldCheck
+  ChevronLeft, ChevronRight, AlertTriangle, ShieldCheck, Download, Database
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 50;
@@ -120,6 +120,22 @@ export default function UsersPage() {
     }
   };
 
+  const handleDownloadBackup = async () => {
+    try {
+      toast.loading('กำลังเตรียมข้อมูลสำรอง...', { id: 'backup' });
+      const response = await api.get('/backup', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `backup_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.sql`);
+      document.body.appendChild(link);
+      link.click();
+      toast.success('ดาวน์โหลดสำรองข้อมูลสำเร็จ', { id: 'backup' });
+    } catch (error) {
+      toast.error('ไม่สามารถสำรองข้อมูลได้', { id: 'backup' });
+    }
+  };
+
   if (loading && users.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -136,6 +152,9 @@ export default function UsersPage() {
           <p className="text-gray-500 mt-1 uppercase text-xs tracking-widest font-bold">User Management System</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={handleDownloadBackup} className="btn-secondary rounded-2xl flex items-center gap-2" title="สำรองข้อมูล Database">
+            <Database size={18} /> <span className="hidden md:inline">สำรองข้อมูล</span>
+          </button>
           <button onClick={fetchUsers} className="btn-secondary rounded-2xl"><RefreshCw size={18} /></button>
           <button onClick={() => { setEditingUser(null); setFormData({ username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Pending' }); setShowModal(true); }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
             <Plus size={20} /> เพิ่มผู้ใช้
@@ -214,8 +233,8 @@ export default function UsersPage() {
                         {u.role === 'Admin' ? <Shield size={10} /> : <Users size={10} />} {u.role}
                       </span>
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-black border uppercase tracking-widest ${u.status === 'Active' ? 'bg-success-50 border-success-200 text-success-700' :
-                          u.status === 'Pending' ? 'bg-warning-50 border-warning-200 text-warning-700' :
-                            'bg-danger-50 border-danger-200 text-danger-700'
+                        u.status === 'Pending' ? 'bg-warning-50 border-warning-200 text-warning-700' :
+                          'bg-danger-50 border-danger-200 text-danger-700'
                         }`}>
                         {u.status === 'Active' ? 'Active' : u.status === 'Pending' ? 'Pending' : 'Banned'}
                       </span>

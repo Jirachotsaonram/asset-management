@@ -156,3 +156,35 @@ Stack trace:
 [24-Feb-2026 19:43:59 Europe/Berlin] ImageUpload: Received file: 89d122bd-fec7-4388-960f-146bfd96c214.jpeg size: 22137 type: image/jpeg
 [24-Feb-2026 19:43:59 Europe/Berlin] ImageUpload: Attempting to resize image
 [24-Feb-2026 19:43:59 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_699df16f2356b5.14641438.jpg
+[25-Feb-2026 02:29:09 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771982949_test_pixel.jpg
+[25-Feb-2026 02:29:09 Europe/Berlin] OCR: Received file via Multipart. Size: 100
+[25-Feb-2026 02:29:10 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771982949_test_pixel.jpg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:29:10 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:32:56 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983176_test_pixel.jpg
+[25-Feb-2026 02:32:56 Europe/Berlin] OCR: Received file via Multipart. Size: 100
+[25-Feb-2026 02:32:56 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983176_test_pixel.jpg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:32:56 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:39:33 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983573_0d338b00-ad4c-4a58-9d12-f95a3e3e0d64.jpeg
+[25-Feb-2026 02:39:33 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
+[25-Feb-2026 02:39:33 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983573_0d338b00-ad4c-4a58-9d12-f95a3e3e0d64.jpeg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:39:33 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:39:43 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983583_ebbaac7c-3f43-4dd2-859e-9f1471fd9a25.jpeg
+[25-Feb-2026 02:39:43 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
+[25-Feb-2026 02:39:43 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983583_ebbaac7c-3f43-4dd2-859e-9f1471fd9a25.jpeg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:39:43 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:39:54 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983594_da4602e8-21ae-4784-bbba-965eeda4d940.jpeg
+[25-Feb-2026 02:39:54 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
+[25-Feb-2026 02:39:55 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983594_da4602e8-21ae-4784-bbba-965eeda4d940.jpeg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:39:55 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:45:02 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983902_fc99f7db-91ce-4cdf-b556-88e5c24c23cc.jpeg
+[25-Feb-2026 02:45:02 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
+[25-Feb-2026 02:45:02 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983902_fc99f7db-91ce-4cdf-b556-88e5c24c23cc.jpeg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:45:02 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:45:12 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983912_72569dc7-cd66-4296-a9ac-4dcb0f76ec8d.jpeg
+[25-Feb-2026 02:45:12 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
+[25-Feb-2026 02:45:12 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983912_72569dc7-cd66-4296-a9ac-4dcb0f76ec8d.jpeg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:45:12 Europe/Berlin] OCR: Return code: 1
+[25-Feb-2026 02:45:19 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1771983919_cb44673c-7feb-4390-8683-3bb7e2689cb5.jpeg
+[25-Feb-2026 02:45:19 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
+[25-Feb-2026 02:45:19 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983919_cb44673c-7feb-4390-8683-3bb7e2689cb5.jpeg" stdout -l tha+eng 2>&1
+[25-Feb-2026 02:45:19 Europe/Berlin] OCR: Return code: 1

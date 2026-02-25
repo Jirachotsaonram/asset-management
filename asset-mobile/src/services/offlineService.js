@@ -31,40 +31,51 @@ class OfflineService {
      */
     async downloadAssetsForOffline() {
         try {
-            const response = await api.get('/assets');
-            if (response.data.success) {
-                const assets = response.data.data || [];
-
-                // Optimized: Clear old chunks first
-                await this.clearAssetChunks();
-
-                if (assets.length === 0) {
-                    await AsyncStorage.setItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT, '0');
-                    return { success: true, count: 0, message: 'ไม่มีข้อมูลสะสม' };
-                }
-
-                // Chunk the data
-                const chunks = [];
-                for (let i = 0; i < assets.length; i += CHUNK_SIZE) {
-                    chunks.push(assets.slice(i, i + CHUNK_SIZE));
-                }
-
-                // Save each chunk
-                const savePromises = chunks.map((chunk, index) =>
-                    AsyncStorage.setItem(`${STORAGE_KEYS.ASSETS}_${index}`, JSON.stringify(chunk))
-                );
-
-                await Promise.all(savePromises);
-                await AsyncStorage.setItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT, chunks.length.toString());
-                await AsyncStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
-
-                return {
-                    success: true,
-                    count: assets.length,
-                    message: `ดาวน์โหลด ${assets.length} รายการสำเร็จ (${chunks.length} ส่วน)`
-                };
+            // Step 1: Get total count first or just start paginating
+            const firstRes = await api.get('/assets', { params: { page: 1, limit: 100 } });
+            if (!firstRes.data.success) {
+                return { success: false, count: 0, message: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้' };
             }
-            return { success: false, count: 0, message: 'ไม่สามารถดาวน์โหลดข้อมูลได้' };
+
+            const total = firstRes.data.data.total;
+            const totalPages = firstRes.data.data.totalPages;
+            let allAssets = firstRes.data.data.items;
+
+            // Step 2: Clear old chunks
+            await this.clearAssetChunks();
+
+            // Step 3: Fetch remaining pages
+            for (let p = 2; p <= totalPages; p++) {
+                const res = await api.get('/assets', { params: { page: p, limit: 100 } });
+                if (res.data.success) {
+                    allAssets = allAssets.concat(res.data.data.items);
+                }
+            }
+
+            if (allAssets.length === 0) {
+                await AsyncStorage.setItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT, '0');
+                return { success: true, count: 0, message: 'ไม่มีข้อมูลครุภัณฑ์' };
+            }
+
+            // Step 4: Chunk and save
+            const chunks = [];
+            for (let i = 0; i < allAssets.length; i += CHUNK_SIZE) {
+                chunks.push(allAssets.slice(i, i + CHUNK_SIZE));
+            }
+
+            const savePromises = chunks.map((chunk, index) =>
+                AsyncStorage.setItem(`${STORAGE_KEYS.ASSETS}_${index}`, JSON.stringify(chunk))
+            );
+
+            await Promise.all(savePromises);
+            await AsyncStorage.setItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT, chunks.length.toString());
+            await AsyncStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
+
+            return {
+                success: true,
+                count: allAssets.length,
+                message: `ดาวน์โหลด ${allAssets.length.toLocaleString()} รายการสำเร็จ (${chunks.length} ส่วน)`
+            };
         } catch (error) {
             console.error('Error downloading assets:', error);
             return {

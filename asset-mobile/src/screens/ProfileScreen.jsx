@@ -89,6 +89,15 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.menuText}>นำเข้าข้อมูล (File / OCR)</Text>
           <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Offline')}
+        >
+          <Ionicons name="cloud-offline-outline" size={24} color="#2563EB" />
+          <Text style={styles.menuText}>จัดการข้อมูลออฟไลน์</Text>
+          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
