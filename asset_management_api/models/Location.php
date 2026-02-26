@@ -1,7 +1,7 @@
 <?php
 class Location {
     private $conn;
-    private $table_name = "Locations";
+    private $table_name = "locations";
 
     public $location_id;
     public $building_name;

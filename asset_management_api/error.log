@@ -188,3 +188,257 @@ Stack trace:
 [25-Feb-2026 02:45:19 Europe/Berlin] OCR: Received file via Multipart. Size: 163195
 [25-Feb-2026 02:45:19 Europe/Berlin] OCR: Running command: tesseract "uploads/ocr_temp/ocr_1771983919_cb44673c-7feb-4390-8683-3bb7e2689cb5.jpeg" stdout -l tha+eng 2>&1
 [25-Feb-2026 02:45:19 Europe/Berlin] OCR: Return code: 1
+[26-Feb-2026 09:55:55 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:55:55 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:56:21 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:56:21 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:56:50 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:56:50 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:57:29 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:57:29 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:57:30 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:57:31 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 09:57:32 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:27 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:28 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:28 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:31 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:32 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:33 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:38 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:39 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:40 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:40 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:40 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:40 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:41 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:00:41 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:05:42 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:00 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:00 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:01 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:03 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:07 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:07 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 10:08:08 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.user_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(188): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[26-Feb-2026 12:54:10 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772106850_1601.jpg
+[26-Feb-2026 12:54:10 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 12:54:11 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 12:54:11 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772106850_1601.jpg" stdout -l tha+eng 2>&1
+[26-Feb-2026 12:54:12 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 12:55:56 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772106956_7640.jpg
+[26-Feb-2026 12:55:56 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 12:55:56 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 12:55:56 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772106956_7640.jpg" stdout -l tha+eng 2>&1
+[26-Feb-2026 12:55:57 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 12:58:03 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107083_2599.jpg
+[26-Feb-2026 12:58:03 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 12:58:03 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 12:58:03 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107083_2599.jpg" stdout -l tha+eng 2>&1
+[26-Feb-2026 12:58:04 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 13:01:24 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107284_6489.jpg
+[26-Feb-2026 13:01:24 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 13:01:24 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 13:01:24 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107284_6489.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 13:01:25 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 13:01:35 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107295_5805.jpg
+[26-Feb-2026 13:01:35 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 13:01:35 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 13:01:35 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107295_5805.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 13:01:36 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 13:07:26 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107646_8577.jpg
+[26-Feb-2026 13:07:26 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 13:07:26 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 13:07:26 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107646_8577.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 13:07:29 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 13:09:24 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107764_4160.jpg
+[26-Feb-2026 13:09:24 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 13:09:24 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 13:09:24 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107764_4160.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 13:09:26 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 13:10:03 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107803_2347.jpg
+[26-Feb-2026 13:10:03 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 13:10:03 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 13:10:03 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107803_2347.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 13:10:05 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 13:10:23 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772107823_8130.jpg
+[26-Feb-2026 13:10:23 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 13:10:23 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 13:10:23 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772107823_8130.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 13:10:26 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 14:05:46 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772111146_1464.jpg
+[26-Feb-2026 14:05:46 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 14:05:46 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 14:05:46 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772111146_1464.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 14:05:48 Europe/Berlin] OCR: Return code: 0

@@ -54,20 +54,27 @@ export default function BorrowsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [borrowsRes, assetsRes] = await Promise.all([
-        api.get('/borrows'),
-        api.get('/assets')
-      ]);
-
+      // โหลดแค่ borrows ก่อน ไม่โหลด assets พร้อมกัน เพื่อให้หน้าเร็วขึ้น
+      const borrowsRes = await api.get('/borrows');
       setBorrows(borrowsRes.data.data || []);
-      const assetsList = assetsRes.data.data || [];
-      setAllAssets(assetsList);
-      setAllAssetsMap(assetsList.reduce((acc, curr) => ({ ...acc, [curr.asset_id]: curr }), {}));
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('ไม่สามารถโหลดข้อมูลได้');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // โหลด assets เฉพาะตอนเปิด modal ยืม (lazy load)
+  const fetchAssetsIfNeeded = async () => {
+    if (allAssets.length > 0) return; // โหลดแล้ว ไม่ต้องโหลดซ้ำ
+    try {
+      const assetsRes = await api.get('/assets');
+      const assetsList = assetsRes.data.data || [];
+      setAllAssets(assetsList);
+      setAllAssetsMap(assetsList.reduce((acc, curr) => ({ ...acc, [curr.asset_id]: curr }), {}));
+    } catch (error) {
+      console.error('Error fetching assets:', error);
     }
   };
 
@@ -160,6 +167,7 @@ export default function BorrowsPage() {
       expected_return_date: '',
       purpose: ''
     });
+    fetchAssetsIfNeeded(); // ← lazy-load assets เฉพาะตอนเปิด modal
     setShowModal(true);
   };
 

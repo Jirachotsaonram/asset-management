@@ -117,10 +117,13 @@ class CheckScheduleController {
         }
     }
 
-    // ดึงการแจ้งเตือนทั้งหมดรวม (check schedules + borrows + never checked)
+    // ดึงการแจ้งเตือนทั้งหมดรวม (check schedules + borrows + never checked) แบบแบ่งหน้า
     public function getAllNotifications() {
         try {
-            $notifications = $this->checkSchedule->getAllNotifications();
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+
+            $notifications = $this->checkSchedule->getAllNotificationsPaginated($page, $limit);
             Response::success('ดึงการแจ้งเตือนทั้งหมดสำเร็จ', $notifications);
         } catch (Exception $e) {
             Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);

@@ -199,6 +199,7 @@ class ImportController {
     public function importAssets($user_data) {
         try {
             $data = json_decode(file_get_contents("php://input"));
+            $filename = $data->filename ?? 'จากเว็บ (ไม่ระบุชื่อไฟล์)';
             
             if (!isset($data->rows) || !is_array($data->rows)) {
                 Response::error('ไม่พบข้อมูลที่ต้องการนำเข้า', 400);
@@ -321,6 +322,9 @@ class ImportController {
             }
 
             $this->db->commit();
+
+            // Log session to history
+            $this->logImportSession($user_data['user_id'] ?? 1, $filename, count($data->rows), $results['summary']['success_count'], $results['summary']['failed_count']);
 
             Response::success('นำเข้าข้อมูลเสร็จสิ้น', $results);
 
@@ -488,6 +492,8 @@ class ImportController {
             
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 $possiblePaths = [
+                    '"D:\\xampp_assets\\htdocs\\asset-management\\Tesseract-OCR\\tesseract.exe"', // Project-local (no install)
+                    '"D:\\xampp_assets\\Tesseract-OCR\\tesseract.exe"', // Portable in xampp_assets
                     'tesseract',
                     '"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"',
                     '"C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"',
@@ -507,7 +513,7 @@ class ImportController {
                 }
             }
 
-            $command = "$tesseractBin " . escapeshellarg($imagePath) . " stdout -l tha+eng 2>&1";
+            $command = "$tesseractBin " . escapeshellarg($imagePath) . " stdout -l tha+eng --oem 1 --psm 6 2>&1";
             error_log("OCR: Running command: " . $command);
             
             $output = [];
@@ -531,7 +537,16 @@ class ImportController {
 
             $textResult = implode("\n", $output);
             
-            // Send back the raw text
+            // Fix Tesseract's Thai spacing issue: it adds spaces between each Thai character
+            // e.g. "ส ว่ า น" → "สว่าน"
+            // Merge sequences of Thai characters/clusters separated by single spaces
+            $textResult = preg_replace_callback(
+                '/[\x{0E00}-\x{0E7F}][\x{0300}-\x{036f}\x{0E30}-\x{0E4E}]?(?:\s[\x{0E00}-\x{0E7F}][\x{0300}-\x{036f}\x{0E30}-\x{0E4E}]?){2,}/u',
+                function($m) { return preg_replace('/\s+/u', '', $m[0]); },
+                $textResult
+            );
+            
+            // Send back the cleaned text
             Response::success('ประมวลผล OCR สำเร็จ', [
                 'text' => $textResult
             ]);
@@ -539,6 +554,50 @@ class ImportController {
         } catch (Exception $e) {
             if (isset($imagePath) && file_exists($imagePath)) @unlink($imagePath);
             Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get import history
+     * GET /import/history
+     */
+    public function getImportHistory() {
+        try {
+            $query = "SELECT h.*, u.fullname as user_name 
+                      FROM import_history h
+                      LEFT JOIN users u ON h.user_id = u.user_id
+                      ORDER BY h.import_date DESC
+                      LIMIT 20";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            
+            $history = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $history[] = $row;
+            }
+            
+            Response::success('ดึงข้อมูลประวัติการนำเข้าสำเร็จ', $history);
+        } catch (Exception $e) {
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Log import session to database
+     */
+    private function logImportSession($user_id, $filename, $total, $success, $failed) {
+        try {
+            $sql = "INSERT INTO import_history (filename, total_rows, success_count, failed_count, user_id) 
+                    VALUES (:file, :total, :success, :failed, :user)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':file', $filename);
+            $stmt->bindParam(':total', $total);
+            $stmt->bindParam(':success', $success);
+            $stmt->bindParam(':failed', $failed);
+            $stmt->bindParam(':user', $user_id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Failed to log import session: " . $e->getMessage());
         }
     }
 }

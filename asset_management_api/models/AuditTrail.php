@@ -1,7 +1,7 @@
 <?php
 class AuditTrail {
     private $conn;
-    private $table_name = "AuditTrail";
+    private $table_name = "audittrail";
 
     public $audit_id;
     public $user_id;
@@ -32,10 +32,9 @@ class AuditTrail {
     public function readAll() {
         $query = "SELECT at.*, u.fullname, a.asset_name
                   FROM " . $this->table_name . " at
-                  LEFT JOIN Users u ON at.user_id = u.user_id
-                  LEFT JOIN Assets a ON at.asset_id = a.asset_id
-                  ORDER BY at.action_date DESC
-                  LIMIT 100";
+                  LEFT JOIN users u ON at.user_id = u.user_id
+                  LEFT JOIN assets a ON at.asset_id = a.asset_id
+                  ORDER BY at.action_date DESC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -45,7 +44,7 @@ class AuditTrail {
     public function readByAsset() {
         $query = "SELECT at.*, u.fullname
                   FROM " . $this->table_name . " at
-                  LEFT JOIN Users u ON at.user_id = u.user_id
+                  LEFT JOIN users u ON at.user_id = u.user_id
                   WHERE at.asset_id = :asset_id
                   ORDER BY at.action_date DESC";
         
@@ -58,7 +57,7 @@ class AuditTrail {
     public function readByUser() {
         $query = "SELECT at.*, a.asset_name
                   FROM " . $this->table_name . " at
-                  LEFT JOIN Assets a ON at.asset_id = a.asset_id
+                  LEFT JOIN assets a ON at.asset_id = a.asset_id
                   WHERE at.user_id = :user_id
                   ORDER BY at.action_date DESC";
         

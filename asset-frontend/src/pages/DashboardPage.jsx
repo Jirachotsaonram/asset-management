@@ -72,7 +72,7 @@ export default function DashboardPage() {
     try {
       setLoading(true);
       const [assetsRes, statusRes, uncheckedRes, auditsRes, notifsRes, overdueRes] = await Promise.all([
-        api.get('/assets'),
+        api.get('/assets?limit=1'),
         api.get('/reports/by-status'),
         api.get('/reports/unchecked?days=365'),
         api.get('/audits'),
@@ -90,28 +90,34 @@ export default function DashboardPage() {
 
       const sc = { 'ใช้งานได้': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
       let tv = 0;
+      let totalAsssetCount = 0;
+      
       statusReport.forEach(item => {
+        const count = parseInt(item.count || 0);
+        totalAsssetCount += count;
+        
         if (Object.prototype.hasOwnProperty.call(sc, item.status)) {
-          sc[item.status] = parseInt(item.count || 0);
+          sc[item.status] = count;
         }
         tv += parseFloat(item.total_value || 0);
       });
 
-      const total = assets.length;
       const chartData = STATUS_CONFIG.map(c => ({
         name: c.label, value: sc[c.label] || 0, color: c.color,
       })).filter(d => d.value > 0);
 
       setStats({
-        total,
-        checked: total - uncheckedCount,
+        total: totalAsssetCount,
+        checked: Math.max(0, totalAsssetCount - uncheckedCount),
         unchecked: uncheckedCount,
         available: sc['ใช้งานได้'], maintenance: sc['รอซ่อม'],
         pendingDisposal: sc['รอจำหน่าย'], disposed: sc['จำหน่ายแล้ว'],
         missing: sc['ไม่พบ'], totalValue: tv,
       });
       setStatusData(chartData);
-      setAuditTrail((auditsRes.data.data || []).slice(0, 8));
+      const auditsData = auditsRes.data.data;
+      const auditsList = Array.isArray(auditsData) ? auditsData : (auditsData?.items || []);
+      setAuditTrail(auditsList.slice(0, 8));
       setNotifications(notifsRes.data.data || []);
       setOverdueAssets(overdueRes.data.data || []);
     } catch (error) {

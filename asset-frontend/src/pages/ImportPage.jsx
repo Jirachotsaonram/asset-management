@@ -393,7 +393,10 @@ export default function ImportPage() {
     setLoading(true);
     try {
       const validRows = validationResult.valid.map(item => item.data);
-      const response = await api.post('/import/assets', { rows: validRows });
+      const response = await api.post('/import/assets', { 
+        rows: validRows,
+        filename: file?.name || 'เครื่อง'
+      });
       setImportResult(response.data.data);
       setStep(4);
       toast.success('นำเข้าข้อมูลเสร็จสิ้น');

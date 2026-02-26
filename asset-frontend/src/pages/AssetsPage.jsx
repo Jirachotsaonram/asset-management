@@ -201,9 +201,9 @@ export default function AssetsPage() {
     return colors[status?.trim()] || 'bg-gray-100 text-gray-600 border border-gray-200';
   };
 
-  // Get unique values for filters
-  const uniqueBuildings = useMemo(() => [...new Set(assets.map(a => a.building_name).filter(Boolean))], [assets]);
-  const uniqueFloors = useMemo(() => [...new Set(assets.map(a => a.floor).filter(Boolean))].sort((a, b) => a - b), [assets]);
+  // Get unique values for filters (from all locations, not just current page)
+  const uniqueBuildings = useMemo(() => [...new Set(locations.map(l => l.building_name).filter(Boolean))], [locations]);
+  const uniqueFloors = useMemo(() => [...new Set(locations.map(l => l.floor).filter(Boolean))].sort((a, b) => a - b), [locations]);
 
   // Active filter count
   const activeFilterCount = [filters.status, filters.department, filters.building, filters.floor].filter(f => f !== 'all').length;
@@ -325,6 +325,10 @@ export default function AssetsPage() {
     const groupedAssets = groupAssetsByLocation(assets);
     return (
       <div className="space-y-4">
+        <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-800 text-xs flex items-center gap-2 mb-4">
+          <Filter size={14} />
+          <span>หมายเหตุ: การจัดกลุ่มแสดงผลเฉพาะข้อมูลในหน้านี้ ({assets.length} รายการจากทั้งหมด {totalItems} รายการ)</span>
+        </div>
         {Object.entries(groupedAssets).map(([building, floors]) => {
           const buildingAssets = Object.values(floors).flatMap(rooms => Object.values(rooms)).flat();
           const stats = calculateStats(buildingAssets);

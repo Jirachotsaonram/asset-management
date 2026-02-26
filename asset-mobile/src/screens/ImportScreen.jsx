@@ -17,7 +17,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import api from '../services/api';
-import * as FileSystem from 'expo-file-system';
 
 const { width } = Dimensions.get('window');
 
@@ -419,59 +418,53 @@ const ImportScreen = ({ navigation }) => {
                     return;
                 }
                 result = await ImagePicker.launchCameraAsync({
-                    quality: 0.7,
-                    allowsEditing: true,
+                    quality: 0.9,  // Higher quality for OCR
+                    base64: true,
                 });
             } else {
                 result = await ImagePicker.launchImageLibraryAsync({
-                    quality: 0.7,
-                    allowsEditing: true,
+                    quality: 0.9,  // Higher quality for OCR
+                    base64: true,
                 });
             }
 
             if (result.canceled) return;
 
-            const imageUri = result.assets[0].uri;
-            runOcr(imageUri);
+            const asset = result.assets[0];
+            runOcr(asset.base64, asset.uri);
         } catch (error) {
             console.error('OCR selection error:', error);
             Alert.alert('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการเลือกรูปภาพ');
         }
     };
 
-    const runOcr = async (imageUri) => {
+    const runOcr = async (base64Data, imageUri) => {
         setProcessing(true);
         setOcrProgress(0);
-        setOcrStatus('กำลังอ่านรูปภาพ...');
+        setOcrStatus('กำลังส่งรูปไปประมวลผล OCR...');
 
         try {
-            // Read image as Base64 using expo-file-system
-            // This avoids React Native's broken FormData/multipart file upload
-            const base64Data = await FileSystem.readAsStringAsync(imageUri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
+            if (!base64Data) {
+                throw new Error('ไม่สามารถอ่านข้อมูลรูปได้');
+            }
 
             setOcrProgress(20);
-            setOcrStatus('กำลังส่งรูปประมวลผลไปยัง Server...');
 
-            // Fast progress simulation
             const progressInterval = setInterval(() => {
                 setOcrProgress(prev => (prev < 90 ? prev + 5 : prev));
-            }, 500);
+            }, 1000);
 
-            // Send as JSON with base64 image data
-            // The backend processOCR() already supports $json->image with base64
+            // Send base64 directly to server (base64 comes from ImagePicker, no file read needed)
             const apiRes = await api.post('/import/ocr', {
                 image: `data:image/jpeg;base64,${base64Data}`
-            }, {
-                timeout: 60000,
-            });
+            }, { timeout: 90000 });
 
             clearInterval(progressInterval);
             setOcrProgress(100);
 
             if (apiRes.data.success && apiRes.data.data?.text) {
                 const text = apiRes.data.data.text;
+                console.log('=== OCR Raw Text ===\n', text, '\n====================');
                 const assets = parseAssetTable(text);
                 if (assets.length > 0) {
                     setParsedData(assets);
@@ -483,15 +476,10 @@ const ImportScreen = ({ navigation }) => {
                 Alert.alert('ข้อผิดพลาด', apiRes.data.message || 'การประมวลผล OCR ล้มเหลว');
             }
         } catch (err) {
-            console.error('OCR API Error Details:', {
-                message: err.message,
-                code: err.code,
-                response: err.response?.data,
-            });
-            let msg = 'ไม่สามารถเชื่อมต่อกับ Server OCR ได้';
-            if (err.code === 'ECONNABORTED') msg = 'การประมวลผลใช้เวลานานเกินไป (Timeout)';
-            if (err.response?.data?.message) msg = err.response.data.message;
-            Alert.alert('ข้อผิดพลาด', `${msg}`);
+            console.error('OCR Error:', err);
+            let msg = err.response?.data?.message || 'ไม่สามารถรัน OCR ได้';
+            if (err.code === 'ECONNABORTED') msg = 'Timeout: การประมวลผลใช้เวลานานเกินไป';
+            Alert.alert('เกิดข้อผิดพลาด', msg);
         } finally {
             setProcessing(false);
         }

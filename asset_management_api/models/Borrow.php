@@ -1,7 +1,7 @@
 <?php
 class Borrow {
     private $conn;
-    private $table_name = "Borrow";
+    private $table_name = "borrow";
 
     public $borrow_id;
     public $asset_id;
@@ -40,8 +40,8 @@ class Borrow {
     public function readAll() {
         $query = "SELECT b.*, a.asset_name, d.department_name
                   FROM " . $this->table_name . " b
-                  LEFT JOIN Assets a ON b.asset_id = a.asset_id
-                  LEFT JOIN Departments d ON b.department_id = d.department_id
+                  LEFT JOIN assets a ON b.asset_id = a.asset_id
+                  LEFT JOIN departments d ON b.department_id = d.department_id
                   ORDER BY b.borrow_date DESC";
         
         $stmt = $this->conn->prepare($query);
@@ -52,7 +52,7 @@ class Borrow {
     public function readByAsset() {
         $query = "SELECT b.*, d.department_name
                   FROM " . $this->table_name . " b
-                  LEFT JOIN Departments d ON b.department_id = d.department_id
+                  LEFT JOIN departments d ON b.department_id = d.department_id
                   WHERE b.asset_id = :asset_id
                   ORDER BY b.borrow_date DESC";
         
@@ -65,8 +65,8 @@ class Borrow {
     public function readActive() {
         $query = "SELECT b.*, a.asset_name, d.department_name
                   FROM " . $this->table_name . " b
-                  LEFT JOIN Assets a ON b.asset_id = a.asset_id
-                  LEFT JOIN Departments d ON b.department_id = d.department_id
+                  LEFT JOIN assets a ON b.asset_id = a.asset_id
+                  LEFT JOIN departments d ON b.department_id = d.department_id
                   WHERE b.status = 'ยืม'
                   ORDER BY b.borrow_date DESC";
         
@@ -127,8 +127,8 @@ class Borrow {
         
         $query = "SELECT b.*, a.asset_name, d.department_name
                   FROM " . $this->table_name . " b
-                  LEFT JOIN Assets a ON b.asset_id = a.asset_id
-                  LEFT JOIN Departments d ON b.department_id = d.department_id
+                  LEFT JOIN assets a ON b.asset_id = a.asset_id
+                  LEFT JOIN departments d ON b.department_id = d.department_id
                   $where
                   ORDER BY b.borrow_date DESC
                   LIMIT :limit OFFSET :offset";
@@ -164,7 +164,7 @@ class Borrow {
         
         $query = "SELECT COUNT(*) as total 
                   FROM " . $this->table_name . " b
-                  LEFT JOIN Assets a ON b.asset_id = a.asset_id
+                  LEFT JOIN assets a ON b.asset_id = a.asset_id
                   $where";
         
         $stmt = $this->conn->prepare($query);

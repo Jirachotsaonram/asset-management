@@ -56,31 +56,59 @@ const FIELD_LABELS = {
 // ==================== Main Component ====================
 export default function AuditTrailPage() {
   const [audits, setAudits] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [actionFilter, setActionFilter] = useState("all");
+  const [userFilter, setUserFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [users, setUsers] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedAudit, setSelectedAudit] = useState(null);
-
-  // Filters — auto-apply on change
-  const [search, setSearch] = useState('');
-  const [actionFilter, setActionFilter] = useState('all');
-  const [userFilter, setUserFilter] = useState('all');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortKey, setSortKey] = useState('action_date');
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [sortKey, setSortKey] = useState("action_date");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
-    Promise.all([fetchData(), fetchUsers()]);
+    fetchUsers();
   }, []);
+
+  // เมื่อ filters, page, sort เปลี่ยน → fetch ใหม่
+  useEffect(() => {
+    fetchData();
+  }, [currentPage, actionFilter, userFilter, startDate, endDate, sortKey, sortOrder]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/audits');
-      setAudits(res.data.data || []);
-    } catch { toast.error('ไม่สามารถโหลดข้อมูลได้'); }
+      const params = new URLSearchParams();
+      params.set('page', currentPage);
+      params.set('limit', ITEMS_PER_PAGE);
+      params.set('sort', sortKey);
+      params.set('order', sortOrder);
+
+      if (actionFilter !== 'all') params.set('action', actionFilter);
+      if (userFilter !== 'all') params.set('user_id', userFilter);
+      if (startDate) params.set('start_date', startDate);
+      if (endDate) params.set('end_date', endDate);
+      if (search.trim()) params.set('keyword', search.trim());
+
+      const res = await api.get(`/audits?${params.toString()}`);
+      const data = res.data.data;
+
+      if (data && data.items) {
+        setAudits(data.items);
+        setTotalItems(data.total);
+      } else {
+        setAudits(Array.isArray(data) ? data : []);
+        setTotalItems(Array.isArray(data) ? data.length : 0);
+      }
+    } catch {
+      toast.error('ไม่สามารถโหลดข้อมูลได้');
+      setAudits([]);
+      setTotalItems(0);
+    }
     finally { setLoading(false); }
   };
 
@@ -91,46 +119,8 @@ export default function AuditTrailPage() {
     } catch { /* ignore */ }
   };
 
-  // ==================== Derived data ====================
-  const filteredAudits = useMemo(() => {
-    let data = [...audits];
-
-    if (actionFilter !== 'all') data = data.filter(a => a.action === actionFilter);
-    if (userFilter !== 'all') data = data.filter(a => String(a.user_id) === userFilter);
-    if (startDate) data = data.filter(a => new Date(a.action_date) >= new Date(startDate));
-    if (endDate) data = data.filter(a => new Date(a.action_date) <= new Date(endDate + 'T23:59:59'));
-
-    if (search.trim()) {
-      const term = search.toLowerCase();
-      data = data.filter(a =>
-        a.fullname?.toLowerCase().includes(term) ||
-        a.asset_name?.toLowerCase().includes(term) ||
-        a.action?.toLowerCase().includes(term) ||
-        String(a.asset_id || '').includes(term)
-      );
-    }
-
-    // Sort
-    data.sort((a, b) => {
-      let va = a[sortKey], vb = b[sortKey];
-      if (sortKey === 'action_date') {
-        va = new Date(va || 0).getTime();
-        vb = new Date(vb || 0).getTime();
-      }
-      if (va == null) va = '';
-      if (vb == null) vb = '';
-      if (typeof va === 'number' && typeof vb === 'number') return sortOrder === 'asc' ? va - vb : vb - va;
-      return sortOrder === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-    });
-
-    return data;
-  }, [audits, actionFilter, userFilter, startDate, endDate, search, sortKey, sortOrder]);
-
-  const totalPages = Math.ceil(filteredAudits.length / ITEMS_PER_PAGE);
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredAudits.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredAudits, currentPage]);
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+  const paginatedData = audits; // data is already paginated from server
 
   // Reset page on filter change
   useEffect(() => { setCurrentPage(1); }, [search, actionFilter, userFilter, startDate, endDate]);
@@ -142,37 +132,65 @@ export default function AuditTrailPage() {
     return counts;
   }, [audits]);
 
-  const handleSort = (key) => {
-    if (sortKey === key) setSortOrder(o => o === 'asc' ? 'desc' : 'asc');
-    else { setSortKey(key); setSortOrder('desc'); }
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchData();
   };
 
   const clearFilters = () => {
     setSearch(''); setActionFilter('all'); setUserFilter('all');
     setStartDate(''); setEndDate('');
+    setCurrentPage(1);
   };
 
   const hasActiveFilters = search || actionFilter !== 'all' || userFilter !== 'all' || startDate || endDate;
 
   // ==================== Export ====================
-  const doExport = (format) => {
-    if (filteredAudits.length === 0) { toast.error('ไม่มีข้อมูลให้ Export'); return; }
+  const doExport = async (format) => {
     try {
-      const headers = ['วันที่-เวลา', 'ผู้ใช้งาน', 'Action', 'ครุภัณฑ์', 'รหัสครุภัณฑ์'];
-      let csv = '\uFEFF' + headers.join('\t') + '\n';
-      filteredAudits.forEach(a => {
-        csv += [
-          new Date(a.action_date).toLocaleString('th-TH'),
-          a.fullname || '-', a.action || '-', a.asset_name || '-', a.asset_id || '-'
-        ].join('\t') + '\n';
-      });
-      const blob = new Blob([csv], { type: format === 'csv' ? 'text/csv;charset=utf-8;' : 'application/vnd.ms-excel;charset=utf-8;' });
+      toast.loading(`กำลังเตรียมไฟล์ ${format.toUpperCase()}...`, { id: 'export-toast' });
+      
+      const params = new URLSearchParams();
+      if (actionFilter !== 'all') params.set('action', actionFilter);
+      if (userFilter !== 'all') params.set('user_id', userFilter);
+      if (startDate) params.set('start_date', startDate);
+      if (endDate) params.set('end_date', endDate);
+      if (search.trim()) params.set('keyword', search.trim());
+      
+      const endpoint = format === 'csv' ? '/audits/export-csv' : '/audits/export-excel';
+      
+      // Use window.open or a hidden anchor to trigger download from backend
+      const baseUrl = api.defaults.baseURL || '/api';
+      const downloadUrl = `${baseUrl}${endpoint}?${params.toString()}`;
+      
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `audit_trail_${new Date().toISOString().split('T')[0]}.${format === 'csv' ? 'csv' : 'xls'}`;
-      link.click();
-      toast.success(`กำลังดาวน์โหลด ${format.toUpperCase()}`);
-    } catch { toast.error('ไม่สามารถ Export ได้'); }
+      link.href = downloadUrl;
+      // Note: For sensitive data, usually we'd fetch as blob with auth header, 
+      // but here we can try window.open or a direct link if auth allows via cookie/param.
+      // Since our 'api' service likely handles auth headers, we should fetch as blob.
+      
+      const response = await api.get(`${endpoint}?${params.toString()}`, {
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { 
+        type: format === 'csv' ? 'text/csv' : 'application/vnd.ms-excel' 
+      });
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit_trail_${new Date().toISOString().split('T')[0]}.${format === 'csv' ? 'csv' : 'xls'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success(`ดาวน์โหลด ${format.toUpperCase()} สำเร็จ`, { id: 'export-toast' });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('ไม่สามารถ Export ได้', { id: 'export-toast' });
+    }
   };
 
   const getActionConfig = (action) => ACTIONS.find(a => a.key === action) || ACTIONS[0];
@@ -224,8 +242,8 @@ export default function AuditTrailPage() {
           return (
             <button key={a.key} onClick={() => setActionFilter(a.key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${isActive
-                  ? (a.color || 'bg-blue-100 text-blue-700 border-blue-200') + ' ring-2 ring-offset-1 ring-blue-300 scale-105'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ? (a.color || 'bg-blue-100 text-blue-700 border-blue-200') + ' ring-2 ring-offset-1 ring-blue-300 scale-105'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}>
               <span>{a.emoji}</span>
               <span>{a.label}</span>
@@ -242,14 +260,19 @@ export default function AuditTrailPage() {
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="ค้นหาผู้ใช้, ครุภัณฑ์, Action..."
               className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             {search && (
-              <button onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setSearch(''); setCurrentPage(1); }}
+                className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 <X size={14} />
               </button>
             )}
+            <button onClick={handleSearch}
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition">
+              ค้นหา
+            </button>
           </div>
 
           {/* Toggle advanced filters */}
@@ -296,8 +319,7 @@ export default function AuditTrailPage() {
 
       {/* Results count */}
       <div className="text-xs text-gray-500 px-1">
-        แสดง {paginatedData.length} จาก {filteredAudits.length} รายการ
-        {filteredAudits.length !== audits.length && <span className="text-blue-600"> (กรองจาก {audits.length} ทั้งหมด)</span>}
+        แสดง {paginatedData.length} จาก {totalItems} รายการ
       </div>
 
       {/* Data Table */}
@@ -319,8 +341,14 @@ export default function AuditTrailPage() {
                     className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${col.key ? 'cursor-pointer hover:text-gray-900 select-none' : ''}`}>
                     <div className="flex items-center gap-1">
                       {col.label}
-                      {col.key && sortKey === col.key && (
-                        sortOrder === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
+                      {col.key && (
+                        sortKey === col.key ? (
+                          sortOrder === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
+                        ) : (
+                          <div className="w-3 h-3 flex flex-col items-center opacity-30">
+                            <ChevronUp size={8} /> <ChevronDown size={8} />
+                          </div>
+                        )
                       )}
                     </div>
                   </th>
@@ -392,7 +420,7 @@ export default function AuditTrailPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-gray-50/50">
             <p className="text-xs text-gray-500">
-              {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredAudits.length)} จาก {filteredAudits.length}
+              {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} จาก {totalItems}
             </p>
             <div className="flex items-center gap-1">
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage <= 1}

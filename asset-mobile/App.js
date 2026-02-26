@@ -55,12 +55,18 @@ function MainTabs() {
         tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: '#6B7280',
         headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontFamily: 'sans-serif',
+          marginTop: -5,
+          marginBottom: 5,
+        },
         tabBarStyle: {
           borderTopWidth: 1,
           borderTopColor: '#E5E7EB',
           paddingBottom: 5,
           paddingTop: 5,
-          height: 60,
+          height: 65,
         },
       })}
     >

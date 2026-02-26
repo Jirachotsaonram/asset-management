@@ -21,7 +21,7 @@ const STATUS_CONFIGS = {
 };
 
 const CHECK_STATUSES = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ'];
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 100;
 
 // ==================== Helper: compute check status (pure function) ====================
 function computeCheckStatus(asset) {
@@ -30,9 +30,12 @@ function computeCheckStatus(asset) {
     return { ...STATUS_CONFIGS.never_checked, status: 'never_checked', days: null };
   }
   const nextCheck = asset.next_check_date ? new Date(asset.next_check_date).getTime() : null;
+
   if (!nextCheck) {
-    return { ...STATUS_CONFIGS.no_schedule, status: 'no_schedule', days: null };
+    // If it has been checked, but no future schedule is set, it's still "checked" for now.
+    return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${asset.last_check_date}`, days: null };
   }
+
   const daysUntil = Math.floor((nextCheck - today) / 86400000);
   if (daysUntil < 0) {
     return { ...STATUS_CONFIGS.overdue, status: 'overdue', label: `เลย ${Math.abs(daysUntil)} วัน`, days: daysUntil };
@@ -58,6 +61,8 @@ export default function CheckPage() {
   const [expanded, setExpanded] = useState({});
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [notifUrgentPage, setNotifUrgentPage] = useState(1);
+  const [notifDueSoonPage, setNotifDueSoonPage] = useState(1);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -83,7 +88,7 @@ export default function CheckPage() {
     try {
       setLoading(true);
       const [aR, sR, dR] = await Promise.all([
-        api.get('/assets'), api.get('/check-schedules'), api.get('/departments')
+        api.get('/assets?limit=0'), api.get('/check-schedules'), api.get('/departments')
       ]);
       let a = aR.data.data || [];
       if (a && a.items) a = a.items;
@@ -166,7 +171,7 @@ export default function CheckPage() {
   const paginatedAssets = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredAssets.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredAssets, currentPage]);
+  }, [filteredAssets, currentPage, ITEMS_PER_PAGE]);
 
   // ==================== Handlers ====================
   const toggle = useCallback((key) => setExpanded(p => ({ ...p, [key]: !p[key] })), []);
@@ -412,7 +417,15 @@ export default function CheckPage() {
           )}
         </>
       ) : (
-        <NotificationsTab notifications={notifications} onCheck={openCheckModal} onSchedule={openScheduleModal} />
+        <NotificationsTab
+          notifications={notifications}
+          onCheck={openCheckModal}
+          onSchedule={openScheduleModal}
+          urgentPage={notifUrgentPage}
+          setUrgentPage={setNotifUrgentPage}
+          dueSoonPage={notifDueSoonPage}
+          setDueSoonPage={setNotifDueSoonPage}
+        />
       )}
 
       {/* ==================== Modals ==================== */}
@@ -677,17 +690,38 @@ function ListView({ assets, onCheck, onSchedule, currentPage, totalPages, setCur
 }
 
 // ==================== Notifications Tab ====================
-function NotificationsTab({ notifications, onCheck, onSchedule }) {
+function NotificationsTab({ notifications, onCheck, onSchedule, urgentPage, setUrgentPage, dueSoonPage, setDueSoonPage }) {
+  const ITEMS_PER_PAGE = 50;
+
+  const urgentTotalPages = Math.ceil(notifications.urgent.length / ITEMS_PER_PAGE);
+  const paginatedUrgent = notifications.urgent.slice((urgentPage - 1) * ITEMS_PER_PAGE, urgentPage * ITEMS_PER_PAGE);
+
+  const dueSoonTotalPages = Math.ceil(notifications.dueSoon.length / ITEMS_PER_PAGE);
+  const paginatedDueSoon = notifications.dueSoon.slice((dueSoonPage - 1) * ITEMS_PER_PAGE, dueSoonPage * ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-4">
       {notifications.urgent.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="bg-red-50 border-b border-red-200 p-4 flex items-center gap-2">
-            <AlertCircle size={20} className="text-red-600" />
-            <h2 className="font-bold text-red-800">ต้องดำเนินการด่วน ({notifications.urgent.length})</h2>
+        <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
+          <div className="bg-red-50 border-b border-red-200 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle size={20} className="text-red-600" />
+              <h2 className="font-bold text-red-800">ต้องดำเนินการด่วน ({notifications.urgent.length})</h2>
+            </div>
+            {urgentTotalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-red-700 font-medium">หน้า {urgentPage}/{urgentTotalPages}</span>
+                <div className="flex gap-1">
+                  <button onClick={() => setUrgentPage(p => Math.max(1, p - 1))} disabled={urgentPage === 1}
+                    className="p-1 rounded bg-white border border-red-200 text-red-600 disabled:opacity-30 hover:bg-red-50 transition"><ChevronLeft size={16} /></button>
+                  <button onClick={() => setUrgentPage(p => Math.min(urgentTotalPages, p + 1))} disabled={urgentPage === urgentTotalPages}
+                    className="p-1 rounded bg-white border border-red-200 text-red-600 disabled:opacity-30 hover:bg-red-50 transition"><ChevronRight size={16} /></button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="divide-y divide-gray-100 max-h-[60vh] overflow-y-auto">
-            {notifications.urgent.map(asset => (
+            {paginatedUrgent.map(asset => (
               <NotifRow key={asset.asset_id} asset={asset} onCheck={onCheck} onSchedule={onSchedule} />
             ))}
           </div>
@@ -695,13 +729,26 @@ function NotificationsTab({ notifications, onCheck, onSchedule }) {
       )}
 
       {notifications.dueSoon.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="bg-yellow-50 border-b border-yellow-200 p-4 flex items-center gap-2">
-            <Clock size={20} className="text-yellow-600" />
-            <h2 className="font-bold text-yellow-800">ใกล้กำหนด 7 วัน ({notifications.dueSoon.length})</h2>
+        <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
+          <div className="bg-yellow-50 border-b border-yellow-200 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock size={20} className="text-yellow-600" />
+              <h2 className="font-bold text-yellow-800">ใกล้กำหนด 7 วัน ({notifications.dueSoon.length})</h2>
+            </div>
+            {dueSoonTotalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-yellow-700 font-medium">หน้า {dueSoonPage}/{dueSoonTotalPages}</span>
+                <div className="flex gap-1">
+                  <button onClick={() => setDueSoonPage(p => Math.max(1, p - 1))} disabled={dueSoonPage === 1}
+                    className="p-1 rounded bg-white border border-yellow-200 text-yellow-600 disabled:opacity-30 hover:bg-yellow-50 transition"><ChevronLeft size={16} /></button>
+                  <button onClick={() => setDueSoonPage(p => Math.min(dueSoonTotalPages, p + 1))} disabled={dueSoonPage === dueSoonTotalPages}
+                    className="p-1 rounded bg-white border border-yellow-200 text-yellow-600 disabled:opacity-30 hover:bg-yellow-50 transition"><ChevronRight size={16} /></button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="divide-y divide-gray-100 max-h-[60vh] overflow-y-auto">
-            {notifications.dueSoon.map(asset => (
+            {paginatedDueSoon.map(asset => (
               <NotifRow key={asset.asset_id} asset={asset} onCheck={onCheck} onSchedule={onSchedule} />
             ))}
           </div>

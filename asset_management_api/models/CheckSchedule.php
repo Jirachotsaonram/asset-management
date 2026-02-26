@@ -199,111 +199,146 @@ class CheckSchedule {
         return $stmt;
     }
 
-    // ดึงการแจ้งเตือนทั้งหมดรวมกัน
-    public function getAllNotifications() {
-        $notifications = [];
-
-        // 1. ครุภัณฑ์เลยกำหนดตรวจสอบ
-        try {
-            $stmt = $this->getOverdue();
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $notifications[] = [
-                    'type' => 'overdue_check',
-                    'priority' => 1,
-                    'icon' => 'alert-circle',
-                    'color' => '#EF4444',
-                    'bgColor' => '#FEE2E2',
-                    'asset_id' => $row['asset_id'],
-                    'title' => $row['asset_name'],
-                    'message' => 'เกินกำหนดตรวจสอบ ' . $row['days_overdue'] . ' วัน',
-                    'detail' => $row['building_name'] ? $row['building_name'] . ' ชั้น ' . $row['floor'] . ' ห้อง ' . $row['room_number'] : '',
-                    'date' => $row['next_check_date'],
-                    'data' => $row
-                ];
-            }
-        } catch (Exception $e) {
-            // table อาจไม่มี ข้ามไป
+    // ดึงการแจ้งเตือนทั้งหมดแบบแบ่งหน้า (Paginated) พร้อมจำนวนแต่ละประเภท
+    public function getAllNotificationsPaginated($page = 1, $limit = 20) {
+        $offset = ($page - 1) * $limit;
+        
+        // Count query per type
+        $count_query = "
+            SELECT 'overdue_check' as type, COUNT(*) as cnt FROM " . $this->asset_schedules_table . " ast
+            INNER JOIN assets a ON ast.asset_id = a.asset_id
+            WHERE ast.next_check_date < CURDATE() AND ast.is_dismissed = 0
+            UNION ALL
+            SELECT 'upcoming_check' as type, COUNT(*) as cnt FROM " . $this->asset_schedules_table . " ast
+            INNER JOIN assets a ON ast.asset_id = a.asset_id
+            WHERE DATEDIFF(ast.next_check_date, CURDATE()) <= 30 AND DATEDIFF(ast.next_check_date, CURDATE()) >= 0 AND ast.is_dismissed = 0
+            UNION ALL
+            SELECT 'active_borrow' as type, COUNT(*) as cnt FROM borrow b
+            INNER JOIN assets a ON b.asset_id = a.asset_id
+            WHERE b.status = 'ยืม'
+            UNION ALL
+            SELECT 'never_checked' as type, COUNT(*) as cnt FROM assets a
+            WHERE a.asset_id NOT IN (SELECT DISTINCT ac.asset_id FROM asset_check ac)
+            AND a.status NOT IN ('จำหน่ายแล้ว')
+        ";
+        
+        $count_stmt = $this->conn->prepare($count_query);
+        $count_stmt->execute();
+        
+        $counts_by_type = [
+            'overdue_check' => 0,
+            'upcoming_check' => 0,
+            'active_borrow' => 0,
+            'never_checked' => 0
+        ];
+        $total_count = 0;
+        
+        while ($row = $count_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $counts_by_type[$row['type']] = (int)$row['cnt'];
+            $total_count += (int)$row['cnt'];
         }
 
-        // 2. ครุภัณฑ์ใกล้ถึงกำหนดตรวจสอบ (30 วัน)
-        try {
-            $stmt = $this->getNotifications(30);
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $days = $row['days_until_check'];
-                if ($days >= 0) { // ไม่ซ้ำกับ overdue
-                    $msg = $days == 0 ? 'ครบกำหนดตรวจสอบวันนี้' : 'อีก ' . $days . ' วันถึงกำหนดตรวจสอบ';
-                    $notifications[] = [
-                        'type' => 'upcoming_check',
-                        'priority' => 2,
-                        'icon' => 'time',
-                        'color' => '#F59E0B',
-                        'bgColor' => '#FEF3C7',
-                        'asset_id' => $row['asset_id'],
-                        'title' => $row['asset_name'],
-                        'message' => $msg,
-                        'detail' => $row['building_name'] ? $row['building_name'] . ' ชั้น ' . $row['floor'] . ' ห้อง ' . $row['room_number'] : '',
-                        'date' => $row['next_check_date'],
-                        'data' => $row
-                    ];
-                }
-            }
-        } catch (Exception $e) {
-            // table อาจไม่มี ข้ามไป
+        $total_pages = ceil($total_count / $limit);
+
+        // Data query using UNION ALL for true global pagination and sorting
+        $query = "
+            SELECT * FROM (
+                SELECT 
+                    'overdue_check' AS type,
+                    1 AS priority,
+                    'alert-circle' AS icon,
+                    '#EF4444' AS color,
+                    '#FEE2E2' AS bgColor,
+                    a.asset_id,
+                    a.asset_name,
+                    CONCAT('เกินกำหนดตรวจสอบ ', DATEDIFF(CURDATE(), ast.next_check_date), ' วัน') AS message,
+                    IF(l.building_name IS NOT NULL AND l.building_name != '', CONCAT(l.building_name, ' ชั้น ', IFNULL(l.floor, '-'), ' ห้อง ', IFNULL(l.room_number, '-')), '') AS detail,
+                    ast.next_check_date AS notification_date
+                FROM " . $this->asset_schedules_table . " ast
+                INNER JOIN assets a ON ast.asset_id = a.asset_id
+                LEFT JOIN locations l ON a.location_id = l.location_id
+                WHERE ast.next_check_date < CURDATE() AND ast.is_dismissed = 0
+
+                UNION ALL
+
+                SELECT 
+                    'upcoming_check' AS type,
+                    2 AS priority,
+                    'time' AS icon,
+                    '#F59E0B' AS color,
+                    '#FEF3C7' AS bgColor,
+                    a.asset_id,
+                    a.asset_name,
+                    CASE 
+                        WHEN DATEDIFF(ast.next_check_date, CURDATE()) = 0 THEN 'ครบกำหนดตรวจสอบวันนี้'
+                        ELSE CONCAT('อีก ', DATEDIFF(ast.next_check_date, CURDATE()), ' วันถึงกำหนดตรวจสอบ')
+                    END AS message,
+                    IF(l.building_name IS NOT NULL AND l.building_name != '', CONCAT(l.building_name, ' ชั้น ', IFNULL(l.floor, '-'), ' ห้อง ', IFNULL(l.room_number, '-')), '') AS detail,
+                    ast.next_check_date AS notification_date
+                FROM " . $this->asset_schedules_table . " ast
+                INNER JOIN assets a ON ast.asset_id = a.asset_id
+                LEFT JOIN locations l ON a.location_id = l.location_id
+                WHERE DATEDIFF(ast.next_check_date, CURDATE()) <= 30 AND DATEDIFF(ast.next_check_date, CURDATE()) >= 0 AND ast.is_dismissed = 0
+
+                UNION ALL
+
+                SELECT 
+                    'active_borrow' AS type,
+                    3 AS priority,
+                    'swap-horizontal' AS icon,
+                    '#8B5CF6' AS color,
+                    '#EDE9FE' AS bgColor,
+                    a.asset_id,
+                    a.asset_name,
+                    CONCAT('ยืมโดย ', IFNULL(b.borrower_name, '-'), ' (', DATEDIFF(CURDATE(), b.borrow_date), ' วัน)') AS message,
+                    CONCAT('ยืมตั้งแต่ ', DATE_FORMAT(b.borrow_date, '%Y-%m-%d')) AS detail,
+                    b.borrow_date AS notification_date
+                FROM borrow b
+                INNER JOIN assets a ON b.asset_id = a.asset_id
+                WHERE b.status = 'ยืม'
+
+                UNION ALL
+
+                SELECT 
+                    'never_checked' AS type,
+                    4 AS priority,
+                    'warning' AS icon,
+                    '#F97316' AS color,
+                    '#FFF7ED' AS bgColor,
+                    a.asset_id,
+                    a.asset_name,
+                    CONCAT('ยังไม่เคยตรวจสอบ (เพิ่มมาแล้ว ', DATEDIFF(CURDATE(), a.created_at), ' วัน)') AS message,
+                    IF(l.building_name IS NOT NULL AND l.building_name != '', CONCAT(l.building_name, ' ชั้น ', IFNULL(l.floor, '-'), ' ห้อง ', IFNULL(l.room_number, '-')), '') AS detail,
+                    a.created_at AS notification_date
+                FROM assets a
+                LEFT JOIN locations l ON a.location_id = l.location_id
+                WHERE a.asset_id NOT IN (SELECT DISTINCT ac.asset_id FROM asset_check ac)
+                AND a.status NOT IN ('จำหน่ายแล้ว')
+            ) AS combined_notifications
+            ORDER BY priority ASC, notification_date ASC
+            LIMIT :offset, :limit
+        ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $items = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $row;
         }
-
-        // 3. ยืมค้าง
-        try {
-            $stmt = $this->getActiveBorrows();
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $notifications[] = [
-                    'type' => 'active_borrow',
-                    'priority' => 3,
-                    'icon' => 'swap-horizontal',
-                    'color' => '#8B5CF6',
-                    'bgColor' => '#EDE9FE',
-                    'asset_id' => $row['asset_id'],
-                    'title' => $row['asset_name'],
-                    'message' => 'ยืมโดย ' . $row['borrower_name'] . ' (' . $row['days_borrowed'] . ' วัน)',
-                    'detail' => 'ยืมตั้งแต่ ' . $row['borrow_date'],
-                    'date' => $row['borrow_date'],
-                    'data' => $row
-                ];
-            }
-        } catch (Exception $e) {
-            // ข้ามไป
-        }
-
-        // 4. ไม่เคยตรวจสอบ
-        try {
-            $stmt = $this->getNeverCheckedAssets();
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $notifications[] = [
-                    'type' => 'never_checked',
-                    'priority' => 4,
-                    'icon' => 'warning',
-                    'color' => '#F97316',
-                    'bgColor' => '#FFF7ED',
-                    'asset_id' => $row['asset_id'],
-                    'title' => $row['asset_name'],
-                    'message' => 'ยังไม่เคยตรวจสอบ (เพิ่มมาแล้ว ' . $row['days_since_added'] . ' วัน)',
-                    'detail' => $row['building_name'] ? $row['building_name'] . ' ชั้น ' . $row['floor'] . ' ห้อง ' . $row['room_number'] : '',
-                    'date' => $row['created_at'],
-                    'data' => $row
-                ];
-            }
-        } catch (Exception $e) {
-            // ข้ามไป
-        }
-
-        // Sort: priority (1=สูงสุด), then date
-        usort($notifications, function($a, $b) {
-            if ($a['priority'] !== $b['priority']) {
-                return $a['priority'] - $b['priority'];
-            }
-            return strcmp($a['date'], $b['date']);
-        });
-
-        return $notifications;
+        
+        return [
+            'items' => $items,
+            'counts_by_type' => $counts_by_type,
+            'pagination' => [
+                'total' => $total_count,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => $total_pages
+            ]
+        ];
     }
 }
 ?>

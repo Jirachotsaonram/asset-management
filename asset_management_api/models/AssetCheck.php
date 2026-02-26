@@ -47,7 +47,7 @@ class AssetCheck {
     public function readByAsset() {
         $query = "SELECT ac.*, u.fullname as checker_name 
                   FROM " . $this->table_name . " ac
-                  LEFT JOIN Users u ON ac.user_id = u.user_id
+                  LEFT JOIN users u ON ac.user_id = u.user_id
                   WHERE ac.asset_id = :asset_id
                   ORDER BY ac.check_date DESC";
         

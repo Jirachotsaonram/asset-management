@@ -399,6 +399,10 @@ switch ($endpoint) {
         if ($request_method === 'GET' && $id === 'template') {
             // GET /import/template - Download CSV template
             $controller->downloadTemplate();
+        } elseif ($request_method === 'GET' && $id === 'history') {
+            // GET /import/history - Get import history
+            authenticate();
+            $controller->getImportHistory();
         } elseif ($request_method === 'GET' && $id === 'references') {
             // GET /import/references - Get reference data
             authenticate();

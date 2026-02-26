@@ -108,7 +108,10 @@ export default function LocationsPage() {
     const totalLocations = locations.length;
     const totalBuildings = new Set(locations.map(l => l.building_name)).size;
     const totalFloors = new Set(locations.map(l => `${l.building_name}-${l.floor}`)).size;
-    const locationsWithAssets = Object.keys(assetCountByLocation).length;
+    // นับเฉพาะ locations ที่มีอยู่จริงในระบบ เพื่อป้องกันตัวเลขเพี้ยน
+    const locationsWithAssets = locations.filter(
+      loc => (assetCountByLocation[loc.location_id] || 0) > 0
+    ).length;
     const emptyLocations = totalLocations - locationsWithAssets;
 
     return { totalLocations, totalBuildings, totalFloors, locationsWithAssets, emptyLocations };
@@ -374,8 +377,8 @@ export default function LocationsPage() {
             <button
               onClick={() => setViewMode('grouped')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === 'grouped'
-                  ? 'bg-white text-primary-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <Layers size={18} />
@@ -384,8 +387,8 @@ export default function LocationsPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${viewMode === 'list'
-                  ? 'bg-white text-primary-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <Filter size={18} />

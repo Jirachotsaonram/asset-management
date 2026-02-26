@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
@@ -17,7 +18,11 @@ export default function DashboardScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({ total: 0, checked: 0, unchecked: 0, available: 0, maintenance: 0, missing: 0 });
+
+  // Notification states
   const [allNotifications, setAllNotifications] = useState([]);
+  const [notifCountsByType, setNotifCountsByType] = useState({});
+  const [totalNotifs, setTotalNotifs] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
@@ -27,17 +32,18 @@ export default function DashboardScreen({ navigation }) {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [statusRes, uncheckedRes, allNotifsRes] = await Promise.all([
+      const [statusRes, uncheckedRes, notifsRes, overdueRes] = await Promise.all([
         api.get('/reports/by-status').catch((e) => { console.warn('Status API error:', e.message); return { data: { data: [] } }; }),
-        api.get('/reports/unchecked?days=365').catch((e) => { console.warn('Unchecked API error:', e.message); return { data: { data: [] } }; }),
-        api.get('/check-schedules/all-notifications').catch((e) => { console.warn('Notifications API error:', e.message); return { data: { data: [] } }; }),
+        api.get('/reports/unchecked?days=365').catch((e) => { console.warn('Unchecked API error:', e.message); return { data: { data: { total: 0 } } }; }),
+        api.get('/check-schedules/notifications?days=30').catch((e) => { console.warn('Notifications API error:', e.message); return { data: { data: [] } }; }),
+        api.get('/check-schedules/overdue').catch((e) => { console.warn('Overdue API error:', e.message); return { data: { data: [] } }; }),
       ]);
 
       const statusData = statusRes.data.data || [];
       const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
       const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (uncheckedData.items?.length || 0);
 
-      // Map status data to stats
+      // Map status data to stats (เหมือน web)
       let total = 0;
       let available = 0;
       let maintenance = 0;
@@ -60,7 +66,31 @@ export default function DashboardScreen({ navigation }) {
         missing,
       });
 
-      setAllNotifications(allNotifsRes.data.data || []);
+      // ใช้สูตรเดียวกับ web DashboardPage บรรทัด 133:
+      // alertCount = overdueAssets.length + urgent.length + (unchecked>0?1:0) + (missing>0?1:0) + (maintenance>0?1:0)
+      const overdueList = overdueRes.data.data || [];
+      const notifList = notifsRes.data.data || [];
+      const urgentList = notifList.filter(n => n.urgency_level === 'เร่งด่วน' || n.urgency_level === 'วันนี้');
+
+      const alertCount =
+        overdueList.length +
+        urgentList.length +
+        (uncheckedCount > 0 ? 1 : 0) +
+        (missing > 0 ? 1 : 0) +
+        (maintenance > 0 ? 1 : 0);
+
+      setTotalNotifs(alertCount);
+
+      // เก็บ notifications สำหรับ modal
+      setAllNotifications(notifList);
+      setNotifCountsByType({
+        overdue: overdueList.length,
+        urgent: urgentList.length,
+        unchecked: uncheckedCount,
+        missing,
+        maintenance,
+      });
+
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -98,202 +128,201 @@ export default function DashboardScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  // จัดกลุ่ม notifications ตามประเภท
-  const groupedNotifications = allNotifications.reduce((groups, notif) => {
-    const type = notif.type;
-    if (!groups[type]) groups[type] = [];
-    groups[type].push(notif);
-    return groups;
-  }, {});
-
-  const typeLabels = {
-    overdue_check: '🔴 เลยกำหนดตรวจสอบ',
-    upcoming_check: '🟡 ใกล้ถึงกำหนดตรวจสอบ',
-    active_borrow: '🟣 ยืมค้าง',
-    never_checked: '🟠 ยังไม่เคยตรวจสอบ',
-  };
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.welcomeText}>ยินดีต้อนรับ,</Text>
-          <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.notificationBell}
-          onPress={() => setShowNotifications(true)}
-        >
-          <Ionicons name="notifications-outline" size={28} color="#1F2937" />
-          {allNotifications.length > 0 && (
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>
-                {allNotifications.length}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.statsContainer}>
-        <StatCard
-          title="ครุภัณฑ์ทั้งหมด"
-          value={stats.total}
-          icon="cube-outline"
-          color="#2563EB"
-          bgColor="#DBEAFE"
-          onPress={() => navigation.navigate('Assets')}
-        />
-
-        <StatCard
-          title="ตรวจสอบแล้ว"
-          value={stats.checked}
-          icon="checkmark-circle-outline"
-          color="#10B981"
-          bgColor="#D1FAE5"
-          onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
-        />
-
-        <StatCard
-          title="ยังไม่ตรวจสอบ"
-          value={stats.unchecked}
-          icon="alert-circle-outline"
-          color="#F59E0B"
-          bgColor="#FEF3C7"
-          onPress={() => navigation.navigate('Assets', { unchecked: true })}
-        />
-
-        <StatCard
-          title="ใช้งานได้"
-          value={stats.available}
-          icon="checkmark-outline"
-          color="#10B981"
-          bgColor="#D1FAE5"
-          onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
-        />
-
-        <StatCard
-          title="รอซ่อม"
-          value={stats.maintenance}
-          icon="build-outline"
-          color="#F59E0B"
-          bgColor="#FEF3C7"
-          onPress={() => navigation.navigate('Assets', { status: 'รอซ่อม' })}
-        />
-
-        <StatCard
-          title="ไม่พบ"
-          value={stats.missing}
-          icon="close-circle-outline"
-          color="#EF4444"
-          bgColor="#FEE2E2"
-          onPress={() => navigation.navigate('Assets', { status: 'ไม่พบ' })}
-        />
-      </View>
-
-      <View style={styles.quickActions}>
-        <Text style={styles.sectionTitle}>เมนูด่วน</Text>
-        <View style={styles.actionGrid}>
+    <>
+      <ScrollView
+        style={styles.container}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.welcomeText}>ยินดีต้อนรับ,</Text>
+            <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
+          </View>
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Scan')}
+            style={styles.notificationBell}
+            onPress={() => setShowNotifications(true)}
           >
-            <Ionicons name="qr-code-outline" size={32} color="#2563EB" />
-            <Text style={styles.actionText}>สแกน QR</Text>
+            <Ionicons name="notifications-outline" size={28} color="#1F2937" />
+            {totalNotifs > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>
+                  {totalNotifs > 99 ? '99+' : totalNotifs}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
+        </View>
 
-          <TouchableOpacity
-            style={styles.actionButton}
+        <View style={styles.statsContainer}>
+          <StatCard
+            title="ครุภัณฑ์ทั้งหมด"
+            value={stats.total}
+            icon="cube-outline"
+            color="#2563EB"
+            bgColor="#DBEAFE"
             onPress={() => navigation.navigate('Assets')}
-          >
-            <Ionicons name="list-outline" size={32} color="#2563EB" />
-            <Text style={styles.actionText}>รายการครุภัณฑ์</Text>
-          </TouchableOpacity>
+          />
 
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Check')}
-          >
-            <Ionicons name="checkmark-done-outline" size={32} color="#2563EB" />
-            <Text style={styles.actionText}>ตรวจสอบ</Text>
-          </TouchableOpacity>
+          <StatCard
+            title="ตรวจสอบแล้ว"
+            value={stats.checked}
+            icon="checkmark-circle-outline"
+            color="#10B981"
+            bgColor="#D1FAE5"
+            onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
+          />
 
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Borrows')}
-          >
-            <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
-            <Text style={styles.actionText}>ยืม/คืน</Text>
-          </TouchableOpacity>
+          <StatCard
+            title="ยังไม่ตรวจสอบ"
+            value={stats.unchecked}
+            icon="alert-circle-outline"
+            color="#F59E0B"
+            bgColor="#FEF3C7"
+            onPress={() => navigation.navigate('Assets', { unchecked: true })}
+          />
 
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('RoomCheck')}
-          >
-            <Ionicons name="business-outline" size={32} color="#2563EB" />
-            <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>
-          </TouchableOpacity>
+          <StatCard
+            title="ใช้งานได้"
+            value={stats.available}
+            icon="checkmark-outline"
+            color="#10B981"
+            bgColor="#D1FAE5"
+            onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
+          />
+
+          <StatCard
+            title="รอซ่อม"
+            value={stats.maintenance}
+            icon="build-outline"
+            color="#F59E0B"
+            bgColor="#FEF3C7"
+            onPress={() => navigation.navigate('Assets', { status: 'รอซ่อม' })}
+          />
+
+          <StatCard
+            title="ไม่พบ"
+            value={stats.missing}
+            icon="close-circle-outline"
+            color="#EF4444"
+            bgColor="#FEE2E2"
+            onPress={() => navigation.navigate('Assets', { status: 'ไม่พบ' })}
+          />
         </View>
-      </View>
 
-      {/* Notification Modal */}
-      {showNotifications && (
+        <View style={styles.quickActions}>
+          <Text style={styles.sectionTitle}>เมนูด่วน</Text>
+          <View style={styles.actionGrid}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Scan')}
+            >
+              <Ionicons name="qr-code-outline" size={32} color="#2563EB" />
+              <Text style={styles.actionText}>สแกน QR</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Assets')}
+            >
+              <Ionicons name="list-outline" size={32} color="#2563EB" />
+              <Text style={styles.actionText}>รายการครุภัณฑ์</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Check')}
+            >
+              <Ionicons name="checkmark-done-outline" size={32} color="#2563EB" />
+              <Text style={styles.actionText}>ตรวจสอบ</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Borrows')}
+            >
+              <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
+              <Text style={styles.actionText}>ยืม/คืน</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('RoomCheck')}
+            >
+              <Ionicons name="business-outline" size={32} color="#2563EB" />
+              <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+      </ScrollView>
+
+      {/* Notification Modal — ใช้ Modal จริง render เหนือทุกอย่าง */}
+      <Modal
+        visible={showNotifications}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowNotifications(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>การแจ้งเตือน</Text>
+              <Text style={styles.modalTitle}>การแจ้งเตือน ({totalNotifs})</Text>
               <TouchableOpacity onPress={() => setShowNotifications(false)}>
                 <Ionicons name="close" size={24} color="#374151" />
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.notificationList}>
-              {Object.entries(groupedNotifications).map(([type, items]) => (
-                <View key={type} style={styles.notificationSection}>
-                  <Text style={styles.sectionTitleSmall}>
-                    {typeLabels[type] || type} ({items.length})
-                  </Text>
-                  {items.map((item, idx) => (
-                    <TouchableOpacity
-                      key={`${type}-${idx}`}
-                      style={styles.notificationItem}
-                      onPress={() => {
-                        setShowNotifications(false);
-                        if (type === 'active_borrow') {
-                          navigation.navigate('Borrows');
-                        } else {
-                          navigation.navigate('Scan', { assetId: item.asset_id });
-                        }
-                      }}
-                    >
-                      <View style={[styles.notifIcon, { backgroundColor: item.bgColor }]}>
-                        <Ionicons name={item.icon} size={20} color={item.color} />
-                      </View>
-                      <View style={styles.notifText}>
-                        <Text style={styles.notifTitle}>{item.title}</Text>
-                        <Text style={styles.notifDesc}>{item.message}</Text>
-                        {item.detail ? <Text style={styles.notifDetail}>{item.detail}</Text> : null}
-                      </View>
-                      <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
-
-              {allNotifications.length === 0 && (
+            <ScrollView style={styles.notificationList} showsVerticalScrollIndicator={false}>
+              {notifCountsByType.overdue > 0 && (
+                <NotifRow icon="alert-circle" color="#EF4444" bg="#FEE2E2"
+                  title={`เลยกำหนดตรวจตามตาราง ${notifCountsByType.overdue} รายการ`}
+                  onPress={() => { setShowNotifications(false); navigation.navigate('Check'); }} />
+              )}
+              {notifCountsByType.urgent > 0 && (
+                <NotifRow icon="time" color="#F59E0B" bg="#FEF3C7"
+                  title={`ใกล้กำหนดตรวจ (เร่งด่วน) ${notifCountsByType.urgent} รายการ`}
+                  onPress={() => { setShowNotifications(false); navigation.navigate('Check'); }} />
+              )}
+              {notifCountsByType.unchecked > 0 && (
+                <NotifRow icon="warning" color="#F97316" bg="#FFEDD5"
+                  title={`ยังไม่ได้ตรวจสอบ ${notifCountsByType.unchecked.toLocaleString()} รายการ`}
+                  onPress={() => { setShowNotifications(false); navigation.navigate('Check'); }} />
+              )}
+              {notifCountsByType.missing > 0 && (
+                <NotifRow icon="close-circle" color="#EF4444" bg="#FEE2E2"
+                  title={`ครุภัณฑ์ไม่พบ ${notifCountsByType.missing} รายการ`}
+                  onPress={() => { setShowNotifications(false); navigation.navigate('Assets'); }} />
+              )}
+              {notifCountsByType.maintenance > 0 && (
+                <NotifRow icon="build" color="#F59E0B" bg="#FEF3C7"
+                  title={`รอซ่อม ${notifCountsByType.maintenance} รายการ`}
+                  onPress={() => { setShowNotifications(false); navigation.navigate('Assets'); }} />
+              )}
+              {totalNotifs === 0 && (
                 <View style={styles.emptyNotif}>
                   <Ionicons name="happy-outline" size={48} color="#D1D5DB" />
-                  <Text style={styles.emptyNotifText}>ไม่มีการแจ้งเตือนใหม่</Text>
+                  <Text style={styles.emptyNotifText}>ไม่มีการแจ้งเตือน</Text>
                 </View>
               )}
             </ScrollView>
           </View>
         </View>
-      )}
-    </ScrollView>
+      </Modal>
+    </>
+  );
+}
+
+function NotifRow({ icon, color, bg, title, onPress }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F9FAFB', borderRadius: 12, padding: 14, marginBottom: 10, gap: 12 }}>
+      <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: bg, justifyContent: 'center', alignItems: 'center' }}>
+        <Ionicons name={icon} size={20} color={color} />
+      </View>
+      <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: '#111827' }}>{title}</Text>
+      <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+    </TouchableOpacity>
   );
 }
 
@@ -330,21 +359,21 @@ const styles = StyleSheet.create({
   },
   notificationBadge: {
     position: 'absolute',
-    top: 5,
-    right: 5,
+    top: 0,
+    right: 0,
     backgroundColor: '#EF4444',
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#fff',
-    paddingHorizontal: 2,
+    paddingHorizontal: 4,
   },
   notificationBadgeText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 'bold',
   },
   welcomeText: {
@@ -514,6 +543,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9CA3AF',
     fontWeight: '500',
+  },
+  loadMoreButton: {
+    padding: 12,
+    alignItems: 'center',
+    marginVertical: 10,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+  },
+  loadMoreText: {
+    color: '#2563EB',
+    fontWeight: '600',
   },
 });
 

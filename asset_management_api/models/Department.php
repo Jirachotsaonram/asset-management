@@ -1,7 +1,7 @@
 <?php
 class Department {
     private $conn;
-    private $table_name = "Departments";
+    private $table_name = "departments";
 
     public $department_id;
     public $department_name;

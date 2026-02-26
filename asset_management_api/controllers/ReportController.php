@@ -10,32 +10,9 @@ class ReportController {
         $this->conn = $database->getConnection();
     }
 
-    // รายงานสรุปครุภัณฑ์ทั้งหมด
+    // รายงานสรุปครุภัณฑ์ทั้งหมด (Optimized)
     public function assetSummary() {
-        $query = "SELECT 
-                    a.asset_id,
-                    a.asset_name,
-                    a.serial_number,
-                    a.quantity,
-                    a.unit,
-                    a.price,
-                    a.received_date,
-                    a.status,
-                    d.department_name,
-                    CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
-                    ac.check_date as last_check_date,
-                    u.fullname as last_checker
-                FROM Assets a
-                LEFT JOIN Departments d ON a.department_id = d.department_id
-                LEFT JOIN Locations l ON a.location_id = l.location_id
-                LEFT JOIN (
-                    SELECT asset_id, MAX(check_date) as check_date, user_id
-                    FROM Asset_Check
-                    GROUP BY asset_id
-                ) latest ON a.asset_id = latest.asset_id
-                LEFT JOIN Asset_Check ac ON a.asset_id = ac.asset_id AND ac.check_date = latest.check_date
-                LEFT JOIN Users u ON ac.user_id = u.user_id
-                ORDER BY a.asset_id";
+        $query = "SELECT * FROM v_assets_with_check_info ORDER BY asset_id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -60,11 +37,11 @@ class ReportController {
                     u.fullname as checker_name,
                     d.department_name,
                     CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
-                FROM Asset_Check ac
-                JOIN Assets a ON ac.asset_id = a.asset_id
-                JOIN Users u ON ac.user_id = u.user_id
-                LEFT JOIN Departments d ON a.department_id = d.department_id
-                LEFT JOIN Locations l ON a.location_id = l.location_id
+                FROM asset_check ac
+                JOIN assets a ON ac.asset_id = a.asset_id
+                JOIN users u ON ac.user_id = u.user_id
+                LEFT JOIN departments d ON a.department_id = d.department_id
+                LEFT JOIN locations l ON a.location_id = l.location_id
                 WHERE 1=1";
         
         if ($startDate) {
@@ -93,7 +70,7 @@ class ReportController {
                     status,
                     COUNT(*) as count,
                     SUM(price * quantity) as total_value
-                FROM Assets
+                FROM assets
                 GROUP BY status
                 ORDER BY count DESC";
         
@@ -114,8 +91,8 @@ class ReportController {
                     SUM(CASE WHEN a.status = 'ใช้งานได้' THEN 1 ELSE 0 END) as active_count,
                     SUM(CASE WHEN a.status = 'รอซ่อม' THEN 1 ELSE 0 END) as repair_count,
                     SUM(CASE WHEN a.status = 'ไม่พบ' THEN 1 ELSE 0 END) as missing_count
-                FROM Departments d
-                LEFT JOIN Assets a ON d.department_id = a.department_id
+                FROM departments d
+                LEFT JOIN assets a ON d.department_id = a.department_id
                 GROUP BY d.department_id
                 ORDER BY asset_count DESC";
         
@@ -135,11 +112,28 @@ class ReportController {
         $building = $params['building'] ?? null;
         $floor = $params['floor'] ?? null;
         $department_id = $params['department_id'] ?? null;
+        $status = $params['status'] ?? null; // never | overdue | nearly | checked | all
         
         $offset = ($page - 1) * $limit;
         
-        $conditions = ["(ac.check_date IS NULL OR DATEDIFF(NOW(), ac.check_date) > :days)"];
-        $queryParams = [':days' => $days];
+        // Base condition — ถ้ากรองตามสถานะให้ใช้ condition นั้น แทน days ทั่วไป
+        if ($status === 'never') {
+            $conditions = ["ac.check_date IS NULL"];
+            $queryParams = [];
+        } elseif ($status === 'overdue') {
+            $conditions = ["ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) > 365"];
+            $queryParams = [];
+        } elseif ($status === 'nearly') {
+            $conditions = ["ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) BETWEEN 181 AND 365"];
+            $queryParams = [];
+        } elseif ($status === 'checked') {
+            $conditions = ["ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) <= 180"];
+            $queryParams = [];
+        } else {
+            // default: ยังไม่เคยตรวจ หรือ เกินกำหนด days
+            $conditions = ["(ac.check_date IS NULL OR DATEDIFF(NOW(), ac.check_date) > :days)"];
+            $queryParams = [':days' => $days];
+        }
         
         if ($search) {
             $conditions[] = "(a.asset_name LIKE :search OR a.asset_id LIKE :search OR a.serial_number LIKE :search)";
@@ -177,11 +171,11 @@ class ReportController {
 
         // นับจำนวนทั้งหมดก่อน
         $countQuery = "SELECT COUNT(*) as total
-                       FROM Assets a
-                       LEFT JOIN Locations l ON a.location_id = l.location_id
+                       FROM assets a
+                       LEFT JOIN locations l ON a.location_id = l.location_id
                        LEFT JOIN (
                            SELECT asset_id, MAX(check_date) as check_date
-                           FROM Asset_Check
+                           FROM asset_check
                            GROUP BY asset_id
                        ) ac ON a.asset_id = ac.asset_id
                        $whereClause";
@@ -206,12 +200,12 @@ class ReportController {
                     l.building_name,
                     l.room_number,
                     l.floor
-                FROM Assets a
-                LEFT JOIN Departments d ON a.department_id = d.department_id
-                LEFT JOIN Locations l ON a.location_id = l.location_id
+                FROM assets a
+                LEFT JOIN departments d ON a.department_id = d.department_id
+                LEFT JOIN locations l ON a.location_id = l.location_id
                 LEFT JOIN (
                     SELECT asset_id, MAX(check_date) as check_date
-                    FROM Asset_Check
+                    FROM asset_check
                     GROUP BY asset_id
                 ) ac ON a.asset_id = ac.asset_id
                 $whereClause
@@ -251,11 +245,11 @@ class ReportController {
                     CONCAT(l2.building_name, ' ชั้น ', IFNULL(l2.floor, '-'), ' ห้อง ', l2.room_number) as new_location,
                     u.fullname as moved_by_name,
                     ah.remark
-                FROM Asset_History ah
-                JOIN Assets a ON ah.asset_id = a.asset_id
-                LEFT JOIN Locations l1 ON ah.old_location_id = l1.location_id
-                LEFT JOIN Locations l2 ON ah.new_location_id = l2.location_id
-                LEFT JOIN Users u ON ah.moved_by = u.user_id
+                FROM asset_history ah
+                JOIN assets a ON ah.asset_id = a.asset_id
+                LEFT JOIN locations l1 ON ah.old_location_id = l1.location_id
+                LEFT JOIN locations l2 ON ah.new_location_id = l2.location_id
+                LEFT JOIN users u ON ah.moved_by = u.user_id
                 WHERE 1=1";
         
         if ($startDate) {
@@ -297,9 +291,9 @@ class ReportController {
                         END, 
                         b.borrow_date
                     ) as borrow_duration
-                FROM Borrow b
-                JOIN Assets a ON b.asset_id = a.asset_id
-                LEFT JOIN Departments d ON b.department_id = d.department_id
+                FROM borrow b
+                JOIN assets a ON b.asset_id = a.asset_id
+                LEFT JOIN departments d ON b.department_id = d.department_id
                 WHERE 1=1";
         
         if ($status) {
@@ -333,32 +327,14 @@ class ReportController {
         
         switch ($reportType) {
             case 'asset_summary':
-                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด']);
+                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด']);
                 
                 $query = "SELECT 
-                            a.asset_id,
-                            a.asset_name,
-                            a.serial_number,
-                            a.quantity,
-                            a.unit,
-                            a.price,
-                            a.received_date,
-                            a.status,
-                            d.department_name,
-                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
-                            ac.check_date as last_check_date,
-                            u.fullname as last_checker
-                        FROM Assets a
-                        LEFT JOIN Departments d ON a.department_id = d.department_id
-                        LEFT JOIN Locations l ON a.location_id = l.location_id
-                        LEFT JOIN (
-                            SELECT asset_id, MAX(check_date) as check_date, user_id
-                            FROM Asset_Check
-                            GROUP BY asset_id
-                        ) latest ON a.asset_id = latest.asset_id
-                        LEFT JOIN Asset_Check ac ON a.asset_id = ac.asset_id AND ac.check_date = latest.check_date
-                        LEFT JOIN Users u ON ac.user_id = u.user_id
-                        ORDER BY a.asset_id";
+                            asset_id, asset_name, serial_number, quantity, unit, price, received_date, 
+                            status, department_name, building_name, floor, room_number, 
+                            last_check_date, last_checker
+                        FROM v_assets_with_check_info
+                        ORDER BY asset_id";
                 break;
                 
             case 'check_report':
@@ -378,11 +354,11 @@ class ReportController {
                             u.fullname as checker_name,
                             d.department_name,
                             CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
-                        FROM Asset_Check ac
-                        JOIN Assets a ON ac.asset_id = a.asset_id
-                        JOIN Users u ON ac.user_id = u.user_id
-                        LEFT JOIN Departments d ON a.department_id = d.department_id
-                        LEFT JOIN Locations l ON a.location_id = l.location_id
+                        FROM asset_check ac
+                        JOIN assets a ON ac.asset_id = a.asset_id
+                        JOIN users u ON ac.user_id = u.user_id
+                        LEFT JOIN departments d ON a.department_id = d.department_id
+                        LEFT JOIN locations l ON a.location_id = l.location_id
                         WHERE 1=1";
                 
                 if ($startDate) {
@@ -429,32 +405,14 @@ class ReportController {
         
         switch ($reportType) {
             case 'asset_summary':
-                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'], "\t");
+                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'], "\t");
                 
                 $query = "SELECT 
-                            a.asset_id,
-                            a.asset_name,
-                            a.serial_number,
-                            a.quantity,
-                            a.unit,
-                            a.price,
-                            a.received_date,
-                            a.status,
-                            d.department_name,
-                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
-                            ac.check_date as last_check_date,
-                            u.fullname as last_checker
-                        FROM Assets a
-                        LEFT JOIN Departments d ON a.department_id = d.department_id
-                        LEFT JOIN Locations l ON a.location_id = l.location_id
-                        LEFT JOIN (
-                            SELECT asset_id, MAX(check_date) as check_date, user_id
-                            FROM Asset_Check
-                            GROUP BY asset_id
-                        ) latest ON a.asset_id = latest.asset_id
-                        LEFT JOIN Asset_Check ac ON a.asset_id = ac.asset_id AND ac.check_date = latest.check_date
-                        LEFT JOIN Users u ON ac.user_id = u.user_id
-                        ORDER BY a.asset_id";
+                            asset_id, asset_name, serial_number, quantity, unit, price, received_date, 
+                            status, department_name, building_name, floor, room_number, 
+                            last_check_date, last_checker
+                        FROM v_assets_with_check_info
+                        ORDER BY asset_id";
                 break;
                 
             case 'check_report':
@@ -474,11 +432,11 @@ class ReportController {
                             u.fullname as checker_name,
                             d.department_name,
                             CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
-                        FROM Asset_Check ac
-                        JOIN Assets a ON ac.asset_id = a.asset_id
-                        JOIN Users u ON ac.user_id = u.user_id
-                        LEFT JOIN Departments d ON a.department_id = d.department_id
-                        LEFT JOIN Locations l ON a.location_id = l.location_id
+                        FROM asset_check ac
+                        JOIN assets a ON ac.asset_id = a.asset_id
+                        JOIN users u ON ac.user_id = u.user_id
+                        LEFT JOIN departments d ON a.department_id = d.department_id
+                        LEFT JOIN locations l ON a.location_id = l.location_id
                         WHERE 1=1";
                 
                 if ($startDate) {

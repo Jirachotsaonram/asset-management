@@ -236,7 +236,7 @@ class AssetController {
         $this->auditTrail->new_value = null;
         $this->auditTrail->create();
 
-        $query = "DELETE FROM Assets WHERE asset_id = :asset_id";
+        $query = "DELETE FROM assets WHERE asset_id = :asset_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':asset_id', $id);
 

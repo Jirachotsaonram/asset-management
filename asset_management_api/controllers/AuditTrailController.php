@@ -14,8 +14,13 @@ class AuditTrailController {
         $this->auditTrail = new AuditTrail($this->db);
     }
 
-    // ✅ ดึงข้อมูลทั้งหมดพร้อมกรอง
+    // ✅ ดึงข้อมูลทั้งหมดพร้อมกรอง และรองรับ Pagination
     public function getAll() {
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
+        if ($page <= 0) $page = 1;
+        $offset = ($page - 1) * $limit;
+
         $filters = [
             'action' => $_GET['action'] ?? null,
             'user_id' => $_GET['user_id'] ?? null,
@@ -25,59 +30,70 @@ class AuditTrailController {
             'keyword' => $_GET['keyword'] ?? null
         ];
 
-        $query = "SELECT at.*, u.fullname, a.asset_name
-                  FROM AuditTrail at
-                  LEFT JOIN Users u ON at.user_id = u.user_id
-                  LEFT JOIN Assets a ON at.asset_id = a.asset_id
-                  WHERE 1=1";
-        
+        $where = " WHERE 1=1";
         $params = [];
 
         // กรองตาม Action
         if (!empty($filters['action'])) {
-            $query .= " AND at.action = :action";
+            $where .= " AND at.action = :action";
             $params[':action'] = $filters['action'];
         }
 
         // กรองตามผู้ใช้
         if (!empty($filters['user_id'])) {
-            $query .= " AND at.user_id = :user_id";
+            $where .= " AND at.user_id = :user_id";
             $params[':user_id'] = $filters['user_id'];
         }
 
         // กรองตามครุภัณฑ์
         if (!empty($filters['asset_id'])) {
-            $query .= " AND at.asset_id = :asset_id";
+            $where .= " AND at.asset_id = :asset_id";
             $params[':asset_id'] = $filters['asset_id'];
         }
 
         // กรองตามวันที่
         if (!empty($filters['start_date'])) {
-            $query .= " AND DATE(at.action_date) >= :start_date";
+            $where .= " AND DATE(at.action_date) >= :start_date";
             $params[':start_date'] = $filters['start_date'];
         }
 
         if (!empty($filters['end_date'])) {
-            $query .= " AND DATE(at.action_date) <= :end_date";
+            $where .= " AND DATE(at.action_date) <= :end_date";
             $params[':end_date'] = $filters['end_date'];
         }
 
         // ค้นหาแบบ Keyword
         if (!empty($filters['keyword'])) {
-            $query .= " AND (u.fullname LIKE :keyword 
+            $where .= " AND (u.fullname LIKE :keyword 
                         OR a.asset_name LIKE :keyword 
                         OR at.action LIKE :keyword)";
             $params[':keyword'] = '%' . $filters['keyword'] . '%';
         }
 
-        $query .= " ORDER BY at.action_date DESC LIMIT 1000";
+        // นับจำนวนทั้งหมด
+        $count_query = "SELECT COUNT(*) FROM audittrail at 
+                        LEFT JOIN users u ON at.user_id = u.user_id
+                        LEFT JOIN assets a ON at.asset_id = a.asset_id" . $where;
+        $count_stmt = $this->db->prepare($count_query);
+        foreach ($params as $key => $value) {
+            $count_stmt->bindValue($key, $value);
+        }
+        $count_stmt->execute();
+        $total = $count_stmt->fetchColumn();
+
+        // ดึงข้อมูลรายหน้า
+        $query = "SELECT at.*, u.fullname, a.asset_name
+                  FROM audittrail at
+                  LEFT JOIN users u ON at.user_id = u.user_id
+                  LEFT JOIN assets a ON at.asset_id = a.asset_id" . 
+                  $where . " ORDER BY at.action_date DESC LIMIT :limit OFFSET :offset";
         
         $stmt = $this->db->prepare($query);
-        
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
-        
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
         
         $audits = [];
@@ -85,7 +101,13 @@ class AuditTrailController {
             $audits[] = $row;
         }
 
-        Response::success('ดึงข้อมูล Audit Trail สำเร็จ', $audits);
+        Response::success('ดึงข้อมูล Audit Trail สำเร็จ', [
+            'items' => $audits,
+            'total' => (int)$total,
+            'page' => (int)$page,
+            'limit' => (int)$limit,
+            'totalPages' => ceil($total / $limit)
+        ]);
     }
 
     public function getByAsset($asset_id) {
@@ -124,9 +146,9 @@ class AuditTrailController {
         ];
 
         $query = "SELECT at.*, u.fullname, a.asset_name, a.serial_number
-                  FROM AuditTrail at
-                  LEFT JOIN Users u ON at.user_id = u.user_id
-                  LEFT JOIN Assets a ON at.asset_id = a.asset_id
+                  FROM audittrail at
+                  LEFT JOIN users u ON at.user_id = u.user_id
+                  LEFT JOIN assets a ON at.asset_id = a.asset_id
                   WHERE 1=1";
         
         $params = [];
@@ -226,9 +248,9 @@ class AuditTrailController {
         ];
 
         $query = "SELECT at.*, u.fullname, a.asset_name, a.serial_number
-                  FROM AuditTrail at
-                  LEFT JOIN Users u ON at.user_id = u.user_id
-                  LEFT JOIN Assets a ON at.asset_id = a.asset_id
+                  FROM audittrail at
+                  LEFT JOIN users u ON at.user_id = u.user_id
+                  LEFT JOIN assets a ON at.asset_id = a.asset_id
                   WHERE 1=1";
         
         $params = [];

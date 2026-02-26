@@ -21,7 +21,13 @@ class BorrowController {
         if (isset($_GET['page'])) {
             $this->getReadPaginated();
         } else {
-            $stmt = $this->borrow->readAll();
+            $query = "SELECT b.*, a.asset_name, a.serial_number, a.barcode, d.department_name
+                      FROM borrow b 
+                      LEFT JOIN assets a ON b.asset_id = a.asset_id 
+                      LEFT JOIN departments d ON b.department_id = d.department_id
+                      ORDER BY b.borrow_date DESC LIMIT 500";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
             $borrows = [];
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

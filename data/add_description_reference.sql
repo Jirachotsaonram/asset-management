@@ -27,10 +27,10 @@ LEFT JOIN (
     SELECT 
         asset_id,
         MAX(check_date) as last_check_date,
-        (SELECT check_status FROM asset_checks ac2 
-         WHERE ac2.asset_id = asset_checks.asset_id 
+        (SELECT check_status FROM asset_check ac2 
+         WHERE ac2.asset_id = asset_check.asset_id 
          ORDER BY check_date DESC LIMIT 1) as last_check_status,
         COUNT(*) as check_count
-    FROM asset_checks
+    FROM asset_check
     GROUP BY asset_id
 ) ac ON a.asset_id = ac.asset_id;

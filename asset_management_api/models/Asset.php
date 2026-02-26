@@ -289,7 +289,8 @@ class Asset {
                      OR fund_code LIKE :keyword
                      OR plan_code LIKE :keyword
                      OR project_code LIKE :keyword
-                  ORDER BY created_at DESC";
+                  ORDER BY created_at DESC
+                  LIMIT 5000";
         
         $stmt = $this->conn->prepare($query);
         $keyword = "%{$keyword}%";

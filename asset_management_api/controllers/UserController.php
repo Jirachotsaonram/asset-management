@@ -44,7 +44,7 @@ class UserController {
 
         if (!empty($data->username) && !empty($data->password) && !empty($data->fullname)) {
             // ตรวจสอบว่า username ซ้ำหรือไม่
-            $checkQuery = "SELECT user_id FROM Users WHERE username = :username";
+            $checkQuery = "SELECT user_id FROM users WHERE username = :username";
             $checkStmt = $this->db->prepare($checkQuery);
             $checkStmt->bindParam(":username", $data->username);
             $checkStmt->execute();

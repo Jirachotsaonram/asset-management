@@ -1,7 +1,7 @@
 <?php
 class AssetHistory {
     private $conn;
-    private $table_name = "Asset_History";
+    private $table_name = "asset_history";
 
     public $history_id;
     public $asset_id;
@@ -42,9 +42,9 @@ class AssetHistory {
                          l2.building_name as new_building, l2.floor as new_floor, l2.room_number as new_room,
                          u.fullname as moved_by_name
                   FROM " . $this->table_name . " ah
-                  LEFT JOIN Locations l1 ON ah.old_location_id = l1.location_id
-                  LEFT JOIN Locations l2 ON ah.new_location_id = l2.location_id
-                  LEFT JOIN Users u ON ah.moved_by = u.user_id
+                  LEFT JOIN locations l1 ON ah.old_location_id = l1.location_id
+                  LEFT JOIN locations l2 ON ah.new_location_id = l2.location_id
+                  LEFT JOIN users u ON ah.moved_by = u.user_id
                   WHERE ah.asset_id = :asset_id
                   ORDER BY ah.move_date DESC";
         
@@ -60,10 +60,10 @@ class AssetHistory {
                          l2.building_name as new_building, l2.floor as new_floor, l2.room_number as new_room,
                          u.fullname as moved_by_name
                   FROM " . $this->table_name . " ah
-                  LEFT JOIN Assets a ON ah.asset_id = a.asset_id
-                  LEFT JOIN Locations l1 ON ah.old_location_id = l1.location_id
-                  LEFT JOIN Locations l2 ON ah.new_location_id = l2.location_id
-                  LEFT JOIN Users u ON ah.moved_by = u.user_id
+                  LEFT JOIN assets a ON ah.asset_id = a.asset_id
+                  LEFT JOIN locations l1 ON ah.old_location_id = l1.location_id
+                  LEFT JOIN locations l2 ON ah.new_location_id = l2.location_id
+                  LEFT JOIN users u ON ah.moved_by = u.user_id
                   ORDER BY ah.move_date DESC";
         
         $stmt = $this->conn->prepare($query);
