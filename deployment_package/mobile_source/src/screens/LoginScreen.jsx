@@ -1,0 +1,213 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { useAuth } from '../hooks/useAuth';
+
+export default function LoginScreen({ navigation }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { login } = useAuth();
+
+  const handleSubmit = async () => {
+    if (!username.trim() || !password.trim()) {
+      Alert.alert('ผิดพลาด', 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await login({ username, password });
+      if (result.success) {
+        // Navigation will be handled by App.jsx based on auth state
+        console.log('Login successful');
+      } else {
+        setError(result.message || 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      let errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+
+      if (error.response) {
+        // The server responded with a status code outside the range of 2xx
+        errorMessage = error.response.data?.message || `เกิดข้อผิดพลาด (${error.response.status})`;
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบ IP Address ในการเชื่อมต่อ';
+      }
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.content}>
+        <View style={styles.logoContainer}>
+          <Text style={styles.logoText}>📦</Text>
+          <Text style={styles.title}>ระบบจัดการครุภัณฑ์</Text>
+          <Text style={styles.subtitle}>ภาควิชาเทคโนโลยีสารสนเทศ</Text>
+        </View>
+
+        <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>ชื่อผู้ใช้</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="กรอกชื่อผู้ใช้"
+              placeholderTextColor="#9CA3AF"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>รหัสผ่าน</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="กรอกรหัสผ่าน"
+              placeholderTextColor="#9CA3AF"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </View>
+
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>เข้าสู่ระบบ</Text>
+            )}
+          </TouchableOpacity>
+
+
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#3B82F6',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 48,
+  },
+  logoText: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#E0E7FF',
+  },
+  form: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: '#fff',
+  },
+  button: {
+    backgroundColor: '#2563EB',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  hint: {
+    textAlign: 'center',
+    color: '#6B7280',
+    fontSize: 12,
+    marginTop: 16,
+  },
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+});
+

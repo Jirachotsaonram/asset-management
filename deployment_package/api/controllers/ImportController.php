@@ -1,0 +1,640 @@
+<?php
+// FILE: asset_management_api/controllers/ImportController.php
+require_once 'config/database.php';
+require_once 'models/Asset.php';
+require_once 'utils/Response.php';
+
+class ImportController {
+    private $db;
+    private $asset;
+
+    public function __construct() {
+        $database = new Database();
+        $this->db = $database->getConnection();
+        $this->asset = new Asset($this->db);
+    }
+
+    /**
+     * Validate CSV/Excel data before import
+     * POST /import/validate
+     */
+    public function validateCSV() {
+        try {
+            $data = json_decode(file_get_contents("php://input"));
+            
+            if (!isset($data->rows) || !is_array($data->rows)) {
+                Response::error('ไม่พบข้อมูลที่ต้องการตรวจสอบ', 400);
+            }
+
+            $results = [
+                'valid' => [],
+                'invalid' => [],
+                'summary' => [
+                    'total' => count($data->rows),
+                    'valid_count' => 0,
+                    'invalid_count' => 0
+                ]
+            ];
+
+            // Tracks for intra-batch duplicates
+            $seenSerials = [];
+            $seenBarcodes = [];
+
+            foreach ($data->rows as $index => $row) {
+                $rowNumber = $index + 1;
+                $errors = [];
+
+                // Validate required fields
+                if (empty($row->asset_name)) {
+                    $errors[] = 'ไม่พบชื่อครุภัณฑ์';
+                }
+
+                // Validate serial_number uniqueness (skip if empty or '-')
+                if (!empty($row->serial_number) && $row->serial_number !== '-') {
+                    // Check intra-batch
+                    if (isset($seenSerials[$row->serial_number])) {
+                        $errors[] = "Serial Number ซ้ำในไฟล์นำเข้า (ซ้ำกับแถวที่ {$seenSerials[$row->serial_number]})";
+                    } else {
+                        $seenSerials[$row->serial_number] = $rowNumber;
+                    }
+
+                    // Check Database
+                    $checkQuery = "SELECT asset_id FROM Assets WHERE serial_number = :serial AND serial_number != '' AND serial_number != '-'";
+                    $stmt = $this->db->prepare($checkQuery);
+                    $stmt->bindParam(':serial', $row->serial_number);
+                    $stmt->execute();
+                    if ($stmt->rowCount() > 0) {
+                        $errors[] = "Serial Number ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ";
+                    }
+                }
+
+                // Validate barcode uniqueness (skip if empty)
+                if (!empty($row->barcode)) {
+                    // Check intra-batch
+                    if (isset($seenBarcodes[$row->barcode])) {
+                        $errors[] = "หมายเลขครุภัณฑ์ (Barcode) ซ้ำในไฟล์นำเข้า (ซ้ำกับแถวที่ {$seenBarcodes[$row->barcode]})";
+                    } else {
+                        $seenBarcodes[$row->barcode] = $rowNumber;
+                    }
+
+                    // Check Database
+                    $checkBarcode = "SELECT asset_id FROM Assets WHERE barcode = :barcode AND barcode != ''";
+                    $stmtB = $this->db->prepare($checkBarcode);
+                    $stmtB->bindParam(':barcode', $row->barcode);
+                    $stmtB->execute();
+                    if ($stmtB->rowCount() > 0) {
+                        $errors[] = "หมายเลขครุภัณฑ์ (Barcode) ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ";
+                    }
+                }
+
+                // Resolve department: by ID or by name
+                if (!empty($row->department_id)) {
+                    $checkDept = "SELECT department_id FROM Departments WHERE department_id = :dept_id";
+                    $stmtDept = $this->db->prepare($checkDept);
+                    $stmtDept->bindParam(':dept_id', $row->department_id);
+                    $stmtDept->execute();
+                    if ($stmtDept->rowCount() === 0) {
+                        $errors[] = "ไม่พบหน่วยงาน ID: {$row->department_id}";
+                    }
+                } elseif (!empty($row->department_name_excel) || !empty($row->faculty_name)) {
+                    // Try to find department by name or faculty
+                    $deptName = !empty($row->department_name_excel) ? $row->department_name_excel : $row->faculty_name;
+                    $findDept = "SELECT department_id FROM Departments WHERE department_name = :dept_name OR faculty = :dept_name LIMIT 1";
+                    $stmtFind = $this->db->prepare($findDept);
+                    $stmtFind->bindParam(':dept_name', $deptName);
+                    $stmtFind->execute();
+                    if ($stmtFind->rowCount() > 0) {
+                        $found = $stmtFind->fetch(PDO::FETCH_ASSOC);
+                        $row->department_id = $found['department_id'];
+                    }
+                    // Not finding department is OK - importAssets will create it
+                }
+
+                // Resolve location: by ID or by name
+                if (!empty($row->location_id)) {
+                    $checkLoc = "SELECT location_id FROM Locations WHERE location_id = :loc_id";
+                    $stmtLoc = $this->db->prepare($checkLoc);
+                    $stmtLoc->bindParam(':loc_id', $row->location_id);
+                    $stmtLoc->execute();
+                    if ($stmtLoc->rowCount() === 0) {
+                        $errors[] = "ไม่พบสถานที่ ID: {$row->location_id}";
+                    }
+                } elseif (!empty($row->room_text) || !empty($row->location_name)) {
+                    // Try to find location by room_number
+                    $locName = !empty($row->room_text) ? $row->room_text : $row->location_name;
+                    $findLoc = "SELECT location_id FROM Locations WHERE room_number = :loc_name LIMIT 1";
+                    $stmtFindLoc = $this->db->prepare($findLoc);
+                    $stmtFindLoc->bindParam(':loc_name', $locName);
+                    $stmtFindLoc->execute();
+                    if ($stmtFindLoc->rowCount() > 0) {
+                        $found = $stmtFindLoc->fetch(PDO::FETCH_ASSOC);
+                        $row->location_id = $found['location_id'];
+                    }
+                    // Not finding location is OK - importAssets will create it
+                }
+
+                // Validate price
+                if (isset($row->price) && !is_numeric($row->price)) {
+                    $errors[] = "ราคาต้องเป็นตัวเลข";
+                }
+
+                // Validate quantity
+                if (isset($row->quantity) && (!is_numeric($row->quantity) || $row->quantity < 1)) {
+                    $errors[] = "จำนวนต้องเป็นตัวเลขมากกว่า 0";
+                }
+
+                // Validate status
+                $validStatuses = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม'];
+                if (!empty($row->status) && !in_array($row->status, $validStatuses)) {
+                    $errors[] = "สถานะไม่ถูกต้อง";
+                }
+
+                // Build description from extra Excel fields
+                $descParts = [];
+                if (!empty($row->description)) $descParts[] = $row->description;
+                // Store location_name in room_text if no location_id found
+                if (!empty($row->location_name) && empty($row->location_id)) {
+                    $row->room_text = $row->location_name;
+                }
+                if (!empty($row->vendor)) $descParts[] = "ผู้ขาย: {$row->vendor}";
+                if (!empty($row->requester)) $descParts[] = "ผู้เบิก: {$row->requester}";
+                if (!empty($row->budget_year)) $descParts[] = "ปีงบประมาณ: {$row->budget_year}";
+                if (!empty($row->delivery_number)) {
+                    $refParts = [];
+                    if (!empty($row->reference_number)) $refParts[] = $row->reference_number;
+                    $refParts[] = "ใบส่งของ: {$row->delivery_number}";
+                    $row->reference_number = implode(' | ', $refParts);
+                }
+                if (count($descParts) > 0) {
+                    $row->description = implode(' | ', $descParts);
+                }
+
+                if (empty($errors)) {
+                    $results['valid'][] = [
+                        'row' => $rowNumber,
+                        'data' => $row
+                    ];
+                    $results['summary']['valid_count']++;
+                } else {
+                    $results['invalid'][] = [
+                        'row' => $rowNumber,
+                        'data' => $row,
+                        'errors' => $errors
+                    ];
+                    $results['summary']['invalid_count']++;
+                }
+            }
+
+            Response::success('ตรวจสอบข้อมูลเสร็จสิ้น', $results);
+
+        } catch (Exception $e) {
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Import assets from validated CSV data
+     * POST /import/assets
+     */
+    public function importAssets($user_data) {
+        try {
+            $data = json_decode(file_get_contents("php://input"));
+            $filename = $data->filename ?? 'จากเว็บ (ไม่ระบุชื่อไฟล์)';
+            
+            if (!isset($data->rows) || !is_array($data->rows)) {
+                Response::error('ไม่พบข้อมูลที่ต้องการนำเข้า', 400);
+            }
+
+            $this->db->beginTransaction();
+
+            $results = [
+                'success' => [],
+                'failed' => [],
+                'summary' => [
+                    'total' => count($data->rows),
+                    'success_count' => 0,
+                    'failed_count' => 0
+                ]
+            ];
+
+            error_log("Import: Starting import of " . count($data->rows) . " rows");
+
+            foreach ($data->rows as $index => $row) {
+                $rowNumber = $index + 1;
+                
+                try {
+                    // Prepare asset data
+                    $this->asset->asset_name = $row->asset_name ?? '';
+                    $this->asset->serial_number = (!empty($row->serial_number) && $row->serial_number !== '-') ? $row->serial_number : '';
+                    $this->asset->quantity = $row->quantity ?? 1;
+                    $this->asset->unit = $row->unit ?? 'เครื่อง';
+                    $this->asset->price = $row->price ?? 0;
+                    $this->asset->received_date = $row->received_date ?? date('Y-m-d');
+                    // Auto-resolve or create Department
+                    if (empty($row->department_id) && (!empty($row->faculty_name) || !empty($row->department_name_excel))) {
+                        $deptName = !empty($row->faculty_name) ? $row->faculty_name : $row->department_name_excel;
+                        
+                        $check = $this->db->prepare("SELECT department_id FROM Departments WHERE department_name = ? OR faculty = ? LIMIT 1");
+                        $check->execute([$deptName, $deptName]);
+                        $found = $check->fetch();
+                        
+                        if ($found) {
+                            $row->department_id = $found['department_id'];
+                        } else {
+                            $ins = $this->db->prepare("INSERT INTO Departments (department_name, faculty) VALUES (?, ?)");
+                            if ($ins->execute([$deptName, $deptName])) {
+                                $row->department_id = $this->db->lastInsertId();
+                            }
+                        }
+                    }
+
+                    // Auto-resolve or create Location
+                    if (empty($row->location_id) && (!empty($row->room_text) || !empty($row->location_name))) {
+                        $locName = !empty($row->room_text) ? $row->room_text : $row->location_name;
+                        
+                        $check = $this->db->prepare("SELECT location_id FROM Locations WHERE room_number = ? LIMIT 1");
+                        $check->execute([$locName]);
+                        $found = $check->fetch();
+                        
+                        if ($found) {
+                            $row->location_id = $found['location_id'];
+                        } else {
+                            $newBuilding = 'ไม่ระบุอาคาร';
+                            $newFloor = '1';
+                            if (preg_match('/^([A-Za-z]+)(\d+)-/', $locName, $m)) {
+                                $newBuilding = "อาคาร " . strtoupper($m[1]);
+                                $newFloor = $m[2];
+                            } elseif (preg_match('/^(\d)\d{2}/', $locName, $m)) {
+                                $newFloor = $m[1];
+                            }
+
+                            $ins = $this->db->prepare("INSERT INTO Locations (building_name, floor, room_number) VALUES (?, ?, ?)");
+                            if ($ins->execute([$newBuilding, $newFloor, $locName])) {
+                                $row->location_id = $this->db->lastInsertId();
+                            }
+                        }
+                    }
+
+                    // --- DUPLICATE CHECK ---
+                    $serial = (!empty($row->serial_number) && $row->serial_number !== '-') ? $row->serial_number : '';
+                    $barcode = !empty($row->barcode) ? $row->barcode : '';
+
+                    if ($serial !== '') {
+                        $checkSerial = $this->db->prepare("SELECT asset_id FROM Assets WHERE serial_number = ? LIMIT 1");
+                        $checkSerial->execute([$serial]);
+                        if ($checkSerial->fetch()) {
+                            throw new Exception("Serial Number '{$serial}' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ");
+                        }
+                    }
+
+                    if ($barcode !== '') {
+                        $checkBarcode = $this->db->prepare("SELECT asset_id FROM Assets WHERE barcode = ? LIMIT 1");
+                        $checkBarcode->execute([$barcode]);
+                        if ($checkBarcode->fetch()) {
+                            throw new Exception("หมายเลขครุภัณฑ์ (Barcode) '{$barcode}' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ");
+                        }
+                    }
+                    // --- END DUPLICATE CHECK ---
+
+                    $this->asset->department_id = !empty($row->department_id) ? $row->department_id : null;
+                    $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
+                    $this->asset->status = $row->status ?? 'ใช้งานได้';
+                    
+                    // Robust barcode generation if not provided
+                    if (empty($row->barcode)) {
+                        $this->asset->barcode = 'QR' . time() . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . $index;
+                    } else {
+                        $this->asset->barcode = $row->barcode;
+                    }
+                    
+                    $this->asset->description = $row->description ?? '';
+                    $this->asset->reference_number = $row->reference_number ?? '';
+                    $this->asset->faculty_name = $row->faculty_name ?? null;
+                    $this->asset->delivery_number = $row->delivery_number ?? null;
+                    $this->asset->fund_code = $row->fund_code ?? null;
+                    $this->asset->plan_code = $row->plan_code ?? null;
+                    $this->asset->project_code = $row->project_code ?? null;
+                    $this->asset->room_text = $row->room_text ?? null;
+                    $this->asset->image = '';
+
+                    $asset_id = $this->asset->create();
+                    
+                    if ($asset_id) {
+                        $results['success'][] = [
+                            'row' => $rowNumber,
+                            'asset_id' => $asset_id,
+                            'asset_name' => $row->asset_name
+                        ];
+                        $results['summary']['success_count']++;
+                    } else {
+                        error_log("Import: Failed to create asset at row $rowNumber. DB Error.");
+                        throw new Exception('ไม่สามารถเพิ่มครุภัณฑ์ได้ (Database Error)');
+                    }
+
+                } catch (Exception $e) {
+                    error_log("Import: Error at row $rowNumber: " . $e->getMessage());
+                    $results['failed'][] = [
+                        'row' => $rowNumber,
+                        'data' => $row,
+                        'error' => $e->getMessage()
+                    ];
+                    $results['summary']['failed_count']++;
+                }
+            }
+
+            $this->db->commit();
+
+            // Log session to history
+            $this->logImportSession($user_data['user_id'] ?? 1, $filename, count($data->rows), $results['summary']['success_count'], $results['summary']['failed_count']);
+
+            Response::success('นำเข้าข้อมูลเสร็จสิ้น', $results);
+
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Download CSV template
+     * GET /import/template
+     */
+    public function downloadTemplate() {
+        try {
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="asset_import_template.csv"');
+            
+            $output = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // CSV Headers (Thai version for better readability, the system maps these automatically)
+            fputcsv($output, [
+                'ชื่อครุภัณฑ์',
+                'หมายเลขซีเรียล',
+                'จำนวน',
+                'หน่วยนับ',
+                'ราคา',
+                'วันที่ตรวจรับ',
+                'หน่วยงาน',
+                'อาคาร/ห้อง',
+                'สถานะ',
+                'หมายเลขครุภัณฑ์ (Barcode)',
+                'รายละเอียด',
+                'รหัสหมวดสินทรัพย์',
+                'รหัสกองทุน',
+                'รหัสแผนงาน',
+                'รหัสงาน/โครงการ',
+                'ชื่อคณะ',
+                'เลขที่ใบส่งของ'
+            ]);
+
+            // Example data
+            fputcsv($output, [
+                'คอมพิวเตอร์ Dell Optiplex 7080',
+                'SN123456789',
+                '1',
+                'เครื่อง',
+                '25000',
+                '2024-01-15',
+                'สาขาวิชาเทคโนโลยีสารสนเทศ',
+                'อเนกประสงค์ ชั้น 3',
+                'ใช้งานได้',
+                'QR20240001',
+                'CPU Intel Core i7, RAM 16GB, SSD 512GB',
+                'REF-IT-2024',
+                'กองทุนทั่วไป',
+                'แผนงานหลัก',
+                'โครงการพัฒนานักศึกษา',
+                'คณะเทคโนโลยีอุตสาหกรรม',
+                'DEL-001/67'
+            ]);
+
+            fputcsv($output, [
+                'เครื่องพิมพ์ HP LaserJet',
+                'SN987654321',
+                '1',
+                'เครื่อง',
+                '15000',
+                '2024-02-20',
+                'สำนักงานคณบดี',
+                'อาคาร 5 ชั้น 1',
+                'ใช้งานได้',
+                'QR20240002',
+                'LaserJet Pro M404dn',
+                'REF-ADM-2024',
+                'กองทุนพัฒนาการศึกษา',
+                'แผนงานบริหาร',
+                'โครงการจัดเก็บคลัง',
+                'คณะเทคโนโลยีอุตสาหกรรม',
+                'DEL-002/67'
+            ]);
+
+            fclose($output);
+            exit;
+
+        } catch (Exception $e) {
+            Response::error('ไม่สามารถดาวน์โหลด Template ได้', 500);
+        }
+    }
+
+    /**
+     * Get reference data for import
+     * GET /import/references
+     */
+    public function getReferences() {
+        try {
+            $departments = [];
+            $locations = [];
+
+            // Get departments
+            $deptQuery = "SELECT department_id, department_name, faculty FROM Departments ORDER BY department_name";
+            $stmtDept = $this->db->prepare($deptQuery);
+            $stmtDept->execute();
+            while ($row = $stmtDept->fetch(PDO::FETCH_ASSOC)) {
+                $departments[] = $row;
+            }
+
+            // Get locations
+            $locQuery = "SELECT location_id, building_name, floor, room_number FROM Locations ORDER BY building_name, floor, room_number";
+            $stmtLoc = $this->db->prepare($locQuery);
+            $stmtLoc->execute();
+            while ($row = $stmtLoc->fetch(PDO::FETCH_ASSOC)) {
+                $locations[] = $row;
+            }
+
+            Response::success('ดึงข้อมูลอ้างอิงสำเร็จ', [
+                'departments' => $departments,
+                'locations' => $locations,
+                'valid_statuses' => ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม']
+            ]);
+
+        } catch (Exception $e) {
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Process OCR on uploaded image (for Mobile or Web)
+     * POST /import/ocr
+     */
+    public function processOCR() {
+        try {
+            // Ensure uploads directory exists
+            $uploadDir = 'uploads/ocr_temp/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $imagePath = '';
+            
+            // 1. Check for Base64 (JSON)
+            $json = json_decode(file_get_contents("php://input"));
+            if (isset($json->image)) {
+                $imageData = $json->image;
+                // Remove data:image/xxx;base64, prefix if exists
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                }
+                $decodedData = base64_decode($imageData);
+                if ($decodedData === false) {
+                    Response::error('ข้อมูลรูปภาพ (Base64) ไม่ถูกต้อง', 400);
+                }
+                $imagePath = $uploadDir . 'ocr_' . time() . '_' . rand(1000, 9999) . '.jpg';
+                file_put_contents($imagePath, $decodedData);
+            } 
+            // 2. Check for File Upload (Multipart)
+            elseif (isset($_FILES['image'])) {
+                $file = $_FILES['image'];
+                $imagePath = $uploadDir . 'ocr_' . time() . '_' . basename($file['name']);
+                if (!move_uploaded_file($file['tmp_name'], $imagePath)) {
+                    Response::error('ไม่สามารถบันทึกไฟล์รูปภาพได้', 500);
+                }
+            } else {
+                Response::error('ไม่พบรูปภาพที่ต้องการตรวจสอบ (ต้องการ "image" ใน JSON หรือ Multipart)', 400);
+            }
+
+            // --- RUN TESSERACT ---
+            error_log("OCR: Starting process for " . $imagePath);
+            if (isset($_FILES['image'])) {
+                error_log("OCR: Received file via Multipart. Size: " . $_FILES['image']['size']);
+            } else {
+                error_log("OCR: Received data via Base64/JSON");
+            }
+            
+            // Common paths for Tesseract on Windows
+            $tesseractBin = 'tesseract'; // Default in PATH
+            
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $possiblePaths = [
+                    '"D:\\xampp_assets\\htdocs\\asset-management\\Tesseract-OCR\\tesseract.exe"', // Project-local (no install)
+                    '"D:\\xampp_assets\\Tesseract-OCR\\tesseract.exe"', // Portable in xampp_assets
+                    'tesseract',
+                    '"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"',
+                    '"C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"',
+                    '"D:\\Program Files\\Tesseract-OCR\\tesseract.exe"',
+                    '"D:\\xampp\\Tesseract-OCR\\tesseract.exe"'
+                ];
+                
+                // Try to find which one works
+                foreach ($possiblePaths as $path) {
+                    $testCmd = "$path --version 2>&1";
+                    exec($testCmd, $out, $ret);
+                    if ($ret === 0) {
+                        $tesseractBin = $path;
+                        error_log("OCR: Found Tesseract at " . $path);
+                        break;
+                    }
+                }
+            }
+
+            $command = "$tesseractBin " . escapeshellarg($imagePath) . " stdout -l tha+eng --oem 1 --psm 6 2>&1";
+            error_log("OCR: Running command: " . $command);
+            
+            $output = [];
+            $return_var = 0;
+            exec($command, $output, $return_var);
+            
+            error_log("OCR: Return code: " . $return_var);
+            
+            if (file_exists($imagePath)) {
+                @unlink($imagePath);
+            }
+
+            if ($return_var !== 0) {
+                // Return a more helpful error for Windows users
+                $errorMsg = 'เกิดข้อผิดพลาดในการประมวลผล OCR (Tesseract failed)';
+                if (empty($output)) {
+                    $errorMsg .= '. กรุณาตรวจสอบว่าได้ติดตั้ง Tesseract OCR บนเครื่อง Server แล้ว';
+                }
+                Response::error($errorMsg, 500, ['tesseract_return' => $return_var, 'output' => $output]);
+            }
+
+            $textResult = implode("\n", $output);
+            
+            // Fix Tesseract's Thai spacing issue: it adds spaces between each Thai character
+            // e.g. "ส ว่ า น" → "สว่าน"
+            // Merge sequences of Thai characters/clusters separated by single spaces
+            $textResult = preg_replace_callback(
+                '/[\x{0E00}-\x{0E7F}][\x{0300}-\x{036f}\x{0E30}-\x{0E4E}]?(?:\s[\x{0E00}-\x{0E7F}][\x{0300}-\x{036f}\x{0E30}-\x{0E4E}]?){2,}/u',
+                function($m) { return preg_replace('/\s+/u', '', $m[0]); },
+                $textResult
+            );
+            
+            // Send back the cleaned text
+            Response::success('ประมวลผล OCR สำเร็จ', [
+                'text' => $textResult
+            ]);
+
+        } catch (Exception $e) {
+            if (isset($imagePath) && file_exists($imagePath)) @unlink($imagePath);
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get import history
+     * GET /import/history
+     */
+    public function getImportHistory() {
+        try {
+            $query = "SELECT h.*, u.fullname as user_name 
+                      FROM import_history h
+                      LEFT JOIN users u ON h.user_id = u.user_id
+                      ORDER BY h.import_date DESC
+                      LIMIT 20";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            
+            $history = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $history[] = $row;
+            }
+            
+            Response::success('ดึงข้อมูลประวัติการนำเข้าสำเร็จ', $history);
+        } catch (Exception $e) {
+            Response::error('เกิดข้อผิดพลาด: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Log import session to database
+     */
+    private function logImportSession($user_id, $filename, $total, $success, $failed) {
+        try {
+            $sql = "INSERT INTO import_history (filename, total_rows, success_count, failed_count, user_id) 
+                    VALUES (:file, :total, :success, :failed, :user)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':file', $filename);
+            $stmt->bindParam(':total', $total);
+            $stmt->bindParam(':success', $success);
+            $stmt->bindParam(':failed', $failed);
+            $stmt->bindParam(':user', $user_id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Failed to log import session: " . $e->getMessage());
+        }
+    }
+}
+?>

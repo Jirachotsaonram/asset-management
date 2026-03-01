@@ -1,4 +1,8 @@
-export const API_BASE_URL = 'http://localhost/asset-management/asset_management_api';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+export const API_BASE_URL = isLocal 
+  ? 'http://localhost/asset-management/asset_management_api' 
+  : 'https://your-domain.com/asset-management/asset_management_api'; // แก้ไขเป็น URL ของ server จริง
 
 export const ASSET_STATUS = {
   AVAILABLE: 'ใช้งานได้',
