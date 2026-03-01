@@ -433,7 +433,24 @@ export default function CheckPage() {
         <ModalWrapper title="บันทึกการตรวจสอบ" onClose={closeModal}>
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
             <p className="font-bold text-gray-800 text-sm">{modal.data.asset_name}</p>
-            <p className="text-xs text-gray-600">Serial: {modal.data.serial_number || '-'} • {modal.data.building_name} ชั้น {modal.data.floor} ห้อง {modal.data.room_number}</p>
+            <p className="text-xs text-gray-600">
+              Serial: {modal.data.serial_number || '-'} •
+              {modal.data.building_name ? ` ${modal.data.building_name}` : ''}
+              {modal.data.floor ? ` ชั้น ${modal.data.floor}` : ''}
+              {modal.data.room_number ? ` ห้อง ${modal.data.room_number}` : ''}
+            </p>
+            {modal.data.schedule_name && (
+              <div className="mt-2 pt-2 border-t border-green-100 flex items-center justify-between">
+                <p className="text-[10px] font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                  รอบการตรวจ: {modal.data.schedule_name}
+                </p>
+                {modal.data.next_check_date && (
+                  <p className="text-[10px] text-gray-500">
+                    กำหนดตรวจ: {new Date(modal.data.next_check_date).toLocaleDateString('th-TH')}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           <CheckFormFields checkForm={checkForm} setCheckForm={setCheckForm} />
           <ModalActions onSave={saveCheck} onClose={closeModal} saving={saving} color="green" label="บันทึกการตรวจสอบ" />
@@ -454,8 +471,11 @@ export default function CheckPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
             <p className="font-bold text-gray-800 text-sm">{modal.data.asset_name}</p>
             <p className="text-xs text-gray-600">Serial: {modal.data.serial_number || '-'}</p>
+            {modal.data.schedule_name && (
+              <p className="text-[10px] text-blue-600 font-medium mt-1">รอบปัจจุบัน: {modal.data.schedule_name}</p>
+            )}
             {modal.data.next_check_date && (
-              <p className="text-xs text-gray-500 mt-1">กำหนดตรวจ: {new Date(modal.data.next_check_date).toLocaleDateString('th-TH')}</p>
+              <p className="text-[10px] text-gray-500">กำหนดตรวจ: {new Date(modal.data.next_check_date).toLocaleDateString('th-TH')}</p>
             )}
           </div>
           <ScheduleFormFields schedules={schedules} scheduleForm={scheduleForm} setScheduleForm={setScheduleForm} />
@@ -777,7 +797,7 @@ function NotifRow({ asset, onCheck, onSchedule }) {
           <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${asset._status.color}`}>{asset._status.label}</span>
         </div>
         <p className="text-xs text-gray-500 ml-6 truncate">
-          {asset.building_name} ชั้น {asset.floor} ห้อง {asset.room_number}
+          {asset.building_name} {asset.floor ? `ชั้น ${asset.floor}` : ''} {asset.room_number ? `ห้อง ${asset.room_number}` : ''}
         </p>
       </div>
       <div className="flex gap-1.5 flex-shrink-0">
@@ -815,7 +835,11 @@ function ModalWrapper({ title, onClose, children }) {
 function RoomInfo({ room }) {
   return (
     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
-      <p className="font-bold text-gray-800 text-sm">{room.building} ชั้น {room.floor} ห้อง {room.room}</p>
+      <p className="font-bold text-gray-800 text-sm">
+        {room.building}
+        {room.floor ? ` ชั้น ${room.floor}` : ''}
+        {room.room ? ` ห้อง ${room.room}` : ''}
+      </p>
       <p className="text-xs text-gray-600">{room.assets.length} รายการ</p>
     </div>
   );
@@ -827,9 +851,14 @@ function RoomAssetList({ assets, icon: Icon = CheckSquare }) {
       <p className="text-[10px] font-medium text-gray-500 uppercase mb-2">รายการ:</p>
       <ul className="space-y-1">
         {assets.map(a => (
-          <li key={a.asset_id} className="text-xs text-gray-700 flex items-center gap-1.5">
+          <li key={a.asset_id} className="text-xs text-gray-700 flex items-center gap-1.5 py-0.5 border-b border-gray-100 last:border-0">
             <Icon size={12} className="text-blue-600 flex-shrink-0" />
-            <span className="truncate">{a.asset_name}</span>
+            <span className="truncate flex-1">{a.asset_name}</span>
+            {a.schedule_name && (
+              <span className="text-[9px] text-gray-500 px-1.5 py-0.5 bg-gray-200 rounded uppercase font-bold">
+                {a.schedule_name}
+              </span>
+            )}
           </li>
         ))}
       </ul>

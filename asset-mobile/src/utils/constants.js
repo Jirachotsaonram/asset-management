@@ -38,7 +38,7 @@ const DEV_API_URL = Platform.select({
 
 export const API_BASE_URL = __DEV__
   ? DEV_API_URL
-  : 'https://your-domain.com/asset-management/asset_management_api'; // แก้ไขเป็น URL ของ server จริง
+  : 'http://202.44.47.45/asset-management/asset_management_api';
 
 export const ASSET_STATUS = {
   AVAILABLE: 'ใช้งานได้',

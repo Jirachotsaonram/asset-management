@@ -9,10 +9,10 @@ class Database {
     public function __construct() {
         // สำหรับขึ้น Server จริง: แก้ไขข้อมูลด้านล่างให้ตรงกับ Server
         if ($_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
-            $this->host = "PROD_DB_HOST";     // เช่น 'localhost' หรือ IP
-            $this->db_name = "PROD_DB_NAME";   // ชื่อฐานข้อมูลบน server
-            $this->username = "PROD_DB_USER"; // username
-            $this->password = "PROD_DB_PASS"; // password
+            $this->host = "localhost";
+            $this->db_name = "asset_management_db";
+            $this->username = "itisv";
+            $this->password = "@EH3319&2awr";
         }
     }
 
