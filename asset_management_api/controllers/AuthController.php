@@ -89,7 +89,7 @@ class AuthController {
             $this->user->username = trim(htmlspecialchars($data->username, ENT_QUOTES, 'UTF-8'));
             $this->user->password = $data->password;
             $this->user->fullname = trim(htmlspecialchars($data->fullname, ENT_QUOTES, 'UTF-8'));
-            $this->user->role = $data->role;
+            $this->user->role = 'Viewer'; // Force role to Viewer for security (prevent privilege escalation)
             $this->user->status = 'Pending'; // Default status for new registration
             $this->user->email = isset($data->email) ? trim($data->email) : '';
             $this->user->phone = isset($data->phone) ? trim($data->phone) : '';
