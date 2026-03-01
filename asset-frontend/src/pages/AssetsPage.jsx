@@ -11,7 +11,6 @@ import { API_BASE_URL } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
 import AssetForm from "../components/Assets/AssetForm";
 import QRCodeModal from "../components/Assets/QRCodeModal";
-import BulkQRGenerator from "../components/Assets/BulkQRGenerator";
 import VirtualTable from "../components/Common/VirtualTable";
 
 // ==================== Notifications Integration ====================
@@ -52,7 +51,6 @@ export default function AssetsPage() {
   const [editingAsset, setEditingAsset] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrAsset, setQrAsset] = useState(null);
-  const [showBulkQR, setShowBulkQR] = useState(false);
   const [viewMode, setViewMode] = useState("list");
 
   // Grouped view
@@ -459,9 +457,6 @@ export default function AssetsPage() {
           </button>
           {canEdit && (
             <>
-              <button onClick={() => setShowBulkQR(true)} className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition text-sm shadow-lg shadow-emerald-600/20">
-                <QrCode size={16} /> สร้าง QR
-              </button>
               <button onClick={() => { setEditingAsset(null); setShowForm(true); }}
                 className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm shadow-lg shadow-blue-600/20">
                 <Plus size={16} /> เพิ่มครุภัณฑ์
@@ -660,9 +655,6 @@ export default function AssetsPage() {
       )}
       {showQRModal && qrAsset && (
         <QRCodeModal asset={qrAsset} onClose={() => { setShowQRModal(false); setQrAsset(null); }} />
-      )}
-      {showBulkQR && (
-        <BulkQRGenerator assets={assets} onClose={() => setShowBulkQR(false)} />
       )}
     </div>
   );

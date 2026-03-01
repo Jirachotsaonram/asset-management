@@ -27,7 +27,7 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Pending'
+    username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active'
   });
   const [formLoading, setFormLoading] = useState(false);
 
@@ -80,7 +80,6 @@ export default function UsersPage() {
     active: users.filter(u => u.status === 'Active').length,
     admins: users.filter(u => u.role === 'Admin').length,
     inactive: users.filter(u => u.status === 'Inactive').length,
-    pending: users.filter(u => u.status === 'Pending').length
   }), [users]);
 
   const handleOpenEdit = (u) => {
@@ -156,7 +155,7 @@ export default function UsersPage() {
             <Database size={18} /> <span className="hidden md:inline">สำรองข้อมูล</span>
           </button>
           <button onClick={fetchUsers} className="btn-secondary rounded-2xl"><RefreshCw size={18} /></button>
-          <button onClick={() => { setEditingUser(null); setFormData({ username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Pending' }); setShowModal(true); }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
+          <button onClick={() => { setEditingUser(null); setFormData({ username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active' }); setShowModal(true); }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
             <Plus size={20} /> เพิ่มผู้ใช้
           </button>
         </div>
@@ -166,7 +165,6 @@ export default function UsersPage() {
         <UserStat label="ผู้ใช้ทั้งหมด" value={stats.total} icon={Users} color="primary" />
         <UserStat label="ใช้งานอยู่" value={stats.active} icon={UserCheck} color="success" />
         <UserStat label="ผู้ดูแลระบบ" value={stats.admins} icon={ShieldCheck} color="indigo" />
-        <UserStat label="รออนุมัติ" value={stats.pending} icon={RefreshCw} color="warning" />
         <UserStat label="ระงับการใช้งาน" value={stats.inactive} icon={UserX} color="danger" />
       </div>
 
@@ -191,8 +189,7 @@ export default function UsersPage() {
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-select rounded-2xl border-gray-100 bg-gray-50/50 px-4">
               <option value="all">ทุกสถานะ</option>
               <option value="Active">ใช้งาน</option>
-              <option value="Pending">รออนุมัติ</option>
-              <option value="Inactive">ระงับ</option>
+              <option value="Inactive">ระงับการใช้งาน</option>
             </select>
           </div>
         </div>
@@ -233,10 +230,9 @@ export default function UsersPage() {
                         {u.role === 'Admin' ? <Shield size={10} /> : <Users size={10} />} {u.role}
                       </span>
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-black border uppercase tracking-widest ${u.status === 'Active' ? 'bg-success-50 border-success-200 text-success-700' :
-                        u.status === 'Pending' ? 'bg-warning-50 border-warning-200 text-warning-700' :
-                          'bg-danger-50 border-danger-200 text-danger-700'
+                        'bg-danger-50 border-danger-200 text-danger-700'
                         }`}>
-                        {u.status === 'Active' ? 'Active' : u.status === 'Pending' ? 'Pending' : 'Banned'}
+                        {u.status === 'Active' ? 'Active' : 'Banned'}
                       </span>
                     </div>
                   </td>
@@ -351,11 +347,10 @@ function UserModal({ formData, setFormData, editingUser, showPassword, setShowPa
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">System Status</label>
+              <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">สถานะผู้ใช้งาน</label>
               <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer">
-                <option value="Active">Active</option>
-                <option value="Pending">Pending</option>
-                <option value="Inactive">Banned</option>
+                <option value="Active">ใช้งาน</option>
+                <option value="Inactive">ระงับการใช้งาน</option>
               </select>
             </div>
           </div>

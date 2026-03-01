@@ -12,6 +12,7 @@ import {
   Dimensions,
   Image,
   Vibration,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -133,7 +134,11 @@ export default function ScanScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Error searching asset:', error);
-      Alert.alert('เกิดข้อผิดพลาด', `ไม่สามารถค้นหาครุภัณฑ์ได้`);
+      let errorMessage = 'ไม่สามารถค้นหาครุภัณฑ์ได้';
+      if (error.request && !error.response) {
+        errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบ IP Address ในการเชื่อมต่อ';
+      }
+      Alert.alert('เกิดข้อผิดพลาด', errorMessage);
     } finally {
       setLoading(false);
       setScanned(false);
@@ -175,7 +180,15 @@ export default function ScanScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Check failed:', error);
-      // Fallback to offline queue
+
+      // If it's a validation error from server, show it instead of falling back to offline
+      if (error.response && error.response.status === 400) {
+        Alert.alert('ผิดพลาด', error.response.data?.message || 'ข้อมูลไม่ถูกต้อง');
+        setLoading(false);
+        return;
+      }
+
+      // Fallback to offline queue for other errors (like network/500)
       const queued = await offlineService.queueCheck({
         asset_id: scannedAsset.asset_id,
         check_status: checkStatus,

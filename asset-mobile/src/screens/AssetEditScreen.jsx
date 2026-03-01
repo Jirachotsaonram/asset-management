@@ -31,8 +31,8 @@ export default function AssetEditScreen() {
         quantity: '1',
         unit: 'ชิ้น',
         status: ASSET_STATUS.AVAILABLE,
-        department_id: '',
-        location_id: '',
+        department_id: null,
+        location_id: null,
         room_text: '',
         description: '',
         faculty_name: '',
@@ -68,6 +68,7 @@ export default function AssetEditScreen() {
             if (locRes.data.success) setLocations(locRes.data.data);
         } catch (error) {
             console.error('Error fetching metadata:', error);
+            // Non-critical error, just log it. Data fields will remain empty/uneditable if they rely on this.
         }
     };
 
@@ -99,7 +100,22 @@ export default function AssetEditScreen() {
             }
         } catch (error) {
             console.error('Error saving asset:', error);
-            Alert.alert('ผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้');
+            let errorMessage = 'ไม่สามารถบันทึกข้อมูลได้';
+
+            if (error.response) {
+                // The server responded with a status code outside the range of 2xx
+                errorMessage = error.response.data?.message || `เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ (${error.response.status})`;
+            } else if (error.request) {
+                // The request was made but no response was received
+                errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบ IP Address ในการเชื่อมต่อ';
+            } else {
+                errorMessage = error.message;
+            }
+
+            if (error.response && error.response.status === 403) {
+                errorMessage = 'ท่านไม่มีสิทธิ์เพิ่ม/แก้ไขครุภัณฑ์\nกรุณาติดต่อผู้ดูแลระบบให้เปลี่ยน Role เป็น Inspector หรือ Admin';
+            }
+            Alert.alert('เกิดข้อผิดพลาด', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -115,8 +131,73 @@ export default function AssetEditScreen() {
                 placeholder={placeholder}
                 keyboardType={keyboardType}
                 multiline={multiline}
+                editable={!loading}
+                textAlignVertical={multiline ? 'top' : 'center'}
             />
         </View>
+    );
+
+    const formContent = (
+        <ScrollView
+            style={styles.formContent}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>ข้อมูลพื้นฐาน</Text>
+                {renderInput('ชื่อครุภัณฑ์ *', 'asset_name', 'เช่น คอมพิวเตอร์ตั้งโต๊ะ')}
+                {renderInput('Serial Number', 'serial_number', 'S/N จากผู้ผลิต')}
+                {renderInput('Barcode / QR Code', 'barcode', 'รหัสที่ติดบนตัวเครื่อง')}
+                <View style={styles.row}>
+                    <View style={{ flex: 1 }}>{renderInput('ราคา', 'price', '0.00', 'numeric')}</View>
+                    <View style={{ flex: 1, marginLeft: 15 }}>{renderInput('จำนวน', 'quantity', '1', 'numeric')}</View>
+                </View>
+                {renderInput('หน่วย', 'unit', 'เช่น เครื่อง, ชุด, ชิ้น')}
+            </View>
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>ตำแหน่งและสถานที่</Text>
+                {renderInput('คณะ/ภาควิชา', 'faculty_name', 'เช่น คณะเทคโนโลยีสารสนเทศ')}
+                {renderInput('พื้นที่ (ห้อง/อาคาร)', 'room_text', 'ระบุรายละเอียดสถานที่')}
+            </View>
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>งบประมาณและโครงการ</Text>
+                <View style={styles.row}>
+                    <View style={{ flex: 1 }}>{renderInput('รหัสกองทุน', 'fund_code', '')}</View>
+                    <View style={{ flex: 1, marginLeft: 15 }}>{renderInput('รหัสแผน', 'plan_code', '')}</View>
+                </View>
+                {renderInput('รหัสโครงการ', 'project_code', '')}
+                {renderInput('เลขที่ใบส่งของ', 'delivery_number', '')}
+                {renderInput('เลขที่ใบตรวจรับ', 'reference_number', '')}
+            </View>
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>สถานะ</Text>
+                <View style={styles.statusRow}>
+                    {Object.values(ASSET_STATUS).map((s) => (
+                        <TouchableOpacity
+                            key={s}
+                            style={[
+                                styles.statusChip,
+                                formData.status === s && styles.statusChipActive,
+                            ]}
+                            onPress={() => setFormData(prev => ({ ...prev, status: s }))}
+                        >
+                            <Text style={[
+                                styles.statusChipText,
+                                formData.status === s && styles.statusChipTextActive,
+                            ]}>{s}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>อื่น ๆ</Text>
+                {renderInput('รายละเอียด/หมายเหตุ', 'description', 'ระบุข้อมูลเพิ่มเติม...', 'default', true)}
+            </View>
+        </ScrollView>
     );
 
     return (
@@ -131,47 +212,13 @@ export default function AssetEditScreen() {
                 </TouchableOpacity>
             </View>
 
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
-            >
-                <ScrollView style={styles.formContent} contentContainerStyle={{ paddingBottom: 40 }}>
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>ข้อมูลพื้นฐาน</Text>
-                        {renderInput('ชื่อครุภัณฑ์ *', 'asset_name', 'เช่น คอมพิวเตอร์ตั้งโต๊ะ')}
-                        {renderInput('Serial Number', 'serial_number', 'S/N จากผู้ผลิต')}
-                        {renderInput('Barcode / QR Code', 'barcode', 'รหัสที่ติดบนตัวเครื่อง')}
-                        <View style={styles.row}>
-                            <View style={{ flex: 1 }}>{renderInput('ราคา', 'price', '0.00', 'numeric')}</View>
-                            <View style={{ flex: 1, marginLeft: 15 }}>{renderInput('จำนวน', 'quantity', '1', 'numeric')}</View>
-                        </View>
-                        {renderInput('หน่วย', 'unit', 'เช่น เครื่อง, ชุด, ชิ้น')}
-                    </View>
-
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>ตำแหน่งและสถานที่</Text>
-                        {/* Simple selection simulation since we don't have a picker library installed yet */}
-                        {renderInput('คณะ/ภาควิชา', 'faculty_name', 'เช่น คณะเทคโนโลยีสารสนเทศ')}
-                        {renderInput('พื้นที่ (ห้อง/อาคาร)', 'room_text', 'ระบุรายละเอียดสถานที่')}
-                    </View>
-
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>งบประมาณและโครงการ</Text>
-                        <View style={styles.row}>
-                            <View style={{ flex: 1 }}>{renderInput('รหัสกองทุน', 'fund_code', '')}</View>
-                            <View style={{ flex: 1, marginLeft: 15 }}>{renderInput('รหัสแผน', 'plan_code', '')}</View>
-                        </View>
-                        {renderInput('รหัสโครงการ', 'project_code', '')}
-                        {renderInput('เลขที่ใบส่งของ', 'delivery_number', '')}
-                        {renderInput('เลขที่ใบตรวจรับ', 'reference_number', '')}
-                    </View>
-
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>อื่น ๆ</Text>
-                        {renderInput('รายละเอียด/หมายเหตุ', 'description', 'ระบุข้อมูลเพิ่มเติม...', 'default', true)}
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
+            {Platform.OS === 'ios' ? (
+                <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={64}>
+                    {formContent}
+                </KeyboardAvoidingView>
+            ) : (
+                formContent
+            )}
         </SafeAreaView>
     );
 }
@@ -247,8 +294,9 @@ const styles = StyleSheet.create({
         borderColor: '#E5E7EB',
         borderRadius: 10,
         paddingHorizontal: 12,
-        height: 44,
-        fontSize: 15,
+        paddingVertical: 8,
+        minHeight: 48,
+        fontSize: 16,
         color: '#111827',
     },
     textArea: {
@@ -258,5 +306,32 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
+    },
+    statusRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    statusChip: {
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: '#E5E7EB',
+        backgroundColor: '#F9FAFB',
+        marginBottom: 4,
+    },
+    statusChipActive: {
+        borderColor: '#2563EB',
+        backgroundColor: '#EFF6FF',
+    },
+    statusChipText: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: '#6B7280',
+    },
+    statusChipTextActive: {
+        color: '#2563EB',
+        fontWeight: '700',
     },
 });

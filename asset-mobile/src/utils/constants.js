@@ -21,7 +21,7 @@ import { Platform } from 'react-native';
 //   - PC จะได้ IP เช่น 10.103.131.243
 //   - Gateway จะเป็น IP ของมือถือ เช่น 10.103.131.17
 //   - แต่ API URL ต้องใช้ IP ของ PC (10.103.131.243) ไม่ใช่ gateway
-const YOUR_IP_ADDRESS = '10.88.226.98'; // IP ของ PC บน WiFi เดียวกัน
+const YOUR_IP_ADDRESS = '10.154.111.98'; // IP ของ PC บน WiFi เดียวกัน
 // หมายเหตุ: หากใช้ --tunnel ให้เปลี่ยน API_BASE_URL เป็น URL จาก ngrok ถ้าจำเป็น
 // หรือตรวจสอบว่า Firewall ปิดอยู่/อนุญาตให้เข้าถึง Port 80 และ 8081
 
@@ -30,9 +30,9 @@ const YOUR_IP_ADDRESS = '10.88.226.98'; // IP ของ PC บน WiFi เดี
 // สำหรับ iOS Simulator ใช้ localhost
 const DEV_API_URL = Platform.select({
   ios: 'http://localhost/asset-management/asset_management_api', // iOS Simulator
-  android: YOUR_IP_ADDRESS.startsWith('10.88')
-    ? `http://${YOUR_IP_ADDRESS}/asset-management/asset_management_api` // Physical device on same wifi
-    : 'http://10.0.2.2/asset-management/asset_management_api', // Android Emulator
+  android: YOUR_IP_ADDRESS !== '10.0.2.2'
+    ? `http://${YOUR_IP_ADDRESS}/asset-management/asset_management_api` // Physical device or custom IP
+    : 'http://10.0.2.2/asset-management/asset_management_api', // Default Android Emulator
   default: `http://${YOUR_IP_ADDRESS}/asset-management/asset_management_api`, // Default
 });
 

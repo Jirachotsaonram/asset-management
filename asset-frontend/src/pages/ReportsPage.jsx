@@ -12,8 +12,6 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 // ==================== Notifications Integration ====================
 export const getReportNotifications = (stats) => {
@@ -252,46 +250,14 @@ export default function ReportsPage() {
     } catch (e) { toast.error('ไม่สามารถ Export Excel ได้'); }
   };
 
-  const doExportPDF = (data, headers, fields, title) => {
-    if (data.length === 0) { toast.error('ไม่มีข้อมูลให้ Export'); return; }
-    try {
-      const doc = new jsPDF('l', 'mm', 'a4');
-      doc.setFontSize(16);
-      doc.text(title, 14, 15);
-      doc.setFontSize(10);
-      doc.text(`วันที่: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`, 14, 22);
-      doc.text(`จำนวน: ${data.length} รายการ`, 14, 27);
-      doc.autoTable({
-        startY: 32, head: [headers],
-        body: data.map(item => fields.map(f => rawCellValue(f, item))),
-        styles: { fontSize: 7, cellPadding: 2 },
-        headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        margin: { top: 32, left: 10, right: 10 },
-      });
-      doc.save(`${title}_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success('Export PDF สำเร็จ');
-    } catch (e) { toast.error('ไม่สามารถ Export PDF ได้'); }
-  };
-
   const handleExportStatusExcel = () => {
     const cfg = REPORT_TABLE_CONFIG['asset-summary'];
     doExportExcel(filteredStatusAssets, cfg.headers, cfg.fields, `report_${activeTab}`);
-  };
-  const handleExportStatusPDF = () => {
-    const cfg = REPORT_TABLE_CONFIG['asset-summary'];
-    doExportPDF(filteredStatusAssets, cfg.headers, cfg.fields, STATUS_MAP[activeTab]?.label || 'รายงาน');
   };
   const handleExportReportExcel = () => {
     if (!selectedReport) return;
     const cfg = REPORT_TABLE_CONFIG[selectedReport];
     doExportExcel(filteredReportData, cfg.headers, cfg.fields, `report_${selectedReport}`);
-  };
-  const handleExportReportPDF = () => {
-    if (!selectedReport) return;
-    const cfg = REPORT_TABLE_CONFIG[selectedReport];
-    const info = REPORT_TYPES.find(r => r.key === selectedReport);
-    doExportPDF(filteredReportData, cfg.headers, cfg.fields, info?.title || 'รายงาน');
   };
 
   // ==================== Search/Sort/Paginate ====================
@@ -481,10 +447,6 @@ export default function ReportsPage() {
                       className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition disabled:opacity-50">
                       <FileSpreadsheet size={14} /> Excel
                     </button>
-                    <button onClick={handleExportStatusPDF} disabled={filteredStatusAssets.length === 0}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition disabled:opacity-50">
-                      <FileText size={14} /> PDF
-                    </button>
                   </div>
                 </div>
               </div>
@@ -572,10 +534,6 @@ export default function ReportsPage() {
                     <button onClick={handleExportReportExcel} disabled={filteredReportData.length === 0}
                       className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition disabled:opacity-50">
                       <FileSpreadsheet size={14} /> Excel
-                    </button>
-                    <button onClick={handleExportReportPDF} disabled={filteredReportData.length === 0}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition disabled:opacity-50">
-                      <FileText size={14} /> PDF
                     </button>
                   </div>
                 </div>

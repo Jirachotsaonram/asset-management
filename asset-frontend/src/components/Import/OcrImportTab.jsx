@@ -404,6 +404,8 @@ export default function OcrImportTab() {
     const [isDragging, setIsDragging] = useState(false);
     const [loading, setLoading] = useState(false);
     const [parsedAssets, setParsedAssets] = useState([]);
+    const [isValidated, setIsValidated] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
     const [editingId, setEditingId] = useState(null);
     const fileInputRef = useRef(null);
 
@@ -502,6 +504,42 @@ export default function OcrImportTab() {
 
     const removeAsset = (id) => {
         setParsedAssets(prev => prev.filter(a => a.id !== id));
+        setIsValidated(false);
+    };
+
+    // --- Validate results ---
+    const handleValidate = async () => {
+        const rows = parsedAssets.map(({ id, ...rest }) => rest);
+        if (rows.length === 0) return;
+
+        setLoading(true);
+        try {
+            const res = await api.post('/import/validate', { rows });
+            if (res.data.success) {
+                const { invalid } = res.data.data;
+                const errorsMap = {};
+                invalid.forEach(item => {
+                    // Match by index (rows share the same order)
+                    const assetId = parsedAssets[item.row - 1]?.id;
+                    if (assetId) {
+                        errorsMap[assetId] = item.errors;
+                    }
+                });
+                setValidationErrors(errorsMap);
+                setIsValidated(true);
+
+                if (Object.keys(errorsMap).length > 0) {
+                    toast.error(`พบข้อมูลที่มีข้อผิดพลาด ${Object.keys(errorsMap).length} รายการ`);
+                } else {
+                    toast.success('ตรวจสอบข้อมูลเรียบร้อย ไม่พบรายการซ้ำ');
+                }
+            }
+        } catch (err) {
+            console.error('Validation error:', err);
+            toast.error('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // --- Import all ---
@@ -510,6 +548,18 @@ export default function OcrImportTab() {
         if (validAssets.length === 0) {
             toast.error('ไม่มีรายการที่มีชื่อครุภัณฑ์');
             return;
+        }
+
+        if (!isValidated) {
+            toast.error('กรุณากดปุ่ม "ตรวจสอบข้อมูล" ก่อนนำเข้า');
+            return;
+        }
+
+        const hasErrors = Object.keys(validationErrors).length > 0;
+        if (hasErrors) {
+            if (!window.confirm(`พบข้อมูลที่มีข้อผิดพลาด ${Object.keys(validationErrors).length} รายการ (เช่น รายการซ้ำ) รายการเหล่านี้จะถูกข้ามไป ต้องการดำเนินการต่อหรือไม่?`)) {
+                return;
+            }
         }
 
         setLoading(true);
@@ -542,6 +592,8 @@ export default function OcrImportTab() {
         setOcrStatus('');
         setIsProcessing(false);
         setParsedAssets([]);
+        setIsValidated(false);
+        setValidationErrors({});
         setEditingId(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
@@ -679,6 +731,16 @@ export default function OcrImportTab() {
                                 </h3>
                                 <p className="text-sm text-gray-500 mt-1">ตรวจสอบและแก้ไขข้อมูลก่อนนำเข้า คลิกที่แถวเพื่อแก้ไข</p>
                             </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleValidate}
+                                    disabled={loading || isProcessing || parsedAssets.length === 0}
+                                    className={`btn-secondary text-sm px-4 py-2 flex items-center gap-2 ${isValidated ? 'bg-green-50 border-green-200 text-green-700' : ''}`}
+                                >
+                                    {loading ? <Loader size={16} className="animate-spin" /> : <CheckCircle size={16} className={isValidated ? 'text-green-500' : ''} />}
+                                    {isValidated ? 'ตรวจสอบแล้ว' : 'ตรวจสอบข้อมูล / เช็ครายการซ้ำ'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -700,18 +762,31 @@ export default function OcrImportTab() {
                             <tbody className="divide-y divide-gray-100">
                                 {parsedAssets.map((asset, idx) => (
                                     <tr key={asset.id}
-                                        className={`hover:bg-purple-50 transition-colors ${editingId === asset.id ? 'bg-purple-50' : ''}`}
+                                        className={`hover:bg-purple-50 transition-colors ${editingId === asset.id ? 'bg-purple-50' : ''} ${validationErrors[asset.id] ? 'bg-red-50' : ''}`}
                                         onClick={() => setEditingId(editingId === asset.id ? null : asset.id)}
                                     >
-                                        <td className="px-4 py-3 text-gray-500">{idx + 1}</td>
+                                        <td className="px-4 py-3 relative">
+                                            {validationErrors[asset.id] && (
+                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" title={validationErrors[asset.id].join('\n')}></div>
+                                            )}
+                                            <span className={validationErrors[asset.id] ? 'text-red-600 font-bold' : 'text-gray-500'}>{idx + 1}</span>
+                                        </td>
                                         <td className="px-4 py-3">
                                             {editingId === asset.id ? (
                                                 <input type="text" value={asset.asset_name}
                                                     onClick={e => e.stopPropagation()}
-                                                    onChange={e => updateAsset(asset.id, 'asset_name', e.target.value)}
+                                                    onChange={e => { updateAsset(asset.id, 'asset_name', e.target.value); setIsValidated(false); }}
                                                     className="w-full px-2 py-1 border border-purple-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" />
                                             ) : (
-                                                <span className="font-medium text-gray-900">{asset.asset_name || <span className="text-red-400 italic">ไม่มีชื่อ</span>}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium text-gray-900">{asset.asset_name || <span className="text-red-400 italic">ไม่มีชื่อ</span>}</span>
+                                                    {validationErrors[asset.id] && (
+                                                        <span className="text-[10px] text-red-500 font-medium flex items-center gap-1 mt-0.5">
+                                                            <AlertCircle size={10} />
+                                                            {validationErrors[asset.id][0]}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 font-mono text-xs text-gray-600">

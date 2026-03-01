@@ -32,6 +32,7 @@ class AssetController {
             if (!empty($_GET['floor'])) $filters['floor'] = $_GET['floor'];
             if (!empty($_GET['search'])) $filters['search'] = $_GET['search'];
             if (!empty($_GET['unchecked'])) $filters['unchecked'] = $_GET['unchecked'];
+            if (!empty($_GET['location_id'])) $filters['location_id'] = (int)$_GET['location_id'];
 
             $sort = $_GET['sort'] ?? 'created_at';
             $order = $_GET['order'] ?? 'DESC';
@@ -90,8 +91,9 @@ class AssetController {
             $this->asset->unit = $data->unit ?? '';
             $this->asset->price = $data->price ?? 0;
             $this->asset->received_date = $data->received_date ?? date('Y-m-d');
-            $this->asset->department_id = $data->department_id ?? null;
-            $this->asset->location_id = $data->location_id ?? null;
+            // ถ้า department_id หรือ location_id เป็น string ว่าง ให้ส่ง null แทน เพื่อไม่ให้ foreign key constraint หัก
+            $this->asset->department_id = (!empty($data->department_id) && $data->department_id !== '') ? $data->department_id : null;
+            $this->asset->location_id = (!empty($data->location_id) && $data->location_id !== '') ? $data->location_id : null;
             $this->asset->room_text = $data->room_text ?? '';
             $this->asset->status = $data->status ?? 'ใช้งานได้';
             $this->asset->barcode = $data->barcode ?? uniqid('QR');
@@ -155,8 +157,8 @@ class AssetController {
         $this->asset->quantity = $data->quantity ?? 1;
         $this->asset->unit = $data->unit ?? '';
         $this->asset->price = $data->price ?? 0;
-        $this->asset->department_id = $data->department_id ?? null;
-        $this->asset->location_id = $data->location_id ?? null;
+        $this->asset->department_id = (!empty($data->department_id) && $data->department_id !== '') ? $data->department_id : null;
+        $this->asset->location_id = (!empty($data->location_id) && $data->location_id !== '') ? $data->location_id : null;
         $this->asset->room_text = $data->room_text ?? '';
         $this->asset->status = $data->status ?? 'ใช้งานได้';
         $this->asset->description = $data->description ?? '';

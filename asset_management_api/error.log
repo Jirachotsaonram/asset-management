@@ -442,3 +442,111 @@ Stack trace:
 [26-Feb-2026 14:05:46 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
 [26-Feb-2026 14:05:46 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772111146_1464.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
 [26-Feb-2026 14:05:48 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 14:24:06 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772112246_3219.jpg
+[26-Feb-2026 14:24:06 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 14:24:06 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 14:24:06 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772112246_3219.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 14:24:09 Europe/Berlin] OCR: Return code: 0
+[26-Feb-2026 14:29:42 Europe/Berlin] Import: Starting import of 6 rows
+[26-Feb-2026 14:53:17 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772113997_6713.jpg
+[26-Feb-2026 14:53:17 Europe/Berlin] OCR: Received data via Base64/JSON
+[26-Feb-2026 14:53:17 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[26-Feb-2026 14:53:17 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772113997_6713.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[26-Feb-2026 14:53:20 Europe/Berlin] OCR: Return code: 0
+[01-Mar-2026 07:49:03 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 07:49:12 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 07:49:54 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 07:50:24 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 07:51:11 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 07:51:42 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:01:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:03:24 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:06:02 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:11:05 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:11:18 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:12:10 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`asset_management_db`.`assets`, CONSTRAINT `fk_asset_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE SET NULL) in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:63
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(63): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(107): Asset->create()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(68): AssetController->create()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 63
+[01-Mar-2026 08:16:56 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772349416_7737.jpg
+[01-Mar-2026 08:16:56 Europe/Berlin] OCR: Received data via Base64/JSON
+[01-Mar-2026 08:16:56 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[01-Mar-2026 08:16:56 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772349416_7737.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[01-Mar-2026 08:16:59 Europe/Berlin] OCR: Return code: 0
+[01-Mar-2026 08:50:35 Europe/Berlin] Import: Starting import of 6 rows
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Starting import of 6 rows
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Error at row 1: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Error at row 2: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Error at row 3: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Error at row 4: Serial Number '663000260009' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Error at row 5: Serial Number '712500020001' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[01-Mar-2026 08:58:26 Europe/Berlin] Import: Error at row 6: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ

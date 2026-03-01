@@ -17,6 +17,7 @@ export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { login } = useAuth();
 
   const handleSubmit = async () => {
@@ -26,18 +27,28 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
+    setError(null);
     try {
       const result = await login({ username, password });
       if (result.success) {
         // Navigation will be handled by App.jsx based on auth state
         console.log('Login successful');
       } else {
-        Alert.alert('เข้าสู่ระบบไม่สำเร็จ', result.message || 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน');
+        setError(result.message || 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน');
       }
     } catch (error) {
       console.error('Login error:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้';
-      Alert.alert('เกิดข้อผิดพลาด', errorMessage);
+      let errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+
+      if (error.response) {
+        // The server responded with a status code outside the range of 2xx
+        errorMessage = error.response.data?.message || `เกิดข้อผิดพลาด (${error.response.status})`;
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบ IP Address ในการเชื่อมต่อ';
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -82,6 +93,12 @@ export default function LoginScreen({ navigation }) {
             />
           </View>
 
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleSubmit}
@@ -94,7 +111,7 @@ export default function LoginScreen({ navigation }) {
             )}
           </TouchableOpacity>
 
-          
+
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -177,6 +194,20 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 12,
     marginTop: 16,
+  },
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

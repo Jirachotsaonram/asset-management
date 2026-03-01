@@ -42,6 +42,11 @@ const COLUMN_MAP = {
   'รหัสกองทุน': 'fund_code',
   'รหัสแผนงาน': 'plan_code',
   'รหัสงาน/โครงการ': 'project_code',
+  'จำนวน': 'quantity',
+  'ราคา': 'price',
+  'อาคาร/ห้อง': 'location_name',
+  'สถานะ': 'status',
+  'หมายเลขครุภัณฑ์ (Barcode)': 'barcode',
 };
 
 // Convert Excel serial date or Thai date string to YYYY-MM-DD
@@ -393,7 +398,7 @@ export default function ImportPage() {
     setLoading(true);
     try {
       const validRows = validationResult.valid.map(item => item.data);
-      const response = await api.post('/import/assets', { 
+      const response = await api.post('/import/assets', {
         rows: validRows,
         filename: file?.name || 'เครื่อง'
       });
@@ -423,23 +428,26 @@ export default function ImportPage() {
   };
 
   const downloadTemplate = () => {
-    const csv = `asset_name,serial_number,quantity,unit,price,received_date,department_id,location_id,status,barcode
-คอมพิวเตอร์ Dell Optiplex 7080,SN123456789,1,เครื่อง,25000,2024-01-15,1,1,ใช้งานได้,QR001
-เครื่องพิมพ์ HP LaserJet,SN987654321,1,เครื่อง,15000,2024-02-20,1,2,ใช้งานได้,QR002
-โปรเจกเตอร์ Epson EB-X51,SN-EP-2024-001,1,เครื่อง,18500,2024-03-10,2,3,ใช้งานได้,QR003`;
+    const headers = ['ชื่อครุภัณฑ์', 'หมายเลขซีเรียล', 'จำนวน', 'หน่วยนับ', 'ราคา', 'วันที่ตรวจรับ', 'หน่วยงาน', 'อาคาร/ห้อง', 'สถานะ', 'หมายเลขครุภัณฑ์ (Barcode)', 'รายละเอียด', 'รหัสหมวดสินทรัพย์', 'รหัสกองทุน', 'รหัสแผนงาน', 'รหัสงาน/โครงการ', 'ชื่อคณะ', 'เลขที่ใบส่งของ'];
+    const row1 = ['คอมพิวเตอร์ Dell Optiplex 7080', 'SN123456789', '1', 'เครื่อง', '25000', '2024-01-15', 'สาขาวิชาเทคโนโลยีสารสนเทศ', 'อเนกประสงค์ ชั้น 3', 'ใช้งานได้', 'QR20240001', 'CPU Intel Core i7, RAM 16GB, SSD 512GB', 'REF-IT-2024', 'กองทุนทั่วไป', 'แผนงานหลัก', 'โครงการพัฒนานักศึกษา', 'คณะเทคโนโลยีอุตสาหกรรม', 'DEL-001/67'];
 
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = [
+      headers.join(','),
+      row1.join(',')
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'asset_import_template.csv';
+    link.download = 'asset_import_template_latest.csv';
     link.click();
-    toast.success('ดาวน์โหลด Template สำเร็จ');
+    toast.success('ดาวน์โหลด Template ล่าสุดสำเร็จ');
   };
 
   const downloadTemplateFromServer = async () => {
     try {
       window.open(`${api.defaults.baseURL}/import/template`, '_blank');
-      toast.success('กำลังดาวน์โหลด Template...');
+      toast.success('กำลังดาวน์โหลด Template ล่าสุด...');
     } catch (error) {
       downloadTemplate();
     }
@@ -467,8 +475,8 @@ export default function ImportPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">นำเข้าข้อมูลครุภัณฑ์</h1>
-          <p className="text-gray-500 mt-1">นำเข้าข้อมูลครุภัณฑ์จากไฟล์ CSV</p>
+          <h1 className="text-2xl font-bold text-gray-900">นำเข้าข้อมูลครุภัณฑ์ (เวอร์ชันล่าสุด)</h1>
+          <p className="text-gray-500 mt-1">นำเข้าข้อมูลง่ายขึ้นด้วยระบบ Auto-Mapping คอลัมน์ภาษาไทย</p>
         </div>
         {step > 1 && (
           <button
@@ -557,9 +565,9 @@ export default function ImportPage() {
                     <FileSpreadsheet className="text-primary-600" size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-2">เริ่มต้นด้วย Template</h3>
+                    <h3 className="font-semibold text-gray-900 mb-2">เริ่มต้นด้วย Template ล่าสุด</h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      ดาวน์โหลดไฟล์ตัวอย่างเพื่อดูรูปแบบข้อมูลที่ถูกต้อง หรือดูรหัสอ้างอิงสำหรับหน่วยงานและสถานที่
+                      ดาวน์โหลดไฟล์ตัวอย่างเวอร์ชันล่าสุดเพื่อรองรับข้อมูลครบถ้วน (รหัสกองทุน, รหัสแผนงาน, ฯลฯ)
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <button
@@ -567,7 +575,7 @@ export default function ImportPage() {
                         className="btn-primary flex items-center gap-2"
                       >
                         <Download size={18} />
-                        ดาวน์โหลด Template
+                        ดาวน์โหลด Template ล่าสุด
                       </button>
                       {references && (
                         <button
@@ -650,10 +658,10 @@ export default function ImportPage() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
-                    <strong>ฟิลด์ทั้งหมด:</strong> asset_name, serial_number, quantity, unit, price, received_date, department_id, location_id, status, barcode, description, reference_number
+                    <strong>ฟิลด์ที่รองรับ:</strong> ชื่อครุภัณฑ์, หมายเลขซีเรียล, จำนวน, หน่วยนับ, ราคา, วันที่ตรวจรับ, หน่วยงาน, อาคาร/ห้อง, สถานะ, Barcode, รายละเอียด, รหัสกองทุน, รหัสแผนงาน, รหัสโครงการ, คณะ, เลขที่ใบส่งของ
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    <strong>Excel:</strong> ระบบจะ map คอลัมน์ภาษาไทยอัตโนมัติ เช่น ชื่อครุภัณฑ์, หมายเลขครุภัณฑ์, มูลค่าครุภัณฑ์ เป็นต้น
+                  <p className="text-xs text-emerald-600 mt-1 font-medium">
+                    <strong>Excel Auto-Mapping:</strong> ระบบรองรับหัวตารางภาษาไทยจากไฟล์ต้นฉบับได้ทันที ไม่ต้องเปลี่ยนชื่อคอลัมน์
                   </p>
                 </div>
               </div>

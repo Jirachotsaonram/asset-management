@@ -275,6 +275,27 @@ class ImportController {
                         }
                     }
 
+                    // --- DUPLICATE CHECK ---
+                    $serial = (!empty($row->serial_number) && $row->serial_number !== '-') ? $row->serial_number : '';
+                    $barcode = !empty($row->barcode) ? $row->barcode : '';
+
+                    if ($serial !== '') {
+                        $checkSerial = $this->db->prepare("SELECT asset_id FROM Assets WHERE serial_number = ? LIMIT 1");
+                        $checkSerial->execute([$serial]);
+                        if ($checkSerial->fetch()) {
+                            throw new Exception("Serial Number '{$serial}' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ");
+                        }
+                    }
+
+                    if ($barcode !== '') {
+                        $checkBarcode = $this->db->prepare("SELECT asset_id FROM Assets WHERE barcode = ? LIMIT 1");
+                        $checkBarcode->execute([$barcode]);
+                        if ($checkBarcode->fetch()) {
+                            throw new Exception("หมายเลขครุภัณฑ์ (Barcode) '{$barcode}' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ");
+                        }
+                    }
+                    // --- END DUPLICATE CHECK ---
+
                     $this->asset->department_id = !empty($row->department_id) ? $row->department_id : null;
                     $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
                     $this->asset->status = $row->status ?? 'ใช้งานได้';
@@ -348,20 +369,25 @@ class ImportController {
             // Add BOM for UTF-8
             fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
             
-            // CSV Headers
+            // CSV Headers (Thai version for better readability, the system maps these automatically)
             fputcsv($output, [
-                'asset_name',
-                'serial_number',
-                'quantity',
-                'unit',
-                'price',
-                'received_date',
-                'department_id',
-                'location_id',
-                'status',
-                'barcode',
-                'description',
-                'reference_number'
+                'ชื่อครุภัณฑ์',
+                'หมายเลขซีเรียล',
+                'จำนวน',
+                'หน่วยนับ',
+                'ราคา',
+                'วันที่ตรวจรับ',
+                'หน่วยงาน',
+                'อาคาร/ห้อง',
+                'สถานะ',
+                'หมายเลขครุภัณฑ์ (Barcode)',
+                'รายละเอียด',
+                'รหัสหมวดสินทรัพย์',
+                'รหัสกองทุน',
+                'รหัสแผนงาน',
+                'รหัสงาน/โครงการ',
+                'ชื่อคณะ',
+                'เลขที่ใบส่งของ'
             ]);
 
             // Example data
@@ -372,12 +398,17 @@ class ImportController {
                 'เครื่อง',
                 '25000',
                 '2024-01-15',
-                '1',
-                '1',
+                'สาขาวิชาเทคโนโลยีสารสนเทศ',
+                'อเนกประสงค์ ชั้น 3',
                 'ใช้งานได้',
-                'QR001',
-                'คุณสมบัติ: CPU Intel Core i7, RAM 16GB',
-                'REF-2024-001'
+                'QR20240001',
+                'CPU Intel Core i7, RAM 16GB, SSD 512GB',
+                'REF-IT-2024',
+                'กองทุนทั่วไป',
+                'แผนงานหลัก',
+                'โครงการพัฒนานักศึกษา',
+                'คณะเทคโนโลยีอุตสาหกรรม',
+                'DEL-001/67'
             ]);
 
             fputcsv($output, [
@@ -387,12 +418,17 @@ class ImportController {
                 'เครื่อง',
                 '15000',
                 '2024-02-20',
-                '1',
-                '2',
+                'สำนักงานคณบดี',
+                'อาคาร 5 ชั้น 1',
                 'ใช้งานได้',
-                'QR002',
-                'คุณสมบัติ: พิมพ์ขาวดำ 30 แผ่น/นาที',
-                'REF-2024-002'
+                'QR20240002',
+                'LaserJet Pro M404dn',
+                'REF-ADM-2024',
+                'กองทุนพัฒนาการศึกษา',
+                'แผนงานบริหาร',
+                'โครงการจัดเก็บคลัง',
+                'คณะเทคโนโลยีอุตสาหกรรม',
+                'DEL-002/67'
             ]);
 
             fclose($output);
