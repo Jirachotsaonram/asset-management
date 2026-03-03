@@ -145,8 +145,8 @@ export default function QRCodeModal({ asset, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
-        <div className="border-b px-6 py-4 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl max-h-[90vh] flex flex-col">
+        <div className="border-b px-6 py-4 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl flex-shrink-0">
           <div>
             <h2 className="text-lg font-bold text-gray-800">
               {mode === 'qr' ? 'QR Code' : 'Barcode'}
@@ -158,7 +158,7 @@ export default function QRCodeModal({ asset, onClose }) {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto">
           {/* Toggle QR / Barcode */}
           <div className="flex bg-gray-100 rounded-xl p-1 mb-5">
             <button

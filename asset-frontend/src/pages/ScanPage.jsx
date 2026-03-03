@@ -44,6 +44,62 @@ export const getScanNotifications = (scanHistory) => {
   return notifications;
 };
 
+// ฟังก์ชันช่วยประมวลผลรูปภาพเพื่อเพิ่มความสำเร็จในการสแกน (สำหรับ QR หนาแน่นสูง)
+// ฟังก์ชันช่วยประมวลผลรูปภาพเพื่อเพิ่มความสำเร็จในการสแกน (สำหรับ QR หนาแน่นสูง)
+const preprocessImage = (file, options = {}) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ขยายขนาด 2 เท่า และเพิ่มพื้นที่ขอบ (Quiet Zone) เพื่อช่วยให้ Decoder หา Pattern เจอ
+        const padding = 40;
+        canvas.width = (img.width * 2) + padding * 2;
+        canvas.height = (img.height * 2) + padding * 2;
+
+        // พื้นหลังขาว
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // ปิด smoothing เพื่อไม่ให้ภาพเบลอเวลาขยาย
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, padding, padding, img.width * 2, img.height * 2);
+
+        if (options.grayscale || options.contrast) {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            let val = avg;
+            if (options.contrast) {
+              val = avg > 128 ? 255 : 0;
+            }
+            data[i] = val;
+            data[i + 1] = val;
+            data[i + 2] = val;
+          }
+          ctx.putImageData(imageData, 0, 0);
+        }
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          } else {
+            reject(new Error('Canvas conversion failed'));
+          }
+        }, 'image/jpeg', 1.0);
+      };
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function ScanPage() {
   const { user } = useAuth();
   const fileInputRef = useRef(null);
@@ -70,41 +126,22 @@ export default function ScanPage() {
       let response;
       let foundAsset = null;
 
-      // วิธีที่ 1: ค้นหาจาก /assets ทั้งหมด
+      // วิธีที่ 1: ค้นหาโดยตรง (รองรับทั้ง Asset ID และ Barcode)
       try {
-        response = await api.get('/assets');
+        response = await api.get(`/assets/${encodeURIComponent(barcode)}`);
         if (response.data.success) {
-          foundAsset = response.data.data.find(
-            a => a.barcode === barcode ||
-              a.serial_number === barcode ||
-              a.asset_id == barcode
-          );
+          foundAsset = response.data.data;
         }
       } catch (err) {
-        console.log('Method 1 failed');
-      }
-
-      // วิธีที่ 2: ลอง endpoint แบบอื่น
-      if (!foundAsset) {
+        console.log('Standard lookup failed, trying query param...');
         try {
-          response = await api.get(`/assets/barcode/${barcode}`);
+          // วิธีที่ 2: ลอง query parameter (เพิ่มความแน่นอน)
+          response = await api.get(`/assets?barcode=${encodeURIComponent(barcode)}`);
           if (response.data.success) {
-            foundAsset = response.data.data;
+            foundAsset = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
           }
-        } catch (err) {
-          console.log('Method 2 failed');
-        }
-      }
-
-      // วิธีที่ 3: ลอง query parameter
-      if (!foundAsset) {
-        try {
-          response = await api.get(`/assets?barcode=${barcode}`);
-          if (response.data.success && response.data.data.length > 0) {
-            foundAsset = response.data.data[0];
-          }
-        } catch (err) {
-          console.log('Method 3 failed');
+        } catch (err2) {
+          console.log('All scan methods failed');
         }
       }
 
@@ -263,62 +300,74 @@ export default function ScanPage() {
         // สร้าง Html5Qrcode instance ด้วย element ID
         const html5QrCode = new Html5Qrcode(tempElementId);
 
-        // ใช้ scanFile โดยตรงกับ File object
-        const decodedText = await html5QrCode.scanFile(file, false);
+        let decodedText = '';
+        try {
+          // Pass 1: สแกนแบบปกติ
+          decodedText = await html5QrCode.scanFile(file, false);
+        } catch (err1) {
+          console.log('Pass 1 failed, trying Pass 2 (Upscale + Padding)...');
+          try {
+            // Pass 2: ขยายภาพและเพิ่มขอบขาว
+            toast.loading('พยายามสแกนใหม่ (ขั้นที่ 2: ปรับขนาดแล้วเเบ่งขอบ)...', { id: 'qr-retry' });
+            const processedFile2 = await preprocessImage(file);
+            decodedText = await html5QrCode.scanFile(processedFile2, false);
+            toast.dismiss('qr-retry');
+          } catch (err2) {
+            console.log('Pass 2 failed, trying Pass 3 (Grayscale + Contrast)...');
+            try {
+              // Pass 3: เพิ่ม Grayscale และ Contrast (Binarization)
+              toast.loading('พยายามสแกนใหม่ (ขั้นที่ 3: ปรับความคมชัด)...', { id: 'qr-retry' });
+              const processedFile3 = await preprocessImage(file, { grayscale: true, contrast: true });
+              decodedText = await html5QrCode.scanFile(processedFile3, false);
+              toast.dismiss('qr-retry');
+            } catch (err3) {
+              toast.dismiss('qr-retry');
+              // ลบ temporary element
+              if (document.getElementById(tempElementId)) {
+                document.body.removeChild(tempDiv);
+              }
+              throw err1; // โยน error แรกออกไปถ้าทุกวิธีล้มเหลว
+            }
+          }
+        }
 
-        // ลบ temporary element
-        document.body.removeChild(tempDiv);
+        // ลบ temporary element เมื่อเสร็จสิ้น
+        if (document.getElementById(tempElementId)) {
+          document.body.removeChild(tempDiv);
+        }
+
+        console.log('Decoded text:', decodedText);
+
+        // ล้างข้อมูลที่อาจผิดพลาด (เช่น ช่องว่าง)
+        decodedText = decodedText.trim();
 
         // Parse QR Code data (อาจเป็น JSON หรือ string)
-        let qrData;
+        let searchId = decodedText;
         try {
-          qrData = JSON.parse(decodedText);
+          const qrData = JSON.parse(decodedText);
+          // ถ้าเป็น JSON ให้เอาเฉพาะ ID หรือ Barcode ออกมา
+          searchId = qrData.id || qrData.barcode || decodedText;
         } catch {
-          // ถ้าไม่ใช่ JSON อาจเป็น string ธรรมดา
-          qrData = { id: decodedText };
+          // ถ้าไม่ใช่ JSON ก็ใช้ decodedText ตรงๆ
         }
 
-        // ค้นหาครุภัณฑ์จาก QR Code
+        // ค้นหาครุภัณฑ์
         let foundAsset = null;
-
-        // วิธีที่ 1: ใช้ ID จาก QR Code
-        if (qrData.id) {
-          try {
-            const response = await api.get(`/assets/${qrData.id}`);
-            if (response.data.success) {
-              foundAsset = response.data.data;
-            }
-          } catch (err) {
-            console.log('Method 1 failed:', err);
+        try {
+          // ลองค้นหาด้วย ID/Barcode
+          const response = await api.get(`/assets/${encodeURIComponent(searchId)}`);
+          if (response.data.success) {
+            foundAsset = response.data.data;
           }
-        }
-
-        // วิธีที่ 2: ค้นหาจาก decodedText โดยตรง
-        if (!foundAsset) {
+        } catch (err) {
+          console.log('QR direct lookup failed, trying fallback...');
           try {
-            const response = await api.get('/assets');
+            const response = await api.get(`/assets?barcode=${encodeURIComponent(searchId)}`);
             if (response.data.success) {
-              foundAsset = response.data.data.find(
-                a => a.barcode === decodedText ||
-                  a.serial_number === decodedText ||
-                  a.asset_id == decodedText ||
-                  a.asset_id == qrData.id
-              );
+              foundAsset = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
             }
-          } catch (err) {
-            console.log('Method 2 failed:', err);
-          }
-        }
-
-        // วิธีที่ 3: ลอง endpoint แบบอื่น
-        if (!foundAsset) {
-          try {
-            const response = await api.get(`/assets/barcode/${decodedText}`);
-            if (response.data.success) {
-              foundAsset = response.data.data;
-            }
-          } catch (err) {
-            console.log('Method 3 failed:', err);
+          } catch (err2) {
+            console.log('Asset not found from QR');
           }
         }
 
@@ -326,7 +375,7 @@ export default function ScanPage() {
           setScannedAsset(foundAsset);
           setCheckStatus(foundAsset.status || 'ใช้งานได้');
           setRemark('');
-          setBarcode(decodedText);
+          setBarcode(searchId); // ใช้ ID ที่สกัดออกมาได้แทนที่จะเป็น JSON ทั้งก้อน
           toast.success('สแกน QR Code สำเร็จ - พบครุภัณฑ์');
         } else {
           toast.error('ไม่พบครุภัณฑ์ที่ตรงกับ QR Code: ' + decodedText);
