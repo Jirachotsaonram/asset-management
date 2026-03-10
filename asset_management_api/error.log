@@ -1,2 +1,303 @@
 [01-Mar-2026 11:42:17 Europe/Berlin] Import: Starting import of 515 rows
 [01-Mar-2026 11:42:50 Europe/Berlin] Import: Starting import of 105 rows
+[05-Mar-2026 13:55:57 Europe/Berlin] Import: Starting import of 449 rows
+[05-Mar-2026 14:00:41 Europe/Berlin] Import: Starting import of 6 rows
+[05-Mar-2026 14:00:41 Europe/Berlin] Import: Error at row 2: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[05-Mar-2026 14:00:41 Europe/Berlin] Import: Error at row 3: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[05-Mar-2026 14:00:41 Europe/Berlin] Import: Error at row 5: หมายเลขครุภัณฑ์ (Barcode) '712500020001-30502-00001' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[05-Mar-2026 14:00:41 Europe/Berlin] Import: Error at row 6: Serial Number '513000070003' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[05-Mar-2026 14:27:50 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:28:02 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:31:08 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:31:23 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:31:34 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:39:49 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:11 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:11 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:11 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:11 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:13 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:13 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:15 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:41:25 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:13 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:13 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:13 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:15 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:15 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:15 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:15 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:15 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:17 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:17 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:17 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:48:17 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:49:05 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:50:56 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 14:50:57 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function exec() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php:185
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(121): AuthController->ensureLoginAttemptsTable()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(26): AuthController->checkLoginAttempts('admin')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php on line 185
+[05-Mar-2026 15:07:51 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1772719671_5381.jpg
+[05-Mar-2026 15:07:51 Europe/Berlin] OCR: Received data via Base64/JSON
+[05-Mar-2026 15:07:51 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[05-Mar-2026 15:07:51 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1772719671_5381.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[05-Mar-2026 15:07:54 Europe/Berlin] OCR: Return code: 0
+[09-Mar-2026 07:27:23 Europe/Berlin] ImageUpload: Received file: images.jpg size: 3080 type: image/jpeg
+[09-Mar-2026 07:27:23 Europe/Berlin] ImageUpload: Attempting to resize image
+[09-Mar-2026 07:27:23 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69ae684b5c60e2.11396297.jpg

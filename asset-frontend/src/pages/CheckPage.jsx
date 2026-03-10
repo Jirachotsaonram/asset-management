@@ -778,7 +778,7 @@ function NotificationsTab({ notifications, onCheck, onSchedule, urgentPage, setU
       {notifications.urgent.length === 0 && notifications.dueSoon.length === 0 && (
         <div className="bg-white rounded-xl shadow-md p-12 text-center">
           <CheckSquare className="w-16 h-16 mx-auto mb-4 text-green-300" />
-          <p className="text-lg text-gray-500 font-medium">ไม่มีการแจ้งเตือน 🎉</p>
+          <p className="text-lg text-gray-500 font-medium">ไม่มีการแจ้งเตือน</p>
           <p className="text-sm text-gray-400 mt-1">ทุกอย่างเรียบร้อย</p>
         </div>
       )}
@@ -903,7 +903,7 @@ function ScheduleFormFields({ schedules, scheduleForm, setScheduleForm }) {
         </select>
       </div>
       <div className="bg-green-50 border border-green-200 rounded-lg p-2.5">
-        <p className="text-xs text-green-800">✅ ระบบจะคำนวณวันที่ตรวจถัดไปอัตโนมัติ</p>
+        <p className="text-xs text-green-800">ระบบจะคำนวณวันที่ตรวจถัดไปอัตโนมัติ</p>
       </div>
     </>
   );

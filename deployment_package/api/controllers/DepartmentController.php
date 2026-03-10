@@ -10,10 +10,19 @@ class DepartmentController {
     public function __construct() {
         $database = new Database();
         $this->db = $database->getConnection();
+        
+        if (!$this->db) {
+            error_log("DepartmentController: Database connection failed.");
+        }
+        
         $this->department = new Department($this->db);
     }
 
     public function getAll() {
+        if (!$this->db) {
+            Response::error('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 503);
+            return;
+        }
         $stmt = $this->department->readAll();
         $departments = [];
 

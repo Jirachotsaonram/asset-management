@@ -285,6 +285,7 @@ export default function VirtualTable({
                                 {[25, 50, 100, 200].map(n => (
                                     <option key={n} value={n}>{n} / หน้า</option>
                                 ))}
+                                <option value={999999}>ทั้งหมด</option>
                             </select>
                         )}
                     </div>

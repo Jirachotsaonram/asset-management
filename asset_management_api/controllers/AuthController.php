@@ -11,6 +11,11 @@ class AuthController {
     public function __construct() {
         $database = new Database();
         $this->db = $database->getConnection();
+        
+        if (!$this->db) {
+            error_log("AuthController: Database connection failed.");
+        }
+        
         $this->user = new User($this->db);
     }
 
@@ -116,6 +121,7 @@ class AuthController {
      * ตรวจสอบว่า login ถูก block หรือไม่ (จำกัด 5 ครั้ง ภายใน 15 นาที)
      */
     private function checkLoginAttempts($username) {
+        if (!$this->db) return; // DB เชื่อมต่อไม่ได้ ให้ข้ามการตรวจสอบไปก่อน
         try {
             // สร้างตาราง login_attempts ถ้ายังไม่มี
             $this->ensureLoginAttemptsTable();
@@ -142,6 +148,7 @@ class AuthController {
      * บันทึก login attempt ที่ล้มเหลว
      */
     private function recordLoginAttempt($username) {
+        if (!$this->db) return; 
         try {
             $query = "INSERT INTO login_attempts (username, attempt_time, success, ip_address) 
                       VALUES (:username, NOW(), 0, :ip)";
@@ -159,6 +166,7 @@ class AuthController {
      * ล้าง login attempts เมื่อ login สำเร็จ
      */
     private function clearLoginAttempts($username) {
+        if (!$this->db) return;
         try {
             $query = "DELETE FROM login_attempts WHERE username = :username";
             $stmt = $this->db->prepare($query);
@@ -173,6 +181,7 @@ class AuthController {
      * สร้างตาราง login_attempts ถ้ายังไม่มี
      */
     private function ensureLoginAttemptsTable() {
+        if (!$this->db) return;
         try {
             $query = "CREATE TABLE IF NOT EXISTS login_attempts (
                 id INT AUTO_INCREMENT PRIMARY KEY,

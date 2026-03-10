@@ -1,7 +1,7 @@
 // FILE: src/components/Assets/AssetForm.jsx
 // เพิ่ม field ใหม่: fund_code, plan_code, project_code, faculty_name, delivery_number, room_text
 import { useState, useEffect } from "react";
-import { X, Plus, ChevronDown, ChevronRight } from "lucide-react";
+import { X, Plus, ChevronDown, ChevronRight, ClipboardList, Tag, MapPin, FileText } from "lucide-react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { ASSET_STATUS } from "../../utils/constants";
@@ -189,7 +189,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-1">
           {/* ==================== ข้อมูลพื้นฐาน ==================== */}
-          <SectionHeader id="basic" title="ข้อมูลพื้นฐาน" icon="📋" />
+          <SectionHeader id="basic" title="ข้อมูลพื้นฐาน" icon={<ClipboardList size={18} className="text-blue-600" />} />
           {expandedSections.basic && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100">
               <div className="md:col-span-2">
@@ -261,7 +261,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
           )}
 
           {/* ==================== รหัสงบประมาณ ==================== */}
-          <SectionHeader id="codes" title="รหัสงบประมาณ" icon="🏷️" />
+          <SectionHeader id="codes" title="รหัสงบประมาณ" icon={<Tag size={18} className="text-purple-600" />} />
           {expandedSections.codes && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 border-b border-gray-100">
               <div>
@@ -298,7 +298,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
           )}
 
           {/* ==================== สถานที่ ==================== */}
-          <SectionHeader id="location" title="สถานที่และหน่วยงาน" icon="📍" />
+          <SectionHeader id="location" title="สถานที่และหน่วยงาน" icon={<MapPin size={18} className="text-red-600" />} />
           {expandedSections.location && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100">
               <div>
@@ -340,7 +340,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
           )}
 
           {/* ==================== รายละเอียดเพิ่มเติม ==================== */}
-          <SectionHeader id="details" title="รายละเอียดเพิ่มเติม" icon="📝" />
+          <SectionHeader id="details" title="รายละเอียดเพิ่มเติม" icon={<FileText size={18} className="text-orange-600" />} />
           {expandedSections.details && (
             <div className="grid grid-cols-1 gap-4 pb-4 border-b border-gray-100">
               <div>

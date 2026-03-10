@@ -228,7 +228,7 @@ export default function ReportsPage() {
       if (response.data.success && response.data.data) {
         setReportData(response.data.data);
         toast.success(`สร้างรายงานสำเร็จ (${response.data.data.length} รายการ)`);
-      } else { setReportData([]); toast('ไม่มีข้อมูลในรายงานนี้', { icon: '📭' }); }
+      } else { setReportData([]); toast('ไม่มีข้อมูลในรายงานนี้'); }
     } catch (error) {
       toast.error(error.response?.data?.message || 'ไม่สามารถสร้างรายงานได้');
       setReportData([]);

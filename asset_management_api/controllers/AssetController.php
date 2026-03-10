@@ -13,12 +13,21 @@ class AssetController {
     public function __construct() {
         $database = new Database();
         $this->db = $database->getConnection();
+        
+        if (!$this->db) {
+            error_log("AssetController: Database connection failed.");
+        }
+        
         $this->asset = new Asset($this->db);
         $this->auditTrail = new AuditTrail($this->db);
     }
 
     // ==================== GET ALL - รองรับ pagination ====================
     public function getAll() {
+        if (!$this->db) {
+            Response::error('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 503);
+            return;
+        }
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 0;
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 0;
         

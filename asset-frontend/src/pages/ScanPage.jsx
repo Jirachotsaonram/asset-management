@@ -214,7 +214,7 @@ export default function ScanPage() {
           remark: remark
         }, ...prev]);
 
-        toast.success('✅ บันทึกการตรวจสอบสำเร็จ');
+        toast.success('บันทึกการตรวจสอบสำเร็จ');
         handleReset();
       } else {
         toast.error('เกิดข้อผิดพลาด: ' + response.data.message);
@@ -498,7 +498,7 @@ export default function ScanPage() {
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-2 flex items-center gap-1.5">
-                <span className="text-lg">💡</span>
+                <span className="text-lg"></span>
                 สามารถค้นหาด้วย Barcode, Serial Number หรือ Asset ID
               </p>
             </div>

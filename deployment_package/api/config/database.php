@@ -7,8 +7,21 @@ class Database {
     public $conn;
 
     public function __construct() {
-        // สำหรับขึ้น Server จริง: แก้ไขข้อมูลด้านล่างให้ตรงกับ Server
-        if ($_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
+        // ตรวจสอบว่าเป็น Local Environment (localhost, 127.0.0.1, หรือ Private IP ในวง LAN)
+        $server_addr = $_SERVER['SERVER_ADDR'] ?? '';
+        $server_name = $_SERVER['SERVER_NAME'] ?? '';
+        
+        $isLocal = ($server_name === 'localhost' || $server_addr === '127.0.0.1' || $server_addr === '::1' ||
+                    $server_addr === '10.40.143.98' || // Current Local IP
+                    strpos($server_addr, '192.168.0.') === 0 || // ITI Internal IP range
+                    strpos($server_addr, '10.14.91.') === 0 || // ITI Internal IP range
+                    strpos($server_addr, '192.168.') === 0 || 
+                    strpos($server_addr, '10.') === 0 || 
+                    strpos($server_addr, '172.') === 0 || // 172.16.0.0 – 172.31.255.255
+                    empty($server_addr)); // CLI mode
+
+        if (!$isLocal) {
+            // สำหรับขึ้น Server จริง: แก้ไขข้อมูลด้านล่างให้ตรงกับ Server
             $this->host = "localhost";
             $this->db_name = "asset_management_db";
             $this->username = "itisv";

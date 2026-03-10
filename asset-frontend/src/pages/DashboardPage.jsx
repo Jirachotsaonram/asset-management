@@ -9,7 +9,7 @@ import {
   FileText, Activity, PieChart as PieChartIcon, BarChart3, Eye,
   User, Calendar, ClipboardCheck, Bell, AlertCircle, Wrench,
   XCircle, X, RefreshCw, TrendingUp, MapPin, ArrowRight,
-  ArrowUpRight, Layers, Search, ExternalLink
+  ArrowUpRight, Layers, Search, ExternalLink, Edit, Trash2, Truck, ArrowDownLeft
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -91,11 +91,11 @@ export default function DashboardPage() {
       const sc = { 'ใช้งานได้': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
       let tv = 0;
       let totalAsssetCount = 0;
-      
+
       statusReport.forEach(item => {
         const count = parseInt(item.count || 0);
         totalAsssetCount += count;
-        
+
         if (Object.prototype.hasOwnProperty.call(sc, item.status)) {
           sc[item.status] = count;
         }
@@ -141,9 +141,9 @@ export default function DashboardPage() {
   })[a] || 'bg-gray-100 text-gray-600';
 
   const getActionIcon = (a) => ({
-    'Add': '➕', 'Edit': '✏️', 'Delete': '🗑️', 'Move': '🚚',
-    'Check': '✅', 'Borrow': '📤', 'Return': '📥',
-  })[a] || '📝';
+    'Add': <Plus size={18} />, 'Edit': <Edit size={18} />, 'Delete': <Trash2 size={18} />, 'Move': <Truck size={18} />,
+    'Check': <CheckCircle size={18} />, 'Borrow': <ArrowUpRight size={18} />, 'Return': <ArrowDownLeft size={18} />,
+  })[a] || <Activity size={18} />;
 
   const greetingTime = () => {
     const h = new Date().getHours();

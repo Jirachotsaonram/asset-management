@@ -55,8 +55,14 @@ switch ($endpoint) {
         $controller = new AssetController();
         
         // GET requests - Viewer, Inspector, Admin สามารถดูได้
-        if ($request_method === 'GET' && !$id && !isset($_GET['q'])) {
+        if ($request_method === 'GET' && $id === 'barcode' && $action) {
+            // GET /assets/barcode/{barcode}
+            $controller->getOne($action);
+        } elseif ($request_method === 'GET' && !$id && !isset($_GET['q']) && !isset($_GET['barcode'])) {
             $controller->getAll();
+        } elseif ($request_method === 'GET' && isset($_GET['barcode'])) {
+            // GET /assets?barcode={barcode}
+            $controller->getOne($_GET['barcode']);
         } elseif ($request_method === 'GET' && $id) {
             $controller->getOne($id);
         } elseif ($request_method === 'GET' && isset($_GET['q'])) {

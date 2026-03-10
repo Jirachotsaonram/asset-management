@@ -24,7 +24,7 @@ export default function QRScanner({ onClose }) {
     try {
       // Parse QR Code data
       const qrData = JSON.parse(decodedText);
-      
+
       // ดึงข้อมูลครุภัณฑ์จาก API
       const response = await api.get(`/assets/${qrData.id}`);
       setScannedAsset(response.data.data);
@@ -39,7 +39,7 @@ export default function QRScanner({ onClose }) {
     if (scanMode !== 'camera' || !scanning) return;
 
     let scanner = null;
-    
+
     try {
       scanner = new Html5QrcodeScanner(
         'qr-reader',
@@ -94,10 +94,10 @@ export default function QRScanner({ onClose }) {
 
     try {
       const html5QrCode = new Html5Qrcode();
-      
+
       // สแกน QR Code จากรูปภาพ
       const decodedText = await html5QrCode.scanFile(file, false);
-      
+
       // ประมวลผล QR Code ที่สแกนได้
       await processQRCode(decodedText);
     } catch (err) {
@@ -129,10 +129,10 @@ export default function QRScanner({ onClose }) {
         remark: remark
       });
 
-      alert('✅ บันทึกการตรวจสอบสำเร็จ');
+      alert('บันทึกการตรวจสอบสำเร็จ');
       onClose();
     } catch (error) {
-      alert('❌ ไม่สามารถบันทึกได้: ' + (error.response?.data?.message || error.message));
+      alert('ไม่สามารถบันทึกได้: ' + (error.response?.data?.message || error.message));
     } finally {
       setSaving(false);
     }
@@ -144,7 +144,7 @@ export default function QRScanner({ onClose }) {
     setCheckStatus('ปกติ');
     setRemark('');
     setScanning(true);
-    
+
     // ถ้าเป็นโหมดกล้อง ให้ reload เพื่อเริ่ม scanner ใหม่
     if (scanMode === 'camera') {
       window.location.reload();
@@ -184,22 +184,20 @@ export default function QRScanner({ onClose }) {
               <div className="flex gap-2 mb-4">
                 <button
                   onClick={() => switchMode('camera')}
-                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${
-                    scanMode === 'camera'
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${scanMode === 'camera'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <Camera className="w-5 h-5 inline-block mr-2" />
                   สแกนด้วยกล้อง
                 </button>
                 <button
                   onClick={() => switchMode('upload')}
-                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${
-                    scanMode === 'upload'
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${scanMode === 'upload'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <Upload className="w-5 h-5 inline-block mr-2" />
                   อัปโหลดรูปภาพ
@@ -211,7 +209,7 @@ export default function QRScanner({ onClose }) {
                 <div>
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <p className="text-sm text-blue-800">
-                      📸 กรุณาจ่อกล้องไปที่ QR Code ของครุภัณฑ์
+                      กรุณาจ่อกล้องไปที่ QR Code ของครุภัณฑ์
                     </p>
                   </div>
                   <div id="qr-reader" className="w-full"></div>
@@ -223,10 +221,10 @@ export default function QRScanner({ onClose }) {
                 <div>
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <p className="text-sm text-blue-800">
-                      📷 เลือกรูปภาพที่มี QR Code ของครุภัณฑ์
+                      เลือกรูปภาพที่มี QR Code ของครุภัณฑ์
                     </p>
                   </div>
-                  
+
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition">
                     <input
                       ref={fileInputRef}
@@ -239,9 +237,8 @@ export default function QRScanner({ onClose }) {
                     />
                     <label
                       htmlFor="qr-image-upload"
-                      className={`cursor-pointer flex flex-col items-center ${
-                        processingImage ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                      className={`cursor-pointer flex flex-col items-center ${processingImage ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                     >
                       {processingImage ? (
                         <>
@@ -330,11 +327,10 @@ export default function QRScanner({ onClose }) {
                   <div>
                     <label className="text-sm text-gray-600">สถานะ</label>
                     <p>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        scannedAsset.status === 'ใช้งานได้' ? 'bg-green-100 text-green-800' :
-                        scannedAsset.status === 'รอซ่อม' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${scannedAsset.status === 'ใช้งานได้' ? 'bg-green-100 text-green-800' :
+                          scannedAsset.status === 'รอซ่อม' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
                         {scannedAsset.status}
                       </span>
                     </p>
@@ -349,7 +345,7 @@ export default function QRScanner({ onClose }) {
               {/* ฟอร์มบันทึกการตรวจสอบ */}
               <div className="bg-blue-50 rounded-lg p-4 mb-6">
                 <h3 className="font-semibold text-lg mb-3">บันทึกการตรวจสอบ</h3>
-                
+
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     ผลการตรวจสอบ <span className="text-red-500">*</span>

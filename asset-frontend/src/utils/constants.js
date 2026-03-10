@@ -1,4 +1,4 @@
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '10.40.143.98';
 
 export const API_BASE_URL = isLocal
   ? 'http://localhost/asset-management/asset_management_api'

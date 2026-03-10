@@ -25,14 +25,14 @@ export const getAuditNotifications = (audits) => {
 
 // ==================== Constants ====================
 const ACTIONS = [
-  { key: 'all', label: 'ทั้งหมด', emoji: '📋' },
-  { key: 'Add', label: 'เพิ่ม', emoji: '➕', color: 'bg-green-100 text-green-700 border-green-200' },
-  { key: 'Edit', label: 'แก้ไข', emoji: '✏️', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-  { key: 'Delete', label: 'ลบ', emoji: '🗑️', color: 'bg-red-100 text-red-700 border-red-200' },
-  { key: 'Move', label: 'ย้าย', emoji: '🚚', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { key: 'Check', label: 'ตรวจสอบ', emoji: '✅', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-  { key: 'Borrow', label: 'ยืม', emoji: '📤', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-  { key: 'Return', label: 'คืน', emoji: '📥', color: 'bg-teal-100 text-teal-700 border-teal-200' },
+  { key: 'all', label: 'ทั้งหมด' },
+  { key: 'Add', label: 'เพิ่ม', color: 'bg-green-100 text-green-700 border-green-200' },
+  { key: 'Edit', label: 'แก้ไข', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  { key: 'Delete', label: 'ลบ', color: 'bg-red-100 text-red-700 border-red-200' },
+  { key: 'Move', label: 'ย้าย', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+  { key: 'Check', label: 'ตรวจสอบ', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+  { key: 'Borrow', label: 'ยืม', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+  { key: 'Return', label: 'คืน', color: 'bg-teal-100 text-teal-700 border-teal-200' },
 ];
 
 const ITEMS_PER_PAGE = 50;
@@ -149,34 +149,34 @@ export default function AuditTrailPage() {
   const doExport = async (format) => {
     try {
       toast.loading(`กำลังเตรียมไฟล์ ${format.toUpperCase()}...`, { id: 'export-toast' });
-      
+
       const params = new URLSearchParams();
       if (actionFilter !== 'all') params.set('action', actionFilter);
       if (userFilter !== 'all') params.set('user_id', userFilter);
       if (startDate) params.set('start_date', startDate);
       if (endDate) params.set('end_date', endDate);
       if (search.trim()) params.set('keyword', search.trim());
-      
+
       const endpoint = format === 'csv' ? '/audits/export-csv' : '/audits/export-excel';
-      
+
       // Use window.open or a hidden anchor to trigger download from backend
       const baseUrl = api.defaults.baseURL || '/api';
       const downloadUrl = `${baseUrl}${endpoint}?${params.toString()}`;
-      
+
       const link = document.createElement('a');
       link.href = downloadUrl;
       // Note: For sensitive data, usually we'd fetch as blob with auth header, 
       // but here we can try window.open or a direct link if auth allows via cookie/param.
       // Since our 'api' service likely handles auth headers, we should fetch as blob.
-      
+
       const response = await api.get(`${endpoint}?${params.toString()}`, {
         responseType: 'blob'
       });
-      
-      const blob = new Blob([response.data], { 
-        type: format === 'csv' ? 'text/csv' : 'application/vnd.ms-excel' 
+
+      const blob = new Blob([response.data], {
+        type: format === 'csv' ? 'text/csv' : 'application/vnd.ms-excel'
       });
-      
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -245,7 +245,6 @@ export default function AuditTrailPage() {
                 ? (a.color || 'bg-blue-100 text-blue-700 border-blue-200') + ' ring-2 ring-offset-1 ring-blue-300 scale-105'
                 : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}>
-              <span>{a.emoji}</span>
               <span>{a.label}</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-white/60' : 'bg-gray-100'}`}>{count}</span>
             </button>
@@ -382,7 +381,7 @@ export default function AuditTrailPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${cfg.color || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                        <span>{cfg.emoji}</span> {audit.action}
+                        {audit.action}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm">
@@ -498,7 +497,6 @@ function DetailModal({ audit, onClose }) {
         {/* Header */}
         <div className="p-5 border-b bg-gray-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{actionCfg.emoji}</span>
             <div>
               <h2 className="text-lg font-bold text-gray-800">รายละเอียด Audit</h2>
               <p className="text-xs text-gray-500">#{audit.audit_id}</p>
@@ -524,7 +522,7 @@ function DetailModal({ audit, onClose }) {
                 </div>
                 {item.badge ? (
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${actionCfg.color}`}>
-                    {actionCfg.emoji} {item.value}
+                    {item.value}
                   </span>
                 ) : (
                   <p className="text-sm font-semibold text-gray-800 truncate">{item.value}</p>

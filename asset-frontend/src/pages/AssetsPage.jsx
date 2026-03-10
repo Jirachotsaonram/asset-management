@@ -323,10 +323,12 @@ export default function AssetsPage() {
     const groupedAssets = groupAssetsByLocation(assets);
     return (
       <div className="space-y-4">
-        <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-800 text-xs flex items-center gap-2 mb-4">
-          <Filter size={14} />
-          <span>หมายเหตุ: การจัดกลุ่มแสดงผลเฉพาะข้อมูลในหน้านี้ ({assets.length} รายการจากทั้งหมด {totalItems} รายการ)</span>
-        </div>
+        {assets.length < totalItems && (
+          <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-800 text-xs flex items-center gap-2 mb-4">
+            <Filter size={14} />
+            <span>หมายเหตุ: การจัดกลุ่มแสดงผลเฉพาะข้อมูลในหน้านี้ ({assets.length.toLocaleString()} รายการจากทั้งหมด {totalItems.toLocaleString()} รายการ)</span>
+          </div>
+        )}
         {Object.entries(groupedAssets).map(([building, floors]) => {
           const buildingAssets = Object.values(floors).flatMap(rooms => Object.values(rooms)).flat();
           const stats = calculateStats(buildingAssets);
@@ -341,8 +343,8 @@ export default function AssetsPage() {
                     <h3 className="text-lg font-bold text-gray-800">{building}</h3>
                     <p className="text-xs text-gray-600 mt-0.5">
                       {stats.total} รายการ | <span className="text-green-600">✓{stats.available}</span>
-                      {stats.maintenance > 0 && <span className="text-yellow-600 ml-1">🔧{stats.maintenance}</span>}
-                      {stats.missing > 0 && <span className="text-red-600 ml-1">⚠{stats.missing}</span>}
+                      {stats.maintenance > 0 && <span className="text-yellow-600 ml-1">รอซ่อม: {stats.maintenance}</span>}
+                      {stats.missing > 0 && <span className="text-red-600 ml-1">ไม่พบ: {stats.missing}</span>}
                     </p>
                   </div>
                 </div>
