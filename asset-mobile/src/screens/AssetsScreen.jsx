@@ -238,7 +238,7 @@ export default function AssetsScreen({ navigation }) {
 
           <View style={styles.infoContainer}>
             <View style={styles.cardHeader}>
-              <Text style={styles.assetIdText}>{item.asset_id}</Text>
+              <Text style={styles.assetIdText}>{item.barcode || item.asset_id}</Text>
               <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
                 <Text style={[styles.statusText, { color: statusStyle.color }]}>{item.status}</Text>
               </View>
@@ -342,7 +342,7 @@ export default function AssetsScreen({ navigation }) {
         <FlatList
           data={assets}
           renderItem={renderAssetItem}
-          keyExtractor={(item) => item.asset_id.toString()}
+          keyExtractor={(item) => (item.barcode || item.asset_id).toString()}
           contentContainerStyle={styles.listContainer}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}

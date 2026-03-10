@@ -22,6 +22,7 @@ const AssetHistoryPage = lazy(() => import('./pages/AssetHistoryPage'));
 const ImportPage = lazy(() => import('./pages/ImportPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuditTrailPage = lazy(() => import('./pages/AuditTrailPage'));
+const AnnualCheckPage = lazy(() => import('./pages/AnnualCheckPage'));
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -60,6 +61,7 @@ function App() {
               <Route path="import" element={<ImportPage />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="audit-trail" element={<AuditTrailPage />} />
+              <Route path="annual-check" element={<AnnualCheckPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

@@ -392,21 +392,19 @@ class ReportController {
         exit;
     }
 
-    // Export รายงานเป็น Excel (ใช้รูปแบบ Tab-delimited ที่ Excel อ่านได้)
+    // Export รายงานเป็น Excel (HTML Table format for better compatibility)
     public function exportExcel($reportType, $params = []) {
-        // ตั้งค่า header สำหรับ download Excel
-        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
-        header('Content-Disposition: attachment; filename="report_' . $reportType . '_' . date('Y-m-d_His') . '.xls"');
+        $startDate = $params['start_date'] ?? null;
+        $endDate = $params['end_date'] ?? null;
         
-        $output = fopen('php://output', 'w');
-        
-        // เพิ่ม BOM สำหรับ UTF-8
-        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        $headers = [];
+        $query = "";
+        $queryParams = [];
         
         switch ($reportType) {
             case 'asset_summary':
-                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'], "\t");
-                
+                // ใช้ข้อมูลจาก v_assets_with_check_info เพื่อความสมบูรณ์
+                $headers = ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'];
                 $query = "SELECT 
                             asset_id, asset_name, serial_number, quantity, unit, price, received_date, 
                             status, department_name, building_name, floor, room_number, 
@@ -416,57 +414,123 @@ class ReportController {
                 break;
                 
             case 'check_report':
-                fputcsv($output, ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่'], "\t");
-                
-                $startDate = $params['start_date'] ?? null;
-                $endDate = $params['end_date'] ?? null;
-                
+                $headers = ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่'];
                 $query = "SELECT 
-                            ac.check_id,
-                            ac.check_date,
-                            a.asset_id,
-                            a.asset_name,
-                            a.serial_number,
-                            ac.check_status,
-                            ac.remark,
-                            u.fullname as checker_name,
-                            d.department_name,
-                            CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
+                            ac.check_id, ac.check_date, a.asset_id, a.asset_name, a.serial_number, 
+                            ac.check_status, ac.remark, u.fullname as checker_name, 
+                            d.department_name, CONCAT(COALESCE(l.building_name,''), ' ห้อง ', COALESCE(l.room_number,'')) as location
                         FROM asset_check ac
                         JOIN assets a ON ac.asset_id = a.asset_id
                         JOIN users u ON ac.user_id = u.user_id
                         LEFT JOIN departments d ON a.department_id = d.department_id
                         LEFT JOIN locations l ON a.location_id = l.location_id
                         WHERE 1=1";
-                
                 if ($startDate) {
                     $query .= " AND ac.check_date >= :start_date";
+                    $queryParams[':start_date'] = $startDate;
                 }
                 if ($endDate) {
                     $query .= " AND ac.check_date <= :end_date";
+                    $queryParams[':end_date'] = $endDate;
                 }
-                
                 $query .= " ORDER BY ac.check_date DESC";
                 break;
                 
             default:
-                fputcsv($output, ['Error: Unknown report type'], "\t");
-                fclose($output);
+                echo "Error: Unknown report type";
                 exit;
         }
+
+        $stmt = $this->conn->prepare($query);
+        foreach ($queryParams as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+        header('Content-Disposition: attachment; filename="report_' . $reportType . '_' . date('Y-m-d') . '.xls"');
+
+        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        echo '<head><meta http-equiv="Content-type" content="text/html;charset=utf-8" /></head><body>';
+        echo '<table border="1"><thead><tr>';
+        foreach ($headers as $h) echo '<th style="background-color: #f2f2f2;">' . htmlspecialchars($h) . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ($rows as $row) {
+            echo '<tr>';
+            foreach ($row as $val) echo '<td>' . htmlspecialchars($val ?? '-') . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></body></html>';
+        exit;
+    }
+
+    // Export รายงานการตรวจนับประจำปี พร้อมประวัติแยกรายปีพ.ศ.
+    public function exportAnnualCheckHistory($params = []) {
+        // ดึงปีที่มีการตรวจสอบทั้งหมด
+        $yearQuery = "SELECT DISTINCT YEAR(check_date) as year FROM asset_check ORDER BY year ASC";
+        $yearStmt = $this->conn->prepare($yearQuery);
+        $yearStmt->execute();
+        $years = $yearStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // ตรวจสอบว่ามีปีปัจจุบันอยู่ในรายการหรือไม่ ถ้าไม่มีให้เพิ่มเข้าไป (รองรับปีต่อไป)
+        $currentYear = (int)date('Y');
+        if (!in_array($currentYear, $years)) {
+            $years[] = $currentYear;
+            sort($years);
+        }
+
+        // Build dynamic pivot SQL
+        $yearCols = [];
+        $yearHeaders = [];
+        foreach ($years as $year) {
+            $yearCols[] = "MAX(CASE WHEN YEAR(ac_hist.check_date) = $year THEN ac_hist.check_status ELSE NULL END) as `yr_$year`";
+            $yearHeaders[] = 'ปี ' . ($year + 543);
+        }
+        $yearSqlCols = implode(", ", $yearCols);
+
+        $query = "SELECT 
+                    COALESCE(a.barcode, CONCAT('A', a.asset_id)) as barcode,
+                    a.asset_name,
+                    CONCAT(COALESCE(l.building_name,'ไม่ระบุ'), IF(l.room_number IS NOT NULL, CONCAT(' ห้อง ', l.room_number), '')) as location,
+                    a.status as current_status,
+                    COALESCE(d.department_name, '-') as department_name,
+                    $yearSqlCols
+                 FROM assets a
+                 LEFT JOIN departments d ON a.department_id = d.department_id
+                 LEFT JOIN locations l ON a.location_id = l.location_id
+                 LEFT JOIN asset_check ac_hist ON a.asset_id = ac_hist.asset_id
+                 GROUP BY a.asset_id, a.barcode, a.asset_name, a.status, d.department_name, l.building_name, l.room_number
+                 ORDER BY a.barcode, a.asset_id";
         
         $stmt = $this->conn->prepare($query);
-        
-        if (isset($startDate)) $stmt->bindParam(':start_date', $startDate);
-        if (isset($endDate)) $stmt->bindParam(':end_date', $endDate);
-        
         $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+        header('Content-Disposition: attachment; filename="annual_check_history_' . date('Y-m-d_His') . '.xls"');
+
+        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        echo '<head><meta http-equiv="Content-type" content="text/html;charset=utf-8" /></head><body>';
+        echo '<table border="1"><thead><tr>';
         
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            fputcsv($output, $row, "\t");
+        $headerLabels = array_merge(['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'สถานที่/ห้อง', 'สถานะปัจจุบัน', 'หน่วยงาน'], $yearHeaders);
+        foreach ($headerLabels as $h) echo '<th style="background-color: #f2f2f2;">' . htmlspecialchars($h) . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ($rows as $row) {
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($row['barcode'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($row['asset_name'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($row['location'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($row['current_status'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($row['department_name'] ?? '-') . '</td>';
+            foreach ($years as $year) {
+                echo '<td>' . htmlspecialchars($row['yr_' . $year] ?? '-') . '</td>';
+            }
+            echo '</tr>';
         }
-        
-        fclose($output);
+        echo '</tbody></table></body></html>';
         exit;
     }
 }

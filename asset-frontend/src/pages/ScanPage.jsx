@@ -149,6 +149,8 @@ export default function ScanPage() {
         setScannedAsset(foundAsset);
         setCheckStatus(foundAsset.status || 'ใช้งานได้');
         setRemark('');
+        // อัปเดตช่องกรอกข้อมูลให้เป็นหมายเลขครุภัณฑ์ (Barcode) แทนที่จะเป็น ID
+        setBarcode(foundAsset.barcode || foundAsset.asset_id.toString());
         toast.success('พบครุภัณฑ์');
       } else {
         toast.error('ไม่พบครุภัณฑ์');
@@ -375,7 +377,8 @@ export default function ScanPage() {
           setScannedAsset(foundAsset);
           setCheckStatus(foundAsset.status || 'ใช้งานได้');
           setRemark('');
-          setBarcode(searchId); // ใช้ ID ที่สกัดออกมาได้แทนที่จะเป็น JSON ทั้งก้อน
+          // อัปเดตช่องกรอกข้อมูลให้เป็นหมายเลขครุภัณฑ์ (Barcode) แทนที่จะเป็น ID
+          setBarcode(foundAsset.barcode || foundAsset.asset_id.toString());
           toast.success('สแกน QR Code สำเร็จ - พบครุภัณฑ์');
         } else {
           toast.error('ไม่พบครุภัณฑ์ที่ตรงกับ QR Code: ' + decodedText);
@@ -584,8 +587,8 @@ export default function ScanPage() {
               <div className="flex-1 space-y-4">
                 {/* Asset ID Card */}
                 <div className="bg-gradient-to-br from-primary-500 to-primary-600 p-5 rounded-xl text-white shadow-lg shadow-primary-500/20">
-                  <p className="text-primary-100 text-sm font-medium">รหัสครุภัณฑ์</p>
-                  <p className="text-2xl font-bold mt-1">{scannedAsset.asset_id}</p>
+                  <p className="text-primary-100 text-sm font-medium">หมายเลขครุภัณฑ์</p>
+                  <p className="text-2xl font-bold mt-1">{scannedAsset.barcode || scannedAsset.asset_id}</p>
                 </div>
 
                 {/* Asset Details */}
@@ -785,7 +788,7 @@ export default function ScanPage() {
                   <tr key={index} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-600">{item.check_time}</td>
                     <td className="px-6 py-4">
-                      <span className="text-sm font-mono text-gray-500">#{item.asset_id}</span>
+                      <span className="text-sm font-mono text-gray-500">{item.barcode || item.asset_id}</span>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{item.asset_name}</td>
                     <td className="px-6 py-4">

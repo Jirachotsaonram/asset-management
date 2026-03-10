@@ -255,7 +255,7 @@ export default function BorrowsScreen({ route, navigation }) {
     >
       <View style={styles.borrowItemHeader}>
         <View style={styles.borrowItemLeft}>
-          <Text style={styles.assetId}>{item.asset_id}</Text>
+          <Text style={styles.assetId}>{item.barcode || item.asset_id}</Text>
           <Text style={styles.assetName} numberOfLines={1}>
             {item.asset_name}
           </Text>
@@ -423,7 +423,7 @@ export default function BorrowsScreen({ route, navigation }) {
                   </View>
 
                   <Text style={styles.modalAssetName}>{selectedBorrow.asset_name}</Text>
-                  <Text style={styles.modalAssetId}>{selectedBorrow.asset_id}</Text>
+                  <Text style={styles.modalAssetId}>{selectedBorrow.barcode || selectedBorrow.asset_id}</Text>
 
                   <View style={styles.modalBadgeContainer}>
                     <Text style={styles.modalBadgeLabel}>BORROW DETAILS</Text>
@@ -432,7 +432,7 @@ export default function BorrowsScreen({ route, navigation }) {
                   <View style={styles.infoGrid}>
                     <View style={styles.infoItem}>
                       <Text style={styles.infoLabel}>รหัสครุภัณฑ์</Text>
-                      <Text style={styles.infoValue}>{selectedBorrow.asset_id}</Text>
+                      <Text style={styles.infoValue}>{selectedBorrow.barcode || selectedBorrow.asset_id}</Text>
                     </View>
 
                     <View style={styles.infoItem}>
@@ -524,7 +524,7 @@ export default function BorrowsScreen({ route, navigation }) {
                 <Ionicons name="cube" size={24} color="#2563EB" />
                 <View>
                   <Text style={styles.assetMiniName} numberOfLines={1}>{selectedAsset?.asset_name}</Text>
-                  <Text style={styles.assetMiniId}>{selectedAsset?.asset_id}</Text>
+                  <Text style={styles.assetMiniId}>{selectedAsset?.barcode || selectedAsset?.asset_id}</Text>
                 </View>
               </View>
 

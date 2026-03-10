@@ -40,6 +40,19 @@ export const API_BASE_URL = __DEV__
   ? DEV_API_URL
   : 'http://202.44.47.45/asset-management/asset_management_api';
 
+// IP เริ่มต้นที่ใช้แสดงในช่อง Settings ของ Login
+export const DEFAULT_SERVER_IP = YOUR_IP_ADDRESS;
+
+// ฟังก์ชันสร้าง URL จาก IP ที่ผู้ใช้กำหนด
+export const buildApiUrl = (ip) => {
+  // หาก ip เป็น URL เต็ม (มี http) ให้ใช้โดยตรง
+  if (ip.startsWith('http://') || ip.startsWith('https://')) {
+    return ip.endsWith('/') ? ip.slice(0, -1) : ip;
+  }
+  // ไม่งั้นสร้าง URL มาตรฐาน
+  return `http://${ip}/asset-management/asset_management_api`;
+};
+
 export const ASSET_STATUS = {
   AVAILABLE: 'ใช้งานได้',
   MAINTENANCE: 'รอซ่อม',

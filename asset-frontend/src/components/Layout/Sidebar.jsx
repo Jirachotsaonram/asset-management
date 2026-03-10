@@ -12,6 +12,7 @@ import {
   History,
   Upload,
   ClipboardList,
+  CalendarCheck,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -32,7 +33,8 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
 
   // เมนูสำหรับ Inspector และ Admin
   const inspectorMenuItems = [
-    { path: '/check', label: 'ตรวจสอบ', icon: CheckSquare, section: 'management' },
+    { path: '/annual-check', label: 'การตรวจสอบประจำปี', icon: CalendarCheck, section: 'management' },
+    { path: '/check', label: 'ตรวจสอบรายห้อง', icon: CheckSquare, section: 'management' },
     { path: '/locations', label: 'สถานที่', icon: MapPin, section: 'management' },
     { path: '/borrows', label: 'ยืม-คืน', icon: ClipboardList, section: 'management' },
     { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: History, section: 'management' },

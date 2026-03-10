@@ -1,207 +1,288 @@
-import { useState } from 'react';
-import { X, Download } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Download, FileText, Tag, Check, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
+import JsBarcode from 'jsbarcode';
 
-export default function BulkQRGenerator({ assets, onClose }) {
+export default function BulkQRGenerator({ assets, onClose, onClear }) {
   const [generating, setGenerating] = useState(false);
+  const [printStyle, setPrintStyle] = useState('detailed');
+
+  const getFiscalYear = (dateStr) => {
+    if (!dateStr) return '-';
+    try {
+      const date = new Date(dateStr);
+      const year = date.getFullYear() + 543;
+      const month = date.getMonth() + 1;
+      return month >= 10 ? year + 1 : year;
+    } catch (e) { return '-'; }
+  };
+
+  // Helper สำหรับวาดข้อความภาษาไทยเป็นรูปภาพ (Render Thai as Image to avoid font issues in jsPDF)
+  const drawThaiText = (text, fontSize = 10, isBold = false) => {
+    if (!text) return null;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const scale = 5; // เพิ่มความละเอียดเพื่อความคมชัด
+    const fontName = '"Sarabun", "Tahoma", "leelawadee", "sans-serif"';
+    ctx.font = `${isBold ? 'bold' : ''} ${fontSize * scale}px ${fontName}`;
+
+    const metrics = ctx.measureText(text);
+    const textWidth = metrics.width;
+    const textHeight = fontSize * scale * 1.4;
+
+    canvas.width = textWidth + 10;
+    canvas.height = textHeight;
+
+    // ต้องเซ็ต font ใหม่หลังจาก resize canvas
+    ctx.font = `${isBold ? 'bold' : ''} ${fontSize * scale}px ${fontName}`;
+    ctx.fillStyle = 'black';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, canvas.height / 2);
+
+    // แปลงกลับเป็น mm (1mm ~= 3.78px ที่ 96dpi)
+    // แต่เราสเกลไว้ 5 เท่า ดังนั้นหารสเกลออกด้วย
+    return {
+      dataUrl: canvas.toDataURL('image/png'),
+      w: (canvas.width / scale) / 3.78,
+      h: (canvas.height / scale) / 3.78
+    };
+  };
 
   const generatePDF = async () => {
     setGenerating(true);
 
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      // ขนาด QR Code (mm)
-      const qrSize = 40;
       const margin = 10;
-      const cols = 4; // 4 คอลัมน์
-      const rows = 6; // 6 แถว
-      const spacing = 5;
 
-      let currentPage = 0;
-      let currentRow = 0;
-      let currentCol = 0;
+      if (printStyle === 'detailed') {
+        const cardWidth = 90;
+        const cardHeight = 45;
+        const cols = 2;
+        const rowsPerPage = 6;
+        const spacingX = 5;
+        const spacingY = 2;
 
-      for (let i = 0; i < assets.length; i++) {
-        const asset = assets[i];
+        for (let i = 0; i < assets.length; i++) {
+          const asset = assets[i];
+          if (i > 0 && i % (cols * rowsPerPage) === 0) pdf.addPage();
 
-        // คำนวณตำแหน่ง
-        const x = margin + currentCol * (qrSize + spacing);
-        const y = margin + currentRow * (qrSize + spacing + 10);
+          const col = i % cols;
+          const row = Math.floor(i / cols) % rowsPerPage;
+          const x = margin + col * (cardWidth + spacingX);
+          const y = margin + row * (cardHeight + spacingY);
 
-        // ถ้าเกินหน้า
-        if (currentRow >= rows) {
-          pdf.addPage();
-          currentPage++;
-          currentRow = 0;
-          currentCol = 0;
+          pdf.setDrawColor(200);
+          pdf.roundedRect(x, y, cardWidth, cardHeight, 2, 2, 'S');
+
+          // Barcode scaling improvements - more aggressive for long values
+          const barcodeValue = asset.barcode || `${asset.asset_id}`;
+          const textLength = barcodeValue.length;
+          let dynamicWidth = 2;
+          if (textLength > 12) dynamicWidth = 1.6;
+          if (textLength > 18) dynamicWidth = 1.3;
+          if (textLength > 24) dynamicWidth = 1.0;
+          if (textLength > 30) dynamicWidth = 0.8;
+          if (textLength > 40) dynamicWidth = 0.6;
+
+          const canvas = document.createElement('canvas');
+          JsBarcode(canvas, barcodeValue, {
+            format: 'CODE128',
+            width: dynamicWidth,
+            height: 50,
+            displayValue: true,
+            fontSize: 16, // ขยับขนาดตัวอักษรใต้บาร์โค้ด
+            margin: 5,
+            textMargin: 2
+          });
+          const imgBarcode = canvas.toDataURL('image/png');
+
+          // กำหนดความกว้างสูงสุดของบาร์โค้ดไม่ให้ล้น
+          const maxBarcodeW = cardWidth - 10;
+          const barcodeImgProps = pdf.getImageProperties(imgBarcode);
+          const barcodeDisplayW = Math.min(65, maxBarcodeW);
+          const barcodeDisplayH = barcodeImgProps.height * (barcodeDisplayW / barcodeImgProps.width);
+
+          pdf.addImage(imgBarcode, 'PNG', x + (cardWidth - barcodeDisplayW) / 2, y + 2, barcodeDisplayW, barcodeDisplayH);
+
+          // ชื่อครุภัณฑ์ (Thai Image) - จัดกึ่งกลางเสมอ
+          const nameImg = drawThaiText(asset.asset_name, 11, true);
+          if (nameImg) {
+            const finalW = Math.min(nameImg.w, cardWidth - 10);
+            const finalH = nameImg.h * (finalW / nameImg.w);
+            pdf.addImage(nameImg.dataUrl, 'PNG', x + (cardWidth - finalW) / 2, y + 20, finalW, finalH);
+          }
+
+          pdf.setFontSize(9);
+          let currentY = y + 28;
+
+          // ราคา
+          const priceText = `ราคา: ${asset.price ? Number(asset.price).toLocaleString('th-TH') : '0'} บาท`;
+          const priceImg = drawThaiText(priceText, 10);
+          if (priceImg) pdf.addImage(priceImg.dataUrl, 'PNG', x + 5, currentY, priceImg.w, priceImg.h);
+
+          currentY += 5;
+          const fiscalText = `ปีงบประมาณ: ${getFiscalYear(asset.received_date)}`;
+          const fiscalImg = drawThaiText(fiscalText, 10);
+          if (fiscalImg) pdf.addImage(fiscalImg.dataUrl, 'PNG', x + 5, currentY, fiscalImg.w, fiscalImg.h);
+
+          // เอา "คณะ" หรือ "หน่วยงาน" ออกตามที่ผู้ใช้แจ้ง
         }
+      } else {
+        const barcodeWidth = 55;
+        const barcodeHeight = 22;
+        const cols = 3;
+        const rowsPerPage = 10;
+        const spacingX = 8;
+        const spacingY = 10;
 
-        // สร้าง QR Code โดยใช้ QRCodeCanvas component
-        const qrData = JSON.stringify({
-          id: asset.asset_id,
-          name: asset.asset_name,
-          barcode: asset.barcode,
-          status: asset.status,
-          dept: asset.department_name,
-          faculty: asset.faculty_name,
-          price: asset.price,
-          date: asset.received_date
-        });
+        for (let i = 0; i < assets.length; i++) {
+          const asset = assets[i];
+          if (i > 0 && i % (cols * rowsPerPage) === 0) pdf.addPage();
 
-        // สร้าง container ชั่วคราวสำหรับ QR Code
-        const tempDiv = document.createElement('div');
-        tempDiv.id = `qr-temp-${i}-${Date.now()}`;
-        tempDiv.style.position = 'fixed';
-        tempDiv.style.left = '-9999px';
-        tempDiv.style.top = '-9999px';
-        tempDiv.style.width = '200px';
-        tempDiv.style.height = '200px';
-        document.body.appendChild(tempDiv);
+          const col = i % cols;
+          const row = Math.floor(i / cols) % rowsPerPage;
+          const x = margin + col * (barcodeWidth + spacingX);
+          const y = margin + row * (barcodeHeight + spacingY);
 
-        // สร้าง QRCodeCanvas โดยใช้ React
-        const { createRoot } = await import('react-dom/client');
-        const React = await import('react');
+          // Barcode Tag Only
+          const barcodeValue = asset.barcode || `${asset.asset_id}`;
+          const textLength = barcodeValue.length;
+          let dynamicWidth = 2;
+          if (textLength > 12) dynamicWidth = 1.5;
+          if (textLength > 20) dynamicWidth = 1.0;
+          if (textLength > 30) dynamicWidth = 0.7;
 
-        const qrElement = React.createElement(QRCodeCanvas, {
-          value: qrData,
-          size: 200,
-          level: 'H',
-          includeMargin: false
-        });
+          const canvas = document.createElement('canvas');
+          JsBarcode(canvas, barcodeValue, {
+            format: 'CODE128', width: dynamicWidth, height: 60, displayValue: true, fontSize: 18, margin: 5
+          });
+          const imgBarcode = canvas.toDataURL('image/png');
 
-        const root = createRoot(tempDiv);
-        root.render(qrElement);
+          // จัดบาร์โค้ดให้พอดีช่อง
+          const barcodeImgProps = pdf.getImageProperties(imgBarcode);
+          const bW = Math.min(barcodeWidth, barcodeWidth);
+          const bH = barcodeImgProps.height * (bW / barcodeImgProps.width);
+          pdf.addImage(imgBarcode, 'PNG', x, y, bW, bH);
 
-        // รอให้ render เสร็จ
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        // ดึง canvas จาก QRCodeCanvas
-        const qrCanvas = tempDiv.querySelector('canvas');
-        if (!qrCanvas) {
-          root.unmount();
-          document.body.removeChild(tempDiv);
-          throw new Error('ไม่สามารถสร้าง QR Code ได้');
-        }
-
-        // แปลง canvas เป็นรูปภาพ
-        const imgData = qrCanvas.toDataURL('image/png');
-
-        // ลบ element ชั่วคราว
-        root.unmount();
-        document.body.removeChild(tempDiv);
-
-        // วาด QR Code ลง PDF
-        pdf.addImage(imgData, 'PNG', x, y, qrSize, qrSize);
-
-        // เขียนข้อความใต้ QR
-        pdf.setFontSize(8);
-        pdf.text(asset.asset_name.substring(0, 20), x, y + qrSize + 4, {
-          maxWidth: qrSize
-        });
-        pdf.setFontSize(7);
-        pdf.text(`ID: ${asset.asset_id}`, x, y + qrSize + 8);
-
-        // เลื่อนตำแหน่ง
-        currentCol++;
-        if (currentCol >= cols) {
-          currentCol = 0;
-          currentRow++;
+          // ชื่อครุภัณฑ์ (จัดกลางเสมอ - Standard Font)
+          const nameImg = drawThaiText(asset.asset_name, 10, true);
+          if (nameImg) {
+            const finalW = Math.min(nameImg.w, barcodeWidth);
+            const finalH = nameImg.h * (finalW / nameImg.w);
+            pdf.addImage(nameImg.dataUrl, 'PNG', x + (barcodeWidth - finalW) / 2, y + bH + 1, finalW, finalH);
+          }
         }
       }
 
-      // บันทึก PDF
-      pdf.save('QR_Codes_All.pdf');
+      pdf.save(`Assets_Barcodes.pdf`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+      console.error('PDF Error:', error);
+      alert('เกิดข้อผิดพลาดในการสร้าง PDF: ' + error.message);
     } finally {
       setGenerating(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">สร้าง QR Code ทั้งหมด ({assets.length} รายการ)</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="w-6 h-6" />
-          </button>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="px-8 py-5 flex justify-between items-center bg-white border-b">
+          <div>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">พิมพ์บาร์โค้ด ({assets.length})</h2>
+            <p className="text-gray-500 text-sm font-medium mt-0.5">เลือกรูปแบบการพิมพ์ที่ต้องการ</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.confirm('ต้องการล้างรายการที่รอพิมพ์ทั้งหมดหรือไม่?')) {
+                  onClear();
+                  onClose();
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-bold"
+            >
+              <Trash2 size={16} /> ล้างรายการ
+            </button>
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
-        <div className="p-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-blue-900 mb-2">ข้อมูล:</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• จำนวนครุภัณฑ์: {assets.length} รายการ</li>
-              <li>• จำนวนหน้า: {Math.ceil(assets.length / 24)} หน้า (24 QR/หน้า)</li>
-              <li>• ขนาดกระดาษ: A4</li>
-              <li>• รูปแบบ: 4 คอลัมน์ x 6 แถว</li>
-            </ul>
-          </div>
-
-          {/* Preview Grid */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3">ตัวอย่าง QR Code:</h3>
-            <div className="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto p-4 bg-gray-50 rounded-lg">
-              {assets.slice(0, 12).map((asset) => {
-                const qrData = JSON.stringify({
-                  id: asset.asset_id,
-                  name: asset.asset_name,
-                  barcode: asset.barcode,
-                  status: asset.status,
-                  dept: asset.department_name,
-                  faculty: asset.faculty_name,
-                  price: asset.price,
-                  date: asset.received_date
-                });
-
-                return (
-                  <div key={asset.asset_id} className="text-center">
-                    <QRCodeCanvas
-                      value={qrData}
-                      size={100}
-                      level="H"
-                    />
-                    <p className="text-xs mt-1 truncate">{asset.asset_name}</p>
-                    <p className="text-xs text-gray-500">ID: {asset.asset_id}</p>
-                  </div>
-                );
-              })}
+        <div className="p-8 overflow-y-auto bg-gray-50/50 flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div
+              onClick={() => setPrintStyle('detailed')}
+              className={`relative p-6 rounded-2xl cursor-pointer transition-all border-2 flex flex-col gap-4 ${printStyle === 'detailed' ? 'bg-blue-50 border-blue-500 ring-4 ring-blue-500/10' : 'bg-white border-gray-200 hover:border-gray-300'
+                }`}
+            >
+              {printStyle === 'detailed' && <div className="absolute top-4 right-4 bg-blue-500 text-white p-1 rounded-full"><Check size={16} /></div>}
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${printStyle === 'detailed' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                <FileText size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">แบบต้นขั้ว (Detailed)</h3>
+                <p className="text-sm text-gray-500">ข้อมูลครบพร้อมชื่อหน่วยงาน (2 คอลัมน์)</p>
+              </div>
             </div>
-            {assets.length > 12 && (
-              <p className="text-sm text-gray-500 text-center mt-2">
-                ... และอีก {assets.length - 12} รายการ
-              </p>
-            )}
+
+            <div
+              onClick={() => setPrintStyle('simple')}
+              className={`relative p-6 rounded-2xl cursor-pointer transition-all border-2 flex flex-col gap-4 ${printStyle === 'simple' ? 'bg-blue-50 border-blue-500 ring-4 ring-blue-500/10' : 'bg-white border-gray-200 hover:border-gray-300'
+                }`}
+            >
+              {printStyle === 'simple' && <div className="absolute top-4 right-4 bg-blue-500 text-white p-1 rounded-full"><Check size={16} /></div>}
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${printStyle === 'simple' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                <Tag size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">แบบติดพัสดุ (Tag Only)</h3>
+                <p className="text-sm text-gray-500">บาร์โค้ดขนาดมาตรฐาน (3 คอลัมน์)</p>
+              </div>
+            </div>
           </div>
 
-          {/* ปุ่มดำเนินการ */}
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={onClose}
-              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-            >
-              ยกเลิก
-            </button>
-            <button
-              onClick={generatePDF}
-              disabled={generating}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-5 h-5" />
-              <span>{generating ? 'กำลังสร้าง...' : 'ดาวน์โหลด PDF'}</span>
-            </button>
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">ตัวอย่างรายการ</h4>
+            <div className="flex flex-wrap gap-4">
+              {assets.slice(0, 10).map((asset) => (
+                <div key={asset.asset_id} className="p-2 bg-gray-50 rounded-lg border border-gray-100 w-28 flex flex-col items-center">
+                  <BarcodePreview value={asset.barcode || `A${asset.asset_id}`} />
+                  <p className="text-[9px] font-bold text-gray-800 mt-1 truncate w-full text-center">{asset.asset_name}</p>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+
+        <div className="px-8 py-6 bg-white border-t flex justify-end gap-3">
+          <button onClick={onClose} className="px-8 py-3 text-gray-600 font-bold hover:bg-gray-50 rounded-2xl transition-all">
+            ยกเลิก
+          </button>
+          <button
+            onClick={generatePDF}
+            disabled={generating}
+            className={`px-10 py-3 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/25 hover:bg-blue-700 transition-all flex items-center gap-3 ${generating ? 'opacity-50' : ''}`}
+          >
+            {generating ? <span>กำลังสร้าง...</span> : <><Download size={22} /><span>ดาวน์โหลด PDF</span></>}
+          </button>
         </div>
       </div>
     </div>
   );
+}
+
+function BarcodePreview({ value }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (canvasRef.current) {
+      try {
+        JsBarcode(canvasRef.current, value, {
+          format: 'CODE128', width: 1, height: 35, displayValue: true, fontSize: 10, background: '#ffffff', margin: 2
+        });
+      } catch (e) { }
+    }
+  }, [value]);
+  return <canvas ref={canvasRef} className="max-w-full h-auto"></canvas>;
 }

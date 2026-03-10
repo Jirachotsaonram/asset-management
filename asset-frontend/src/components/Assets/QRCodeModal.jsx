@@ -8,7 +8,7 @@ import JsBarcode from 'jsbarcode';
 export default function QRCodeModal({ asset, onClose }) {
   const qrRef = useRef();
   const barcodeRef = useRef();
-  const [mode, setMode] = useState('qr'); // 'qr' หรือ 'barcode'
+  const [mode, setMode] = useState('barcode'); // 'qr' หรือ 'barcode'
 
   // ข้อมูลที่จะใส่ใน QR Code
   const qrData = JSON.stringify({
@@ -40,12 +40,20 @@ export default function QRCodeModal({ asset, onClose }) {
   useEffect(() => {
     if (mode === 'barcode' && barcodeRef.current) {
       try {
+        // ปรับความกว้างของแท่งบาร์โค้ดให้แคบลงอย่างเต็มที่สำหรับรหัสที่ยาว
+        const textLength = barcodeData.length;
+        let dynamicWidth = 2;
+        if (textLength > 15) dynamicWidth = 1.5;
+        if (textLength > 25) dynamicWidth = 1.2;
+        if (textLength > 35) dynamicWidth = 1;
+        if (textLength > 45) dynamicWidth = 0.8;
+
         JsBarcode(barcodeRef.current, barcodeData, {
           format: 'CODE128',
-          width: 2,
-          height: 80,
+          width: dynamicWidth,
+          height: 100, // เพิ่มความสูงเล็กน้อยเพื่อให้สแกนได้ง่ายขึ้น
           displayValue: true,
-          fontSize: 14,
+          fontSize: 16,
           margin: 10,
           background: '#ffffff'
         });
@@ -103,7 +111,7 @@ export default function QRCodeModal({ asset, onClose }) {
             .info-text { margin: 2px 0; font-size: 11px; color: #000; text-align: left; }
             .label { font-weight: bold; }
             .qr-image { width: 140px; height: 140px; }
-            .barcode-image { width: 250px; }
+            .barcode-image { width: 280px; }
             @media print { 
               .no-print { display: none; }
               body { min-height: auto; }
@@ -126,7 +134,6 @@ export default function QRCodeModal({ asset, onClose }) {
             <p class="info-text"><span class="label">ปีงบประมาณ:</span> ${getFiscalYear(asset.received_date)}</p>
             
             <!-- 5. หน่วยงาน/คณะ -->
-            <p class="info-text"><span class="label">หน่วยงาน:</span> ${asset.department_name || '-'}</p>
             <p class="info-text"><span class="label">คณะ:</span> ${asset.faculty_name || '-'}</p>
           </div>
           <div class="no-print" style="margin-top: 20px;">
@@ -182,18 +189,21 @@ export default function QRCodeModal({ asset, onClose }) {
           </div>
 
           {/* QR Code / Barcode Display */}
-          <div className="flex justify-center mb-5 bg-white p-4 rounded-xl border-2 border-gray-200 min-h-[200px] items-center">
+          <div className="flex justify-center mb-5 bg-white p-4 rounded-xl border-2 border-gray-200 min-h-[200px] items-center overflow-hidden">
             {mode === 'qr' ? (
-              <div ref={qrRef}>
+              <div ref={qrRef} className="max-w-full">
                 <QRCodeCanvas
                   value={qrData}
                   size={220}
                   level="H"
                   includeMargin={true}
+                  style={{ maxWidth: '100%', height: 'auto' }}
                 />
               </div>
             ) : (
-              <canvas ref={barcodeRef}></canvas>
+              <div className="max-w-full overflow-hidden flex justify-center">
+                <canvas ref={barcodeRef} style={{ maxWidth: '100%', height: 'auto' }}></canvas>
+              </div>
             )}
           </div>
 

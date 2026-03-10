@@ -1,5 +1,4 @@
 // FILE: src/components/Assets/AssetForm.jsx
-// เพิ่ม field ใหม่: fund_code, plan_code, project_code, faculty_name, delivery_number, room_text
 import { useState, useEffect } from "react";
 import { X, Plus, ChevronDown, ChevronRight, ClipboardList, Tag, MapPin, FileText } from "lucide-react";
 import api from "../../services/api";
@@ -7,30 +6,32 @@ import toast from "react-hot-toast";
 import { ASSET_STATUS } from "../../utils/constants";
 
 export default function AssetForm({ asset, onClose, onSuccess }) {
+  const [loading, setLoading] = useState(false);
+  const [addMore, setAddMore] = useState(false);
+
   const [formData, setFormData] = useState({
-    asset_name: "",
-    serial_number: "",
-    quantity: 1,
-    unit: "เครื่อง",
-    price: "",
-    received_date: new Date().toISOString().split("T")[0],
-    department_id: "",
-    location_id: "",
-    room_text: "",
-    status: "ใช้งานได้",
-    barcode: "",
-    description: "",
-    reference_number: "",
-    fund_code: "",
-    plan_code: "",
-    project_code: "",
-    faculty_name: "",
-    delivery_number: "",
+    asset_name: asset?.asset_name || "",
+    serial_number: asset?.serial_number || "",
+    quantity: asset?.quantity || 1,
+    unit: asset?.unit || "เครื่อง",
+    price: asset?.price || "",
+    received_date: asset?.received_date || new Date().toISOString().split("T")[0],
+    department_id: asset?.department_id || "",
+    location_id: asset?.location_id || "",
+    room_text: asset?.room_text || "",
+    status: asset?.status || "ใช้งานได้",
+    barcode: asset?.barcode || "",
+    description: asset?.description || "",
+    reference_number: asset?.reference_number || "",
+    faculty_name: asset?.faculty_name || "คณะเทคโนโลยีสารสนเทศ",
+    delivery_number: asset?.delivery_number || "",
+    fund_code: asset?.fund_code || "",
+    plan_code: asset?.plan_code || "",
+    project_code: asset?.project_code || "",
   });
 
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showDepartmentForm, setShowDepartmentForm] = useState(false);
   const [departmentFormData, setDepartmentFormData] = useState({ department_name: "" });
   const [addingDepartment, setAddingDepartment] = useState(false);
@@ -44,40 +45,12 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
   useEffect(() => {
     fetchDepartments();
     fetchLocations();
-
-    if (asset) {
-      setFormData({
-        asset_name: asset.asset_name || "",
-        serial_number: asset.serial_number || "",
-        quantity: asset.quantity || 1,
-        unit: asset.unit || "เครื่อง",
-        price: asset.price || "",
-        received_date: asset.received_date || "",
-        department_id: asset.department_id || "",
-        location_id: asset.location_id || "",
-        room_text: asset.room_text || "",
-        status: asset.status || "ใช้งานได้",
-        barcode: asset.barcode || "",
-        description: asset.description || "",
-        reference_number: asset.reference_number || "",
-        fund_code: asset.fund_code || "",
-        plan_code: asset.plan_code || "",
-        project_code: asset.project_code || "",
-        faculty_name: asset.faculty_name || "",
-        delivery_number: asset.delivery_number || "",
-      });
-    }
   }, [asset]);
-
-  const formatLocation = (loc) => {
-    if (!loc) return "";
-    return `${loc.building_name || ""} ชั้น ${loc.floor || "-"} ห้อง ${loc.room_number || "-"}`;
-  };
 
   const fetchDepartments = async () => {
     try {
       const response = await api.get("/departments");
-      setDepartments(response.data.data);
+      setDepartments(response.data.data || []);
     } catch (error) {
       console.error("Error fetching departments:", error);
     }
@@ -86,15 +59,68 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
   const fetchLocations = async () => {
     try {
       const response = await api.get("/locations");
-      setLocations(response.data.data);
+      setLocations(response.data.data || []);
     } catch (error) {
       console.error("Error fetching locations:", error);
     }
   };
 
+  const formatLocation = (loc) => {
+    if (!loc) return "";
+    return `${loc.building_name || ""} ชั้น ${loc.floor || "-"} ห้อง ${loc.room_number || "-"}`;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const payload = { ...formData };
+      if (!payload.barcode) {
+        payload.barcode = `BAR${Date.now()}`;
+      }
+
+      let response;
+      if (asset) {
+        response = await api.put(`/assets/${asset.asset_id}`, payload);
+      } else {
+        response = await api.post("/assets", payload);
+      }
+
+      if (response.data.success) {
+        toast.success(asset ? "อัปเดตข้อมูลสำเร็จ" : "เพิ่มครุภัณฑ์สำเร็จ");
+
+        const newAssetData = response.data.data?.asset || { ...payload, asset_id: response.data.data?.asset_id };
+
+        if (onSuccess) {
+          onSuccess(newAssetData);
+        }
+
+        if (addMore && !asset) {
+          // Reset form but keep location/dept/faculty context
+          setFormData(prev => ({
+            ...prev,
+            asset_name: "",
+            serial_number: "",
+            price: "",
+            barcode: "",
+            description: "",
+            delivery_number: "",
+          }));
+        } else {
+          onClose();
+        }
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "เกิดข้อผิดพลาด");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddDepartment = async (e) => {
@@ -118,42 +144,6 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      if (asset) {
-        const oldLocationId = asset.location_id;
-        const newLocationId = formData.location_id;
-        await api.put(`/assets/${asset.asset_id}`, formData);
-        if (oldLocationId && newLocationId && oldLocationId !== newLocationId) {
-          try {
-            await api.post("/history", {
-              asset_id: asset.asset_id,
-              old_location_id: oldLocationId,
-              new_location_id: newLocationId,
-              move_date: new Date().toISOString().split("T")[0],
-              remark: "แก้ไขสถานที่ผ่านหน้าจัดการครุภัณฑ์",
-            });
-          } catch (historyError) {
-            console.error("ไม่สามารถบันทึกประวัติได้:", historyError);
-          }
-        }
-        toast.success("แก้ไขครุภัณฑ์สำเร็จ");
-      } else {
-        const dataToSend = { ...formData, barcode: formData.barcode || `QR${Date.now()}` };
-        await api.post("/assets", dataToSend);
-        toast.success("เพิ่มครุภัณฑ์สำเร็จ");
-      }
-      onSuccess();
-      onClose();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "เกิดข้อผิดพลาด");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
@@ -162,7 +152,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     <button
       type="button"
       onClick={() => toggleSection(id)}
-      className="w-full flex items-center justify-between py-3 text-left"
+      className="w-full flex items-center justify-between py-3 text-left border-b border-gray-100 mb-2"
     >
       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
         {icon}
@@ -173,7 +163,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
           <div>
@@ -187,220 +177,201 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-1">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* ==================== ข้อมูลพื้นฐาน ==================== */}
-          <SectionHeader id="basic" title="ข้อมูลพื้นฐาน" icon={<ClipboardList size={18} className="text-blue-600" />} />
-          {expandedSections.basic && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ชื่อครุภัณฑ์ <span className="text-red-500">*</span>
-                </label>
-                <input type="text" name="asset_name" value={formData.asset_name} onChange={handleChange} required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น เครื่องคอมพิวเตอร์ Dell Optiplex" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
-                <input type="text" name="serial_number" value={formData.serial_number} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="SN123456789" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Barcode/QR Code</label>
-                <input type="text" name="barcode" value={formData.barcode} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="QR001234567" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">จำนวน <span className="text-red-500">*</span></label>
-                <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required min="1"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">หน่วยนับ</label>
-                <select name="unit" value={formData.unit} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="เครื่อง">เครื่อง</option>
-                  <option value="ชุด">ชุด</option>
-                  <option value="อัน">อัน</option>
-                  <option value="ตัว">ตัว</option>
-                  <option value="ชิ้น">ชิ้น</option>
-                  <option value="หลัง">หลัง</option>
-                  <option value="คัน">คัน</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ราคา (บาท)</label>
-                <input type="number" name="price" value={formData.price} onChange={handleChange} step="0.01"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="25000.00" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">วันที่ตรวจรับ</label>
-                <input type="date" name="received_date" value={formData.received_date} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
-                <select name="status" value={formData.status} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  {Object.values(ASSET_STATUS).map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
-
-          {/* ==================== รหัสงบประมาณ ==================== */}
-          <SectionHeader id="codes" title="รหัสงบประมาณ" icon={<Tag size={18} className="text-purple-600" />} />
-          {expandedSections.codes && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 border-b border-gray-100">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">รหัสกองทุน (Fund Code)</label>
-                <input type="text" name="fund_code" value={formData.fund_code} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น 1100" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">รหัสแผน (Plan Code)</label>
-                <input type="text" name="plan_code" value={formData.plan_code} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น P2568001" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">รหัสโครงการ (Project Code)</label>
-                <input type="text" name="project_code" value={formData.project_code} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น PRJ-2568-001" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">คณะ/หน่วยงาน (Faculty)</label>
-                <input type="text" name="faculty_name" value={formData.faculty_name} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น คณะเทคโนโลยีสารสนเทศ" />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">เลขที่ใบส่งของ (Delivery Number)</label>
-                <input type="text" name="delivery_number" value={formData.delivery_number} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น DLV-2568-001" />
-              </div>
-            </div>
-          )}
-
-          {/* ==================== สถานที่ ==================== */}
-          <SectionHeader id="location" title="สถานที่และหน่วยงาน" icon={<MapPin size={18} className="text-red-600" />} />
-          {expandedSections.location && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">หน่วยงาน</label>
-                <div className="flex gap-2">
-                  <select name="department_id" value={formData.department_id} onChange={handleChange}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">-- เลือกหน่วยงาน --</option>
-                    {departments.map((dept) => (
-                      <option key={dept.department_id} value={dept.department_id}>{dept.department_name}</option>
-                    ))}
-                  </select>
-                  <button type="button" onClick={() => setShowDepartmentForm(true)}
-                    className="px-3 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center gap-1"
-                    title="เพิ่มหน่วยงานใหม่">
-                    <Plus className="w-4 h-4" />
-                  </button>
+          <div>
+            <SectionHeader id="basic" title="ข้อมูลพื้นฐาน" icon={<ClipboardList size={18} className="text-blue-600" />} />
+            {expandedSections.basic && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อครุภัณฑ์ *</label>
+                  <input type="text" name="asset_name" value={formData.asset_name} onChange={handleChange} required
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="เช่น เครื่องคอมพิวเตอร์ Dell" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+                  <input type="text" name="serial_number" value={formData.serial_number} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="SN123456789" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">หมายเลขบาร์โค้ด</label>
+                  <input type="text" name="barcode" value={formData.barcode} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="ปล่อยว่างเพื่อสร้างอัตโนมัติ" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">จำนวน *</label>
+                  <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required min="1"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">ราคา (บาท)</label>
+                  <input type="number" name="price" value={formData.price} onChange={handleChange} step="0.01"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
+            )}
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">สถานที่ (อาคาร/ชั้น/ห้อง)</label>
-                <select name="location_id" value={formData.location_id} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="">-- เลือกสถานที่ --</option>
-                  {locations.map((loc) => (
-                    <option key={loc.location_id} value={loc.location_id}>{formatLocation(loc)}</option>
-                  ))}
-                </select>
+          {/* ==================== รหัสงบประมาณ ==================== */}
+          <div>
+            <SectionHeader id="codes" title="รหัสงบประมาณ" icon={<Tag size={18} className="text-purple-600" />} />
+            {expandedSections.codes && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">รหัสกองทุน (Fund Code)</label>
+                  <input type="text" name="fund_code" value={formData.fund_code} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">รหัสแผน (Plan Code)</label>
+                  <input type="text" name="plan_code" value={formData.plan_code} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">รหัสโครงการ (Project Code)</label>
+                  <input type="text" name="project_code" value={formData.project_code} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">เลขที่ใบส่งของ</label>
+                  <input type="text" name="delivery_number" value={formData.delivery_number} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
               </div>
+            )}
+          </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">ห้อง (ข้อความ)</label>
-                <input type="text" name="room_text" value={formData.room_text} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="ระบุห้อง (กรณีไม่มีในรายการ)" />
+          {/* ==================== สถานที่ ==================== */}
+          <div>
+            <SectionHeader id="location" title="สถานที่และหน่วยงาน" icon={<MapPin size={18} className="text-red-600" />} />
+            {expandedSections.location && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">หน่วยงาน</label>
+                  <div className="flex gap-2">
+                    <select name="department_id" value={formData.department_id} onChange={handleChange}
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500">
+                      <option value="">-- เลือกหน่วยงาน --</option>
+                      {departments.map((dept) => (
+                        <option key={dept.department_id} value={dept.department_id}>{dept.department_name}</option>
+                      ))}
+                    </select>
+                    <button type="button" onClick={() => setShowDepartmentForm(true)}
+                      className="px-3 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">สถานที่</label>
+                  <select name="location_id" value={formData.location_id} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- เลือกสถานที่ --</option>
+                    {locations.map((loc) => (
+                      <option key={loc.location_id} value={loc.location_id}>{formatLocation(loc)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">ห้อง (ข้อความ)</label>
+                  <input type="text" name="room_text" value={formData.room_text} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* ==================== รายละเอียดเพิ่มเติม ==================== */}
-          <SectionHeader id="details" title="รายละเอียดเพิ่มเติม" icon={<FileText size={18} className="text-orange-600" />} />
-          {expandedSections.details && (
-            <div className="grid grid-cols-1 gap-4 pb-4 border-b border-gray-100">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">คุณสมบัติและรายละเอียด</label>
-                <textarea name="description" value={formData.description} onChange={handleChange} rows="3"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น คุณสมบัติ : ทำด้วยเหล็ก ขนาด 700x350x700 มม." />
+          <div>
+            <SectionHeader id="details" title="รายละเอียดเพิ่มเติม" icon={<FileText size={18} className="text-orange-600" />} />
+            {expandedSections.details && (
+              <div className="grid grid-cols-1 gap-4 pb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">คุณสมบัติ</label>
+                  <textarea name="description" value={formData.description} onChange={handleChange} rows="3"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">อ้างอิงใบตรวจรับ</label>
+                  <input type="text" name="reference_number" value={formData.reference_number} onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">อ้างอิงใบตรวจรับ</label>
-                <input type="text" name="reference_number" value={formData.reference_number} onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น 3050200125632" />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* ปุ่ม */}
-          <div className="pt-4 flex justify-end space-x-3">
-            <button type="button" onClick={onClose}
-              className="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition font-medium">
-              ยกเลิก
-            </button>
-            <button type="submit" disabled={loading}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium shadow-lg shadow-blue-600/20">
-              {loading ? "กำลังบันทึก..." : asset ? "บันทึกการแก้ไข" : "เพิ่มครุภัณฑ์"}
-            </button>
+          {/* ปุ่มดำเนินการ */}
+          <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-end items-center gap-4">
+            {!asset && (
+              <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={addMore}
+                  onChange={(e) => setAddMore(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                />
+                <span>บันทึกและเพิ่มต่อ</span>
+              </label>
+            )}
+            <div className="flex gap-3 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 sm:flex-none px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 sm:flex-none px-8 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-600/20 disabled:opacity-50 font-bold"
+              >
+                {loading ? "กำลังบันทึก..." : asset ? "อัปเดตครุภัณฑ์" : "เพิ่มครุภัณฑ์"}
+              </button>
+            </div>
           </div>
         </form>
       </div>
 
-      {/* Modal เพิ่มหน่วยงาน */}
+      {/* Modal เพิ่มหน่วยงานหน่วยงาน */}
       {showDepartmentForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
             <div className="border-b px-6 py-4 flex justify-between items-center">
               <h3 className="text-lg font-bold">เพิ่มหน่วยงานใหม่</h3>
-              <button onClick={() => { setShowDepartmentForm(false); setDepartmentFormData({ department_name: "" }); }}
-                className="text-gray-400 hover:text-gray-600">
-                <X className="w-6 h-6" />
+              <button onClick={() => setShowDepartmentForm(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
               </button>
             </div>
             <form onSubmit={handleAddDepartment} className="p-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อหน่วยงานหรือคณะ <span className="text-red-500">*</span>
-                </label>
-                <input type="text" value={departmentFormData.department_name}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">ชื่อหน่วยงาน *</label>
+                <input
+                  type="text"
+                  value={departmentFormData.department_name}
                   onChange={(e) => setDepartmentFormData({ department_name: e.target.value })}
-                  required className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น ภาควิชาวิทยาการคอมพิวเตอร์" />
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์"
+                />
               </div>
-              <div className="mt-6 flex justify-end space-x-3">
-                <button type="button" onClick={() => { setShowDepartmentForm(false); setDepartmentFormData({ department_name: "" }); }}
-                  className="px-6 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDepartmentForm(false)}
+                  className="px-6 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
+                >
                   ยกเลิก
                 </button>
-                <button type="submit" disabled={addingDepartment}
-                  className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                  {addingDepartment ? "กำลังบันทึก..." : "เพิ่มหน่วยงาน"}
+                <button
+                  type="submit"
+                  disabled={addingDepartment}
+                  className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50"
+                >
+                  {addingDepartment ? "บันทึก..." : "เพิ่มหน่วยงาน"}
                 </button>
               </div>
             </form>

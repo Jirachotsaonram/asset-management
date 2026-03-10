@@ -248,7 +248,7 @@ export default function DashboardScreen({ navigation }) {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => navigation.navigate('RoomCheck')}
+              onPress={() => navigation.navigate('Check', { tab: 'room' })}
             >
               <Ionicons name="business-outline" size={32} color="#2563EB" />
               <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>

@@ -11,6 +11,7 @@ import { API_BASE_URL } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
 import AssetForm from "../components/Assets/AssetForm";
 import QRCodeModal from "../components/Assets/QRCodeModal";
+import BulkQRGenerator from "../components/Assets/BulkQRGenerator";
 import VirtualTable from "../components/Common/VirtualTable";
 
 // ==================== Notifications Integration ====================
@@ -269,7 +270,7 @@ export default function AssetsPage() {
   const renderRowActions = (row) => (
     <>
       <button onClick={() => { setQrAsset(row); setShowQRModal(true); }}
-        className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="QR/Barcode">
+        className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="บาร์โค้ด">
         <QrCode size={16} />
       </button>
       <button onClick={() => handleViewDetails(row)}
@@ -441,6 +442,34 @@ export default function AssetsPage() {
     );
   };
 
+  // Session-based added assets for printing (Persisted in localStorage)
+  const [sessionAddedAssets, setSessionAddedAssets] = useState(() => {
+    try {
+      const saved = localStorage.getItem("sessionAddedAssets");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sessionAddedAssets", JSON.stringify(sessionAddedAssets));
+  }, [sessionAddedAssets]);
+
+  const [showBulkPrint, setShowBulkPrint] = useState(false);
+
+  // เมื่อกะบวนการเพิ่มสำเร็จ
+  const handleNewAssetSuccess = (newAsset) => {
+    fetchAssets(); // รีเฟรชตาราง
+    if (newAsset) {
+      setSessionAddedAssets(prev => [...prev, newAsset]);
+    }
+  };
+
+  const clearSessionAssets = () => {
+    if (window.confirm("ต้องการล้างรายการพิมพ์บาร์โค้ดใหม่ทั้งหมดหรื่อไม่?")) {
+      setSessionAddedAssets([]);
+    }
+  };
+
   // ==================== RENDER ====================
   return (
     <div className="space-y-5">
@@ -457,6 +486,25 @@ export default function AssetsPage() {
           <button onClick={fetchAssets} className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">
             <RefreshCw size={16} /> รีเฟรช
           </button>
+
+          {sessionAddedAssets.length > 0 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setShowBulkPrint(true)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition text-sm shadow-lg shadow-emerald-600/20 font-bold"
+              >
+                <QrCode size={16} /> พิมพ์บาร์โค้ดใหม่ ({sessionAddedAssets.length})
+              </button>
+              <button
+                onClick={clearSessionAssets}
+                className="p-2 text-gray-400 hover:text-red-500 transition"
+                title="ล้างรายการใหม่"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
+
           {canEdit && (
             <>
               <button onClick={() => { setEditingAsset(null); setShowForm(true); }}
@@ -641,7 +689,7 @@ export default function AssetsPage() {
               <div className="mt-6 flex justify-end gap-3">
                 <button onClick={() => { setQrAsset(selectedAsset); setShowQRModal(true); }}
                   className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition text-sm flex items-center gap-1.5">
-                  <QrCode size={16} /> QR/Barcode
+                  <QrCode size={16} /> บาร์โค้ด
                 </button>
                 <button onClick={() => setSelectedAsset(null)}
                   className="px-6 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition text-sm">ปิด</button>
@@ -653,10 +701,13 @@ export default function AssetsPage() {
 
       {/* Forms & Modals */}
       {showForm && (
-        <AssetForm asset={editingAsset} onClose={() => { setShowForm(false); setEditingAsset(null); }} onSuccess={fetchAssets} />
+        <AssetForm asset={editingAsset} onClose={() => { setShowForm(false); setEditingAsset(null); }} onSuccess={handleNewAssetSuccess} />
       )}
       {showQRModal && qrAsset && (
         <QRCodeModal asset={qrAsset} onClose={() => { setShowQRModal(false); setQrAsset(null); }} />
+      )}
+      {showBulkPrint && sessionAddedAssets.length > 0 && (
+        <BulkQRGenerator assets={sessionAddedAssets} onClose={() => setShowBulkPrint(false)} />
       )}
     </div>
   );

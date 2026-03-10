@@ -268,7 +268,7 @@ export default function AssetDetailScreen() {
 
           {/* Asset Title Overlay */}
           <View style={styles.titleOverlay}>
-            <Text style={styles.assetIdLabel}>{asset?.asset_id}</Text>
+            <Text style={styles.assetIdLabel}>{asset?.barcode || asset?.asset_id}</Text>
             <Text style={styles.assetNameTitle}>{asset?.asset_name}</Text>
           </View>
 

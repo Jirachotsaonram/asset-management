@@ -153,9 +153,11 @@ switch ($endpoint) {
             $controller->getUnchecked();
         } elseif ($request_method === 'GET' && $id === 'asset' && $action) {
             $controller->getByAsset($action);
-        } 
-        // POST - เฉพาะ Admin และ Inspector เท่านั้น
-        elseif ($request_method === 'POST') {
+        } // POST - เฉพาะ Admin และ Inspector เท่านั้น
+        elseif ($request_method === 'POST' && $id === 'bulk') {
+            $user_data = requireAdminOrInspector();
+            $controller->bulkCreate($user_data);
+        } elseif ($request_method === 'POST') {
             $user_data = requireAdminOrInspector();
             $controller->create($user_data);
         } else {
@@ -353,10 +355,13 @@ switch ($endpoint) {
                 
             } elseif ($id === 'export') {
                 // GET /reports/export?type=asset_summary&format=csv
+                // GET /reports/export?type=annual_check_history
                 $reportType = $_GET['type'] ?? 'asset_summary';
                 $format = $_GET['format'] ?? 'csv';
-                
-                if ($format === 'excel') {
+
+                if ($reportType === 'annual_check_history') {
+                    $controller->exportAnnualCheckHistory($_GET);
+                } elseif ($format === 'excel') {
                     $controller->exportExcel($reportType, $_GET);
                 } else {
                     $controller->exportCSV($reportType, $_GET);
@@ -439,6 +444,23 @@ switch ($endpoint) {
         
         if ($request_method === 'GET') {
             $controller->export();
+        } else {
+            Response::error('ไม่พบเส้นทาง API', 404);
+        }
+        break;
+
+    // ==================== SYSTEM SETTINGS ====================
+    case 'settings':
+        require_once 'controllers/SystemSettingController.php';
+        require_once 'middleware/auth.php';
+        
+        requireAdmin(); // เฉพาะ Admin เท่านั้น
+        $controller = new SystemSettingController();
+        
+        if ($request_method === 'GET' && !$id) {
+            $controller->getAll();
+        } elseif ($request_method === 'POST') {
+            $controller->update();
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }

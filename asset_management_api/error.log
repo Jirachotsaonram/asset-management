@@ -301,3 +301,115 @@ Stack trace:
 [09-Mar-2026 07:27:23 Europe/Berlin] ImageUpload: Received file: images.jpg size: 3080 type: image/jpeg
 [09-Mar-2026 07:27:23 Europe/Berlin] ImageUpload: Attempting to resize image
 [09-Mar-2026 07:27:23 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69ae684b5c60e2.11396297.jpg
+[10-Mar-2026 15:42:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 15:42:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 15:44:00 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:35
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(35): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(29): SystemSetting->update('annual_check_st...', '2026-04-18')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(460): SystemSettingController->update()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 35
+[10-Mar-2026 15:53:09 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 15:53:09 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 15:53:41 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:35
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(35): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(29): SystemSetting->update('annual_check_st...', '2026-03-26')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(460): SystemSettingController->update()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 35
+[10-Mar-2026 15:55:29 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 15:55:29 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 15:55:34 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:35
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(35): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(29): SystemSetting->update('annual_check_st...', '2026-03-28')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(460): SystemSettingController->update()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 35
+[10-Mar-2026 15:58:41 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 16:00:15 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 16:00:16 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 16:00:17 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 16:00:17 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:26
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(26): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(17): SystemSetting->getAll()
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(458): SystemSettingController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 26
+[10-Mar-2026 16:00:24 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:37
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(37): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(29): SystemSetting->update('annual_check_st...', '2026-03-26')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(460): SystemSettingController->update()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 37
+[10-Mar-2026 16:00:34 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'asset_management_db.system_settings' doesn't exist in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php:37
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php(37): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\SystemSettingController.php(29): SystemSetting->update('annual_check_st...', '2026-03-26')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(460): SystemSettingController->update()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 37

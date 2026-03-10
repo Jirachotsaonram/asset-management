@@ -341,7 +341,7 @@ export default function ScanScreen({ navigation }) {
                   <Ionicons name="cube" size={24} color="#fff" />
                 </View>
                 <View style={styles.assetHeaderInfo}>
-                  <Text style={styles.assetIdText}>{scannedAsset.asset_id}</Text>
+                  <Text style={styles.assetIdText}>{scannedAsset.barcode || scannedAsset.asset_id}</Text>
                   <Text style={styles.assetNameText} numberOfLines={2}>{scannedAsset.asset_name}</Text>
                 </View>
               </View>

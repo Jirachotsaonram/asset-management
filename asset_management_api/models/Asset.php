@@ -128,10 +128,33 @@ class Asset {
             $params[':location_id'] = $filters['location_id'];
         }
 
-        // Filter by unchecked (not checked in more than 365 days)
+        // Filter by unchecked (not checked within specific annual period)
         if (!empty($filters['unchecked'])) {
-            $conditions[] = "(last_check_date IS NULL OR DATEDIFF(NOW(), last_check_date) > :days)";
-            $params[':days'] = 365;
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $conditions[] = "asset_id NOT IN (
+                    SELECT asset_id FROM asset_check 
+                    WHERE check_date BETWEEN :start_date AND :end_date
+                )";
+                $params[':start_date'] = $filters['start_date'];
+                $params[':end_date'] = $filters['end_date'];
+            } else {
+                $conditions[] = "(last_check_date IS NULL OR DATEDIFF(NOW(), last_check_date) > :days)";
+                $params[':days'] = 365;
+            }
+        }
+
+        // Filter by checked (checked within specific annual period)
+        if (!empty($filters['checked'])) {
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $conditions[] = "asset_id IN (
+                    SELECT asset_id FROM asset_check 
+                    WHERE check_date BETWEEN :start_date AND :end_date
+                )";
+                $params[':start_date'] = $filters['start_date'];
+                $params[':end_date'] = $filters['end_date'];
+            } else {
+                $conditions[] = "last_check_date IS NOT NULL";
+            }
         }
 
         // Search
@@ -197,8 +220,29 @@ class Asset {
             $params[':location_id'] = $filters['location_id'];
         }
         if (!empty($filters['unchecked'])) {
-            $conditions[] = "(last_check_date IS NULL OR DATEDIFF(NOW(), last_check_date) > :days)";
-            $params[':days'] = 365;
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $conditions[] = "asset_id NOT IN (
+                    SELECT asset_id FROM asset_check 
+                    WHERE check_date BETWEEN :start_date AND :end_date
+                )";
+                $params[':start_date'] = $filters['start_date'];
+                $params[':end_date'] = $filters['end_date'];
+            } else {
+                $conditions[] = "(last_check_date IS NULL OR DATEDIFF(NOW(), last_check_date) > :days)";
+                $params[':days'] = 365;
+            }
+        }
+        if (!empty($filters['checked'])) {
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $conditions[] = "asset_id IN (
+                    SELECT asset_id FROM asset_check 
+                    WHERE check_date BETWEEN :start_date AND :end_date
+                )";
+                $params[':start_date'] = $filters['start_date'];
+                $params[':end_date'] = $filters['end_date'];
+            } else {
+                $conditions[] = "last_check_date IS NOT NULL";
+            }
         }
         if (!empty($filters['search'])) {
             $conditions[] = "(asset_name LIKE :search 

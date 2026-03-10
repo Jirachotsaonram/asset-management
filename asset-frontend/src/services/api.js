@@ -2,16 +2,21 @@ import axios from 'axios';
 import { API_BASE_URL } from '../utils/constants';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`,
   headers: {
     'Content-Type': 'application/json'
   },
   timeout: 30000 // 30 second timeout
 });
 
-// Interceptor เพื่อเพิ่ม token ทุกครั้งที่เรียก API
+// Interceptor เพื่อแก้ปัญหา URL และ Token
 api.interceptors.request.use(
   (config) => {
+    // แก้ปัญหา 404: ถ้า URL เริ่มด้วย / ให้ตัดออกเพื่อให้ต่อกับ baseURL ได้ถูกต้อง
+    if (config.url && config.url.startsWith('/')) {
+      config.url = config.url.substring(1);
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       // ตรวจสอบ token expiry ก่อนส่ง request

@@ -41,6 +41,9 @@ class AssetController {
             if (!empty($_GET['floor'])) $filters['floor'] = $_GET['floor'];
             if (!empty($_GET['search'])) $filters['search'] = $_GET['search'];
             if (!empty($_GET['unchecked'])) $filters['unchecked'] = $_GET['unchecked'];
+            if (!empty($_GET['checked'])) $filters['checked'] = $_GET['checked'];
+            if (!empty($_GET['start_date'])) $filters['start_date'] = $_GET['start_date'];
+            if (!empty($_GET['end_date'])) $filters['end_date'] = $_GET['end_date'];
             if (!empty($_GET['location_id'])) $filters['location_id'] = (int)$_GET['location_id'];
 
             $sort = $_GET['sort'] ?? 'created_at';
@@ -118,6 +121,11 @@ class AssetController {
             $asset_id = $this->asset->create();
             
             if ($asset_id) {
+                // Fetch the newly created asset to return full data
+                $this->asset->asset_id = $asset_id;
+                $stmt = $this->asset->readOne();
+                $new_asset = $stmt->fetch(PDO::FETCH_ASSOC);
+
                 // บันทึก Audit Trail
                 $this->auditTrail->user_id = $user_data['user_id'];
                 $this->auditTrail->asset_id = $asset_id;
@@ -134,7 +142,10 @@ class AssetController {
                 ]);
                 $this->auditTrail->create();
 
-                Response::success('เพิ่มครุภัณฑ์สำเร็จ', ['asset_id' => $asset_id]);
+                Response::success('เพิ่มครุภัณฑ์สำเร็จ', [
+                    'asset_id' => $asset_id,
+                    'asset' => $new_asset
+                ]);
             } else {
                 Response::error('ไม่สามารถเพิ่มครุภัณฑ์ได้', 500);
             }

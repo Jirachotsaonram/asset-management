@@ -236,28 +236,44 @@ export default function ReportsPage() {
   };
 
   // ==================== Export functions ====================
-  const doExportExcel = (data, headers, fields, filename) => {
-    if (data.length === 0) { toast.error('ไม่มีข้อมูลให้ Export'); return; }
+  const doExportExcel = async (type, params = {}) => {
     try {
-      let csv = '\uFEFF' + headers.join('\t') + '\n';
-      data.forEach(item => { csv += fields.map(f => rawCellValue(f, item)).join('\t') + '\n'; });
-      const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      toast.loading('กำลังเตรียมไฟส์ Excel...', { id: 'export-report' });
+
+      let url = `/reports/export?type=${type}&format=excel`;
+      if (params.startDate) url += `&start_date=${params.startDate}`;
+      if (params.endDate) url += `&end_date=${params.endDate}`;
+
+      const response = await api.get(url, { responseType: 'blob' });
+
+      const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${filename}_${new Date().toISOString().split('T')[0]}.xls`;
+      link.href = blobUrl;
+      link.setAttribute('download', `report_${type}_${new Date().toISOString().split('T')[0]}.xls`);
+      document.body.appendChild(link);
       link.click();
-      toast.success('กำลังดาวน์โหลด Excel');
-    } catch (e) { toast.error('ไม่สามารถ Export Excel ได้'); }
+      link.remove();
+
+      toast.success('ดาวน์โหลดสำเร็จ', { id: 'export-report' });
+    } catch (e) {
+      console.error('Export error:', e);
+      toast.error('ไม่สามารถ Export Excel ได้', { id: 'export-report' });
+    }
   };
 
   const handleExportStatusExcel = () => {
-    const cfg = REPORT_TABLE_CONFIG['asset-summary'];
-    doExportExcel(filteredStatusAssets, cfg.headers, cfg.fields, `report_${activeTab}`);
+    doExportExcel('asset_summary');
   };
+
   const handleExportReportExcel = () => {
     if (!selectedReport) return;
-    const cfg = REPORT_TABLE_CONFIG[selectedReport];
-    doExportExcel(filteredReportData, cfg.headers, cfg.fields, `report_${selectedReport}`);
+    // Map frontend report keys to backend report types if necessary
+    const typeMap = {
+      'asset-summary': 'asset_summary',
+      'check-report': 'check_report',
+    };
+    const type = typeMap[selectedReport] || selectedReport.replace(/-/g, '_');
+    doExportExcel(type, dateRange);
   };
 
   // ==================== Search/Sort/Paginate ====================

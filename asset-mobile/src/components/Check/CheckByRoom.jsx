@@ -9,12 +9,22 @@ import {
     Alert,
     TextInput,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import api from '../services/api';
+import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
-import { ASSET_STATUS } from '../utils/constants';
+import { ASSET_STATUS } from '../../utils/constants';
 
-export default function RoomCheckScreen({ navigation }) {
+function getStatusColor(status) {
+    switch (status) {
+        case ASSET_STATUS.AVAILABLE: return '#10B981';
+        case ASSET_STATUS.MAINTENANCE: return '#F59E0B';
+        case ASSET_STATUS.PENDING_DISPOSAL: return '#EF4444';
+        case ASSET_STATUS.DISPOSED: return '#6B7280';
+        case ASSET_STATUS.MISSING: return '#DC2626';
+        default: return '#6B7280';
+    }
+}
+
+export default function CheckByRoom({ navigation }) {
     const [locations, setLocations] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [assets, setAssets] = useState([]);
@@ -24,6 +34,7 @@ export default function RoomCheckScreen({ navigation }) {
     const [checkStatus, setCheckStatus] = useState(ASSET_STATUS.AVAILABLE);
     const [remark, setRemark] = useState('');
     const [searchText, setSearchText] = useState('');
+    const [locationSearch, setLocationSearch] = useState('');
 
     useEffect(() => {
         fetchLocations();
@@ -33,11 +44,8 @@ export default function RoomCheckScreen({ navigation }) {
         setLoading(true);
         try {
             const response = await api.get('/locations');
-            if (response.data.success) {
-                setLocations(response.data.data);
-            }
+            if (response.data.success) setLocations(response.data.data);
         } catch (error) {
-            console.error('Error fetching locations:', error);
             Alert.alert('ผิดพลาด', 'ไม่สามารถโหลดรายการห้องได้');
         } finally {
             setLoading(false);
@@ -66,7 +74,6 @@ export default function RoomCheckScreen({ navigation }) {
                 setAssets(uniqueAssets);
             }
         } catch (error) {
-            console.error('Error fetching assets:', error);
             Alert.alert('ผิดพลาด', 'ไม่สามารถโหลดครุภัณฑ์ในห้องได้');
         } finally {
             setLoading(false);
@@ -85,7 +92,13 @@ export default function RoomCheckScreen({ navigation }) {
     const filteredAssets = assets.filter(a =>
         !searchText ||
         a.asset_name?.toLowerCase().includes(searchText.toLowerCase()) ||
-        String(a.asset_id).includes(searchText)
+        String(a.barcode || a.asset_id).includes(searchText)
+    );
+
+    const filteredLocations = locations.filter(l =>
+        !locationSearch ||
+        l.building_name?.toLowerCase().includes(locationSearch.toLowerCase()) ||
+        String(l.room_number || '').includes(locationSearch)
     );
 
     const checkAll = () => {
@@ -93,17 +106,6 @@ export default function RoomCheckScreen({ navigation }) {
             setCheckedIds(new Set());
         } else {
             setCheckedIds(new Set(filteredAssets.map(a => a.asset_id)));
-        }
-    };
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case ASSET_STATUS.AVAILABLE: return '#10B981';
-            case ASSET_STATUS.MAINTENANCE: return '#F59E0B';
-            case ASSET_STATUS.PENDING_DISPOSAL: return '#EF4444';
-            case ASSET_STATUS.DISPOSED: return '#6B7280';
-            case ASSET_STATUS.MISSING: return '#DC2626';
-            default: return '#6B7280';
         }
     };
 
@@ -124,8 +126,7 @@ export default function RoomCheckScreen({ navigation }) {
 
     const submitChecks = async () => {
         setSubmitting(true);
-        let success = 0;
-        let failed = 0;
+        let success = 0, failed = 0;
         const today = new Date().toISOString().split('T')[0];
         for (const assetId of Array.from(checkedIds)) {
             try {
@@ -155,12 +156,10 @@ export default function RoomCheckScreen({ navigation }) {
             onPress={() => toggleCheck(item.asset_id)}
         >
             <View style={styles.assetInfo}>
-                <Text style={styles.assetId}>ID: {item.barcode || item.asset_id}</Text>
+                <Text style={styles.assetId}>{item.barcode || item.asset_id}</Text>
                 <Text style={styles.assetName} numberOfLines={2}>{item.asset_name}</Text>
                 {item.status && (
-                    <Text style={[styles.assetStatus, { color: getStatusColor(item.status) }]}>
-                        {item.status}
-                    </Text>
+                    <Text style={[styles.assetStatus, { color: getStatusColor(item.status) }]}>{item.status}</Text>
                 )}
             </View>
             <Ionicons
@@ -171,21 +170,31 @@ export default function RoomCheckScreen({ navigation }) {
         </TouchableOpacity>
     ), [checkedIds]);
 
-    // ─── Location List ─────────────────────────────────────────────────
+    // ── Room List ──────────────────────────────────────────
     if (!selectedLocation) {
         return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Ionicons name="arrow-back" size={24} color="#111827" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>เลือกห้อง/สถานที่</Text>
+            <View style={styles.container}>
+                {/* Search locations */}
+                <View style={styles.locationSearchBar}>
+                    <Ionicons name="search" size={16} color="#9CA3AF" />
+                    <TextInput
+                        style={styles.locationSearchInput}
+                        placeholder="ค้นหาอาคาร หรือห้อง..."
+                        value={locationSearch}
+                        onChangeText={setLocationSearch}
+                    />
+                    {!!locationSearch && (
+                        <TouchableOpacity onPress={() => setLocationSearch('')}>
+                            <Ionicons name="close-circle" size={16} color="#9CA3AF" />
+                        </TouchableOpacity>
+                    )}
                 </View>
+
                 {loading ? (
                     <ActivityIndicator size="large" color="#2563EB" style={{ marginTop: 40 }} />
                 ) : (
                     <FlatList
-                        data={locations}
+                        data={filteredLocations}
                         keyExtractor={(item) => item.location_id.toString()}
                         renderItem={({ item }) => (
                             <TouchableOpacity style={styles.locationItem} onPress={() => fetchAssetsInRoom(item)}>
@@ -201,40 +210,44 @@ export default function RoomCheckScreen({ navigation }) {
                         )}
                         ListEmptyComponent={<Text style={styles.emptyText}>ไม่พบข้อมูลสถานที่</Text>}
                         contentContainerStyle={styles.listContent}
+                        showsVerticalScrollIndicator={false}
                     />
                 )}
-            </SafeAreaView>
+            </View>
         );
     }
 
-    // ─── Room Asset Check ─────────────────────────────────────────────
+    // ── Room Asset Check ────────────────────────────────────
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
+        <View style={styles.container}>
+            {/* Room Header */}
+            <View style={styles.roomHeader}>
                 <TouchableOpacity onPress={() => setSelectedLocation(null)} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#111827" />
+                    <Ionicons name="arrow-back" size={22} color="#2563EB" />
+                    <Text style={styles.backBtnText}>รายห้อง</Text>
                 </TouchableOpacity>
-                <View style={styles.headerTextContainer}>
-                    <Text style={styles.headerTitle}>{selectedLocation.building_name} {selectedLocation.room_number || ''}</Text>
-                    <Text style={styles.headerSubtitle}>ตรวจสอบครุภัณฑ์รายห้อง</Text>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                    <Text style={styles.roomTitle} numberOfLines={1}>
+                        {selectedLocation.building_name} {selectedLocation.room_number || ''}
+                    </Text>
+                    <Text style={styles.roomSubtitle}>ตรวจแล้ว {checkedIds.size} / {assets.length} รายการ</Text>
                 </View>
             </View>
 
+            {/* Summary toolbar */}
             <View style={styles.summaryBar}>
-                <Text style={styles.summaryText}>ตรวจแล้ว {checkedIds.size} / {assets.length}</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <TouchableOpacity style={styles.outlineBtn} onPress={checkAll}>
-                        <Text style={styles.outlineBtnText}>
-                            {checkedIds.size === filteredAssets.length && filteredAssets.length > 0 ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด'}
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.scanRoomBtn} onPress={() => navigation.navigate('Scan')}>
-                        <Ionicons name="qr-code" size={16} color="#fff" />
-                        <Text style={styles.scanBtnText}>สแกนตรวจ</Text>
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity style={styles.outlineBtn} onPress={checkAll}>
+                    <Text style={styles.outlineBtnText}>
+                        {checkedIds.size === filteredAssets.length && filteredAssets.length > 0 ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด'}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.scanRoomBtn} onPress={() => navigation.navigate('Scan')}>
+                    <Ionicons name="qr-code" size={16} color="#fff" />
+                    <Text style={styles.scanBtnText}>สแกนตรวจ</Text>
+                </TouchableOpacity>
             </View>
 
+            {/* Search assets */}
             <View style={styles.searchBar}>
                 <Ionicons name="search" size={18} color="#9CA3AF" />
                 <TextInput
@@ -259,13 +272,15 @@ export default function RoomCheckScreen({ navigation }) {
                     renderItem={renderAssetItem}
                     ListEmptyComponent={<Text style={styles.emptyText}>ไม่พบครุภัณฑ์ในห้องนี้</Text>}
                     contentContainerStyle={styles.listContent}
-                    removeClippedSubviews={true}
+                    removeClippedSubviews
                     initialNumToRender={15}
                     maxToRenderPerBatch={10}
                     windowSize={5}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
 
+            {/* Footer - Status & Submit */}
             <View style={styles.footer}>
                 <Text style={styles.footerLabel}>ผลการตรวจสอบ:</Text>
                 <View style={styles.statusRow}>
@@ -275,9 +290,7 @@ export default function RoomCheckScreen({ navigation }) {
                             style={[styles.statusChip, checkStatus === s && { borderColor: getStatusColor(s), backgroundColor: getStatusColor(s) + '20' }]}
                             onPress={() => setCheckStatus(s)}
                         >
-                            <Text style={[styles.statusChipText, checkStatus === s && { color: getStatusColor(s), fontWeight: '700' }]}>
-                                {s}
-                            </Text>
+                            <Text style={[styles.statusChipText, checkStatus === s && { color: getStatusColor(s), fontWeight: '700' }]}>{s}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -298,59 +311,40 @@ export default function RoomCheckScreen({ navigation }) {
                         <>
                             <Ionicons name="save" size={20} color="#fff" />
                             <Text style={styles.finishBtnText}>
-                                บันทึกผลตรวจสอบ {checkedIds.size > 0 ? `(${checkedIds.size})` : ''}
+                                บันทึกผลตรวจสอบ{checkedIds.size > 0 ? ` (${checkedIds.size})` : ''}
                             </Text>
                         </>
                     )}
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F9FAFB' },
-    header: {
-        padding: 16, backgroundColor: '#fff',
-        flexDirection: 'row', alignItems: 'center',
-        borderBottomWidth: 1, borderBottomColor: '#E5E7EB', gap: 12,
-    },
-    backBtn: { padding: 4 },
-    headerTextContainer: { flex: 1 },
-    headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#111827' },
-    headerSubtitle: { fontSize: 12, color: '#6B7280' },
-    summaryBar: {
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        paddingHorizontal: 16, paddingVertical: 10,
-        backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
-    },
-    summaryText: { fontSize: 15, fontWeight: 'bold', color: '#374151' },
+    locationSearchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', marginHorizontal: 16, marginTop: 12, marginBottom: 4, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', gap: 8, height: 42 },
+    locationSearchInput: { flex: 1, fontSize: 14, color: '#111827' },
+    listContent: { padding: 16, paddingBottom: 8 },
+    locationItem: { backgroundColor: '#fff', padding: 16, borderRadius: 12, flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderWidth: 1, borderColor: '#E5E7EB', gap: 12 },
+    locationIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' },
+    locationName: { fontSize: 16, fontWeight: '600', color: '#111827' },
+    roomName: { fontSize: 13, color: '#6B7280' },
+    roomHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+    backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    backBtnText: { color: '#2563EB', fontWeight: '600', fontSize: 14 },
+    roomTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+    roomSubtitle: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+    summaryBar: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB', gap: 8 },
     outlineBtn: { borderWidth: 1, borderColor: '#2563EB', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
     outlineBtnText: { color: '#2563EB', fontSize: 12, fontWeight: '600' },
     scanRoomBtn: { backgroundColor: '#2563EB', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, gap: 5 },
     scanBtnText: { color: '#fff', fontSize: 12, fontWeight: '600' },
-    searchBar: {
-        flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
-        marginHorizontal: 16, marginVertical: 10, paddingHorizontal: 12,
-        borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', gap: 8,
-    },
+    searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', marginHorizontal: 16, marginVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', gap: 8 },
     searchInput: { flex: 1, height: 42, fontSize: 14 },
-    listContent: { padding: 16, paddingBottom: 8 },
-    locationItem: {
-        backgroundColor: '#fff', padding: 16, borderRadius: 12,
-        flexDirection: 'row', alignItems: 'center', marginBottom: 10,
-        borderWidth: 1, borderColor: '#E5E7EB', gap: 12,
-    },
-    locationIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' },
-    locationName: { fontSize: 16, fontWeight: '600', color: '#111827' },
-    roomName: { fontSize: 13, color: '#6B7280' },
-    assetItem: {
-        backgroundColor: '#fff', padding: 16, borderRadius: 12,
-        flexDirection: 'row', alignItems: 'center', marginBottom: 10,
-        borderWidth: 1.5, borderColor: '#E5E7EB',
-    },
+    assetItem: { backgroundColor: '#fff', padding: 16, borderRadius: 12, flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderWidth: 1.5, borderColor: '#E5E7EB' },
     assetItemChecked: { borderColor: '#10B981', backgroundColor: '#F0FDF4' },
-    assetInfo: { flex: 1 },
+    assetInfo: { flex: 1, marginRight: 8 },
     assetId: { fontSize: 11, color: '#2563EB', fontWeight: 'bold', marginBottom: 2 },
     assetName: { fontSize: 14, color: '#374151', fontWeight: '500', marginBottom: 2 },
     assetStatus: { fontSize: 12, fontWeight: '600' },
@@ -360,11 +354,7 @@ const styles = StyleSheet.create({
     statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
     statusChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1.5, borderColor: '#E5E7EB', backgroundColor: '#F9FAFB' },
     statusChipText: { fontSize: 12, color: '#6B7280', fontWeight: '500' },
-    remarkInput: {
-        backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB',
-        borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8,
-        fontSize: 14, minHeight: 44, marginBottom: 10,
-    },
+    remarkInput: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, fontSize: 14, minHeight: 44, marginBottom: 10 },
     finishBtn: { backgroundColor: '#10B981', height: 50, borderRadius: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 },
     finishBtnDisabled: { backgroundColor: '#D1FAE5' },
     finishBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
