@@ -122,9 +122,16 @@ export default function CheckPage() {
 
   // ==================== Memoized: filtered assets ====================
   const filteredAssets = useMemo(() => {
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase().trim();
     return assetsWithStatus.filter(a => {
-      if (term && !(a.asset_name?.toLowerCase().includes(term) || a.serial_number?.toLowerCase().includes(term) || String(a.asset_id).includes(term))) return false;
+      if (term && !(
+        a.asset_name?.toLowerCase().includes(term) ||
+        a.barcode?.toLowerCase().includes(term) ||
+        a.serial_number?.toLowerCase().includes(term) ||
+        String(a.asset_id).includes(term) ||
+        a.room_number?.toLowerCase().includes(term) ||
+        a.building_name?.toLowerCase().includes(term)
+      )) return false;
       if (filters.status !== 'all') {
         if (filters.status === 'today') { if (a._status.days !== 0) return false; }
         else if (a._status.status !== filters.status) return false;
@@ -321,7 +328,9 @@ export default function CheckPage() {
             <div className="flex flex-col md:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input type="text" placeholder="ค้นหาครุภัณฑ์..." value={searchTerm}
+                <input type="text"
+                  placeholder="ค้นหา ชื่อ / หมายเลขครุภัณฑ์ / ซีเรียล / ห้อง..."
+                  value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                 {searchTerm && (
@@ -571,10 +580,9 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                       <thead className="bg-gray-50 border-b border-gray-200">
                                         <tr>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-10">#</th>
-                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-16">รหัส</th>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-10">รูป</th>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase">ชื่อ</th>
-                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-24">Serial/Barcode</th>
+                                          <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-24">หมายเลขครุภัณฑ์</th>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-28">สถานะการตรวจ</th>
                                           <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-500 uppercase w-16"></th>
                                         </tr>
@@ -585,7 +593,6 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                           return (
                                             <tr key={asset.asset_id} className="hover:bg-blue-50/40 transition-colors border-b border-gray-100 last:border-0">
                                               <td className="px-3 py-2 text-[10px] text-gray-400">{idx + 1}</td>
-                                              <td className="px-3 py-2 text-[11px] font-medium text-gray-700">{asset.asset_id}</td>
                                               <td className="px-3 py-2">
                                                 {asset.image ? (
                                                   <img src={`${api.defaults.baseURL.replace('/api', '')}/${asset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200"
@@ -596,8 +603,7 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                                 <div className="line-clamp-1" title={asset.asset_name}>{asset.asset_name}</div>
                                               </td>
                                               <td className="px-3 py-2">
-                                                <div className="text-[10px] text-gray-600 font-mono leading-tight">{asset.serial_number || '-'}</div>
-                                                <div className="text-[9px] text-gray-400 font-mono leading-tight">{asset.barcode || '-'}</div>
+                                                <div className="text-[10px] text-gray-600 font-mono leading-tight">{asset.barcode || '-'}</div>
                                               </td>
                                               <td className="px-3 py-2">
                                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color} whitespace-nowrap`}>
@@ -645,9 +651,8 @@ function ListView({ assets, onCheck, onSchedule, currentPage, totalPages, setCur
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase w-10">#</th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase w-16">รหัส</th>
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase">ชื่อ</th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase w-24">Serial</th>
+              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase w-28">หมายเลขครุภัณฑ์</th>
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase">สถานที่</th>
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase w-28">สถานะ</th>
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase w-16"></th>
@@ -659,9 +664,8 @@ function ListView({ assets, onCheck, onSchedule, currentPage, totalPages, setCur
               return (
                 <tr key={asset.asset_id} className="hover:bg-blue-50/40 transition-colors group">
                   <td className="px-3 py-2 text-[10px] text-gray-400">{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</td>
-                  <td className="px-3 py-2 text-xs font-medium text-gray-700">{asset.asset_id}</td>
                   <td className="px-3 py-2 text-xs text-gray-900"><div className="line-clamp-1" title={asset.asset_name}>{asset.asset_name}</div></td>
-                  <td className="px-3 py-2 text-[10px] text-gray-500 font-mono">{asset.serial_number || '-'}</td>
+                  <td className="px-3 py-2 text-[10px] text-gray-500 font-mono">{asset.barcode || '-'}</td>
                   <td className="px-3 py-2 text-xs text-gray-600">{asset.building_name} ชั้น {asset.floor} ห้อง {asset.room_number}</td>
                   <td className="px-3 py-2">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color}`}>

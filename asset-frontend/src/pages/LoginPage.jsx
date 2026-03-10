@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import { Lock, User, LogIn, Eye, EyeOff, Shield, Package, AlertTriangle } from 'lucide-react';
-import logoImage from './logoFITM.png';
+import logoImage from '../assets/logo.png';
 
 // ==================== Security: Client-side rate limiting ====================
 const MAX_ATTEMPTS = 5;
@@ -156,8 +156,8 @@ export default function LoginPage() {
         <div className="bg-white/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/20">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="inline-block mb-4">
-              <img src={logoImage} alt="Asset Management Logo" className="w-20 h-20 object-contain mx-auto" />
+            <div className="inline-block mb-6">
+              <img src={logoImage} alt="Asset Management Logo" className="w-40 h-auto object-contain mx-auto drop-shadow-md" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">ระบบจัดการครุภัณฑ์</h1>
             <p className="text-gray-600 mt-2 text-sm">ภาควิชาเทคโนโลยีสารสนเทศ</p>

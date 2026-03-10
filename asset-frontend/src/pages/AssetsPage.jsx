@@ -241,7 +241,7 @@ export default function AssetsPage() {
       )
     },
     { key: 'serial_number', label: 'Serial Number', minWidth: '130px', render: (val) => <span className="text-xs font-mono">{val || '-'}</span> },
-    { key: 'barcode', label: 'Barcode', minWidth: '120px', render: (val) => <span className="text-xs font-mono">{val || '-'}</span> },
+    { key: 'barcode', label: 'หมายเลขครุภัณฑ์', minWidth: '120px', render: (val) => <span className="text-xs font-mono">{val || '-'}</span> },
     {
       key: 'status', label: 'สถานะ', width: '110px',
       render: (val) => <span className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${getStatusColor(val)}`}>{val}</span>
@@ -523,7 +523,7 @@ export default function AssetsPage() {
           <div className="flex-1 flex gap-2 w-full md:w-auto">
             <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="ค้นหาชื่อ, Serial, Barcode, รหัสกองทุน..."
+              placeholder="ค้นหาชื่อ, Serial, หมายเลขครุภัณฑ์, รหัสกองทุน..."
               className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
             <button onClick={handleSearch}
               className="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm font-medium shadow-sm">
@@ -660,7 +660,7 @@ export default function AssetsPage() {
                   { label: 'รหัสครุภัณฑ์', value: selectedAsset.asset_id },
                   { label: 'ชื่อครุภัณฑ์', value: selectedAsset.asset_name, span: 2 },
                   { label: 'Serial Number', value: selectedAsset.serial_number },
-                  { label: 'Barcode', value: selectedAsset.barcode },
+                  { label: 'หมายเลขครุภัณฑ์', value: selectedAsset.barcode },
                   { label: 'สถานะ', value: selectedAsset.status, badge: true },
                   { label: 'ราคา', value: selectedAsset.price ? `${Number(selectedAsset.price).toLocaleString('th-TH')} บาท` : '-' },
                   { label: 'จำนวน', value: `${selectedAsset.quantity || 1} ${selectedAsset.unit || ''}` },

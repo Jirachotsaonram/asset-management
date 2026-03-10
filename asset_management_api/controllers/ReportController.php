@@ -484,24 +484,35 @@ class ReportController {
         $yearCols = [];
         $yearHeaders = [];
         foreach ($years as $year) {
-            $yearCols[] = "MAX(CASE WHEN YEAR(ac_hist.check_date) = $year THEN ac_hist.check_status ELSE NULL END) as `yr_$year`";
+            $yearCols[] = "MAX(CASE WHEN check_year = $year THEN check_status ELSE NULL END) as `yr_$year`";
             $yearHeaders[] = 'ปี ' . ($year + 543);
         }
         $yearSqlCols = implode(", ", $yearCols);
 
         $query = "SELECT 
-                    COALESCE(a.barcode, CONCAT('A', a.asset_id)) as barcode,
+                    a.barcode_display as barcode,
                     a.asset_name,
-                    CONCAT(COALESCE(l.building_name,'ไม่ระบุ'), IF(l.room_number IS NOT NULL, CONCAT(' ห้อง ', l.room_number), '')) as location,
+                    a.location_display as location,
                     a.status as current_status,
-                    COALESCE(d.department_name, '-') as department_name,
+                    a.department_name,
                     $yearSqlCols
-                 FROM assets a
-                 LEFT JOIN departments d ON a.department_id = d.department_id
-                 LEFT JOIN locations l ON a.location_id = l.location_id
-                 LEFT JOIN asset_check ac_hist ON a.asset_id = ac_hist.asset_id
-                 GROUP BY a.asset_id, a.barcode, a.asset_name, a.status, d.department_name, l.building_name, l.room_number
-                 ORDER BY a.barcode, a.asset_id";
+                 FROM (
+                    SELECT 
+                        COALESCE(asst.barcode, CONCAT('A', asst.asset_id)) as barcode_display,
+                        asst.asset_name,
+                        CONCAT(COALESCE(loc.building_name,'ไม่ระบุ'), IF(loc.room_number IS NOT NULL, CONCAT(' ห้อง ', loc.room_number), '')) as location_display,
+                        asst.status,
+                        COALESCE(dept.department_name, '-') as department_name,
+                        asst.asset_id,
+                        YEAR(ac.check_date) as check_year,
+                        ac.check_status
+                    FROM assets asst
+                    LEFT JOIN departments dept ON asst.department_id = dept.department_id
+                    LEFT JOIN locations loc ON asst.location_id = loc.location_id
+                    LEFT JOIN asset_check ac ON asst.asset_id = ac.asset_id
+                 ) a
+                 GROUP BY a.asset_id
+                 ORDER BY a.barcode_display, a.asset_id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute();

@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -117,7 +118,7 @@ export default function LoginScreen({ navigation }) {
       if (error.response) {
         errorMessage = error.response.data?.message || `เกิดข้อผิดพลาด (${error.response.status})`;
       } else if (error.request) {
-        errorMessage = 'เชื่อมต่อ Server ไม่ได้ — กรุณาตรวจสอบ IP ในไอคอนตั้งค่า ⚙️';
+        errorMessage = 'เชื่อมต่อ Server ไม่ได้ — กรุณาแตะที่ "Server IP" ด้านล่างเพื่อตรวจสอบการตั้งค่า';
       }
       setError(errorMessage);
     } finally {
@@ -137,13 +138,17 @@ export default function LoginScreen({ navigation }) {
           <Ionicons name="settings-outline" size={22} color="#fff" />
         </TouchableOpacity>
 
-        <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>📦</Text>
-          <Text style={styles.title}>ระบบจัดการครุภัณฑ์</Text>
-          <Text style={styles.subtitle}>ภาควิชาเทคโนโลยีสารสนเทศ</Text>
-        </View>
-
         <View style={styles.form}>
+          <View style={[styles.logoContainer, { paddingTop: 12 }]}>
+            <Image
+              source={require('../../assets/logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>ระบบจัดการครุภัณฑ์</Text>
+            <Text style={styles.subtitle}>ภาควิชาเทคโนโลยีสารสนเทศ</Text>
+          </View>
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>ชื่อผู้ใช้</Text>
             <TextInput
@@ -207,7 +212,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>⚙️ ตั้งค่า Server</Text>
+              <Text style={styles.modalTitle}>ตั้งค่า Server</Text>
               <TouchableOpacity onPress={() => setShowSettings(false)}>
                 <Ionicons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
@@ -234,7 +239,7 @@ export default function LoginScreen({ navigation }) {
               </View>
 
               <Text style={styles.modalHint}>
-                💡 กรอกเฉพาะ IP Address (เช่น 192.168.1.50){'\n'}
+                กรอกเฉพาะ IP Address (เช่น 192.168.1.50){'\n'}
                 หรือ URL เต็ม (เช่น http://192.168.1.50/path)
               </Text>
 
@@ -284,21 +289,22 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: 32,
   },
-  logoText: {
-    fontSize: 64,
+  logoImage: {
+    width: 160,
+    height: 100,
     marginBottom: 16,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
+    color: '#111827',
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#E0E7FF',
+    fontSize: 14,
+    color: '#6B7280',
   },
   form: {
     backgroundColor: '#fff',
