@@ -57,9 +57,9 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
 
       if (printStyle === 'detailed') {
         const cardWidth = 90;
-        const cardHeight = 45;
+        const cardHeight = 55;   // เพิ่มความสูงรองรับข้อมูลหน่วยงาน
         const cols = 2;
-        const rowsPerPage = 6;
+        const rowsPerPage = 5;
         const spacingX = 5;
         const spacingY = 2;
 
@@ -75,7 +75,7 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
           pdf.setDrawColor(200);
           pdf.roundedRect(x, y, cardWidth, cardHeight, 2, 2, 'S');
 
-          // Barcode scaling improvements - more aggressive for long values
+          // ---- Barcode (ไม่แสดงตัวเลขใน canvas เพื่อป้องกันทับกัน) ----
           const barcodeValue = asset.barcode || `${asset.asset_id}`;
           const textLength = barcodeValue.length;
           let dynamicWidth = 2;
@@ -90,44 +90,52 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
             format: 'CODE128',
             width: dynamicWidth,
             height: 50,
-            displayValue: true,
-            fontSize: 16, // ขยับขนาดตัวอักษรใต้บาร์โค้ด
-            margin: 5,
-            textMargin: 2
+            displayValue: false,   // ปิดข้อความ เพื่อจัดเองด้านล่าง
+            margin: 3,
           });
           const imgBarcode = canvas.toDataURL('image/png');
 
-          // กำหนดความกว้างสูงสุดของบาร์โค้ดไม่ให้ล้น
           const maxBarcodeW = cardWidth - 10;
           const barcodeImgProps = pdf.getImageProperties(imgBarcode);
-          const barcodeDisplayW = Math.min(65, maxBarcodeW);
+          const barcodeDisplayW = Math.min(70, maxBarcodeW);
           const barcodeDisplayH = barcodeImgProps.height * (barcodeDisplayW / barcodeImgProps.width);
 
-          pdf.addImage(imgBarcode, 'PNG', x + (cardWidth - barcodeDisplayW) / 2, y + 2, barcodeDisplayW, barcodeDisplayH);
+          const barcodeY = y + 2;
+          pdf.addImage(imgBarcode, 'PNG', x + (cardWidth - barcodeDisplayW) / 2, barcodeY, barcodeDisplayW, barcodeDisplayH);
 
-          // ชื่อครุภัณฑ์ (Thai Image) - จัดกึ่งกลางเสมอ
-          const nameImg = drawThaiText(asset.asset_name, 11, true);
-          if (nameImg) {
-            const finalW = Math.min(nameImg.w, cardWidth - 10);
-            const finalH = nameImg.h * (finalW / nameImg.w);
-            pdf.addImage(nameImg.dataUrl, 'PNG', x + (cardWidth - finalW) / 2, y + 20, finalW, finalH);
+          let currentY = barcodeY + barcodeDisplayH + 1;
+
+          // ---- หมายเลขบาร์โค้ด (กึ่งกลาง, ตัวเล็ก) ----
+          const barcodeNumImg = drawThaiText(barcodeValue, 8, false);
+          if (barcodeNumImg) {
+            const w = Math.min(barcodeNumImg.w, cardWidth - 6);
+            const h = barcodeNumImg.h * (w / barcodeNumImg.w);
+            pdf.addImage(barcodeNumImg.dataUrl, 'PNG', x + (cardWidth - w) / 2, currentY, w, h);
+            currentY += h + 1;
           }
 
-          pdf.setFontSize(9);
-          let currentY = y + 28;
+          // ---- ชื่อครุภัณฑ์ (กึ่งกลาง, ตัวหนา) ----
+          const nameImg = drawThaiText(asset.asset_name, 10, true);
+          if (nameImg) {
+            const w = Math.min(nameImg.w, cardWidth - 6);
+            const h = nameImg.h * (w / nameImg.w);
+            pdf.addImage(nameImg.dataUrl, 'PNG', x + (cardWidth - w) / 2, currentY, w, h);
+            currentY += h + 2;
+          }
 
-          // ราคา
-          const priceText = `ราคา: ${asset.price ? Number(asset.price).toLocaleString('th-TH') : '0'} บาท`;
-          const priceImg = drawThaiText(priceText, 10);
-          if (priceImg) pdf.addImage(priceImg.dataUrl, 'PNG', x + 5, currentY, priceImg.w, priceImg.h);
+          // ---- ข้อมูลเพิ่มเติม (ชิดซ้าย) ----
+          const priceText = `ราคา ${asset.price ? Number(asset.price).toLocaleString('th-TH') : '0'} บาท`;
+          const priceImg = drawThaiText(priceText, 9);
+          if (priceImg) { pdf.addImage(priceImg.dataUrl, 'PNG', x + 5, currentY, priceImg.w, priceImg.h); currentY += 4.5; }
 
-          currentY += 5;
-          const fiscalText = `ปีงบประมาณ: ${getFiscalYear(asset.received_date)}`;
-          const fiscalImg = drawThaiText(fiscalText, 10);
-          if (fiscalImg) pdf.addImage(fiscalImg.dataUrl, 'PNG', x + 5, currentY, fiscalImg.w, fiscalImg.h);
+          const fiscalText = `ปีงบประมาณ ${getFiscalYear(asset.received_date)}`;
+          const fiscalImg = drawThaiText(fiscalText, 9);
+          if (fiscalImg) { pdf.addImage(fiscalImg.dataUrl, 'PNG', x + 5, currentY, fiscalImg.w, fiscalImg.h); currentY += 4.5; }
 
-          // เอา "คณะ" หรือ "หน่วยงาน" ออกตามที่ผู้ใช้แจ้ง
-        }
+          const deptText = `หน่วยงาน ${asset.department_name || '-'}`;
+          const deptImg = drawThaiText(deptText, 9);
+          if (deptImg) { pdf.addImage(deptImg.dataUrl, 'PNG', x + 5, currentY, deptImg.w, deptImg.h); }
+        }    // เอา "คณะ" หรือ "หน่วยงาน" ออกตามที่ผู้ใช้แจ้ง
       } else {
         const barcodeWidth = 55;
         const barcodeHeight = 22;
