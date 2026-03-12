@@ -151,6 +151,8 @@ switch ($endpoint) {
             $controller->getAll();
         } elseif ($request_method === 'GET' && $id === 'unchecked') {
             $controller->getUnchecked();
+        } elseif ($request_method === 'GET' && $id === 'years') {
+            $controller->getAvailableYears();
         } elseif ($request_method === 'GET' && $id === 'asset' && $action) {
             $controller->getByAsset($action);
         } // POST - เฉพาะ Admin และ Inspector เท่านั้น

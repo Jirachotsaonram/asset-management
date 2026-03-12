@@ -60,8 +60,8 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
         const cardHeight = 55;   // เพิ่มความสูงรองรับข้อมูลหน่วยงาน
         const cols = 2;
         const rowsPerPage = 5;
-        const spacingX = 5;
-        const spacingY = 2;
+        const spacingX = 0;
+        const spacingY = 0;
 
         for (let i = 0; i < assets.length; i++) {
           const asset = assets[i];
@@ -72,8 +72,9 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
           const x = margin + col * (cardWidth + spacingX);
           const y = margin + row * (cardHeight + spacingY);
 
-          pdf.setDrawColor(200);
-          pdf.roundedRect(x, y, cardWidth, cardHeight, 2, 2, 'S');
+          pdf.setDrawColor(0);
+          pdf.setLineWidth(0.2);
+          pdf.rect(x, y, cardWidth, cardHeight, 'S');
 
           // ---- Barcode (ไม่แสดงตัวเลขใน canvas เพื่อป้องกันทับกัน) ----
           const barcodeValue = asset.barcode || `${asset.asset_id}`;
@@ -137,12 +138,12 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
           if (deptImg) { pdf.addImage(deptImg.dataUrl, 'PNG', x + 5, currentY, deptImg.w, deptImg.h); }
         }    // เอา "คณะ" หรือ "หน่วยงาน" ออกตามที่ผู้ใช้แจ้ง
       } else {
-        const barcodeWidth = 55;
-        const barcodeHeight = 22;
+        const barcodeWidth = 63; 
+        const barcodeHeight = 31; // เพิ่มความสูงเป็น 31mm เพื่อให้มีพื้นที่พอดีกับข้อความ
         const cols = 3;
-        const rowsPerPage = 10;
-        const spacingX = 8;
-        const spacingY = 10;
+        const rowsPerPage = 9; // 31 * 9 = 279mm + 10 margin = 289mm (พอดีหน้า A4 297mm)
+        const spacingX = 0;
+        const spacingY = 0;
 
         for (let i = 0; i < assets.length; i++) {
           const asset = assets[i];
@@ -157,28 +158,45 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
           const barcodeValue = asset.barcode || `${asset.asset_id}`;
           const textLength = barcodeValue.length;
           let dynamicWidth = 2;
-          if (textLength > 12) dynamicWidth = 1.5;
-          if (textLength > 20) dynamicWidth = 1.0;
-          if (textLength > 30) dynamicWidth = 0.7;
+          if (textLength > 12) dynamicWidth = 1.6;
+          if (textLength > 20) dynamicWidth = 1.1;
+          if (textLength > 30) dynamicWidth = 0.8;
 
           const canvas = document.createElement('canvas');
           JsBarcode(canvas, barcodeValue, {
-            format: 'CODE128', width: dynamicWidth, height: 60, displayValue: true, fontSize: 18, margin: 5
+            format: 'CODE128', width: dynamicWidth, height: 50, displayValue: true, fontSize: 18, margin: 5
           });
           const imgBarcode = canvas.toDataURL('image/png');
 
-          // จัดบาร์โค้ดให้พอดีช่อง
+          // เพิ่มกรอบสี่เหลี่ยมรอบ Tag (ชิดขอบตาราง)
+          pdf.setDrawColor(0);
+          pdf.setLineWidth(0.1);
+          pdf.rect(x, y, barcodeWidth, barcodeHeight, 'S');
+
           const barcodeImgProps = pdf.getImageProperties(imgBarcode);
-          const bW = Math.min(barcodeWidth, barcodeWidth);
-          const bH = barcodeImgProps.height * (bW / barcodeImgProps.width);
-          pdf.addImage(imgBarcode, 'PNG', x, y, bW, bH);
+          const targetH = 16; // กำหนดความสูงมาตรฐาน 16mm เพื่อความเท่ากัน
+          let bW = barcodeImgProps.width * (targetH / barcodeImgProps.height);
+          let bH = targetH;
+
+          // ถ้ากว้างเกินป้าย ให้ย่อขนาดลงโดยรักษาอัตราส่วน
+          const maxW = barcodeWidth - 8;
+          if (bW > maxW) {
+            bW = maxW;
+            bH = barcodeImgProps.height * (bW / barcodeImgProps.width);
+          }
+
+          const barcodeX = x + (barcodeWidth - bW) / 2;
+          const barcodeY = y + 2; 
+          pdf.addImage(imgBarcode, 'PNG', barcodeX, barcodeY, bW, bH);
 
           // ชื่อครุภัณฑ์ (จัดกลางเสมอ - Standard Font)
-          const nameImg = drawThaiText(asset.asset_name, 10, true);
+          const nameImg = drawThaiText(asset.asset_name, 9, true);
           if (nameImg) {
-            const finalW = Math.min(nameImg.w, barcodeWidth);
+            const finalW = Math.min(nameImg.w, barcodeWidth - 6);
             const finalH = nameImg.h * (finalW / nameImg.w);
-            pdf.addImage(nameImg.dataUrl, 'PNG', x + (barcodeWidth - finalW) / 2, y + bH + 1, finalW, finalH);
+            // วางชื่อครุภัณฑ์ห่างจากขอบล่าง 2mm (เพื่อให้ตำแหน่งสม่ำเสมอ)
+            const textY = y + barcodeHeight - finalH - 2;
+            pdf.addImage(nameImg.dataUrl, 'PNG', x + (barcodeWidth - finalW) / 2, textY, finalW, finalH);
           }
         }
       }
@@ -255,7 +273,7 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
             <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">ตัวอย่างรายการ</h4>
             <div className="flex flex-wrap gap-4">
               {assets.slice(0, 10).map((asset) => (
-                <div key={asset.asset_id} className="p-2 bg-gray-50 rounded-lg border border-gray-100 w-28 flex flex-col items-center">
+                <div key={asset.asset_id} className="p-2 bg-gray-50 rounded-none border border-gray-300 w-28 flex flex-col items-center shadow-sm">
                   <BarcodePreview value={asset.barcode || `A${asset.asset_id}`} />
                   <p className="text-[9px] font-bold text-gray-800 mt-1 truncate w-full text-center">{asset.asset_name}</p>
                 </div>

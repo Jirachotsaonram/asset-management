@@ -229,5 +229,23 @@ class AssetCheckController {
             Response::error('กรุณากรอกข้อมูลให้ครบถ้วน (asset_ids และ check_status)', 400);
         }
     }
+
+    public function getAvailableYears() {
+        $query = "SELECT DISTINCT YEAR(check_date) as year FROM " . $this->assetCheck->table_name . " WHERE check_date IS NOT NULL ORDER BY year DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $years = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $years[] = (int)$row['year'] + 543; // แปลงเป็น พ.ศ.
+        }
+
+        // เพิ่มปีปัจจุบันถ้ายังไม่มีในรายการ
+        $currentBE = (int)date('Y') + 543;
+        if (!in_array($currentBE, $years)) {
+            array_unshift($years, $currentBE);
+        }
+
+        Response::success('ดึงรายการปีที่มีข้อมูลสำเร็จ', $years);
+    }
 }
 ?>

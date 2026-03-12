@@ -413,3 +413,50 @@ Stack trace:
 #2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(460): SystemSettingController->update()
 #3 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\SystemSetting.php on line 37
+[10-Mar-2026 18:50:04 Europe/Berlin] Import: Starting import of 1 rows
+[12-Mar-2026 03:33:36 Europe/Berlin] AuthController: Database connection failed.
+[12-Mar-2026 03:33:36 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:25
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(35): User->login()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 25
+[12-Mar-2026 03:34:10 Europe/Berlin] AuthController: Database connection failed.
+[12-Mar-2026 03:34:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:25
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(35): User->login()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 25
+[12-Mar-2026 03:36:05 Europe/Berlin] AuthController: Database connection failed.
+[12-Mar-2026 03:36:05 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:25
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(35): User->login()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 25
+[12-Mar-2026 04:58:36 Europe/Berlin] PHP Fatal error:  Uncaught Error: Cannot access private property AssetCheck::$table_name in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(155): AssetCheckController->getAvailableYears()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 234
+[12-Mar-2026 04:59:11 Europe/Berlin] PHP Fatal error:  Uncaught Error: Cannot access private property AssetCheck::$table_name in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(155): AssetCheckController->getAvailableYears()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 234
+[12-Mar-2026 04:59:11 Europe/Berlin] PHP Fatal error:  Uncaught Error: Cannot access private property AssetCheck::$table_name in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(155): AssetCheckController->getAvailableYears()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 234
+[12-Mar-2026 04:59:33 Europe/Berlin] PHP Fatal error:  Uncaught Error: Cannot access private property AssetCheck::$table_name in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(155): AssetCheckController->getAvailableYears()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 234
+[12-Mar-2026 04:59:33 Europe/Berlin] PHP Fatal error:  Uncaught Error: Cannot access private property AssetCheck::$table_name in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(155): AssetCheckController->getAvailableYears()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 234

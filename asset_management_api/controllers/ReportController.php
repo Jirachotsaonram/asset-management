@@ -467,17 +467,25 @@ class ReportController {
 
     // Export รายงานการตรวจนับประจำปี พร้อมประวัติแยกรายปีพ.ศ.
     public function exportAnnualCheckHistory($params = []) {
+        $selectedYear = isset($params['year']) ? (int)$params['year'] : null;
+
         // ดึงปีที่มีการตรวจสอบทั้งหมด
-        $yearQuery = "SELECT DISTINCT YEAR(check_date) as year FROM asset_check ORDER BY year ASC";
+        $yearQuery = "SELECT DISTINCT YEAR(check_date) as year FROM asset_check WHERE check_date IS NOT NULL";
+        if ($selectedYear) {
+            $yearQuery .= " AND YEAR(check_date) = :year";
+        }
+        $yearQuery .= " ORDER BY year ASC";
+        
         $yearStmt = $this->conn->prepare($yearQuery);
+        if ($selectedYear) {
+            $yearStmt->bindParam(':year', $selectedYear);
+        }
         $yearStmt->execute();
         $years = $yearStmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // ตรวจสอบว่ามีปีปัจจุบันอยู่ในรายการหรือไม่ ถ้าไม่มีให้เพิ่มเข้าไป (รองรับปีต่อไป)
-        $currentYear = (int)date('Y');
-        if (!in_array($currentYear, $years)) {
-            $years[] = $currentYear;
-            sort($years);
+        // ถ้าไม่มีข้อมูลในปีที่เลือก ให้สรุปว่าเป็นปีปัจจุบันหรือปีที่ระบุ
+        if (empty($years)) {
+            $years = [$selectedYear ?? (int)date('Y')];
         }
 
         // Build dynamic pivot SQL
@@ -509,12 +517,20 @@ class ReportController {
                     FROM assets asst
                     LEFT JOIN departments dept ON asst.department_id = dept.department_id
                     LEFT JOIN locations loc ON asst.location_id = loc.location_id
-                    LEFT JOIN asset_check ac ON asst.asset_id = ac.asset_id
-                 ) a
+                    LEFT JOIN asset_check ac ON asst.asset_id = ac.asset_id";
+        
+        if ($selectedYear) {
+            $query .= " AND YEAR(ac.check_date) = :year";
+        }
+
+        $query .= " ) a
                  GROUP BY a.asset_id
                  ORDER BY a.barcode_display, a.asset_id";
         
         $stmt = $this->conn->prepare($query);
+        if ($selectedYear) {
+            $stmt->bindParam(':year', $selectedYear);
+        }
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

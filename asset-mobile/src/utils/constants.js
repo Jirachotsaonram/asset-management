@@ -21,7 +21,7 @@ import { Platform } from 'react-native';
 //   - PC จะได้ IP เช่น 10.103.131.243
 //   - Gateway จะเป็น IP ของมือถือ เช่น 10.103.131.17
 //   - แต่ API URL ต้องใช้ IP ของ PC (10.103.131.243) ไม่ใช่ gateway
-const YOUR_IP_ADDRESS = '10.40.143.98'; // IP ของ PC บน WiFi เดียวกัน
+const YOUR_IP_ADDRESS = '192.168.0.111'; // IP ของ PC บน WiFi เดียวกัน
 // หมายเหตุ: หากใช้ --tunnel ให้เปลี่ยน API_BASE_URL เป็น URL จาก ngrok ถ้าจำเป็น
 // หรือตรวจสอบว่า Firewall ปิดอยู่/อนุญาตให้เข้าถึง Port 80 และ 8081
 

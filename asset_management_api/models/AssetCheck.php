@@ -1,7 +1,7 @@
 <?php
 class AssetCheck {
     private $conn;
-    private $table_name = "asset_check";
+    public $table_name = "asset_check";
 
     public $check_id;
     public $asset_id;

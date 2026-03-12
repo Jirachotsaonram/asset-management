@@ -37,6 +37,8 @@ export default function AnnualCheckPage() {
 
     // Filters
     const [viewFilter, setViewFilter] = useState("all"); // all, checked, unchecked
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543); // พ.ศ. ปัจจุบัน
+    const [yearOptions, setYearOptions] = useState([]);
 
     const periodInfo = useMemo(() => {
         if (!settings.annual_check_start || !settings.annual_check_end) return null;
@@ -67,7 +69,26 @@ export default function AnnualCheckPage() {
 
     useEffect(() => {
         fetchSettings();
+        fetchYears();
     }, []);
+
+    const fetchYears = async () => {
+        try {
+            const response = await api.get("/checks/years");
+            if (response.data.success) {
+                setYearOptions(response.data.data);
+                // ถ้าปีปัจจุบันอยู่ในรายการ ให้เลือกปีปัจจุบันเป็นค่าเริ่มต้น
+                const currentBE = new Date().getFullYear() + 543;
+                if (response.data.data.includes(currentBE)) {
+                    setSelectedYear(currentBE);
+                } else if (response.data.data.length > 0) {
+                    setSelectedYear(response.data.data[0]);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching years:", error);
+        }
+    };
 
     useEffect(() => {
         fetchAssets();
@@ -106,12 +127,27 @@ export default function AnnualCheckPage() {
 
             if (viewFilter === 'unchecked') {
                 params.set('unchecked', '1');
-                if (settings.annual_check_start) params.set('start_date', settings.annual_check_start);
-                if (settings.annual_check_end) params.set('end_date', settings.annual_check_end);
+                // ถ้าเลือกปีปัจจุบัน ให้ใช้ช่วงเวลาจาก settings แต่ถ้าไม่ใช่ ให้ใช้ตามปี พ.ศ. ที่เลือก
+                const currentBE = new Date().getFullYear() + 543;
+                if (parseInt(selectedYear) === currentBE) {
+                    if (settings.annual_check_start) params.set('start_date', settings.annual_check_start);
+                    if (settings.annual_check_end) params.set('end_date', settings.annual_check_end);
+                } else {
+                    const adYear = parseInt(selectedYear) - 543;
+                    params.set('start_date', `${adYear}-01-01`);
+                    params.set('end_date', `${adYear}-12-31`);
+                }
             } else if (viewFilter === 'checked') {
                 params.set('checked', '1');
-                if (settings.annual_check_start) params.set('start_date', settings.annual_check_start);
-                if (settings.annual_check_end) params.set('end_date', settings.annual_check_end);
+                const currentBE = new Date().getFullYear() + 543;
+                if (parseInt(selectedYear) === currentBE) {
+                    if (settings.annual_check_start) params.set('start_date', settings.annual_check_start);
+                    if (settings.annual_check_end) params.set('end_date', settings.annual_check_end);
+                } else {
+                    const adYear = parseInt(selectedYear) - 543;
+                    params.set('start_date', `${adYear}-01-01`);
+                    params.set('end_date', `${adYear}-12-31`);
+                }
             }
 
             const response = await api.get(`/assets?${params.toString()}`);
@@ -174,16 +210,23 @@ export default function AnnualCheckPage() {
         }
     };
 
-    const handleExportExcel = async () => {
+    const handleExportExcel = async (year = null) => {
         try {
             toast.loading("กำลังเตรียมไฟล์ Excel...", { id: 'export-excel' });
-            const response = await api.get("/reports/export?type=annual_check_history", {
+            let url = "/reports/export?type=annual_check_history";
+            if (year) {
+                const adYear = parseInt(year) - 543;
+                url += `&year=${adYear}`;
+            }
+
+            const response = await api.get(url, {
                 responseType: 'blob'
             });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `annual_check_history_${new Date().toISOString().split('T')[0]}.xls`);
+            link.href = downloadUrl;
+            const filename = year ? `annual_check_history_${year}.xls` : `annual_check_history_all.xls`;
+            link.setAttribute('download', filename);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -272,13 +315,36 @@ export default function AnnualCheckPage() {
                         ระบุช่วงเวลาและตรวจสอบครุภัณฑ์เพื่อความถูกต้องแม่นยำรายปี
                     </p>
                 </div>
-                <button
-                    onClick={handleExportExcel}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-bold shadow-lg shadow-emerald-600/20 text-sm"
-                >
-                    <Download size={18} />
-                    ส่งออก Excel (ประวัติรายปี)
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    {/* ปุ่มเดิม: ประวัติรายปี (ทุกปี) */}
+                    <button
+                        onClick={() => handleExportExcel()}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-bold shadow-lg shadow-emerald-600/20 text-sm"
+                    >
+                        <Download size={18} />
+                        ส่งออก Excel (ประวัติรายปี)
+                    </button>
+
+                    {/* ปุ่มใหม่: เลือกปีเฉพาะ */}
+                    <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm">
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            className="bg-transparent font-bold text-blue-600 outline-none cursor-pointer text-sm"
+                        >
+                            {yearOptions.map(y => (
+                                <option key={y} value={y}>{y}</option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={() => handleExportExcel(selectedYear)}
+                            className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
+                            title={`ดาวน์โหลดเฉพาะปี ${selectedYear}`}
+                        >
+                            <Download size={16} />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
