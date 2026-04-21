@@ -149,6 +149,8 @@ switch ($endpoint) {
         // GET requests - ทุกคนสามารถดูได้
         if ($request_method === 'GET' && !$id && !$action) {
             $controller->getAll();
+        } elseif ($request_method === 'GET' && $id === 'annual-stats') {
+            $controller->getAnnualStats();
         } elseif ($request_method === 'GET' && $id === 'unchecked') {
             $controller->getUnchecked();
         } elseif ($request_method === 'GET' && $id === 'years') {

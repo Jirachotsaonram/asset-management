@@ -71,13 +71,13 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [assetsRes, statusRes, uncheckedRes, auditsRes, notifsRes, overdueRes] = await Promise.all([
+      const [assetsRes, statusRes, auditsRes, notifsRes, overdueRes, settingsRes] = await Promise.all([
         api.get('/assets?limit=1'),
         api.get('/reports/by-status'),
-        api.get('/reports/unchecked?days=365'),
         api.get('/audits'),
         api.get('/check-schedules/notifications?days=30').catch(() => ({ data: { data: [] } })),
         api.get('/check-schedules/overdue').catch(() => ({ data: { data: [] } })),
+        api.get('/settings').catch(() => ({ data: { data: [] } }))
       ]);
 
       let assets = assetsRes.data.data || [];
@@ -85,8 +85,17 @@ export default function DashboardPage() {
       if (!Array.isArray(assets)) assets = [];
 
       const statusReport = statusRes.data.data || [];
-      const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
-      const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (Array.isArray(uncheckedData) ? uncheckedData.length : 0);
+
+      // Extract settings
+      const settingsData = settingsRes.data.data || {};
+      const startDate = settingsData.annual_check_start || '';
+      const endDate = settingsData.annual_check_end || '';
+
+      // Fetch unified annual check stats
+      let params = '';
+      if (startDate && endDate) params = `?start_date=${startDate}&end_date=${endDate}`;
+      const annStatsRes = await api.get(`/checks/annual-stats${params}`).catch(() => ({ data: { data: { total: 0, checked: 0, unchecked: 0 } } }));
+      const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
 
       const sc = { 'ใช้งานได้': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
       let tv = 0;
@@ -107,9 +116,9 @@ export default function DashboardPage() {
       })).filter(d => d.value > 0);
 
       setStats({
-        total: totalAsssetCount,
-        checked: Math.max(0, totalAsssetCount - uncheckedCount),
-        unchecked: uncheckedCount,
+        total: annStats.total,
+        checked: annStats.checked,
+        unchecked: annStats.unchecked,
         available: sc['ใช้งานได้'], maintenance: sc['รอซ่อม'],
         pendingDisposal: sc['รอจำหน่าย'], disposed: sc['จำหน่ายแล้ว'],
         missing: sc['ไม่พบ'], totalValue: tv,
@@ -208,7 +217,7 @@ export default function DashboardPage() {
             <p className="text-xs text-green-300">{availablePct}%</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-            <p className="text-blue-200 text-xs">ตรวจสอบแล้ว</p>
+            <p className="text-blue-200 text-xs">ตรวจแล้วในรอบนี้</p>
             <p className="text-2xl font-bold mt-0.5">{stats.checked.toLocaleString()}</p>
             <p className="text-xs text-green-300">{checkedPct}%</p>
           </div>

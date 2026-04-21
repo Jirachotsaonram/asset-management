@@ -98,6 +98,12 @@ class Asset {
             $params[':status'] = $filters['status'];
         }
 
+        // Exclude specific status
+        if (!empty($filters['exclude_status'])) {
+            $conditions[] = "status != :exclude_status";
+            $params[':exclude_status'] = $filters['exclude_status'];
+        }
+
         // Filter by department
         if (!empty($filters['department_id'])) {
             $conditions[] = "department_id = :department_id";
@@ -202,6 +208,10 @@ class Asset {
         if (!empty($filters['status'])) {
             $conditions[] = "status = :status";
             $params[':status'] = $filters['status'];
+        }
+        if (!empty($filters['exclude_status'])) {
+            $conditions[] = "status != :exclude_status";
+            $params[':exclude_status'] = $filters['exclude_status'];
         }
         if (!empty($filters['department_id'])) {
             $conditions[] = "department_id = :department_id";

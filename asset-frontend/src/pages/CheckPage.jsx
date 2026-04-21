@@ -11,29 +11,32 @@ import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
-// ==================== Constants ====================
 const STATUS_CONFIGS = {
-  never_checked: { label: 'ยังไม่เคยตรวจ', color: 'bg-red-100 text-red-700 border-red-200', icon: AlertCircle, priority: 1 },
+  never_checked: { label: 'ยังไม่ได้ตรวจในรอบนี้', color: 'bg-red-100 text-red-700 border-red-200', icon: AlertCircle, priority: 1 },
   overdue: { label: 'เลยกำหนด', color: 'bg-red-100 text-red-700 border-red-200', icon: AlertTriangle, priority: 1 },
   no_schedule: { label: 'ยังไม่กำหนดรอบ', color: 'bg-gray-100 text-gray-800 border-gray-300', icon: Calendar, priority: 2 },
   due_soon: { label: 'ใกล้กำหนด', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: Clock, priority: 2 },
-  checked: { label: 'ตรวจแล้ว', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckSquare, priority: 3 },
+  checked: { label: 'ตรวจแล้วในรอบนี้', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckSquare, priority: 3 },
 };
 
 const CHECK_STATUSES = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ'];
 const ITEMS_PER_PAGE = 100;
 
 // ==================== Helper: compute check status (pure function) ====================
-function computeCheckStatus(asset) {
-  const today = Date.now();
-  if (!asset.last_check_date) {
-    return { ...STATUS_CONFIGS.never_checked, status: 'never_checked', days: null };
+function computeCheckStatus(asset, globalPeriod) {
+  let checkDateStr = null;
+  if (asset.last_check_date) checkDateStr = asset.last_check_date.split(' ')[0];
+
+  if (!asset.last_check_date || (globalPeriod.start && checkDateStr < globalPeriod.start) || (globalPeriod.end && checkDateStr > globalPeriod.end)) {
+    return { ...STATUS_CONFIGS.never_checked, status: 'never_checked', days: null, text: 'ยังไม่ได้ตรวจ' };
   }
+
+  const today = Date.now();
   const nextCheck = asset.next_check_date ? new Date(asset.next_check_date).getTime() : null;
 
   if (!nextCheck) {
     // If it has been checked, but no future schedule is set, it's still "checked" for now.
-    return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${asset.last_check_date}`, days: null };
+    return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: null };
   }
 
   const daysUntil = Math.floor((nextCheck - today) / 86400000);
@@ -43,7 +46,7 @@ function computeCheckStatus(asset) {
   if (daysUntil <= 7) {
     return { ...STATUS_CONFIGS.due_soon, status: 'due_soon', label: `อีก ${daysUntil} วัน`, days: daysUntil };
   }
-  return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${asset.last_check_date}`, days: daysUntil };
+  return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: daysUntil };
 }
 
 // ==================== Main Component ====================
@@ -54,6 +57,9 @@ export default function CheckPage() {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Settings for global annual check period
+  const [globalPeriod, setGlobalPeriod] = useState({ start: null, end: null });
 
   // UI
   const [activeTab, setActiveTab] = useState('check');
@@ -74,6 +80,10 @@ export default function CheckPage() {
   const [checkForm, setCheckForm] = useState({ status: 'ใช้งานได้', remark: '' });
   const [scheduleForm, setScheduleForm] = useState({ scheduleId: 3 });
 
+  const computeCheckStatusWrapper = useCallback((asset) => {
+    return computeCheckStatus(asset, globalPeriod);
+  }, [globalPeriod]);
+
   // URL params
   useEffect(() => {
     const f = searchParams.get('filter');
@@ -87,9 +97,15 @@ export default function CheckPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [aR, sR, dR] = await Promise.all([
-        api.get('/assets?limit=0'), api.get('/check-schedules'), api.get('/departments')
+      const [aR, sR, dR, settingsRes] = await Promise.all([
+        api.get('/assets?limit=0'), api.get('/check-schedules'), api.get('/departments'), api.get('/settings').catch(() => ({ data: { data: [] } }))
       ]);
+
+      const settingsData = settingsRes.data.data || {};
+      const startDate = settingsData.annual_check_start || null;
+      const endDate = settingsData.annual_check_end || null;
+      setGlobalPeriod({ start: startDate, end: endDate });
+
       let a = aR.data.data || [];
       if (a && a.items) a = a.items;
       if (!Array.isArray(a)) a = [];
@@ -102,8 +118,8 @@ export default function CheckPage() {
 
   // ==================== Memoized: pre-compute statuses once ====================
   const assetsWithStatus = useMemo(() =>
-    assets.map(a => ({ ...a, _status: computeCheckStatus(a) })),
-    [assets]
+    assets.map(a => ({ ...a, _status: computeCheckStatusWrapper(a) })),
+    [assets, computeCheckStatusWrapper]
   );
 
   // ==================== Memoized: stats ====================
@@ -116,9 +132,25 @@ export default function CheckPage() {
       else if (s === 'due_soon') dueSoon++;
       else if (s === 'checked') checked++;
     });
+
+    if (globalPeriod.end) {
+        overdue = 0;
+        dueSoon = 0;
+        const endDay = new Date(globalPeriod.end);
+        const nowDay = new Date();
+        const diffMs = endDay - nowDay;
+        const days = Math.floor(diffMs / 86400000);
+        
+        if (days < 0) {
+            overdue = neverChecked;
+        } else if (days <= 7) {
+            dueSoon = neverChecked;
+        }
+    }
+
     const total = assetsWithStatus.length;
     return { neverChecked, overdue, dueSoon, checked, total, needsAction: neverChecked + overdue + dueSoon, percentage: total > 0 ? ((checked / total) * 100).toFixed(1) : 0 };
-  }, [assetsWithStatus]);
+  }, [assetsWithStatus, globalPeriod]);
 
   // ==================== Memoized: filtered assets ====================
   const filteredAssets = useMemo(() => {

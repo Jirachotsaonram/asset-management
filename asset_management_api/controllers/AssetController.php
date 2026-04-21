@@ -42,6 +42,7 @@ class AssetController {
             if (!empty($_GET['search'])) $filters['search'] = $_GET['search'];
             if (!empty($_GET['unchecked'])) $filters['unchecked'] = $_GET['unchecked'];
             if (!empty($_GET['checked'])) $filters['checked'] = $_GET['checked'];
+            if (!empty($_GET['exclude_status'])) $filters['exclude_status'] = $_GET['exclude_status'];
             if (!empty($_GET['start_date'])) $filters['start_date'] = $_GET['start_date'];
             if (!empty($_GET['end_date'])) $filters['end_date'] = $_GET['end_date'];
             if (!empty($_GET['location_id'])) $filters['location_id'] = (int)$_GET['location_id'];

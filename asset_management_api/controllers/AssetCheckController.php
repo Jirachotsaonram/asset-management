@@ -247,5 +247,66 @@ class AssetCheckController {
 
         Response::success('ดึงรายการปีที่มีข้อมูลสำเร็จ', $years);
     }
+
+    public function getAnnualStats() {
+        $start_date = $_GET['start_date'] ?? null;
+        $end_date = $_GET['end_date'] ?? null;
+        
+        $totalQuery = "SELECT COUNT(*) as c FROM assets WHERE status != 'จำหน่ายแล้ว'";
+        $totalStmt = $this->db->prepare($totalQuery);
+        $totalStmt->execute();
+        $total = (int)$totalStmt->fetch(PDO::FETCH_ASSOC)['c'];
+
+        $checkedQuery = "SELECT COUNT(DISTINCT asset_id) as c FROM asset_check";
+        $conditions = [];
+        $params = [];
+        if ($start_date && $end_date) {
+            $conditions[] = "check_date BETWEEN :start_date AND :end_date";
+            $params[':start_date'] = $start_date;
+            $params[':end_date'] = $end_date;
+        } else {
+            $conditions[] = "check_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+        }
+        
+        if (!empty($conditions)) {
+            $checkedQuery .= " WHERE " . implode(" AND ", $conditions);
+        }
+        
+        $checkedStmt = $this->db->prepare($checkedQuery);
+        foreach ($params as $key => $val) {
+            $checkedStmt->bindValue($key, $val);
+        }
+        $checkedStmt->execute();
+        $checked = (int)$checkedStmt->fetch(PDO::FETCH_ASSOC)['c'];
+
+        $unchecked = $total - $checked;
+        if ($unchecked < 0) $unchecked = 0;
+
+        $due_soon = 0;
+        $overdue = 0;
+
+        if ($end_date) {
+            $end_time = strtotime($end_date);
+            $now = time();
+            $diff = $end_time - $now;
+            $days = floor($diff / 86400);
+
+            if ($days < 0) {
+                // Overdue
+                $overdue = $unchecked;
+            } else if ($days <= 7) {
+                // Due soon
+                $due_soon = $unchecked;
+            }
+        }
+
+        Response::success('ดึงสถิติสำเร็จ', [
+            'total' => $total,
+            'checked' => $checked,
+            'unchecked' => $unchecked,
+            'due_soon' => $due_soon,
+            'overdue' => $overdue
+        ]);
+    }
 }
 ?>

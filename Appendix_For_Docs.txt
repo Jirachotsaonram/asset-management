@@ -1,0 +1,280 @@
+ภาคผนวก
+
+สารบัญภาคผนวก
+
+ภาคผนวก ก รายละเอียดโครงสร้างฐานข้อมูล (Database Schema)
+ภาคผนวก ข ขั้นตอนการติดตั้งและกำหนดค่าการใช้งานระบบ (System Installation and Configuration)
+ภาคผนวก ค ตัวอย่างรหัสต้นฉบับของโปรแกรม (Source Code Excerpts)
+ภาคผนวก ง คู่มือการใช้งานระบบเบื้องต้น (User Manual)
+ภาคผนวก จ รายละเอียดส่วนเชื่อมต่อโปรแกรมประยุกต์ (API Documentation)
+ภาคผนวก ฉ เครื่องมือและเทคโนโลยีที่ใช้ในการพัฒนาระบบ (Development Tools and Technologies)
+ภาคผนวก ช ผลการทดสอบระบบ (System Testing Results)
+
+-----------------------------------------------------------
+
+ภาคผนวก ก รายละเอียดโครงสร้างฐานข้อมูล (Database Schema)
+
+แสดงชุดคำสั่งภาษา SQL สำหรับการนิยามข้อมูล (Data Definition Language: DDL) ที่ใช้ในการสร้างฐานข้อมูลและตารางของระบบบริหารจัดการครุภัณฑ์ จำนวนทั้งสิ้น 12 ตาราง
+
+คำสั่ง SQL สำหรับสร้างฐานข้อมูลและตาราง:
+
+CREATE TABLE assets (
+  asset_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  asset_name varchar(255) NOT NULL,
+  serial_number text DEFAULT NULL,
+  quantity int(11) DEFAULT 1,
+  unit varchar(50) DEFAULT 'เครื่อง',
+  price decimal(15,2) DEFAULT 0.00,
+  received_date date DEFAULT NULL,
+  department_id int(11) DEFAULT NULL,
+  status varchar(50) DEFAULT 'ใช้งานได้',
+  barcode varchar(100) DEFAULT NULL,
+  image varchar(255) DEFAULT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp()
+);
+
+CREATE TABLE users (
+  user_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  username varchar(50) NOT NULL UNIQUE,
+  password varchar(255) NOT NULL,
+  fullname varchar(100) DEFAULT NULL,
+  role enum('admin','inspector','viewer') DEFAULT 'viewer',
+  status enum('active','inactive') DEFAULT 'active'
+);
+
+CREATE TABLE departments (
+  department_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  department_name varchar(100) NOT NULL
+);
+
+CREATE TABLE locations (
+  location_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  building_name varchar(100) DEFAULT NULL,
+  floor varchar(10) DEFAULT NULL,
+  room_number varchar(20) DEFAULT NULL
+);
+
+CREATE TABLE asset_check (
+  check_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  asset_id int(11) NOT NULL,
+  user_id int(11) NOT NULL,
+  check_date datetime DEFAULT current_timestamp(),
+  check_status varchar(50) DEFAULT NULL,
+  remark text DEFAULT NULL
+);
+
+CREATE TABLE borrow (
+  borrow_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  asset_id int(11) NOT NULL,
+  borrower_name varchar(100) DEFAULT NULL,
+  borrow_date datetime DEFAULT NULL,
+  due_date datetime DEFAULT NULL,
+  return_date datetime DEFAULT NULL,
+  status varchar(50) DEFAULT 'ยืม'
+);
+
+CREATE TABLE asset_history (
+  history_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  asset_id int(11) NOT NULL,
+  old_location_id int(11) DEFAULT NULL,
+  new_location_id int(11) DEFAULT NULL,
+  moved_by int(11) DEFAULT NULL,
+  move_date datetime DEFAULT current_timestamp()
+);
+
+CREATE TABLE audittrail (
+  audit_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  user_id int(11) DEFAULT NULL,
+  asset_id int(11) DEFAULT NULL,
+  action varchar(255) DEFAULT NULL,
+  action_date timestamp NOT NULL DEFAULT current_timestamp()
+);
+
+CREATE TABLE check_schedules (
+  schedule_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name varchar(100) DEFAULT NULL,
+  check_interval_months int(11) DEFAULT 12,
+  is_active tinyint(1) DEFAULT 1
+);
+
+CREATE TABLE asset_schedules (
+  asset_schedule_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  asset_id int(11) NOT NULL,
+  schedule_id int(11) NOT NULL,
+  next_check_date date DEFAULT NULL
+);
+
+CREATE TABLE import_history (
+  import_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  import_date datetime DEFAULT current_timestamp(),
+  filename varchar(255) DEFAULT NULL,
+  total_rows int(11) DEFAULT 0,
+  user_id int(11) DEFAULT NULL
+);
+
+CREATE TABLE login_attempts (
+  id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  username varchar(100) DEFAULT NULL,
+  attempt_time datetime DEFAULT current_timestamp(),
+  success tinyint(1) DEFAULT 0,
+  ip_address varchar(45) DEFAULT NULL
+);
+
+-----------------------------------------------------------
+
+ภาคผนวก ข ขั้นตอนการติดตั้งและกำหนดค่าการใช้งานระบบ (System Installation and Configuration)
+
+1. การเตรียมสภาพแวดล้อมและโปรแกรมประยุกต์พื้นฐาน
+การทำงานของระบบในสภาวะแวดล้อมจำลองบนเครื่องคอมพิวเตอร์ส่วนบุคคล (Local Machine) จำเป็นต้องมีการติดตั้งโปรแกรมประยุกต์พื้นฐาน ดังนี้:
+- XAMPP Control Panel (v3.3.0+): สำหรับจำลองเครื่องแม่ข่ายเว็บ (Apache) และเครื่องแม่ข่ายฐานข้อมูล (MySQL/MariaDB)
+- Node.js (v18.x หรือสูงกว่า): สำหรับการประมวลผลสภาพแวดล้อมการพัฒนาของ Web Frontend และ Mobile Application
+- Web Browser: โปรแกรมรวบรวมข้อมูลเว็บ อาทิ Google Chrome หรือ Microsoft Edge
+- Expo Go: โปรแกรมประยุกต์บนอุปกรณ์เคลื่อนที่สำหรับทดสอบการทำงานของ Mobile Application
+
+2. ขั้นตอนการจัดเตรียมเครื่องแม่ข่ายจำลองและฐานข้อมูล
+2.1 การเริ่มต้นการทำงานของโปรแกรมจำลองแม่ข่าย (XAMPP Control Panel):
+- เปิดโปรแกรม XAMPP Control Panel
+- คลิกปุ่ม Start ในส่วนการทำงานของ Apache และ MySQL เพื่อเริ่มต้นการทำงานของระบบ
+2.2 การจัดทำฐานข้อมูลผ่านระบบจัดการฐานข้อมูล (phpMyAdmin):
+- เข้าถึงส่วนจัดการฐานข้อมูลผ่านเบราว์เซอร์ที่ลิงก์ http://localhost/phpmyadmin
+- เลือกคำสั่ง "New" (ใหม่) จากรายการเมนูด้านซ้าย
+- กำหนดชื่อฐานข้อมูลเป็น asset_management_db และกำหนดรูปแบบการจัดเรียง (Collation) เป็น utf8mb4_general_ci จากนั้นคลิกปุ่ม Create เพื่อจัดสร้างฐานข้อมูล
+2.3 การนำเข้าแฟ้มข้อมูลโครงสร้างฐานข้อมูล (SQL Import):
+- ภายหลังจากการสร้างฐานข้อมูล asset_management_db ให้เลือกแท็บ "Import" (นำเข้า) จากเมนูด้านบน
+- คลิกปุ่ม Choose File เพื่อทำการเลือกแฟ้มข้อมูลจากที่เก็บไฟล์
+- ดำเนินการคลิกปุ่ม Import ด้านล่างสุด เพื่อเสร็จสิ้นขั้นตอนการนำเข้าข้อมูลโครงสร้าง
+
+3. การติดตั้งและกำหนดค่าส่วนเชื่อมต่อฐานข้อมูล (Backend API)
+3.1 การจัดเก็บแฟ้มข้อมูลระบบ:
+- ดำเนินการคัดลอกโฟลเดอร์โครงการไปจัดเก็บไว้ในพาธต้นทางของเครื่องแม่ข่ายเว็บ ที่ C:\xampp\htdocs\asset-management\
+3.2 การตรวจสอบการเชื่อมต่อฐานข้อมูล:
+- ตรวจสอบความถูกต้องของแฟ้มข้อมูล asset_management_api/config/database.php
+- กำหนดค่าพารามิเตอร์เบื้องต้นดังนี้:
+  * host = "localhost"
+  * db_name = "asset_management_db"
+  * username = "root"
+  * password = "" (ว่างข้อมูล)
+
+4. การเริ่มต้นการทำงานของส่วนติดต่อผู้ใช้งานเว็บ (Web Frontend)
+- เปิดโปรแกรม Command Prompt (CMD)
+- เข้าสู่โฟลเดอร์โครงการ: cd C:\xampp\htdocs\asset-management\asset-frontend
+- ติดตั้งชุดคำสั่งเสริม: npm install
+- เริ่มต้นการทำงาน: npm run dev
+- เข้าใช้งานผ่านเบราว์เซอร์ที่ที่อยู่: http://localhost:5173
+
+5. การติดตั้งและเริ่มต้นการทำงานของแอปพลิเคชันมือถือ (Mobile Application)
+- เข้าสู่โฟลเดอร์สำหรับการเคลื่อนที่: cd C:\xampp\htdocs\asset-management\asset-mobile
+- ติดตั้งชุดคำสั่งเสริม: npm install
+- กำหนดค่า IP Address ในแฟ้มข้อมูล asset-mobile/src/utils/constants.js
+- เริ่มต้นการทำงาน: npx expo start
+- สแกนรหัสคิวอาร์ (QR Code) ผ่านโปรแกรม Expo Go บนมือถือ
+
+-----------------------------------------------------------
+
+ภาคผนวก ค ตัวอย่างรหัสต้นฉบับของโปรแกรม (Source Code Excerpts)
+
+ตัวอย่าง: การกำหนดค่าพื้นฐานและสถานะ (constants.js)
+
+export const ASSET_STATUS = {
+  AVAILABLE: 'ใช้งานได้',
+  MAINTENANCE: 'รอซ่อม',
+  PENDING_DISPOSAL: 'รอจำหน่าย',
+  DISPOSED: 'จำหน่ายแล้ว',
+  MISSING: 'ไม่พบ'
+};
+
+export const USER_ROLES = {
+  ADMIN: 'Admin',
+  INSPECTOR: 'Inspector',
+  VIEWER: 'Viewer'
+};
+
+ตัวอย่าง: การเชื่อมต่อฐานข้อมูล (PHP Class)
+
+class Database {
+    private $host = "localhost";
+    private $db_name = "asset_management_db";
+    private $username = "root";
+    private $password = "";
+    public $conn;
+
+    public function getConnection(){
+        $this->conn = null;
+        try {
+            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn->exec("set names utf8");
+        } catch(PDOException $exception){
+            echo "Connection error: " . $exception->getMessage();
+        }
+        return $this->conn;
+    }
+}
+
+-----------------------------------------------------------
+
+ภาคผนวก ง คู่มือการใช้งานระบบเบื้องต้น (User Manual)
+
+1. ระบบบริหารจัดการผ่านเครือข่ายอินเทอร์เน็ต (Web Administration System)
+- การเข้าสู่ระบบ: ผู้ใช้งานระบุบัญชีผู้ใช้และรหัสผ่านเพื่อเข้ารับการพิสูจน์ตัวตนตามสิทธิ์
+- ส่วนแสดงผลรายการครุภัณฑ์: แสดงรายละเอียดรายการครุภัณฑ์ทั้งหมด พร้อมระบบกรองข้อมูลตามหน่วยงานหรือสถานะ
+- การบริหารจัดการข้อมูล: ผู้ดูแลระบบสามารถเพิ่ม แก้ไข หรือลบข้อมูลครุภัณฑ์ หน่วยงาน และสถานที่
+- การสรุปผลและรายงาน: ระบบรองรับการส่งออกข้อมูลรายงานในรูปแบบ CSV และ Excel
+
+2. โปรแกรมประยุกต์บนอุปกรณ์เคลื่อนที่ (Mobile Application)
+- การตรวจนับครุภัณฑ์: ผู้ตรวจนับประมวลผลการอ่านรหัสรหัสแท่ง (Barcode) หรือใช้ระบบ OCR เพื่อตรวจสอบหมายเลขประจำครุภัณฑ์
+- การจัดเก็บสถานะ: ระบบจัดเก็บข้อมูลการตรวจนับลงในฐานข้อมูลโดยอัตโนมัติพร้อมระบุวันเวลา
+- การดำเนินธุรกรรมยืม-คืน: รองรับการบันทึกรายการยืมครุภัณฑ์และการยืนยันการส่งคืนผ่านมือถือ
+
+-----------------------------------------------------------
+
+ภาคผนวก จ รายละเอียดส่วนเชื่อมต่อโปรแกรมประยุกต์ (API Documentation)
+
+รายการจุดเชื่อมต่อ (Endpoints) ที่สำคัญ:
+
+1. /auth/login (POST): กระบวนการตรวจสอบสิทธิ์และเข้าสู่ระบบ
+2. /assets (GET): การเรียกดูข้อมูลรายการครุภัณฑ์ทั้งหมด
+3. /assets/{id} (GET/PUT): การเรียกดูรายละเอียดเฉพาะรายการหรือการปรับปรุงข้อมูล
+4. /checks (POST): การจัดเก็บผลการดำเนินการตรวจนับครุภัณฑ์รายการใหม่
+5. /checks/unchecked (GET): การเรียกดูรายการครุภัณฑ์ที่ยังไม่ได้รับการตรวจนับ
+6. /borrows (POST): การจัดเก็บข้อมูลการยืมครุภัณฑ์
+7. /reports/asset-summary (GET): การดึงข้อมูลสรุปภาพรวมครุภัณฑ์
+8. /upload/asset/{id} (POST): การจัดส่งแฟ้มข้อมูลภาพถ่ายครุภัณฑ์เข้าสู่ระบบ
+
+-----------------------------------------------------------
+
+ภาคผนวก ฉ เครื่องมือและเทคโนโลยีที่ใช้ในการพัฒนาระบบ (Development Tools)
+
+1. ระบบประมวลผลส่วนหลังและฐานข้อมูล (Backend and Database)
+- ภาษา: PHP (Hypertext Preprocessor)
+- ฐานข้อมูล: MySQL / MariaDB (ผ่านเทคโนโลยี PDO)
+- สถาปัตยกรรม: RESTful API (รูปแบบ JSON)
+
+2. ส่วนติดต่อผู้ใช้งานเว็บ (Web Frontend)
+- ไลบรารีหลัก: React.js (เวอร์ชัน 19)
+- จัดการสถานะ: TanStack Query
+- รูปแบบการแสดงผล: Tailwind CSS
+- ซอฟต์แวร์สนับสนุน: Axios, Recharts
+
+3. ส่วนพัฒนาแอปพลิเคชันมือถือ (Mobile Application)
+- โครงร่างการพัฒนา: React Native (Expo Framework)
+- ส่วนเชื่อมต่อฮาร์ดแวร์: Expo Camera, Expo Image Picker
+- เทคโนโลยีรู้จำข้อมูล: Tesseract.js (ระบบ OCR)
+
+-----------------------------------------------------------
+
+ภาคผนวก ช ผลการทดสอบระบบ (System Testing Results)
+
+การทดสอบระบบความปลอดภัย
+- การเข้าสู่ระบบด้วยข้อมูลที่ถูกต้อง: ผ่าน (Pass)
+- การเข้าสู่ระบบด้วยข้อมูลที่ไม่ถูกต้อง: ผ่าน (Pass)
+- การตรวจสอบสิทธิ์ตามระดับผู้ใช้: ผ่าน (Pass)
+
+การทดสอบการจัดการข้อมูลครุภัณฑ์
+- การเพิ่มข้อมูลครุภัณฑ์ใหม่: ผ่าน (Pass)
+- การจัดทำรหัสบาร์โค้ดครุภัณฑ์: ผ่าน (Pass)
+- การปรับปรุงข้อมูลสถานะ: ผ่าน (Pass)
+
+การทดสอบผ่านอุปกรณ์เคลื่อนที่
+- การประมวลผลการอ่านรหัส (Barcode): ผ่าน (Pass)
+- การพิสูจน์ค่าอักษรทางแสง (OCR): ผ่าน (Pass)
+- การบันทึกผลการสำรวจครุภัณฑ์: ผ่าน (Pass)

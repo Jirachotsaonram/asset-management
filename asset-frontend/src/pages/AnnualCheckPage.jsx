@@ -4,7 +4,8 @@ import toast from "react-hot-toast";
 import {
     Calendar, CheckCircle2, XCircle, Filter,
     RotateCcw, RefreshCw, Package, Search,
-    Settings, Save, CheckSquare, Trash2, HelpCircle, Download
+    Settings, Save, CheckSquare, Trash2, HelpCircle, Download,
+    BarChart3, AlertCircle, AlertTriangle, Clock, TrendingUp
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import VirtualTable from "../components/Common/VirtualTable";
@@ -23,6 +24,7 @@ export default function AnnualCheckPage() {
 
     // Asset Data State
     const [assets, setAssets] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +38,7 @@ export default function AnnualCheckPage() {
     const [bulkRemark, setBulkRemark] = useState("");
 
     // Filters
-    const [viewFilter, setViewFilter] = useState("all"); // all, checked, unchecked
+    const [viewFilter, setViewFilter] = useState("unchecked"); // all, checked, unchecked
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543); // พ.ศ. ปัจจุบัน
     const [yearOptions, setYearOptions] = useState([]);
 
@@ -105,6 +107,33 @@ export default function AnnualCheckPage() {
         }
     };
 
+    const fetchStats = async () => {
+        try {
+            const params = new URLSearchParams();
+            const currentBE = new Date().getFullYear() + 543;
+            if (parseInt(selectedYear) === currentBE) {
+                if (settings.annual_check_start) params.set('start_date', settings.annual_check_start);
+                if (settings.annual_check_end) params.set('end_date', settings.annual_check_end);
+            } else {
+                const adYear = parseInt(selectedYear) - 543;
+                params.set('start_date', `${adYear}-01-01`);
+                params.set('end_date', `${adYear}-12-31`);
+            }
+            
+            const response = await api.get(`/checks/annual-stats?${params.toString()}`);
+            if (response.data.success) {
+                setStats(response.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        }
+    };
+
+    useEffect(() => {
+        // Fetch stats whenever settings change or year changes
+        fetchStats();
+    }, [settings.annual_check_start, settings.annual_check_end, selectedYear]);
+
     const handleSaveSettings = async () => {
         setSavingSettings(true);
         try {
@@ -123,6 +152,7 @@ export default function AnnualCheckPage() {
             const params = new URLSearchParams();
             params.set('page', currentPage);
             params.set('limit', itemsPerPage);
+            params.set('exclude_status', 'จำหน่ายแล้ว');
             if (searchTerm.trim()) params.set('search', searchTerm.trim());
 
             if (viewFilter === 'unchecked') {
@@ -193,16 +223,29 @@ export default function AnnualCheckPage() {
 
         setIsBulkUpdating(true);
         try {
+            // ปรับ check_date ให้เข้าไปอยู่ในช่วงเวลาที่ตั้งไว้ เพื่อป้องกันบัคตรวจแล้วไม่เข้าเกณฑ์
+            const today = new Date().toISOString().split('T')[0];
+            let checkDate = today;
+
+            if (settings.annual_check_start && settings.annual_check_end) {
+                if (today < settings.annual_check_start) {
+                    checkDate = settings.annual_check_start;
+                } else if (today > settings.annual_check_end) {
+                    checkDate = settings.annual_check_end;
+                }
+            }
+
             await api.post("/checks/bulk", {
                 asset_ids: Array.from(selectedIds),
                 check_status: bulkStatus,
                 remark: bulkRemark,
-                check_date: new Date().toISOString().split('T')[0]
+                check_date: checkDate
             });
             toast.success("อัปเดตข้อมูลสำเร็จ");
             setSelectedIds(new Set());
             setBulkRemark("");
             fetchAssets();
+            fetchStats();
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดในการอัปเดต");
         } finally {
@@ -347,6 +390,34 @@ export default function AnnualCheckPage() {
                 </div>
             </div>
 
+            {/* Stats */}
+            {stats && (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                { label: 'ทั้งหมด', value: stats.total, gradient: 'from-blue-500 to-blue-600', icon: BarChart3 },
+                { label: 'ยังไม่ได้ตรวจ', value: stats.unchecked, gradient: 'from-red-500 to-red-600', icon: AlertCircle },
+                { label: 'เลยกำหนด', value: stats.overdue, gradient: 'from-orange-500 to-orange-600', icon: AlertTriangle },
+                { label: 'ใกล้กำหนด', value: stats.due_soon, gradient: 'from-yellow-500 to-yellow-600', icon: Clock },
+                { label: 'ตรวจแล้วในรอบนี้', value: stats.checked, gradient: 'from-emerald-500 to-emerald-600', icon: TrendingUp, pct: stats.total > 0 ? ((stats.checked/stats.total)*100).toFixed(1) : 0 },
+                ].map((s, i) => (
+                <div key={i} className={`bg-gradient-to-br ${s.gradient} rounded-xl p-4 text-white shadow-lg`}>
+                    <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-white/80 text-[11px] font-medium">{s.label}</p>
+                        <p className="text-2xl font-bold mt-0.5">{s.value?.toLocaleString() || 0}</p>
+                        {s.pct !== undefined && (
+                        <div className="w-full bg-white/30 rounded-full h-1 mt-2">
+                            <div className="bg-white h-1 rounded-full transition-all duration-700 w-full" style={{ maxWidth: `${s.pct}%` }} />
+                        </div>
+                        )}
+                    </div>
+                    <s.icon size={28} className="opacity-30" />
+                    </div>
+                </div>
+                ))}
+            </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Settings Panel */}
                 <div className="lg:col-span-1 space-y-6">
@@ -386,6 +457,13 @@ export default function AnnualCheckPage() {
                                         className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
+                            </div>
+
+                            <div className="mt-2 mb-2">
+                                <button onClick={() => {
+                                    const y = new Date().getFullYear();
+                                    setSettings(s => ({ ...s, annual_check_start: `${y}-01-01`, annual_check_end: `${y}-12-31` }))
+                                }} className="w-full text-[11px] bg-blue-50 text-blue-600 py-1.5 rounded-lg font-bold hover:bg-blue-100 transition border border-blue-100">ปีปฏิทินนี้</button>
                             </div>
 
                             <div className="pt-2">
