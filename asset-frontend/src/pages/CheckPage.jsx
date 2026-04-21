@@ -1,5 +1,5 @@
 // FILE: asset-frontend/src/pages/CheckPage.jsx
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Fragment } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   CheckSquare, Search, ChevronDown, ChevronRight, Building, Layers,
@@ -620,37 +620,105 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                         </tr>
                                       </thead>
                                       <tbody className="divide-y divide-gray-100">
-                                        {roomAssets.map((asset, idx) => {
-                                          const Icon = asset._status.icon;
-                                          return (
-                                            <tr key={asset.asset_id} className="hover:bg-blue-50/40 transition-colors border-b border-gray-100 last:border-0">
-                                              <td className="px-3 py-2 text-[10px] text-gray-400">{idx + 1}</td>
-                                              <td className="px-3 py-2">
-                                                {asset.image ? (
-                                                  <img src={`${api.defaults.baseURL.replace('/api', '')}/${asset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200"
-                                                    onError={(e) => { e.target.style.display = 'none'; }} />
-                                                ) : <div className="h-7 w-7 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Grid size={10} className="text-gray-300" /></div>}
-                                              </td>
-                                              <td className="px-3 py-2 text-[11px] text-gray-900">
-                                                <div className="line-clamp-1" title={asset.asset_name}>{asset.asset_name}</div>
-                                              </td>
-                                              <td className="px-3 py-2">
-                                                <div className="text-[10px] text-gray-600 font-mono leading-tight">{asset.barcode || '-'}</div>
-                                              </td>
-                                              <td className="px-3 py-2">
-                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color} whitespace-nowrap`}>
-                                                  <Icon size={10} /> {asset._status.label}
-                                                </span>
-                                              </td>
-                                              <td className="px-3 py-2">
-                                                <div className="flex gap-2">
-                                                  <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800 transition" title="ตรวจสอบ"><CheckSquare size={14} /></button>
-                                                  <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800 transition" title="กำหนดรอบ"><Settings size={14} /></button>
-                                                </div>
-                                              </td>
-                                            </tr>
-                                          );
-                                        })}
+                                        {(() => {
+                                          // Group assets by name
+                                          const nameGroups = {};
+                                          roomAssets.forEach(a => {
+                                            if (!nameGroups[a.asset_name]) nameGroups[a.asset_name] = [];
+                                            nameGroups[a.asset_name].push(a);
+                                          });
+
+                                          let rowIdx = 1;
+                                          return Object.entries(nameGroups).map(([name, items]) => {
+                                            const isGroup = items.length > 1;
+                                            const subKey = `sub-${building}-${floor}-${room}-${name}`;
+                                            const subExpanded = expanded[subKey];
+
+                                            if (!isGroup) {
+                                              const asset = items[0];
+                                              const Icon = asset._status.icon;
+                                              return (
+                                                <tr key={asset.asset_id} className="hover:bg-blue-50/40 transition-colors border-b border-gray-100 last:border-0">
+                                                  <td className="px-3 py-2 text-[10px] text-gray-400">{rowIdx++}</td>
+                                                  <td className="px-3 py-2">
+                                                    {asset.image ? (
+                                                      <img src={`${api.defaults.baseURL.replace('/api', '')}/${asset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200"
+                                                        onError={(e) => { e.target.style.display = 'none'; }} />
+                                                    ) : <div className="h-7 w-7 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Grid size={10} className="text-gray-300" /></div>}
+                                                  </td>
+                                                  <td className="px-3 py-2 text-[11px] text-gray-900">
+                                                    <div className="line-clamp-1" title={asset.asset_name}>{asset.asset_name}</div>
+                                                  </td>
+                                                  <td className="px-3 py-2">
+                                                    <div className="text-[10px] text-gray-600 font-mono leading-tight">{asset.barcode || '-'}</div>
+                                                  </td>
+                                                  <td className="px-3 py-2">
+                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color} whitespace-nowrap`}>
+                                                      <Icon size={10} /> {asset._status.label}
+                                                    </span>
+                                                  </td>
+                                                  <td className="px-3 py-2">
+                                                    <div className="flex gap-2">
+                                                      <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800 transition" title="ตรวจสอบ"><CheckSquare size={14} /></button>
+                                                      <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800 transition" title="กำหนดรอบ"><Settings size={14} /></button>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              );
+                                            } else {
+                                              // Render Expandable Group Header
+                                              const currentIdx = rowIdx++;
+                                              const firstAsset = items[0];
+                                              return (
+                                                <Fragment key={`group-${currentIdx}`}>
+                                                  <tr onClick={() => toggle(subKey)} className="hover:bg-purple-50/30 transition-colors border-b border-gray-200 cursor-pointer bg-gray-50 group shadow-sm">
+                                                    <td className="px-3 py-2 text-[10px] text-gray-500 font-medium">{currentIdx}</td>
+                                                    <td className="px-3 py-2">
+                                                      {firstAsset.image ? (
+                                                        <img src={`${api.defaults.baseURL.replace('/api', '')}/${firstAsset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200 opacity-80"
+                                                          onError={(e) => { e.target.style.display = 'none'; }} />
+                                                      ) : <div className="h-7 w-7 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Grid size={10} className="text-gray-300" /></div>}
+                                                    </td>
+                                                    <td className="px-3 py-2" colSpan={4}>
+                                                      <div className="flex items-center gap-2">
+                                                        <div className="text-[11px] text-gray-900 font-bold line-clamp-1">{name}</div>
+                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">{items.length} รายการ</span>
+                                                        {subExpanded ? <ChevronDown size={14} className="text-gray-500 ml-1" /> : <ChevronRight size={14} className="text-gray-400 ml-1" />}
+                                                      </div>
+                                                    </td>
+                                                  </tr>
+                                                  {/* Render Group Items if Expanded */}
+                                                  {subExpanded && items.map((asset) => {
+                                                    const Icon = asset._status.icon;
+                                                    return (
+                                                      <tr key={asset.asset_id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-50 bg-white">
+                                                        <td className="px-3 py-2 text-right text-purple-300" colSpan={3}>
+                                                          <div className="flex items-center justify-end pr-2 text-[10px] font-medium tracking-wider">
+                                                            ↳ รายการย่อย
+                                                          </div>
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                          <div className="text-[10px] text-gray-800 font-mono font-medium leading-tight">{asset.barcode || '-'}</div>
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${asset._status.color} whitespace-nowrap`}>
+                                                            <Icon size={10} /> {asset._status.label}
+                                                          </span>
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                          <div className="flex gap-2">
+                                                            <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800 transition" title="ตรวจสอบ"><CheckSquare size={14} /></button>
+                                                            <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800 transition" title="กำหนดรอบ"><Settings size={14} /></button>
+                                                          </div>
+                                                        </td>
+                                                      </tr>
+                                                    );
+                                                  })}
+                                                </Fragment>
+                                              );
+                                            }
+                                          });
+                                        })()}
                                       </tbody>
                                     </table>
                                   </div>
