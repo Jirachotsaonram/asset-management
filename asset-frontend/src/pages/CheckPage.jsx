@@ -53,7 +53,6 @@ function computeCheckStatus(asset, globalPeriod) {
 export default function CheckPage() {
   const { user } = useAuth();
   const [assets, setAssets] = useState([]);
-  const [schedules, setSchedules] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,9 +75,8 @@ export default function CheckPage() {
   const [searchParams] = useSearchParams();
 
   // Modals
-  const [modal, setModal] = useState({ type: null, data: null }); // { type: 'check'|'schedule'|'roomCheck'|'roomSchedule', data: ... }
+  const [modal, setModal] = useState({ type: null, data: null }); // { type: 'check'|'roomCheck', data: ... }
   const [checkForm, setCheckForm] = useState({ status: 'ใช้งานได้', remark: '' });
-  const [scheduleForm, setScheduleForm] = useState({ scheduleId: 3 });
 
   const computeCheckStatusWrapper = useCallback((asset) => {
     return computeCheckStatus(asset, globalPeriod);
@@ -97,8 +95,8 @@ export default function CheckPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [aR, sR, dR, settingsRes] = await Promise.all([
-        api.get('/assets?limit=0'), api.get('/check-schedules'), api.get('/departments'), api.get('/settings').catch(() => ({ data: { data: [] } }))
+      const [aR, dR, settingsRes] = await Promise.all([
+        api.get('/assets?limit=0'), api.get('/departments'), api.get('/settings').catch(() => ({ data: { data: [] } }))
       ]);
 
       const settingsData = settingsRes.data.data || {};
@@ -110,7 +108,6 @@ export default function CheckPage() {
       if (a && a.items) a = a.items;
       if (!Array.isArray(a)) a = [];
       setAssets(a);
-      setSchedules(sR.data.data || []);
       setDepartments(dR.data.data || []);
     } catch { toast.error('ไม่สามารถโหลดข้อมูลได้'); }
     finally { setLoading(false); }
@@ -216,9 +213,7 @@ export default function CheckPage() {
   const toggle = useCallback((key) => setExpanded(p => ({ ...p, [key]: !p[key] })), []);
 
   const openCheckModal = (asset) => { setCheckForm({ status: 'ใช้งานได้', remark: '' }); setModal({ type: 'check', data: asset }); };
-  const openScheduleModal = (asset) => { setScheduleForm({ scheduleId: asset.schedule_id && asset.schedule_id != 5 ? asset.schedule_id : 3 }); setModal({ type: 'schedule', data: asset }); };
   const openRoomCheck = (building, floor, room, roomAssets) => { setCheckForm({ status: 'ใช้งานได้', remark: '' }); setModal({ type: 'roomCheck', data: { building, floor, room, assets: roomAssets } }); };
-  const openRoomSchedule = (building, floor, room, roomAssets) => { setScheduleForm({ scheduleId: 3 }); setModal({ type: 'roomSchedule', data: { building, floor, room, assets: roomAssets } }); };
   const closeModal = () => setModal({ type: null, data: null });
 
   const saveCheck = async () => {
@@ -249,39 +244,6 @@ export default function CheckPage() {
       toast.success(`บันทึกการตรวจทั้งห้องสำเร็จ (${modal.data.assets.length} รายการ)`);
       closeModal(); fetchData();
     } catch { toast.error('ไม่สามารถบันทึกได้'); }
-    finally { setSaving(false); }
-  };
-
-  const saveSchedule = async () => {
-    try {
-      setSaving(true);
-      const sel = schedules.find(s => s.schedule_id == scheduleForm.scheduleId);
-      let nextCheckDate = null;
-      if (sel?.check_interval_months > 0) {
-        const d = new Date(); d.setMonth(d.getMonth() + sel.check_interval_months);
-        nextCheckDate = d.toISOString().split('T')[0];
-      }
-      await api.post('/check-schedules/assign-asset', {
-        asset_id: modal.data.asset_id, schedule_id: scheduleForm.scheduleId,
-        custom_interval_months: null, next_check_date: nextCheckDate
-      });
-      toast.success('กำหนดรอบการตรวจสำเร็จ');
-      closeModal(); fetchData();
-    } catch (e) { toast.error(e.response?.data?.message || 'ไม่สามารถบันทึกได้'); }
-    finally { setSaving(false); }
-  };
-
-  const saveRoomSchedule = async () => {
-    try {
-      setSaving(true);
-      const first = modal.data.assets[0];
-      if (!first.location_id) { toast.error('ครุภัณฑ์ในห้องนี้ไม่มี location_id'); return; }
-      await api.post('/check-schedules/assign-location', {
-        location_id: first.location_id, schedule_id: scheduleForm.scheduleId, custom_interval_months: null
-      });
-      toast.success(`กำหนดรอบทั้งห้องสำเร็จ (${modal.data.assets.length} รายการ)`);
-      closeModal(); fetchData();
-    } catch (e) { toast.error(e.response?.data?.message || 'ไม่สามารถบันทึกได้'); }
     finally { setSaving(false); }
   };
 
@@ -446,12 +408,12 @@ export default function CheckPage() {
           {viewMode === 'grouped' ? (
             <GroupedView
               groupedAssets={groupedAssets} expanded={expanded} toggle={toggle}
-              onCheck={openCheckModal} onSchedule={openScheduleModal}
-              onRoomCheck={openRoomCheck} onRoomSchedule={openRoomSchedule}
+              onCheck={openCheckModal}
+              onRoomCheck={openRoomCheck}
             />
           ) : (
             <ListView
-              assets={paginatedAssets} onCheck={openCheckModal} onSchedule={openScheduleModal}
+              assets={paginatedAssets} onCheck={openCheckModal}
               currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}
               totalCount={filteredAssets.length}
             />
@@ -461,7 +423,6 @@ export default function CheckPage() {
         <NotificationsTab
           notifications={notifications}
           onCheck={openCheckModal}
-          onSchedule={openScheduleModal}
           urgentPage={notifUrgentPage}
           setUrgentPage={setNotifUrgentPage}
           dueSoonPage={notifDueSoonPage}
@@ -506,38 +467,12 @@ export default function CheckPage() {
           <ModalActions onSave={saveRoomCheck} onClose={closeModal} saving={saving} color="blue" label={`บันทึกทั้งห้อง (${modal.data.assets.length})`} />
         </ModalWrapper>
       )}
-
-      {modal.type === 'schedule' && (
-        <ModalWrapper title="กำหนดรอบการตรวจ" onClose={closeModal}>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <p className="font-bold text-gray-800 text-sm">{modal.data.asset_name}</p>
-            <p className="text-xs text-gray-600">Serial: {modal.data.serial_number || '-'}</p>
-            {modal.data.schedule_name && (
-              <p className="text-[10px] text-blue-600 font-medium mt-1">รอบปัจจุบัน: {modal.data.schedule_name}</p>
-            )}
-            {modal.data.next_check_date && (
-              <p className="text-[10px] text-gray-500">กำหนดตรวจ: {new Date(modal.data.next_check_date).toLocaleDateString('th-TH')}</p>
-            )}
-          </div>
-          <ScheduleFormFields schedules={schedules} scheduleForm={scheduleForm} setScheduleForm={setScheduleForm} />
-          <ModalActions onSave={saveSchedule} onClose={closeModal} saving={saving} color="blue" label="บันทึก" />
-        </ModalWrapper>
-      )}
-
-      {modal.type === 'roomSchedule' && (
-        <ModalWrapper title="กำหนดรอบทั้งห้อง" onClose={closeModal}>
-          <RoomInfo room={modal.data} />
-          <RoomAssetList assets={modal.data.assets} icon={Settings} />
-          <ScheduleFormFields schedules={schedules} scheduleForm={scheduleForm} setScheduleForm={setScheduleForm} />
-          <ModalActions onSave={saveRoomSchedule} onClose={closeModal} saving={saving} color="purple" label={`บันทึกทั้งห้อง (${modal.data.assets.length})`} />
-        </ModalWrapper>
-      )}
     </div>
   );
 }
 
 // ==================== Grouped View ====================
-function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onRoomCheck, onRoomSchedule }) {
+function GroupedView({ groupedAssets, expanded, toggle, onCheck, onRoomCheck }) {
   if (Object.keys(groupedAssets).length === 0) {
     return <EmptyState />;
   }
@@ -599,10 +534,6 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                       className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-medium transition flex items-center gap-1">
                                       <CheckSquare size={12} /> ตรวจทั้งห้อง
                                     </button>
-                                    <button onClick={() => onRoomSchedule(building, floor, room, roomAssets)}
-                                      className="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1 rounded text-[11px] font-medium transition flex items-center gap-1">
-                                      <Settings size={12} /> กำหนดรอบ
-                                    </button>
                                   </div>
                                 </div>
 
@@ -660,7 +591,6 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                                   <td className="px-3 py-2">
                                                     <div className="flex gap-2">
                                                       <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800 transition" title="ตรวจสอบ"><CheckSquare size={14} /></button>
-                                                      <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800 transition" title="กำหนดรอบ"><Settings size={14} /></button>
                                                     </div>
                                                   </td>
                                                 </tr>
@@ -708,7 +638,6 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
                                                         <td className="px-3 py-2">
                                                           <div className="flex gap-2">
                                                             <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800 transition" title="ตรวจสอบ"><CheckSquare size={14} /></button>
-                                                            <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800 transition" title="กำหนดรอบ"><Settings size={14} /></button>
                                                           </div>
                                                         </td>
                                                       </tr>
@@ -741,7 +670,7 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onSchedule, onR
 }
 
 // ==================== List View ====================
-function ListView({ assets, onCheck, onSchedule, currentPage, totalPages, setCurrentPage, totalCount }) {
+function ListView({ assets, onCheck, currentPage, totalPages, setCurrentPage, totalCount }) {
   if (assets.length === 0) return <EmptyState />;
 
   return (
@@ -775,7 +704,6 @@ function ListView({ assets, onCheck, onSchedule, currentPage, totalPages, setCur
                   <td className="px-3 py-2">
                     <div className="flex gap-1.5 opacity-50 group-hover:opacity-100 transition">
                       <button onClick={() => onCheck(asset)} className="text-blue-600 hover:text-blue-800" title="ตรวจสอบ"><Eye size={15} /></button>
-                      <button onClick={() => onSchedule(asset)} className="text-purple-600 hover:text-purple-800" title="กำหนดรอบ"><Settings size={15} /></button>
                     </div>
                   </td>
                 </tr>
@@ -814,7 +742,7 @@ function ListView({ assets, onCheck, onSchedule, currentPage, totalPages, setCur
 }
 
 // ==================== Notifications Tab ====================
-function NotificationsTab({ notifications, onCheck, onSchedule, urgentPage, setUrgentPage, dueSoonPage, setDueSoonPage }) {
+function NotificationsTab({ notifications, onCheck, urgentPage, setUrgentPage, dueSoonPage, setDueSoonPage }) {
   const ITEMS_PER_PAGE = 50;
 
   const urgentTotalPages = Math.ceil(notifications.urgent.length / ITEMS_PER_PAGE);
@@ -846,7 +774,7 @@ function NotificationsTab({ notifications, onCheck, onSchedule, urgentPage, setU
           </div>
           <div className="divide-y divide-gray-100 max-h-[60vh] overflow-y-auto">
             {paginatedUrgent.map(asset => (
-              <NotifRow key={asset.asset_id} asset={asset} onCheck={onCheck} onSchedule={onSchedule} />
+              <NotifRow key={asset.asset_id} asset={asset} onCheck={onCheck} />
             ))}
           </div>
         </div>
@@ -873,7 +801,7 @@ function NotificationsTab({ notifications, onCheck, onSchedule, urgentPage, setU
           </div>
           <div className="divide-y divide-gray-100 max-h-[60vh] overflow-y-auto">
             {paginatedDueSoon.map(asset => (
-              <NotifRow key={asset.asset_id} asset={asset} onCheck={onCheck} onSchedule={onSchedule} />
+              <NotifRow key={asset.asset_id} asset={asset} onCheck={onCheck} />
             ))}
           </div>
         </div>
@@ -890,7 +818,7 @@ function NotificationsTab({ notifications, onCheck, onSchedule, urgentPage, setU
   );
 }
 
-function NotifRow({ asset, onCheck, onSchedule }) {
+function NotifRow({ asset, onCheck }) {
   const Icon = asset._status.icon;
   return (
     <div className="p-3 hover:bg-gray-50 transition-colors flex items-center justify-between gap-3">
@@ -906,7 +834,6 @@ function NotifRow({ asset, onCheck, onSchedule }) {
       </div>
       <div className="flex gap-1.5 flex-shrink-0">
         <button onClick={() => onCheck(asset)} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded text-xs font-medium transition">ตรวจ</button>
-        <button onClick={() => onSchedule(asset)} className="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded text-xs font-medium transition">รอบ</button>
       </div>
     </div>
   );
@@ -985,29 +912,6 @@ function CheckFormFields({ checkForm, setCheckForm, isRoom }) {
         <textarea value={checkForm.remark} onChange={e => setCheckForm(p => ({ ...p, remark: e.target.value }))}
           placeholder="ระบุรายละเอียดเพิ่มเติม..." rows={2}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none" />
-      </div>
-    </>
-  );
-}
-
-function ScheduleFormFields({ schedules, scheduleForm, setScheduleForm }) {
-  const available = schedules.filter(s => s.schedule_id != 5);
-  return (
-    <>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">รอบการตรวจ <span className="text-red-500">*</span></label>
-        <select value={scheduleForm.scheduleId}
-          onChange={e => setScheduleForm({ scheduleId: parseInt(e.target.value) })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
-          {available.map(s => (
-            <option key={s.schedule_id} value={s.schedule_id}>
-              {s.name} {s.check_interval_months > 0 ? `(${s.check_interval_months} เดือน)` : ''}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="bg-green-50 border border-green-200 rounded-lg p-2.5">
-        <p className="text-xs text-green-800">ระบบจะคำนวณวันที่ตรวจถัดไปอัตโนมัติ</p>
       </div>
     </>
   );
