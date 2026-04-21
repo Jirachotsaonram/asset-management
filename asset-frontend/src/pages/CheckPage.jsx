@@ -433,26 +433,31 @@ export default function CheckPage() {
       {/* ==================== Modals ==================== */}
       {modal.type === 'check' && (
         <ModalWrapper title="บันทึกการตรวจสอบ" onClose={closeModal}>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-            <p className="font-bold text-gray-800 text-sm">{modal.data.asset_name}</p>
-            <p className="text-xs text-gray-600">
-              Serial: {modal.data.serial_number || '-'} •
-              {modal.data.building_name ? ` ${modal.data.building_name}` : ''}
-              {modal.data.floor ? ` ชั้น ${modal.data.floor}` : ''}
-              {modal.data.room_number ? ` ห้อง ${modal.data.room_number}` : ''}
-            </p>
-            {modal.data.schedule_name && (
-              <div className="mt-2 pt-2 border-t border-green-100 flex items-center justify-between">
-                <p className="text-[10px] font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                  รอบการตรวจ: {modal.data.schedule_name}
-                </p>
-                {modal.data.next_check_date && (
-                  <p className="text-[10px] text-gray-500">
-                    กำหนดตรวจ: {new Date(modal.data.next_check_date).toLocaleDateString('th-TH')}
-                  </p>
-                )}
+          <div className="flex gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 shadow-sm items-start">
+            {modal.data.image ? (
+              <img src={`${api.defaults.baseURL.replace('/api', '')}/${modal.data.image}`} alt={modal.data.asset_name} 
+                   className="w-16 h-16 rounded-lg border border-gray-200 object-cover bg-white flex-shrink-0"
+                   onError={(e) => { e.target.style.display = 'none'; }} />
+            ) : (
+              <div className="w-16 h-16 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Grid size={24} className="text-gray-300" />
               </div>
             )}
+            <div className="flex-1 space-y-1.5 min-w-0">
+              <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-2">{modal.data.asset_name}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 mt-1">
+                <p className="text-xs text-slate-600 truncate"><span className="font-medium text-slate-500">บาร์โค้ด:</span> <span className="font-mono">{modal.data.barcode || '-'}</span></p>
+                <p className="text-xs text-slate-600 truncate"><span className="font-medium text-slate-500">S/N:</span> <span className="font-mono">{modal.data.serial_number || '-'}</span></p>
+                <p className="text-xs text-slate-600 truncate sm:col-span-2">
+                  <span className="font-medium text-slate-500">สถานที่:</span> {modal.data.building_name || 'ไม่ระบุอาคาร'}
+                  {modal.data.floor ? ` ชั้น ${modal.data.floor}` : ''}
+                  {modal.data.room_number ? ` ห้อง ${modal.data.room_number}` : ''}
+                </p>
+                <p className="text-xs text-slate-600 truncate sm:col-span-2">
+                  <span className="font-medium text-slate-500">หน่วยงาน:</span> {departments.find(d => d.department_id == modal.data.department_id)?.department_name || 'ไม่ระบุ'}
+                </p>
+              </div>
+            </div>
           </div>
           <CheckFormFields checkForm={checkForm} setCheckForm={setCheckForm} />
           <ModalActions onSave={saveCheck} onClose={closeModal} saving={saving} color="green" label="บันทึกการตรวจสอบ" />
@@ -885,11 +890,7 @@ function RoomAssetList({ assets, icon: Icon = CheckSquare }) {
           <li key={a.asset_id} className="text-xs text-gray-700 flex items-center gap-1.5 py-0.5 border-b border-gray-100 last:border-0">
             <Icon size={12} className="text-blue-600 flex-shrink-0" />
             <span className="truncate flex-1">{a.asset_name}</span>
-            {a.schedule_name && (
-              <span className="text-[9px] text-gray-500 px-1.5 py-0.5 bg-gray-200 rounded uppercase font-bold">
-                {a.schedule_name}
-              </span>
-            )}
+            <span className="text-[10px] text-gray-500 font-mono pl-2">{a.barcode || '-'}</span>
           </li>
         ))}
       </ul>
