@@ -27,6 +27,25 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// เก็บ baseURL ปัจจุบันเพื่อใช้สร้าง URL รูปภาพ
+export let currentBaseUrl = API_BASE_URL;
+
+// โหลด custom IP มาไว้ในตัวแปรแบบ synchronous หลังจากแอพเริ่ม
+AsyncStorage.getItem(SERVER_IP_KEY).then(customIp => {
+  if (customIp && customIp.trim()) {
+    currentBaseUrl = buildApiUrl(customIp.trim());
+    api.defaults.baseURL = currentBaseUrl;
+  }
+});
+
+// ฟังก์ชันสร้าง URL สำหรับรูปภาพให้ใช้ IP ล่าสุด
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  // ตัด /api ออกถ้ามี เพราะรูปภาพเก็บอยู่ที่โฟลเดอร์นอก /api
+  const baseUrl = currentBaseUrl.replace(/\/api$/, '');
+  return `${baseUrl}/${imagePath}`;
+};
+
 // Interceptor เพื่อเพิ่ม token และตรวจสอบ IP แบบ Dynamic ทุกครั้งที่เรียก API
 api.interceptors.request.use(
   async (config) => {
@@ -34,7 +53,10 @@ api.interceptors.request.use(
       // โหลด custom IP ที่ผู้ใช้ตั้งค่าไว้
       const customIp = await AsyncStorage.getItem(SERVER_IP_KEY);
       if (customIp && customIp.trim()) {
-        config.baseURL = buildApiUrl(customIp.trim());
+        const newUrl = buildApiUrl(customIp.trim());
+        config.baseURL = newUrl;
+        currentBaseUrl = newUrl; // อัพเดตตัวแปรสำหรับรูปภาพด้วย
+        api.defaults.baseURL = newUrl; // อัพเดตค่าสำหรับ XMLHttpRequest ในการอัปโหลด
       }
 
       // เพิ่ม token ใน header

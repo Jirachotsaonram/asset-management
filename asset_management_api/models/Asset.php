@@ -66,10 +66,43 @@ class Asset {
         return false;
     }
 
-    // ==================== อ่านข้อมูลทั้งหมด (backward compatible) ====================
-    public function readAll() {
-        $query = "SELECT * FROM v_assets_with_check_info ORDER BY created_at DESC";
+    // ==================== อ่านข้อมูลทั้งหมด (รองรับฟิลเตอร์พื้นฐาน) ====================
+    public function readAll($filters = []) {
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['status'])) {
+            $conditions[] = "status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['exclude_status'])) {
+            $conditions[] = "status != :exclude_status";
+            $params[':exclude_status'] = $filters['exclude_status'];
+        }
+
+        if (!empty($filters['department_id'])) {
+            $conditions[] = "department_id = :department_id";
+            $params[':department_id'] = $filters['department_id'];
+        }
+
+        if (!empty($filters['building'])) {
+            $conditions[] = "building_name = :building";
+            $params[':building'] = $filters['building'];
+        }
+
+        $whereClause = '';
+        if (!empty($conditions)) {
+            $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $query = "SELECT * FROM v_assets_with_check_info $whereClause ORDER BY created_at DESC";
         $stmt = $this->conn->prepare($query);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        
         $stmt->execute();
         return $stmt;
     }

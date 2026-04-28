@@ -15,7 +15,8 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions, scanFromURLAsync } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import offlineService from '../services/offlineService';
@@ -145,6 +146,45 @@ export default function ScanScreen({ navigation }) {
     }
   };
 
+  const handleScanFromGallery = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('ขออภัย', 'เราต้องการสิทธิ์การเข้าถึงคลังภาพเพื่อเลือกรูปที่มีรหัส');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: 'images',
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        setLoading(true);
+        // scanFromURLAsync supports decoding QR/barcodes from a local URI
+        const scannedResults = await scanFromURLAsync(imageUri, ['qr', 'ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'codabar']);
+        setLoading(false);
+
+        if (scannedResults && scannedResults.length > 0) {
+          const barcodeData = scannedResults[0].data;
+          if (showCamera) setShowCamera(false);
+          await searchAsset(barcodeData);
+        } else {
+          Alert.alert('ไม่พบข้อมูล', 'ไม่สามารถอ่านรหัสจากรูปภาพนี้ได้ อาจเป็นเพราะรูปไม่ชัดเจน หรือรหัสมีขนาดเล็กเกินไป');
+        }
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error('Error scanning from gallery:', error);
+      Alert.alert(
+        'เกิดข้อผิดพลาด', 
+        `ไม่สามารถสแกนรูปภาพได้: ${error.message || 'ไม่ทราบสาเหตุ'}`
+      );
+    }
+  };
+
   const handleManualSearch = () => {
     if (!manualBarcode.trim()) {
       Alert.alert('ผิดพลาด', 'กรุณากรอก Barcode หรือรหัสครุภัณฑ์');
@@ -168,6 +208,11 @@ export default function ScanScreen({ navigation }) {
       if (!isConnected) {
         const queued = await offlineService.queueCheck(requestData);
         if (queued) {
+          // Update local cache so Dashboard shows it as checked
+          await offlineService.updateCachedAsset(scannedAsset.asset_id, {
+            status: checkStatus,
+            last_check_date: requestData.check_date
+          });
           await loadPendingCount();
           Alert.alert('📋 บันทึกลงคิวแล้ว', 'ข้อมูลจะถูกซิงค์เมื่อเชื่อมต่อเน็ต', [{ text: 'ตกลง', onPress: handleReset }]);
         }
@@ -176,6 +221,11 @@ export default function ScanScreen({ navigation }) {
 
       const response = await api.post('/checks', requestData);
       if (response.data.success) {
+        // Update local cache so Dashboard shows it as checked even if we don't redownload
+        await offlineService.updateCachedAsset(scannedAsset.asset_id, {
+          status: checkStatus,
+          last_check_date: requestData.check_date
+        });
         Alert.alert('สำเร็จ', 'บันทึกการตรวจสอบเรียบร้อยแล้ว', [{ text: 'ตกลง', onPress: handleReset }]);
       }
     } catch (error) {
@@ -213,7 +263,11 @@ export default function ScanScreen({ navigation }) {
     const results = await offlineService.syncPendingChecks();
     setLoading(false);
     await loadPendingCount();
-    Alert.alert('🔄 ซิงค์เสร็จสิ้น', `สำเร็จ: ${results.success}, ล้มเหลว: ${results.failed}`);
+    if (results.success === 0 && results.failed === 0) {
+      Alert.alert('🔄 ผลการซิงค์', 'ข้อมูลทั้งหมดเป็นปัจจุบันแล้ว (ไม่มีรายการค้างส่ง)');
+    } else {
+      Alert.alert('🔄 ซิงค์เสร็จสิ้น', `สำเร็จ: ${results.success}, ล้มเหลว: ${results.failed}`);
+    }
   };
 
   const handleReset = () => {
@@ -274,6 +328,12 @@ export default function ScanScreen({ navigation }) {
             <View style={[styles.corner, styles.bottomRight]} />
           </View>
           <Text style={styles.scanInstruction}>วางรหัสในกรอบเพื่อสแกน</Text>
+        </View>
+        <View style={styles.cameraBottomControls}>
+          <TouchableOpacity style={styles.cameraGalleryBtn} onPress={handleScanFromGallery}>
+            <Ionicons name="images" size={32} color="#fff" />
+            <Text style={styles.cameraGalleryText}>คลังภาพ</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.cameraCloseBtn} onPress={() => setShowCamera(false)}>
           <Ionicons name="close-circle" size={44} color="#fff" />
@@ -880,10 +940,34 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000,
+    zIndex: 999,
+  },
+  cameraBottomControls: {
+    position: 'absolute',
+    bottom: 130,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  cameraGalleryBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  cameraGalleryText: {
+    color: '#fff',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: 'bold',
   },
   permissionContainer: {
     flex: 1,

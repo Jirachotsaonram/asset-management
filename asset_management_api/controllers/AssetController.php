@@ -66,8 +66,14 @@ class AssetController {
                 'totalPages' => ceil($total / $limit)
             ]);
         } else {
-            // Legacy mode - ดึงทั้งหมด (backward compatible)
-            $stmt = $this->asset->readAll();
+            // Legacy mode - ดึงทั้งหมด แต่รองรับการกรองพื้นฐาน (เช่น exclude_status)
+            $filters = [];
+            if (!empty($_GET['exclude_status'])) $filters['exclude_status'] = $_GET['exclude_status'];
+            if (!empty($_GET['status'])) $filters['status'] = $_GET['status'];
+            if (!empty($_GET['department_id'])) $filters['department_id'] = $_GET['department_id'];
+            if (!empty($_GET['building'])) $filters['building'] = $_GET['building'];
+            
+            $stmt = $this->asset->readAll($filters);
             $assets = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $assets[] = $row;

@@ -16,7 +16,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import api from '../services/api';
+import api, { getImageUrl } from '../services/api';
 import offlineService from '../services/offlineService';
 import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
@@ -214,9 +214,8 @@ export default function AssetsScreen({ navigation }) {
 
   const renderAssetItem = ({ item }) => {
     const statusStyle = getStatusStyle(item.status);
-    // Normalize image path - remove '/api' if it's there
     const imageUrl = item.image
-      ? { uri: `${API_BASE_URL.replace('/api', '')}/${item.image}` }
+      ? { uri: getImageUrl(item.image) }
       : null;
 
     return (

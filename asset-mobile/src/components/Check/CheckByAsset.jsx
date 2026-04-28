@@ -55,25 +55,28 @@ export default function CheckByAsset({ navigation }) {
     const [buildings, setBuildings] = useState([]);
     const [floors, setFloors] = useState([]);
     const [departments, setDepartments] = useState([]);
+    const [globalPeriod, setGlobalPeriod] = useState({ start: null, end: null, fetched: false });
 
     useEffect(() => {
         fetchFilterOptions();
     }, []);
 
     useEffect(() => {
+        if (!globalPeriod.fetched) return;
         const controller = new AbortController();
         const delay = searchQuery ? 500 : 0;
         const id = setTimeout(() => {
             loadAssets(1, false, controller.signal);
         }, delay);
         return () => { clearTimeout(id); controller.abort(); };
-    }, [filters, searchQuery]);
+    }, [filters, searchQuery, globalPeriod]);
 
     const fetchFilterOptions = async () => {
         try {
-            const [locRes, deptRes] = await Promise.all([
+            const [locRes, deptRes, settingsRes] = await Promise.all([
                 api.get('/locations'),
                 api.get('/departments'),
+                api.get('/settings').catch(() => ({ data: { data: {} } }))
             ]);
             if (locRes.data.success) {
                 const locs = locRes.data.data || [];
@@ -81,8 +84,16 @@ export default function CheckByAsset({ navigation }) {
                 setFloors([...new Set(locs.map(l => l.floor).filter(Boolean))].sort((a, b) => a - b));
             }
             if (deptRes.data.success) setDepartments(deptRes.data.data || []);
+            
+            const settings = settingsRes.data?.data || {};
+            setGlobalPeriod({
+                start: settings.annual_check_start || null,
+                end: settings.annual_check_end || null,
+                fetched: true
+            });
         } catch (e) {
             console.error('fetchFilterOptions error:', e);
+            setGlobalPeriod({ start: null, end: null, fetched: true });
         }
     };
 
@@ -105,6 +116,8 @@ export default function CheckByAsset({ navigation }) {
                 ...(filters.floor !== 'all' && { floor: filters.floor }),
                 ...(filters.department_id !== 'all' && { department_id: filters.department_id }),
                 ...(filters.status !== 'all' && { status: filters.status }),
+                ...(globalPeriod.start && { start_date: globalPeriod.start }),
+                ...(globalPeriod.end && { end_date: globalPeriod.end }),
             };
 
             const res = await api.get('/reports/unchecked', { params, signal });

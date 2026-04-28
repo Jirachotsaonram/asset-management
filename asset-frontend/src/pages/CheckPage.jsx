@@ -96,7 +96,7 @@ export default function CheckPage() {
     try {
       setLoading(true);
       const [aR, dR, settingsRes] = await Promise.all([
-        api.get('/assets?limit=0'), api.get('/departments'), api.get('/settings').catch(() => ({ data: { data: [] } }))
+        api.get('/assets?limit=0&exclude_status=จำหน่ายแล้ว'), api.get('/departments'), api.get('/settings').catch(() => ({ data: { data: [] } }))
       ]);
 
       const settingsData = settingsRes.data.data || {};

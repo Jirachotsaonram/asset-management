@@ -114,25 +114,43 @@ class ReportController {
         $department_id = $params['department_id'] ?? null;
         $status = $params['status'] ?? null; // never | overdue | nearly | checked | all
         
+        $startDate = $params['start_date'] ?? null;
+        $endDate = $params['end_date'] ?? null;
+
         $offset = ($page - 1) * $limit;
         
+        // Base condition - ไม่รวมรายการที่จำหน่ายแล้ว
+        $conditions = ["a.status != 'จำหน่ายแล้ว'"];
+        $queryParams = [];
+
         // Base condition — ถ้ากรองตามสถานะให้ใช้ condition นั้น แทน days ทั่วไป
-        if ($status === 'never') {
-            $conditions = ["ac.check_date IS NULL"];
-            $queryParams = [];
-        } elseif ($status === 'overdue') {
-            $conditions = ["ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) > 365"];
-            $queryParams = [];
-        } elseif ($status === 'nearly') {
-            $conditions = ["ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) BETWEEN 181 AND 365"];
-            $queryParams = [];
-        } elseif ($status === 'checked') {
-            $conditions = ["ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) <= 180"];
-            $queryParams = [];
+        if ($startDate && $endDate) {
+            if ($status === 'checked') {
+                $conditions[] = "ac.check_date BETWEEN :start_date AND :end_date";
+                $queryParams[':start_date'] = $startDate;
+                $queryParams[':end_date'] = $endDate;
+            } elseif ($status === 'never') {
+                $conditions[] = "ac.check_date IS NULL";
+            } else {
+                // unchecked หรือทั้งหมด ให้ถือว่าการที่ไม่ได้ตรวจในรอบนี้ หรือไม่เคยตรวจเลย คือยังไม่ได้ตรวจ
+                $conditions[] = "(ac.check_date IS NULL OR DATE(ac.check_date) < :start_date OR DATE(ac.check_date) > :end_date)";
+                $queryParams[':start_date'] = $startDate;
+                $queryParams[':end_date'] = $endDate;
+            }
         } else {
-            // default: ยังไม่เคยตรวจ หรือ เกินกำหนด days
-            $conditions = ["(ac.check_date IS NULL OR DATEDIFF(NOW(), ac.check_date) > :days)"];
-            $queryParams = [':days' => $days];
+            if ($status === 'never') {
+                $conditions[] = "ac.check_date IS NULL";
+            } elseif ($status === 'overdue') {
+                $conditions[] = "ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) > 365";
+            } elseif ($status === 'nearly') {
+                $conditions[] = "ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) BETWEEN 181 AND 365";
+            } elseif ($status === 'checked') {
+                $conditions[] = "ac.check_date IS NOT NULL AND DATEDIFF(NOW(), ac.check_date) <= 180";
+            } else {
+                // default: ยังไม่เคยตรวจ หรือ เกินกำหนด days
+                $conditions[] = "(ac.check_date IS NULL OR DATEDIFF(NOW(), ac.check_date) > :days)";
+                $queryParams[':days'] = $days;
+            }
         }
         
         if ($search) {

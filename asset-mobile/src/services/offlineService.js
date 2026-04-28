@@ -193,6 +193,40 @@ class OfflineService {
         }
     }
 
+    /**
+     * Update a single asset in the local cache
+     * @param {string} assetId 
+     * @param {Object} updates 
+     */
+    async updateCachedAsset(assetId, updates) {
+        try {
+            const countStr = await AsyncStorage.getItem(STORAGE_KEYS.ASSET_CHUNKS_COUNT);
+            if (!countStr) return false;
+
+            const count = parseInt(countStr);
+            let updated = false;
+
+            for (let i = 0; i < count; i++) {
+                const key = `${STORAGE_KEYS.ASSETS}_${i}`;
+                const value = await AsyncStorage.getItem(key);
+                if (value) {
+                    let chunk = JSON.parse(value);
+                    const index = chunk.findIndex(a => a.asset_id === assetId);
+                    if (index !== -1) {
+                        chunk[index] = { ...chunk[index], ...updates };
+                        await AsyncStorage.setItem(key, JSON.stringify(chunk));
+                        updated = true;
+                        break;
+                    }
+                }
+            }
+            return updated;
+        } catch (error) {
+            console.error('Error updating cached asset:', error);
+            return false;
+        }
+    }
+
     // ================== PENDING CHECKS QUEUE ==================
 
     /**

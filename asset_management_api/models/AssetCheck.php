@@ -59,7 +59,7 @@ class AssetCheck {
 
     public function getUncheckedAssets() {
         $query = "SELECT a.* FROM assets a
-                  WHERE a.asset_id NOT IN (
+                  WHERE a.status != 'จำหน่ายแล้ว' AND a.asset_id NOT IN (
                       SELECT asset_id FROM " . $this->table_name . "
                       WHERE check_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
                   )

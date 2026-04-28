@@ -460,3 +460,17 @@ Stack trace:
 #0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(155): AssetCheckController->getAvailableYears()
 #1 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 234
+[28-Apr-2026 08:27:44 Europe/Berlin] ImageUpload: Received file: 33689.jpg size: 77786 type: image/jpeg
+[28-Apr-2026 08:27:44 Europe/Berlin] ImageUpload: Attempting to resize image
+[28-Apr-2026 08:27:45 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69f05360e2d603.53415310.jpg
+[28-Apr-2026 08:27:56 Europe/Berlin] ImageUpload: Received file: 3G632A-1_T1684288487.avif size: 42064 type: image/avif
+[28-Apr-2026 08:27:56 Europe/Berlin] ImageUpload: Invalid mime type: image/avif
+[28-Apr-2026 08:28:16 Europe/Berlin] ImageUpload: Received file: 4_photo-bdc4f9e7.jpg size: 50296 type: image/jpeg
+[28-Apr-2026 08:28:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[28-Apr-2026 08:28:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69f053809bd276.99068562.jpg
+[28-Apr-2026 08:29:38 Europe/Berlin] ImageUpload: Received file: 2020021911432236905_4.jpg size: 26877 type: image/jpeg
+[28-Apr-2026 08:29:38 Europe/Berlin] ImageUpload: Attempting to resize image
+[28-Apr-2026 08:29:38 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69f053d2de4b60.62249823.jpg
+[28-Apr-2026 09:08:56 Europe/Berlin] ImageUpload: Received file: 67f4738a-3d02-4565-8589-9feb1f4ebb4e.jpeg size: 18136 type: image/jpeg
+[28-Apr-2026 09:08:56 Europe/Berlin] ImageUpload: Attempting to resize image
+[28-Apr-2026 09:08:56 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69f05d086dcae2.87982077.jpg

@@ -302,18 +302,18 @@ function UserModal({ formData, setFormData, editingUser, showPassword, setShowPa
           </div>
           <button onClick={onClose} className="p-3 hover:bg-gray-200 rounded-full transition text-gray-400"><X size={24} /></button>
         </div>
-        <form onSubmit={onSubmit} className="p-8 space-y-6">
+        <form onSubmit={onSubmit} className="p-8 space-y-6" autoComplete="off">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Username</label>
               <input type="text" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })}
-                disabled={!!editingUser} className="form-input h-12 rounded-2xl border-2 font-bold disabled:bg-gray-50 disabled:text-gray-400" required />
+                disabled={!!editingUser} className="form-input h-12 rounded-2xl border-2 font-bold disabled:bg-gray-50 disabled:text-gray-400" required autoComplete="off" />
             </div>
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Password</label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  placeholder={editingUser ? '••••••••' : 'At least 6 chars'} className="form-input h-12 rounded-2xl border-2 font-bold pr-12" required={!editingUser} />
+                  placeholder={editingUser ? '••••••••' : 'At least 6 chars'} className="form-input h-12 rounded-2xl border-2 font-bold pr-12" required={!editingUser} autoComplete="new-password" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3 text-gray-300 hover:text-primary-500 transition">
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>

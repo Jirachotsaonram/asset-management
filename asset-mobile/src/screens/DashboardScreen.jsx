@@ -11,10 +11,13 @@ import {
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
+import offlineService from '../services/offlineService';
+import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
+  const { isConnected } = useNetwork();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({ total: 0, checked: 0, unchecked: 0, available: 0, maintenance: 0, missing: 0 });
@@ -32,34 +35,119 @@ export default function DashboardScreen({ navigation }) {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [statusRes, uncheckedRes, notifsRes, overdueRes] = await Promise.all([
+
+      if (!isConnected) {
+        // ออฟไลน์: ดึงข้อมูลจากแคชมาแสดงผล
+        const allCachedAssets = await offlineService.getCachedAssets();
+        // ไม่รวมรายการที่จำหน่ายแล้วเพื่อให้ยอดตรงกับสถิติภาพรวม
+        const cachedAssets = allCachedAssets.filter(a => a.status !== 'จำหน่ายแล้ว');
+        
+        let available = 0;
+        let maintenance = 0;
+        let missing = 0;
+        let checked = 0;
+
+        const currentYear = new Date().getFullYear();
+
+        cachedAssets.forEach(asset => {
+          const status = asset.status || 'ใช้งานได้';
+          if (status === 'ใช้งานได้') available++;
+          else if (status === 'รอซ่อม') maintenance++;
+          else if (status === 'ไม่พบ') missing++;
+
+          // ประมาณการตรวจสอบแล้วจากปีปัจจุบัน (ถ้าไม่มีวันที่ตรวจรับ ให้ถือว่ายังไม่ตรวจ)
+          if (asset.last_check_date && new Date(asset.last_check_date).getFullYear() === currentYear) {
+            checked++;
+          }
+        });
+
+        const total = cachedAssets.length;
+        const unchecked = total - checked;
+
+        setStats({
+          total,
+          checked,
+          unchecked: unchecked >= 0 ? unchecked : 0,
+          available,
+          maintenance,
+          missing,
+        });
+
+        const pendingChecks = await offlineService.getPendingChecks();
+        setTotalNotifs(pendingChecks.length); // แจ้งเตือนแบบออฟไลน์โชว์รายการที่ค้างส่ง
+        setNotifCountsByType({
+          overdue: 0, urgent: 0, unchecked: unchecked >= 0 ? unchecked : 0, missing, maintenance
+        });
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+
+      // ออนไลน์: ดึงข้อมูลจาก API
+      const [statusRes, notifsRes, overdueRes, settingsRes] = await Promise.all([
         api.get('/reports/by-status').catch((e) => { console.warn('Status API error:', e.message); return { data: { data: [] } }; }),
-        api.get('/reports/unchecked?days=365').catch((e) => { console.warn('Unchecked API error:', e.message); return { data: { data: { total: 0 } } }; }),
         api.get('/check-schedules/notifications?days=30').catch((e) => { console.warn('Notifications API error:', e.message); return { data: { data: [] } }; }),
         api.get('/check-schedules/overdue').catch((e) => { console.warn('Overdue API error:', e.message); return { data: { data: [] } }; }),
+        api.get('/settings').catch((e) => { console.warn('Settings API error:', e.message); return { data: { data: [] } }; }),
       ]);
 
       const statusData = statusRes.data.data || [];
-      const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
-      const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (uncheckedData.items?.length || 0);
+      
+      const settingsData = settingsRes.data.data || {};
+      const startDate = settingsData.annual_check_start || '';
+      const endDate = settingsData.annual_check_end || '';
+
+      let params = '';
+      if (startDate && endDate) params = `?start_date=${startDate}&end_date=${endDate}`;
+      
+      const annStatsRes = await api.get(`/checks/annual-stats${params}`).catch((e) => { console.warn('Annual Stats API error:', e.message); return { data: { data: { total: 0, checked: 0, unchecked: 0 } } }; });
+      const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
+      const uncheckedCount = annStats.unchecked || 0;
 
       // Map status data to stats (เหมือน web)
-      let total = 0;
       let available = 0;
       let maintenance = 0;
       let missing = 0;
 
       statusData.forEach(item => {
         const count = parseInt(item.count);
-        total += count;
         if (item.status === 'ใช้งานได้') available = count;
         if (item.status === 'รอซ่อม') maintenance = count;
         if (item.status === 'ไม่พบ') missing = count;
       });
 
+      // ถ้าระบบออนไลน์ แต่ API ไม่สามารถดึงข้อมูลได้ (เช่น Server พัง) ให้ดึงจากแคชสำรอง
+      if (annStats.total === 0 && statusData.length === 0) {
+        const allCachedAssets = await offlineService.getCachedAssets();
+        const cachedAssets = allCachedAssets.filter(a => a.status !== 'จำหน่ายแล้ว');
+
+        if (cachedAssets.length > 0) {
+          let cAvailable = 0, cMaintenance = 0, cMissing = 0, cChecked = 0;
+          const currentYear = new Date().getFullYear();
+          cachedAssets.forEach(asset => {
+            const status = asset.status || 'ใช้งานได้';
+            if (status === 'ใช้งานได้') cAvailable++;
+            else if (status === 'รอซ่อม') cMaintenance++;
+            else if (status === 'ไม่พบ') cMissing++;
+            if (asset.last_check_date && new Date(asset.last_check_date).getFullYear() === currentYear) cChecked++;
+          });
+          setStats({
+            total: cachedAssets.length,
+            checked: cChecked,
+            unchecked: Math.max(0, cachedAssets.length - cChecked),
+            available: cAvailable,
+            maintenance: cMaintenance,
+            missing: cMissing,
+          });
+          setLoading(false);
+          setRefreshing(false);
+          return;
+        }
+      }
+
       setStats({
-        total,
-        checked: Math.max(0, total - uncheckedCount),
+        total: annStats.total || 0,
+        checked: annStats.checked || 0,
         unchecked: uncheckedCount,
         available,
         maintenance,

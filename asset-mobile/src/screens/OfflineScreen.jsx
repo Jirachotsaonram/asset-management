@@ -80,7 +80,9 @@ export default function OfflineScreen({ navigation }) {
         const result = await offlineService.syncPendingChecks();
         setSyncing(false);
 
-        if (result.success > 0 || result.failed > 0) {
+        if (result.success === 0 && result.failed === 0) {
+            Alert.alert('🔄 ผลการซิงค์', 'ข้อมูลทั้งหมดเป็นปัจจุบันแล้ว (ไม่มีรายการค้างส่ง)');
+        } else {
             Alert.alert(
                 'ซิงค์เสร็จสิ้น',
                 `ส่งข้อมูลสำเร็จ: ${result.success} รายการ\nล้มเหลว: ${result.failed} รายการ`

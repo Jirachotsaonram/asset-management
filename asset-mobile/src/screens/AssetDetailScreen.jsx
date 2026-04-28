@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import api from '../services/api';
+import api, { getImageUrl } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { API_BASE_URL, ASSET_STATUS } from '../utils/constants';
@@ -248,7 +248,7 @@ export default function AssetDetailScreen() {
 
   const statusStyle = getStatusStyle(asset?.status);
   const imageUrl = asset?.image
-    ? { uri: `${API_BASE_URL.replace('/api', '')}/${asset.image}` }
+    ? { uri: getImageUrl(asset.image) }
     : null;
 
   return (
