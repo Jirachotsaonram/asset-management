@@ -474,3 +474,16 @@ Stack trace:
 [28-Apr-2026 09:08:56 Europe/Berlin] ImageUpload: Received file: 67f4738a-3d02-4565-8589-9feb1f4ebb4e.jpeg size: 18136 type: image/jpeg
 [28-Apr-2026 09:08:56 Europe/Berlin] ImageUpload: Attempting to resize image
 [28-Apr-2026 09:08:56 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_69f05d086dcae2.87982077.jpg
+[14-May-2026 10:41:29 Europe/Berlin] Import: Starting import of 1 rows
+[14-May-2026 10:42:43 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1778748163_6289.jpg
+[14-May-2026 10:42:43 Europe/Berlin] OCR: Received data via Base64/JSON
+[14-May-2026 10:42:44 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[14-May-2026 10:42:44 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1778748163_6289.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[14-May-2026 10:42:46 Europe/Berlin] OCR: Return code: 0
+[14-May-2026 10:42:51 Europe/Berlin] Import: Starting import of 1 rows
+[15-May-2026 09:31:42 Europe/Berlin] ImageUpload: Received file: 6dg5d3.jpg size: 195767 type: image/jpeg
+[15-May-2026 09:31:42 Europe/Berlin] ImageUpload: Attempting to resize image
+[15-May-2026 09:31:42 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a06cbde04eca5.45736281.jpg
+[15-May-2026 09:32:11 Europe/Berlin] ImageUpload: Received file: f4dd499c-f8a6-4467-89d2-e7517d0a99fa.jpeg size: 18136 type: image/jpeg
+[15-May-2026 09:32:11 Europe/Berlin] ImageUpload: Attempting to resize image
+[15-May-2026 09:32:11 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a06cbfb50cb54.59955448.jpg

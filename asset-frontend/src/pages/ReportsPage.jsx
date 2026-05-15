@@ -57,11 +57,11 @@ const REPORT_TYPES = [
 
 const REPORT_TABLE_CONFIG = {
   'asset-summary': {
-    headers: ['รหัส', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา (฿)', 'สถานะ', 'หน่วยงาน', 'สถานที่'],
+    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา (฿)', 'สถานะ', 'หน่วยงาน', 'สถานที่'],
     fields: ['asset_id', 'asset_name', 'serial_number', '_quantity', '_price', '_status', 'department_name', 'location'],
   },
   'check-report': {
-    headers: ['วันที่ตรวจ', 'รหัส', 'ชื่อครุภัณฑ์', 'ผลการตรวจ', 'ผู้ตรวจ', 'หมายเหตุ'],
+    headers: ['วันที่ตรวจ', 'หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'ผลการตรวจ', 'ผู้ตรวจ', 'หมายเหตุ'],
     fields: ['check_date', 'asset_id', 'asset_name', '_check_status', 'checker_name', 'remark'],
   },
   'by-status': {
@@ -73,15 +73,15 @@ const REPORT_TABLE_CONFIG = {
     fields: ['department_name', 'faculty', 'asset_count', '_total_value', '_active', '_repair', '_missing'],
   },
   'unchecked': {
-    headers: ['รหัส', 'ชื่อครุภัณฑ์', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ไม่ได้ตรวจมา'],
+    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ไม่ได้ตรวจมา'],
     fields: ['asset_id', 'asset_name', '_status', 'department_name', 'location', 'last_check_date', '_days'],
   },
   'movement-history': {
-    headers: ['วันที่ย้าย', 'รหัส', 'ชื่อครุภัณฑ์', 'จาก', 'ไปยัง', 'ผู้ดำเนินการ', 'หมายเหตุ'],
+    headers: ['วันที่ย้าย', 'หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'จาก', 'ไปยัง', 'ผู้ดำเนินการ', 'หมายเหตุ'],
     fields: ['move_date', 'asset_id', 'asset_name', 'old_location', 'new_location', 'moved_by_name', 'remark'],
   },
   'borrow-report': {
-    headers: ['รหัส', 'ชื่อครุภัณฑ์', 'ผู้ยืม', 'วันที่ยืม', 'กำหนดคืน', 'วันที่คืน', 'สถานะ'],
+    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'ผู้ยืม', 'วันที่ยืม', 'กำหนดคืน', 'วันที่คืน', 'สถานะ'],
     fields: ['asset_id', 'asset_name', 'borrower_name', 'borrow_date', 'expected_return_date', 'actual_return_date', '_borrow_status'],
   },
 };

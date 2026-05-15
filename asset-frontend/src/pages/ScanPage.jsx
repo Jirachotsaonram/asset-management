@@ -1,7 +1,8 @@
 // FILE: src/pages/ScanPage.jsx
 import { useState, useRef, useCallback } from 'react';
 import { Camera, CheckCircle, AlertCircle, RefreshCw, Search, Upload, QrCode, Package, MapPin, Building2, Clock, FileCheck, ChevronDown, ChevronUp } from 'lucide-react';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import Tesseract from 'tesseract.js';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -55,28 +56,35 @@ const preprocessImage = (file, options = {}) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
-        // ขยายขนาด 2 เท่า และเพิ่มพื้นที่ขอบ (Quiet Zone) เพื่อช่วยให้ Decoder หา Pattern เจอ
-        const padding = 40;
-        canvas.width = (img.width * 2) + padding * 2;
-        canvas.height = (img.height * 2) + padding * 2;
+        // สำหรับ Barcode/QR บางตัว การขยายอาจไม่ช่วยเสมอไป แต่การเพิ่มพื้นที่สีขาว (Quiet Zone) สำคัญมาก
+        // ถ้าเป็น Barcode ขนาดยาว การขยาย 2 เท่าอาจทำให้ภาพใหญ่เกินไป เราจะปรับตามความเหมาะสม
+        const scale = options.scale || 1.5; 
+        const padding = options.padding || 60;
+        
+        canvas.width = (img.width * scale) + padding * 2;
+        canvas.height = (img.height * scale) + padding * 2;
 
-        // พื้นหลังขาว
+        // พื้นหลังขาว (สำคัญมากสำหรับ Barcode)
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // ปิด smoothing เพื่อไม่ให้ภาพเบลอเวลาขยาย
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, padding, padding, img.width * 2, img.height * 2);
+        // ปรับแต่งคุณภาพการวาด
+        ctx.imageSmoothingEnabled = options.smoothing !== undefined ? options.smoothing : false;
+        ctx.drawImage(img, padding, padding, img.width * scale, img.height * scale);
 
         if (options.grayscale || options.contrast) {
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imageData.data;
           for (let i = 0; i < data.length; i += 4) {
-            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            // ใช้สูตร Luminance เพื่อความแม่นยำในการทำ GrayScale
+            const avg = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
             let val = avg;
+            
             if (options.contrast) {
-              val = avg > 128 ? 255 : 0;
+              // Thresholding (Binarization) - ปรับตามความสว่างเฉลี่ย
+              val = avg > (options.threshold || 128) ? 255 : 0;
             }
+            
             data[i] = val;
             data[i + 1] = val;
             data[i + 2] = val;
@@ -90,7 +98,7 @@ const preprocessImage = (file, options = {}) => {
           } else {
             reject(new Error('Canvas conversion failed'));
           }
-        }, 'image/jpeg', 1.0);
+        }, 'image/jpeg', 0.95);
       };
       img.onerror = () => reject(new Error('Image load failed'));
       img.src = e.target.result;
@@ -294,42 +302,96 @@ export default function ScanPage() {
       tempDiv.style.position = 'fixed';
       tempDiv.style.left = '-9999px';
       tempDiv.style.top = '-9999px';
-      tempDiv.style.width = '1px';
-      tempDiv.style.height = '1px';
+      tempDiv.style.width = '300px';
+      tempDiv.style.height = '300px';
       document.body.appendChild(tempDiv);
 
       try {
-        // สร้าง Html5Qrcode instance ด้วย element ID
-        const html5QrCode = new Html5Qrcode(tempElementId);
+        // สร้าง Html5Qrcode instance พร้อมรองรับทุก Format (QR + Barcode)
+        const html5QrCode = new Html5Qrcode(tempElementId, {
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.ITF,
+            Html5QrcodeSupportedFormats.DATA_MATRIX
+          ],
+          verbose: false
+        });
 
         let decodedText = '';
         try {
-          // Pass 1: สแกนแบบปกติ
+          // Pass 1: สแกนแบบปกติ (พยายามอ่านทุกอย่างที่ขวางหน้า)
           decodedText = await html5QrCode.scanFile(file, false);
         } catch (err1) {
-          console.log('Pass 1 failed, trying Pass 2 (Upscale + Padding)...');
+          console.log('Pass 1 failed, trying Pass 2 (Enhanced Padding)...');
           try {
-            // Pass 2: ขยายภาพและเพิ่มขอบขาว
-            toast.loading('พยายามสแกนใหม่ (ขั้นที่ 2: ปรับขนาดแล้วเเบ่งขอบ)...', { id: 'qr-retry' });
-            const processedFile2 = await preprocessImage(file);
+            // Pass 2: เน้นเพิ่ม Quiet Zone (ขอบขาว) เพราะ Barcode มักจะมีปัญหาถ้าไม่มีขอบ
+            toast.loading('พยายามสแกนใหม่ (ขั้นที่ 2: ปรับพื้นที่ขอบ)...', { id: 'qr-retry' });
+            const processedFile2 = await preprocessImage(file, { scale: 1.2, padding: 100, smoothing: true });
             decodedText = await html5QrCode.scanFile(processedFile2, false);
             toast.dismiss('qr-retry');
           } catch (err2) {
             console.log('Pass 2 failed, trying Pass 3 (Grayscale + Contrast)...');
             try {
-              // Pass 3: เพิ่ม Grayscale และ Contrast (Binarization)
+              // Pass 3: ขยายใหญ่ขึ้น + Grayscale (ไม่ทำ Binary เพื่อลด Noise)
               toast.loading('พยายามสแกนใหม่ (ขั้นที่ 3: ปรับความคมชัด)...', { id: 'qr-retry' });
-              const processedFile3 = await preprocessImage(file, { grayscale: true, contrast: true });
+              const processedFile3 = await preprocessImage(file, { scale: 1.8, grayscale: true, smoothing: true });
               decodedText = await html5QrCode.scanFile(processedFile3, false);
               toast.dismiss('qr-retry');
             } catch (err3) {
-              toast.dismiss('qr-retry');
-              // ลบ temporary element
-              if (document.getElementById(tempElementId)) {
-                document.body.removeChild(tempDiv);
+              console.log('Pass 3 failed, trying Pass 4 (Binary Threshold)...');
+              try {
+                // Pass 4: ขยายใหญ่ + Binary (ขาว-ดำสนิท)
+                toast.loading('พยายามสแกนใหม่ (ขั้นที่ 4: Binary Threshold)...', { id: 'qr-retry' });
+                const processedFile4 = await preprocessImage(file, { scale: 2.2, grayscale: true, contrast: true, threshold: 130 });
+                decodedText = await html5QrCode.scanFile(processedFile4, false);
+                toast.dismiss('qr-retry');
+              } catch (err4) {
+                console.log('Pass 4 failed, trying Pass 5 (Super Zoom)...');
+                try {
+                  // Pass 5: ซูมหนักมาก (3 เท่า) สำหรับ QR หนาแน่นสูง
+                  toast.loading('พยายามสแกนใหม่ (ขั้นที่ 5: Super Zoom)...', { id: 'qr-retry' });
+                  const processedFile5 = await preprocessImage(file, { scale: 3.0, smoothing: true });
+                  decodedText = await html5QrCode.scanFile(processedFile5, false);
+                  toast.dismiss('qr-retry');
+                } catch (err5) {
+                  toast.dismiss('qr-retry');
+                }
               }
-              throw err1; // โยน error แรกออกไปถ้าทุกวิธีล้มเหลว
             }
+          }
+        }
+
+        // --- OCR Fallback (Tesseract) ---
+        if (!decodedText) {
+          console.log('Standard readers failed, trying OCR fallback (Only works for Barcodes with numbers)...');
+          toast.loading('พยายามอ่านด้วยระบบ OCR (ขั้นสุดท้าย)...', { id: 'qr-retry' });
+          
+          try {
+            const worker = await Tesseract.createWorker('eng', 1);
+            const { data: { text } } = await worker.recognize(file);
+            await worker.terminate();
+            
+            console.log('OCR Result:', text);
+            
+            const numbers = text.match(/\d{10,20}/g);
+            if (numbers && numbers.length > 0) {
+              decodedText = numbers[0];
+              console.log('OCR found potential code:', decodedText);
+              toast.success('อ่านรหัสจากตัวเลขสำเร็จ (OCR)', { id: 'qr-retry' });
+            } else {
+              toast.dismiss('qr-retry');
+              throw new Error('ไม่พบรหัส QR หรือ Barcode ที่ชัดเจนในรูปภาพ');
+            }
+          } catch (ocrErr) {
+            console.error('OCR Fallback failed:', ocrErr);
+            toast.dismiss('qr-retry');
+            throw new Error('ไม่สามารถสแกนรหัสได้แม้จะใช้ OCR ช่วยแล้ว');
           }
         }
 
@@ -346,42 +408,43 @@ export default function ScanPage() {
         // Parse QR Code data (อาจเป็น JSON หรือ string)
         let searchId = decodedText;
         try {
-          const qrData = JSON.parse(decodedText);
-          // ถ้าเป็น JSON ให้เอาเฉพาะ ID หรือ Barcode ออกมา
-          searchId = qrData.id || qrData.barcode || decodedText;
-        } catch {
-          // ถ้าไม่ใช่ JSON ก็ใช้ decodedText ตรงๆ
+          // ถ้าเป็น JSON (เช่น ข้อมูลที่มากับ QR ที่ระบบสร้างเอง)
+          if (decodedText.startsWith('{')) {
+            const qrData = JSON.parse(decodedText);
+            searchId = qrData.barcode || qrData.id || decodedText;
+          }
+        } catch (e) {
+          console.log('Not a JSON string, using raw text');
         }
 
         // ค้นหาครุภัณฑ์
         let foundAsset = null;
         try {
-          // ลองค้นหาด้วย ID/Barcode
-          const response = await api.get(`/assets/${encodeURIComponent(searchId)}`);
-          if (response.data.success) {
-            foundAsset = response.data.data;
+          // 1. ลองค้นด้วย Barcode (ตรงไปตรงมาที่สุด)
+          const response = await api.get(`/assets?barcode=${encodeURIComponent(searchId)}`);
+          if (response.data.success && response.data.data) {
+            foundAsset = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
+          }
+          
+          // 2. ถ้าไม่เจอ ลองค้นด้วย ID (เผื่อเป็นรหัสสั้นๆ)
+          if (!foundAsset) {
+            const idResponse = await api.get(`/assets/${encodeURIComponent(searchId)}`);
+            if (idResponse.data.success) {
+              foundAsset = idResponse.data.data;
+            }
           }
         } catch (err) {
-          console.log('QR direct lookup failed, trying fallback...');
-          try {
-            const response = await api.get(`/assets?barcode=${encodeURIComponent(searchId)}`);
-            if (response.data.success) {
-              foundAsset = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
-            }
-          } catch (err2) {
-            console.log('Asset not found from QR');
-          }
+          console.log('Asset lookup failed for code:', searchId);
         }
 
         if (foundAsset) {
           setScannedAsset(foundAsset);
           setCheckStatus(foundAsset.status || 'ใช้งานได้');
           setRemark('');
-          // อัปเดตช่องกรอกข้อมูลให้เป็นหมายเลขครุภัณฑ์ (Barcode) แทนที่จะเป็น ID
           setBarcode(foundAsset.barcode || foundAsset.asset_id.toString());
-          toast.success('สแกน QR Code สำเร็จ - พบครุภัณฑ์');
+          toast.success(`พบครุภัณฑ์: ${foundAsset.asset_name}`, { duration: 4000 });
         } else {
-          toast.error('ไม่พบครุภัณฑ์ที่ตรงกับ QR Code: ' + decodedText);
+          toast.error(`สแกนได้รหัส "${searchId}" แต่ไม่พบในระบบฐานข้อมูล`, { duration: 5000 });
           setScannedAsset(null);
         }
       } catch (scanError) {
@@ -396,26 +459,16 @@ export default function ScanPage() {
     } catch (err) {
       console.error('Error scanning image:', err);
 
-      // จัดการ error message ให้ชัดเจน
-      let errorMessage = 'ไม่สามารถสแกน QR Code จากรูปภาพได้';
-
-      if (err) {
-        if (typeof err === 'string') {
-          errorMessage = err;
-        } else if (err.message) {
-          const msg = err.message.toLowerCase();
-          if (msg.includes('no qr code found') ||
-            msg.includes('qr code parse error') ||
-            msg.includes('not found') ||
-            msg.includes('not detected')) {
-            errorMessage = 'ไม่พบ QR Code ในรูปภาพ กรุณาเลือกรูปภาพที่มี QR Code ชัดเจน';
-          } else {
-            errorMessage = 'ไม่สามารถสแกน QR Code จากรูปภาพได้: ' + err.message;
-          }
+      let errorMessage = 'เกิดข้อผิดพลาดในการสแกน';
+      if (err.message) {
+        if (err.message.includes('ไม่พบรหัส')) {
+          errorMessage = err.message;
+        } else {
+          errorMessage = 'สแกนล้มเหลว: ' + err.message;
         }
       }
-
-      toast.error(errorMessage);
+      
+      toast.error(errorMessage, { id: 'scan-error' });
     } finally {
       setProcessingImage(false);
       setLoading(false);

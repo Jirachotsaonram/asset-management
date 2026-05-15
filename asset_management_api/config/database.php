@@ -7,7 +7,6 @@ class Database {
     public $conn;
 
     public function __construct() {
-        // ตรวจสอบว่าเป็น Local Environment (localhost, 127.0.0.1, หรือ Private IP ในวง LAN)
         $server_addr = $_SERVER['SERVER_ADDR'] ?? '';
         $server_name = $_SERVER['SERVER_NAME'] ?? '';
         
@@ -21,7 +20,6 @@ class Database {
                     empty($server_addr)); // CLI mode
 
         if (!$isLocal) {
-            // สำหรับขึ้น Server จริง: แก้ไขข้อมูลด้านล่างให้ตรงกับ Server
             $this->host = "localhost";
             $this->db_name = "asset_management_db";
             $this->username = "itisv";

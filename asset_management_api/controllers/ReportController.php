@@ -345,18 +345,18 @@ class ReportController {
         
         switch ($reportType) {
             case 'asset_summary':
-                fputcsv($output, ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด']);
+                fputcsv($output, ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด']);
                 
                 $query = "SELECT 
-                            asset_id, asset_name, serial_number, quantity, unit, price, received_date, 
+                            barcode, asset_name, serial_number, quantity, unit, price, received_date, 
                             status, department_name, building_name, floor, room_number, 
                             last_check_date, last_checker
                         FROM v_assets_with_check_info
-                        ORDER BY asset_id";
+                        ORDER BY barcode, asset_id";
                 break;
                 
             case 'check_report':
-                fputcsv($output, ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่']);
+                fputcsv($output, ['รหัสการตรวจ', 'วันที่ตรวจ', 'หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่']);
                 
                 $startDate = $params['start_date'] ?? null;
                 $endDate = $params['end_date'] ?? null;
@@ -364,7 +364,7 @@ class ReportController {
                 $query = "SELECT 
                             ac.check_id,
                             ac.check_date,
-                            a.asset_id,
+                            a.barcode,
                             a.asset_name,
                             a.serial_number,
                             ac.check_status,
@@ -422,19 +422,19 @@ class ReportController {
         switch ($reportType) {
             case 'asset_summary':
                 // ใช้ข้อมูลจาก v_assets_with_check_info เพื่อความสมบูรณ์
-                $headers = ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'];
+                $headers = ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'];
                 $query = "SELECT 
-                            asset_id, asset_name, serial_number, quantity, unit, price, received_date, 
+                            barcode, asset_name, serial_number, quantity, unit, price, received_date, 
                             status, department_name, building_name, floor, room_number, 
                             last_check_date, last_checker
                         FROM v_assets_with_check_info
-                        ORDER BY asset_id";
+                        ORDER BY barcode, asset_id";
                 break;
                 
             case 'check_report':
-                $headers = ['รหัสการตรวจ', 'วันที่ตรวจ', 'รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่'];
+                $headers = ['รหัสการตรวจ', 'วันที่ตรวจ', 'หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'สถานะการตรวจ', 'หมายเหตุ', 'ผู้ตรวจ', 'หน่วยงาน', 'สถานที่'];
                 $query = "SELECT 
-                            ac.check_id, ac.check_date, a.asset_id, a.asset_name, a.serial_number, 
+                            ac.check_id, ac.check_date, a.barcode, a.asset_name, a.serial_number, 
                             ac.check_status, ac.remark, u.fullname as checker_name, 
                             d.department_name, CONCAT(COALESCE(l.building_name,''), ' ห้อง ', COALESCE(l.room_number,'')) as location
                         FROM asset_check ac

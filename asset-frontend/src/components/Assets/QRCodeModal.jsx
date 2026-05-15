@@ -123,6 +123,7 @@ export default function QRCodeModal({ asset, onClose }) {
           <div class="container">
             <!-- 1. QR Code / Barcode -->
             <img src="${imageUrl}" class="${mode === 'qr' ? 'qr-image' : 'barcode-image'}" />
+            ${mode === 'qr' ? `<div style="margin-top: -5px; margin-bottom: 8px; font-size: 16px; font-weight: bold; letter-spacing: 1px;">${barcodeData}</div>` : ''}
             
             <!-- 2. ชื่อครุภัณฑ์ -->
             <h2>${asset.asset_name}</h2>
@@ -191,7 +192,7 @@ export default function QRCodeModal({ asset, onClose }) {
           {/* QR Code / Barcode Display */}
           <div className="flex justify-center mb-5 bg-white p-4 rounded-xl border-2 border-gray-200 min-h-[200px] items-center overflow-hidden">
             {mode === 'qr' ? (
-              <div ref={qrRef} className="max-w-full">
+              <div ref={qrRef} className="max-w-full flex flex-col items-center">
                 <QRCodeCanvas
                   value={qrData}
                   size={220}
@@ -199,6 +200,9 @@ export default function QRCodeModal({ asset, onClose }) {
                   includeMargin={true}
                   style={{ maxWidth: '100%', height: 'auto' }}
                 />
+                <div className="mt-1 text-lg font-bold text-gray-800 tracking-wider">
+                  {barcodeData}
+                </div>
               </div>
             ) : (
               <div className="max-w-full overflow-hidden flex justify-center">

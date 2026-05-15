@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
+import { Html5QrcodeScanner, Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { Camera, X, CheckCircle, AlertCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import api from '../../services/api';
 import { API_BASE_URL } from '../../utils/constants';
@@ -46,7 +46,14 @@ export default function QRScanner({ onClose }) {
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0
+          aspectRatio: 1.0,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8
+          ]
         },
         false
       );
@@ -93,7 +100,15 @@ export default function QRScanner({ onClose }) {
     setScanning(false);
 
     try {
-      const html5QrCode = new Html5Qrcode();
+      const html5QrCode = new Html5Qrcode("qr-reader", {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8
+        ]
+      });
 
       // สแกน QR Code จากรูปภาพ
       const decodedText = await html5QrCode.scanFile(file, false);
