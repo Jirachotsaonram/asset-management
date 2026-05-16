@@ -5,7 +5,7 @@ import {
     Calendar, CheckCircle2, XCircle, Filter,
     RotateCcw, RefreshCw, Package, Search,
     Settings, Save, CheckSquare, Trash2, HelpCircle, Download,
-    BarChart3, AlertCircle, AlertTriangle, Clock, TrendingUp
+    BarChart3, AlertCircle, Clock, TrendingUp
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import VirtualTable from "../components/Common/VirtualTable";
@@ -49,21 +49,23 @@ export default function AnnualCheckPage() {
         const end = new Date(settings.annual_check_end);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
 
         const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
         let status = 'pending';
         let remainingDays = 0;
 
-        if (today < start) {
-            status = 'waiting';
-            remainingDays = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
-        } else if (today > end) {
+        if (today > end) {
             status = 'expired';
             remainingDays = Math.ceil((today - end) / (1000 * 60 * 60 * 24));
+        } else if (today < start) {
+            status = 'waiting';
+            remainingDays = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
         } else {
-            status = 'active';
             remainingDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+            status = remainingDays <= 7 ? 'due_soon' : 'active';
         }
 
         return { totalDays, status, remainingDays };
@@ -390,14 +392,13 @@ export default function AnnualCheckPage() {
                 </div>
             </div>
 
-            {/* Stats */}
+            {/* Stats — 4 กล่อง (ไม่นับซ้ำ) */}
             {stats && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                 { label: 'ทั้งหมด', value: stats.total, gradient: 'from-blue-500 to-blue-600', icon: BarChart3 },
-                { label: 'ยังไม่ได้ตรวจ', value: stats.unchecked, gradient: 'from-red-500 to-red-600', icon: AlertCircle },
-                { label: 'เลยกำหนด', value: stats.overdue, gradient: 'from-orange-500 to-orange-600', icon: AlertTriangle },
-                { label: 'ใกล้กำหนด', value: stats.due_soon, gradient: 'from-yellow-500 to-yellow-600', icon: Clock },
+                { label: 'รอตรวจ', value: stats.unchecked, gradient: 'from-red-500 to-red-600', icon: AlertCircle },
+                { label: 'ใกล้/เลยกำหนด', value: (stats.overdue || 0) + (stats.due_soon || 0), gradient: 'from-yellow-500 to-yellow-600', icon: Clock },
                 { label: 'ตรวจแล้วในรอบนี้', value: stats.checked, gradient: 'from-emerald-500 to-emerald-600', icon: TrendingUp, pct: stats.total > 0 ? ((stats.checked/stats.total)*100).toFixed(1) : 0 },
                 ].map((s, i) => (
                 <div key={i} className={`bg-gradient-to-br ${s.gradient} rounded-xl p-4 text-white shadow-lg`}>
@@ -417,6 +418,26 @@ export default function AnnualCheckPage() {
                 ))}
             </div>
             )}
+
+            {/* แถบข้อมูลรอบตรวจประจำปี */}
+            {periodInfo && settings.annual_check_start && settings.annual_check_end && (() => {
+                const startStr = new Date(settings.annual_check_start).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                const endStr = new Date(settings.annual_check_end).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                let statusColor, statusText;
+                if (periodInfo.status === 'expired') { statusColor = 'bg-red-50 border-red-200 text-red-800'; statusText = `สิ้นสุดแล้ว (เลย ${periodInfo.remainingDays} วัน)`; }
+                else if (periodInfo.status === 'waiting') { statusColor = 'bg-blue-50 border-blue-200 text-blue-800'; statusText = `รอเปิดรอบ (อีก ${periodInfo.remainingDays} วัน)`; }
+                else if (periodInfo.status === 'due_soon') { statusColor = 'bg-yellow-50 border-yellow-200 text-yellow-800'; statusText = `ใกล้สิ้นสุด (เหลืออีก ${periodInfo.remainingDays} วัน)`; }
+                else { statusColor = 'bg-emerald-50 border-emerald-200 text-emerald-800'; statusText = `อยู่ในช่วงตรวจ (เหลืออีก ${periodInfo.remainingDays} วัน)`; }
+                return (
+                    <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm ${statusColor}`}>
+                        <Calendar size={16} className="flex-shrink-0" />
+                        <span className="font-medium">รอบตรวจประจำปี:</span>
+                        <span>{startStr} – {endStr}</span>
+                        <span className="text-xs font-medium">({periodInfo.totalDays} วัน)</span>
+                        <span className="ml-auto font-semibold text-xs">{statusText}</span>
+                    </div>
+                );
+            })()}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Settings Panel */}
@@ -491,6 +512,16 @@ export default function AnnualCheckPage() {
                                                 กำลังดำเนินการ
                                             </span>
                                             <span className="text-sm font-bold text-emerald-700">เหลืออีก {periodInfo.remainingDays} วัน</span>
+                                        </div>
+                                    )}
+
+                                    {periodInfo.status === 'due_soon' && (
+                                        <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+                                            <span className="text-xs font-bold text-yellow-700 uppercase flex items-center gap-1">
+                                                <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse" />
+                                                ใกล้สิ้นสุด
+                                            </span>
+                                            <span className="text-sm font-bold text-yellow-700">เหลืออีก {periodInfo.remainingDays} วัน</span>
                                         </div>
                                     )}
 

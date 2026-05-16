@@ -22,7 +22,7 @@ const STATUS_CONFIGS = {
 const CHECK_STATUSES = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ'];
 const ITEMS_PER_PAGE = 100;
 
-// ==================== Helper: compute check status (pure function) ====================
+// ==================== Helper: compute check status (pure function, Single Source of Truth) ====================
 function computeCheckStatus(asset, globalPeriod) {
   let checkDateStr = null;
   if (asset.last_check_date) checkDateStr = asset.last_check_date.split(' ')[0];
@@ -32,11 +32,27 @@ function computeCheckStatus(asset, globalPeriod) {
     (!globalPeriod.start || checkDateStr >= globalPeriod.start) && 
     (!globalPeriod.end || checkDateStr <= globalPeriod.end);
 
-  if (!isCheckedInPeriod) {
-    return { ...STATUS_CONFIGS.never_checked, status: 'never_checked', days: null, text: 'ยังไม่ได้ตรวจ' };
+  if (isCheckedInPeriod) {
+    return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: null };
   }
 
-  return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: null };
+  // ยังไม่ได้ตรวจ → ตรวจสอบว่าเลยกำหนดหรือใกล้กำหนดไหม
+  if (globalPeriod.end) {
+    const endDay = new Date(globalPeriod.end);
+    const nowDay = new Date();
+    nowDay.setHours(0, 0, 0, 0);
+    endDay.setHours(0, 0, 0, 0);
+    const days = Math.floor((endDay - nowDay) / 86400000);
+
+    if (days < 0) {
+      return { ...STATUS_CONFIGS.overdue, status: 'overdue', days, label: `เลยกำหนด ${Math.abs(days)} วัน` };
+    }
+    if (days <= 7) {
+      return { ...STATUS_CONFIGS.due_soon, status: 'due_soon', days, label: `เหลืออีก ${days} วัน` };
+    }
+  }
+
+  return { ...STATUS_CONFIGS.never_checked, status: 'never_checked', days: null };
 }
 
 // ==================== Main Component ====================
@@ -109,7 +125,7 @@ export default function CheckPage() {
     [assets, computeCheckStatusWrapper]
   );
 
-  // ==================== Memoized: stats ====================
+  // ==================== Memoized: stats (ใช้สถานะจาก computeCheckStatus โดยตรง ไม่ override) ====================
   const stats = useMemo(() => {
     let neverChecked = 0, overdue = 0, dueSoon = 0, checked = 0;
     assetsWithStatus.forEach(a => {
@@ -120,24 +136,10 @@ export default function CheckPage() {
       else if (s === 'checked') checked++;
     });
 
-    if (globalPeriod.end) {
-        overdue = 0;
-        dueSoon = 0;
-        const endDay = new Date(globalPeriod.end);
-        const nowDay = new Date();
-        const diffMs = endDay - nowDay;
-        const days = Math.floor(diffMs / 86400000);
-        
-        if (days < 0) {
-            overdue = neverChecked;
-        } else if (days <= 7) {
-            dueSoon = neverChecked;
-        }
-    }
-
     const total = assetsWithStatus.length;
-    return { neverChecked, overdue, dueSoon, checked, total, needsAction: neverChecked + overdue + dueSoon, percentage: total > 0 ? ((checked / total) * 100).toFixed(1) : 0 };
-  }, [assetsWithStatus, globalPeriod]);
+    const pending = neverChecked + overdue + dueSoon;
+    return { neverChecked, overdue, dueSoon, checked, total, pending, needsAction: pending, percentage: total > 0 ? ((checked / total) * 100).toFixed(1) : 0 };
+  }, [assetsWithStatus]);
 
   // ==================== Memoized: filtered assets ====================
   const filteredAssets = useMemo(() => {
@@ -281,13 +283,12 @@ export default function CheckPage() {
 
       {activeTab === 'check' ? (
         <>
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {/* Stats — 4 กล่อง */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { label: 'ทั้งหมด', value: stats.total, gradient: 'from-blue-500 to-blue-600', icon: BarChart3 },
-              { label: 'ยังไม่เคยตรวจ', value: stats.neverChecked, gradient: 'from-red-500 to-red-600', icon: AlertCircle },
-              { label: 'เลยกำหนด', value: stats.overdue, gradient: 'from-orange-500 to-orange-600', icon: AlertTriangle },
-              { label: 'ใกล้กำหนด', value: stats.dueSoon, gradient: 'from-yellow-500 to-yellow-600', icon: Clock },
+              { label: 'รอตรวจ', value: stats.pending, gradient: 'from-red-500 to-red-600', icon: AlertCircle },
+              { label: 'ใกล้/เลยกำหนด', value: stats.overdue + stats.dueSoon, gradient: 'from-yellow-500 to-yellow-600', icon: Clock },
               { label: 'ตรวจแล้ว', value: stats.checked, gradient: 'from-green-500 to-green-600', icon: TrendingUp, pct: stats.percentage },
             ].map((s, i) => (
               <div key={i} className={`bg-gradient-to-br ${s.gradient} rounded-xl p-4 text-white shadow-lg`}>
@@ -306,6 +307,33 @@ export default function CheckPage() {
               </div>
             ))}
           </div>
+
+          {/* แถบข้อมูลรอบตรวจประจำปี */}
+          {globalPeriod.start && globalPeriod.end && (() => {
+            const startDay = new Date(globalPeriod.start);
+            const endDay = new Date(globalPeriod.end);
+            const nowDay = new Date();
+            nowDay.setHours(0, 0, 0, 0);
+            startDay.setHours(0, 0, 0, 0);
+            endDay.setHours(0, 0, 0, 0);
+            const daysToEnd = Math.floor((endDay - nowDay) / 86400000);
+            const daysToStart = Math.floor((startDay - nowDay) / 86400000);
+            const startStr = new Date(globalPeriod.start).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+            const endStr = new Date(globalPeriod.end).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+            let statusColor, statusText;
+            if (daysToEnd < 0) { statusColor = 'bg-red-50 border-red-200 text-red-800'; statusText = `สิ้นสุดแล้ว (เลย ${Math.abs(daysToEnd)} วัน)`; }
+            else if (daysToStart > 0) { statusColor = 'bg-blue-50 border-blue-200 text-blue-800'; statusText = `รอเปิดรอบ (อีก ${daysToStart} วัน)`; }
+            else if (daysToEnd <= 7) { statusColor = 'bg-yellow-50 border-yellow-200 text-yellow-800'; statusText = `ใกล้สิ้นสุด (เหลืออีก ${daysToEnd} วัน)`; }
+            else { statusColor = 'bg-emerald-50 border-emerald-200 text-emerald-800'; statusText = `อยู่ในช่วงตรวจ (เหลืออีก ${daysToEnd} วัน)`; }
+            return (
+              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm ${statusColor}`}>
+                <Calendar size={16} className="flex-shrink-0" />
+                <span className="font-medium">รอบตรวจประจำปี:</span>
+                <span>{startStr} – {endStr}</span>
+                <span className="ml-auto font-semibold text-xs">{statusText}</span>
+              </div>
+            );
+          })()}
 
           {/* Search + Filter Bar */}
           <div className="bg-white rounded-xl shadow-md p-4">
