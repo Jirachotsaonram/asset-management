@@ -222,13 +222,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
-                <span className="text-sm text-gray-600">จดจำฉัน</span>
-              </label>
+            {/* Forgot Password Only */}
+            <div className="flex justify-end">
+              <button type="button" onClick={() => toast('กรุณาติดต่อผู้ดูแลระบบ (Admin) เพื่อรีเซ็ตรหัสผ่าน', { icon: '🔑', duration: 5000 })}
+                className="text-sm text-primary-600 hover:text-primary-700 hover:underline transition-colors font-medium">
+                ลืมรหัสผ่าน?
+              </button>
             </div>
 
             {/* Submit Button */}

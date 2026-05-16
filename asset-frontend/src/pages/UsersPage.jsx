@@ -5,8 +5,8 @@ import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import {
-  Plus, Search, Edit2, Trash2, Users, UserCheck, UserX, Shield, X,
-  Eye, EyeOff, ChevronDown, ChevronUp, Mail, Phone, RefreshCw, Filter,
+  Plus, Search, Edit2, Users, UserCheck, UserX, Shield, X,
+  ChevronDown, ChevronUp, Mail, Phone, RefreshCw, Filter,
   ChevronLeft, ChevronRight, AlertTriangle, ShieldCheck, Download, Database
 } from 'lucide-react';
 
@@ -25,9 +25,8 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active'
+    username: '', password: '', confirm_password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active'
   });
   const [formLoading, setFormLoading] = useState(false);
 
@@ -84,7 +83,7 @@ export default function UsersPage() {
 
   const handleOpenEdit = (u) => {
     setEditingUser(u);
-    setFormData({ ...u, password: '' });
+    setFormData({ ...u, password: '', confirm_password: '' });
     setShowModal(true);
   };
 
@@ -102,7 +101,29 @@ export default function UsersPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.username || !formData.fullname) return toast.error('กรุณากรอกข้อมูลสำคัญ');
+    
+    // ตรวจสอบข้อมูลที่จำเป็นต้องกรอก
+    if (!formData.username || !formData.fullname || !formData.email) {
+      return toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (Username, Full Name, Email)');
+    }
+
+    // กรณีสร้างผู้ใช้ใหม่ ต้องมีรหัสผ่าน
+    if (!editingUser && !formData.password) {
+      return toast.error('กรุณากำหนดรหัสผ่าน');
+    }
+
+    // ตรวจสอบความปลอดภัยรหัสผ่าน (8 ตัว+, ตัวใหญ่, ตัวเล็ก, เลข, สัญลักษณ์)
+    if (formData.password) {
+      if (formData.password !== formData.confirm_password) {
+        return toast.error('รหัสผ่านไม่ตรงกัน');
+      }
+      
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        return toast.error('รหัสผ่านไม่ปลอดภัยพอ: ต้องมีอย่างน้อย 8 ตัว, มีตัวพิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข และสัญลักษณ์ผสมกัน');
+      }
+    }
+
     setFormLoading(true);
     try {
       const data = { ...formData };
@@ -155,7 +176,20 @@ export default function UsersPage() {
             <Database size={18} /> <span className="hidden md:inline">สำรองข้อมูล</span>
           </button>
           <button onClick={fetchUsers} className="btn-secondary rounded-2xl"><RefreshCw size={18} /></button>
-          <button onClick={() => { setEditingUser(null); setFormData({ username: '', password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active' }); setShowModal(true); }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
+          <button onClick={() => { 
+            setEditingUser(null); 
+            setFormData({ 
+              username: '', 
+              password: 'Asset@2026#', 
+              confirm_password: 'Asset@2026#', 
+              fullname: '', 
+              email: '', 
+              phone: '', 
+              role: 'Inspector', 
+              status: 'Active' 
+            }); 
+            setShowModal(true); 
+          }} className="btn-primary rounded-2xl shadow-lg shadow-primary-200">
             <Plus size={20} /> เพิ่มผู้ใช้
           </button>
         </div>
@@ -239,7 +273,6 @@ export default function UsersPage() {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-1">
                       <button onClick={() => handleOpenEdit(u)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition"><Edit2 size={18} /></button>
-                      <button onClick={() => handleDelete(u.user_id)} className="p-2 text-gray-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl transition"><Trash2 size={18} /></button>
                     </div>
                   </td>
                 </tr>
@@ -263,7 +296,6 @@ export default function UsersPage() {
       {showModal && (
         <UserModal
           formData={formData} setFormData={setFormData} editingUser={editingUser}
-          showPassword={showPassword} setShowPassword={setShowPassword}
           onClose={() => setShowModal(false)} onSubmit={handleSubmit} loading={formLoading}
         />
       )}
@@ -291,52 +323,83 @@ function UserStat({ label, value, icon: Icon, color }) {
   );
 }
 
-function UserModal({ formData, setFormData, editingUser, showPassword, setShowPassword, onClose, onSubmit, loading }) {
+function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, loading }) {
+  // Handler สำหรับกรอกเบอร์โทรศัพท์ - รับเฉพาะตัวเลข
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    if (/^[0-9]*$/.test(value) && value.length <= 10) {
+      setFormData({ ...formData, phone: value });
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-8 border-b flex justify-between items-center bg-gray-50/50">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="p-8 border-b flex justify-between items-center bg-gray-50/50 flex-shrink-0">
           <div>
             <h2 className="text-2xl font-black text-gray-900">{editingUser ? 'แก้ไขโปรไฟล์' : 'สร้างผู้ใช้ใหม่'}</h2>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">User Configuration</p>
           </div>
           <button onClick={onClose} className="p-3 hover:bg-gray-200 rounded-full transition text-gray-400"><X size={24} /></button>
         </div>
-        <form onSubmit={onSubmit} className="p-8 space-y-6" autoComplete="off">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Username</label>
-              <input type="text" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })}
-                disabled={!!editingUser} className="form-input h-12 rounded-2xl border-2 font-bold disabled:bg-gray-50 disabled:text-gray-400" required autoComplete="off" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Password</label>
-              <div className="relative">
-                <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  placeholder={editingUser ? '••••••••' : 'At least 6 chars'} className="form-input h-12 rounded-2xl border-2 font-bold pr-12" required={!editingUser} autoComplete="new-password" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3 text-gray-300 hover:text-primary-500 transition">
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-            </div>
+        <form onSubmit={onSubmit} className="p-8 space-y-5 overflow-y-auto custom-scrollbar" autoComplete="off">
+          {/* Username - เต็มบรรทัด */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
+              Username <span className="text-red-500">*</span>
+            </label>
+            <input type="text" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })}
+              disabled={!!editingUser} className="form-input h-12 rounded-2xl border-2 font-bold disabled:bg-gray-50 disabled:text-gray-400" required autoComplete="off" />
           </div>
 
+          {/* Password - เต็มบรรทัด */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Full Name</label>
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
+              Password {!editingUser && <span className="text-red-500">*</span>}
+            </label>
+            <input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
+              placeholder={editingUser ? '••••••••' : 'Complexity required'} className="form-input h-12 rounded-2xl border-2 font-bold" required={!editingUser} autoComplete="new-password" />
+            <p className="text-[10px] text-gray-400 ml-1">
+              {editingUser ? 'เว้นว่างหากไม่ต้องการเปลี่ยนรหัสผ่าน' : 'รหัสผ่านมาตรฐาน: Asset@2026#'}
+            </p>
+          </div>
+
+          {/* Confirm Password - เต็มบรรทัด */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
+              Confirm Password {!editingUser && <span className="text-red-500">*</span>}
+            </label>
+            <input type="password" value={formData.confirm_password} onChange={e => setFormData({ ...formData, confirm_password: e.target.value })}
+              placeholder={editingUser ? '••••••••' : 'Confirm your password'} className="form-input h-12 rounded-2xl border-2 font-bold" required={!!formData.password || !editingUser} autoComplete="new-password" />
+            <p className="text-[10px] text-gray-500 ml-1">ข้อกำหนด: 8+ ตัวอักษร, ตัวใหญ่, ตัวเล็ก, ตัวเลข และสัญลักษณ์ (แนะนำ 12 ตัว)</p>
+          </div>
+
+          {/* Full Name - เต็มบรรทัด */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
+              Full Name <span className="text-red-500">*</span>
+            </label>
             <input type="text" value={formData.fullname} onChange={e => setFormData({ ...formData, fullname: e.target.value })} className="form-input h-12 rounded-2xl border-2 font-bold" required />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Email</label>
-              <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="form-input h-12 rounded-2xl border-2 font-bold" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Phone</label>
-              <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="form-input h-12 rounded-2xl border-2 font-bold" />
-            </div>
+          {/* Email - เต็มบรรทัด */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="form-input h-12 rounded-2xl border-2 font-bold" required />
           </div>
 
+          {/* Phone - เต็มบรรทัด + pattern ตัวเลขเท่านั้น */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Phone</label>
+            <input type="tel" value={formData.phone} onChange={handlePhoneChange}
+              pattern="[0-9]*" inputMode="numeric" maxLength={10}
+              placeholder="0812345678" className="form-input h-12 rounded-2xl border-2 font-bold" />
+            <p className="text-[10px] text-gray-400 ml-1">กรอกเฉพาะตัวเลข 10 หลัก</p>
+          </div>
+
+          {/* Role & Status - 2 คอลัมน์ */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Access Role</label>

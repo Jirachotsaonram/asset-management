@@ -1,6 +1,6 @@
 // FILE: asset-frontend/src/pages/ProfilePage.jsx
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Lock, Save, Eye, EyeOff, Shield, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save, Shield, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -24,9 +24,6 @@ export const getProfileNotifications = (profileData) => {
 export default function ProfilePage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [profileData, setProfileData] = useState({
     fullname: '',
@@ -39,6 +36,14 @@ export default function ProfilePage() {
     password: '',
     confirm_password: ''
   });
+
+  // Handler สำหรับกรอกเบอร์โทรศัพท์ - รับเฉพาะตัวเลข
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    if (/^[0-9]*$/.test(value) && value.length <= 10) {
+      setProfileData({ ...profileData, phone: value });
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -101,8 +106,10 @@ export default function ProfilePage() {
       return;
     }
 
-    if (passwordData.password.length < 6) {
-      toast.error('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+    // ตรวจสอบความปลอดภัยรหัสผ่าน (8 ตัว+, ตัวใหญ่, ตัวเล็ก, เลข, สัญลักษณ์)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(passwordData.password)) {
+      toast.error('รหัสผ่านไม่ปลอดภัยพอ: ต้องมีอย่างน้อย 8 ตัว, มีตัวพิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข และสัญลักษณ์ผสมกัน');
       return;
     }
 
@@ -155,196 +162,184 @@ export default function ProfilePage() {
         <p className="text-gray-600 mt-1">แก้ไขข้อมูลโปรไฟล์และเปลี่ยนรหัสผ่าน</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* User Info Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="text-center">
-            <div className="relative inline-block">
-              <div className="w-28 h-28 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-primary-500/30">
-                <span className="text-4xl font-bold text-white">{user.fullname?.charAt(0)?.toUpperCase() || 'U'}</span>
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-success-500 rounded-xl flex items-center justify-center shadow-lg border-2 border-white">
-                <CheckCircle size={16} className="text-white" />
-              </div>
+      {/* User Info Card - Full Width */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="relative">
+            <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl flex items-center justify-center shadow-xl shadow-primary-500/30">
+              <span className="text-3xl font-bold text-white">{user.fullname?.charAt(0)?.toUpperCase() || 'U'}</span>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mt-5">{user.fullname}</h2>
-            <p className="text-sm text-gray-500 mt-1">@{user.username}</p>
-
-            <div className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-primary-500/30">
-              <Shield size={16} />
+            <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-success-500 rounded-xl flex items-center justify-center shadow-lg border-2 border-white">
+              <CheckCircle size={14} className="text-white" />
+            </div>
+          </div>
+          <div className="text-center sm:text-left flex-1">
+            <h2 className="text-xl font-bold text-gray-900">{user.fullname}</h2>
+            <p className="text-sm text-gray-500 mt-0.5">@{user.username}</p>
+            <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-1.5 rounded-xl shadow-lg shadow-primary-500/30">
+              <Shield size={14} />
               <span className="font-semibold text-sm">{user.role}</span>
             </div>
-
-            <div className="space-y-3 text-left bg-gray-50 rounded-lg p-4 mt-4">
-              <div className="flex items-center gap-3">
-                <Mail size={18} className="text-gray-400" />
-                <span className="text-sm text-gray-600">{user.email || 'ไม่ระบุอีเมล'}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone size={18} className="text-gray-400" />
-                <span className="text-sm text-gray-600">{user.phone || 'ไม่ระบุเบอร์โทร'}</span>
-              </div>
+          </div>
+          {/* Contact Info - แสดงเต็มบรรทัด */}
+          <div className="w-full sm:w-auto sm:min-w-[280px] space-y-2 bg-gray-50 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <User size={16} className="text-gray-400 flex-shrink-0" />
+              <span className="text-sm text-gray-700 font-medium truncate">{user.username}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Mail size={16} className="text-gray-400 flex-shrink-0" />
+              <span className="text-sm text-gray-600 truncate">{user.email || 'ไม่ระบุอีเมล'}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Phone size={16} className="text-gray-400 flex-shrink-0" />
+              <span className="text-sm text-gray-600 truncate">{user.phone || 'ไม่ระบุเบอร์โทร'}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Edit Profile Form */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Profile Information */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <User size={24} className="text-blue-600" />
-              ข้อมูลโปรไฟล์
-            </h3>
+      {/* Edit Profile Form - Full Width */}
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <User size={24} className="text-blue-600" />
+          ข้อมูลโปรไฟล์
+        </h3>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อผู้ใช้ (ไม่สามารถแก้ไขได้)
-                </label>
-                <input
-                  type="text"
-                  value={user.username}
-                  disabled
-                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อ-นามสกุล <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={profileData.fullname}
-                  onChange={(e) => setProfileData({ ...profileData, fullname: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  อีเมล
-                </label>
-                <input
-                  type="email"
-                  value={profileData.email}
-                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                  placeholder="example@email.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  เบอร์โทร
-                </label>
-                <input
-                  type="tel"
-                  value={profileData.phone}
-                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                  placeholder="0812345678"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <button
-                onClick={handleProfileUpdate}
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <Save size={20} />
-                {loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
-              </button>
-            </div>
+        <div className="space-y-4">
+          {/* Username - เต็มบรรทัด */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ชื่อผู้ใช้ (ไม่สามารถแก้ไขได้)
+            </label>
+            <input
+              type="text"
+              value={user.username}
+              disabled
+              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
+            />
           </div>
 
-          {/* Change Password */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <Lock size={24} className="text-purple-600" />
-              เปลี่ยนรหัสผ่าน
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  รหัสผ่านปัจจุบัน <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={passwordData.current_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  รหัสผ่านใหม่ <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={passwordData.password}
-                    onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
-                  >
-                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ยืนยันรหัสผ่านใหม่ <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={passwordData.confirm_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
-                  >
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                onClick={handlePasswordChange}
-                disabled={loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <Lock size={20} />
-                {loading ? 'กำลังเปลี่ยน...' : 'เปลี่ยนรหัสผ่าน'}
-              </button>
-            </div>
+          {/* ชื่อ-นามสกุล - เต็มบรรทัด */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ชื่อ-นามสกุล <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={profileData.fullname}
+              onChange={(e) => setProfileData({ ...profileData, fullname: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required
+            />
           </div>
+
+          {/* อีเมล - เต็มบรรทัด */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              อีเมล
+            </label>
+            <input
+              type="email"
+              value={profileData.email}
+              onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+              placeholder="example@email.com"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          {/* เบอร์โทร - เต็มบรรทัด + pattern ตัวเลขเท่านั้น */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              เบอร์โทรศัพท์
+            </label>
+            <input
+              type="tel"
+              value={profileData.phone}
+              onChange={handlePhoneChange}
+              placeholder="0812345678"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              maxLength={10}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <p className="text-xs text-gray-500 mt-1">กรอกเฉพาะตัวเลข 10 หลัก เช่น 0812345678</p>
+          </div>
+
+          <button
+            onClick={handleProfileUpdate}
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <Save size={20} />
+            {loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+          </button>
+        </div>
+      </div>
+
+      {/* Change Password - Full Width, ไม่มี toggle แสดงรหัสผ่าน (PDPA) */}
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+          <Lock size={24} className="text-purple-600" />
+          เปลี่ยนรหัสผ่าน
+        </h3>
+        <p className="text-xs text-gray-500 mb-6 flex items-center gap-1.5">
+          <Info size={14} className="text-gray-400" />
+          หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ (Admin) เพื่อรีเซ็ตรหัสผ่าน
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              รหัสผ่านปัจจุบัน <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={passwordData.current_password}
+              onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              placeholder="••••••••"
+              autoComplete="off"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              รหัสผ่านใหม่ <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={passwordData.password}
+              onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+            <p className="text-xs text-gray-500 mt-1">ข้อกำหนด: 8+ ตัวอักษร, ตัวใหญ่, ตัวเล็ก, ตัวเลข และสัญลักษณ์ (แนะนำ 12 ตัว)</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ยืนยันรหัสผ่านใหม่ <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={passwordData.confirm_password}
+              onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+          </div>
+
+          <button
+            onClick={handlePasswordChange}
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <Lock size={20} />
+            {loading ? 'กำลังเปลี่ยน...' : 'เปลี่ยนรหัสผ่าน'}
+          </button>
         </div>
       </div>
     </div>

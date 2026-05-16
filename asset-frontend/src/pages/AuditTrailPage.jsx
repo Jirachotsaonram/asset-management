@@ -3,8 +3,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
-  FileText, Search, Download, Filter, X, Eye, Calendar, User,
-  Package, Activity, RefreshCw, RotateCcw, FileSpreadsheet,
+  FileText, Search, Filter, X, Eye, Calendar, User,
+  Package, Activity, RefreshCw, RotateCcw,
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Sliders
 } from 'lucide-react';
 
@@ -145,53 +145,7 @@ export default function AuditTrailPage() {
 
   const hasActiveFilters = search || actionFilter !== 'all' || userFilter !== 'all' || startDate || endDate;
 
-  // ==================== Export ====================
-  const doExport = async (format) => {
-    try {
-      toast.loading(`กำลังเตรียมไฟล์ ${format.toUpperCase()}...`, { id: 'export-toast' });
 
-      const params = new URLSearchParams();
-      if (actionFilter !== 'all') params.set('action', actionFilter);
-      if (userFilter !== 'all') params.set('user_id', userFilter);
-      if (startDate) params.set('start_date', startDate);
-      if (endDate) params.set('end_date', endDate);
-      if (search.trim()) params.set('keyword', search.trim());
-
-      const endpoint = format === 'csv' ? '/audits/export-csv' : '/audits/export-excel';
-
-      // Use window.open or a hidden anchor to trigger download from backend
-      const baseUrl = api.defaults.baseURL || '/api';
-      const downloadUrl = `${baseUrl}${endpoint}?${params.toString()}`;
-
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      // Note: For sensitive data, usually we'd fetch as blob with auth header, 
-      // but here we can try window.open or a direct link if auth allows via cookie/param.
-      // Since our 'api' service likely handles auth headers, we should fetch as blob.
-
-      const response = await api.get(`${endpoint}?${params.toString()}`, {
-        responseType: 'blob'
-      });
-
-      const blob = new Blob([response.data], {
-        type: format === 'csv' ? 'text/csv' : 'application/vnd.ms-excel'
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `audit_trail_${new Date().toISOString().split('T')[0]}.${format === 'csv' ? 'csv' : 'xls'}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast.success(`ดาวน์โหลด ${format.toUpperCase()} สำเร็จ`, { id: 'export-toast' });
-    } catch (error) {
-      console.error('Export error:', error);
-      toast.error('ไม่สามารถ Export ได้', { id: 'export-toast' });
-    }
-  };
 
   const getActionConfig = (action) => ACTIONS.find(a => a.key === action) || ACTIONS[0];
 
@@ -221,14 +175,6 @@ export default function AuditTrailPage() {
           <button onClick={fetchData}
             className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">
             <RefreshCw size={15} /> รีเฟรช
-          </button>
-          <button onClick={() => doExport('csv')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition text-sm">
-            <Download size={15} /> CSV
-          </button>
-          <button onClick={() => doExport('excel')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm">
-            <FileSpreadsheet size={15} /> Excel
           </button>
         </div>
       </div>

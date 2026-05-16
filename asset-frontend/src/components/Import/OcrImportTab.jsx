@@ -2,11 +2,18 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import {
     Upload, FileText, CheckCircle, AlertCircle, Loader, Camera,
     Eye, EyeOff, Package, Database, RotateCcw, Sparkles, Trash2,
-    Image as ImageIcon, Plus, Edit3, Check, X
+    Image as ImageIcon, Plus, Edit3, Check, X, FileUp
 } from 'lucide-react';
 import Tesseract from 'tesseract.js';
+import * as pdfjsLib from 'pdfjs-dist';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url
+).toString();
 
 // ============================================================
 // Helper: detect category code fragments from OCR noise
@@ -433,13 +440,124 @@ export default function OcrImportTab() {
     const onDragOver = useCallback(e => { e.preventDefault(); e.stopPropagation(); }, []);
     const onDrop = useCallback(e => {
         e.preventDefault(); e.stopPropagation(); setIsDragging(false);
-        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-        if (files.length) processImages(files);
+        const allFiles = Array.from(e.dataTransfer.files);
+        handleFiles(allFiles);
     }, []);
 
     const handleFileSelect = e => {
-        const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-        if (files.length) processImages(files);
+        const allFiles = Array.from(e.target.files);
+        handleFiles(allFiles);
+    };
+
+    // --- Handle mixed files (images + PDFs) ---
+    const handleFiles = async (files) => {
+        const imageFiles = files.filter(f => f.type.startsWith('image/'));
+        const pdfFiles = files.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+
+        if (imageFiles.length === 0 && pdfFiles.length === 0) {
+            toast.error('กรุณาเลือกไฟล์รูปภาพ (JPG, PNG) หรือ PDF');
+            return;
+        }
+
+        // Process image files directly
+        if (imageFiles.length > 0) {
+            processImages(imageFiles);
+        }
+
+        // Process PDF files — convert each page to image then OCR
+        for (const pdfFile of pdfFiles) {
+            await processPdfFile(pdfFile);
+        }
+    };
+
+    // --- Convert PDF pages to images and run OCR ---
+    const processPdfFile = async (pdfFile) => {
+        setIsProcessing(true);
+        setOcrProgress(0);
+        setOcrStatus(`กำลังอ่านไฟล์ PDF: ${pdfFile.name}...`);
+
+        try {
+            const arrayBuffer = await pdfFile.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const totalPages = pdf.numPages;
+            toast.success(`พบ ${totalPages} หน้าในไฟล์ PDF`);
+
+            for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                setOcrStatus(`กำลังแปลงหน้า ${pageNum}/${totalPages} เป็นรูปภาพ...`);
+                setOcrProgress(Math.round(((pageNum - 1) / totalPages) * 30));
+
+                const page = await pdf.getPage(pageNum);
+                // Render at 2x scale for better OCR quality
+                const scale = 2.0;
+                const viewport = page.getViewport({ scale });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                // Convert canvas to blob for OCR
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                const imageUrl = canvas.toDataURL('image/png');
+
+                // Add to image previews
+                setImages(prev => [...prev, { file: blob, preview: imageUrl }]);
+
+                // Run OCR on this page
+                setOcrStatus(`กำลัง OCR หน้า ${pageNum}/${totalPages}...`);
+                setOcrProgress(Math.round(30 + ((pageNum - 1) / totalPages) * 70));
+
+                try {
+                    const worker = await Tesseract.createWorker('tha+eng', 1, {
+                        logger: (m) => {
+                            if (m.status === 'recognizing text') {
+                                const pageProgress = 30 + ((pageNum - 1 + (m.progress || 0)) / totalPages) * 70;
+                                setOcrProgress(Math.round(pageProgress));
+                                setOcrStatus(`กำลังอ่านข้อความ หน้า ${pageNum}/${totalPages}...`);
+                            }
+                        }
+                    });
+
+                    const { data: { text } } = await worker.recognize(blob);
+                    await worker.terminate();
+
+                    setOcrText(prev => prev ? prev + '\n--- หน้า ' + pageNum + ' ---\n' + text : text);
+
+                    // Parse and add rows
+                    const newAssets = parseAssetTable(text);
+                    if (newAssets.length > 0) {
+                        setParsedAssets(prev => [...prev, ...newAssets]);
+                        toast.success(`หน้า ${pageNum}: พบ ${newAssets.length} รายการครุภัณฑ์`);
+                    }
+                } catch (ocrErr) {
+                    console.error(`OCR error page ${pageNum}:`, ocrErr);
+                    toast.error(`ไม่สามารถอ่านข้อความจากหน้า ${pageNum} ได้`);
+                }
+
+                // Clean up canvas
+                canvas.width = 0;
+                canvas.height = 0;
+            }
+
+            setOcrProgress(100);
+            setOcrStatus('อ่าน PDF สำเร็จ');
+
+            if (parsedAssets.length === 0) {
+                // Check right after processing all pages
+                setTimeout(() => {
+                    // This check runs after state updates
+                }, 100);
+            }
+
+        } catch (err) {
+            console.error('PDF processing error:', err);
+            toast.error('ไม่สามารถอ่านไฟล์ PDF ได้: ' + (err.message || 'Unknown error'));
+            setOcrStatus('เกิดข้อผิดพลาด');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     // --- Process multiple images ---
@@ -620,7 +738,7 @@ export default function OcrImportTab() {
                             <div>
                                 <h3 className="font-semibold text-gray-900 mb-1">สแกนเอกสาร ใบรับครุภัณฑ์เข้าคลัง</h3>
                                 <p className="text-sm text-gray-600">
-                                    อัปโหลดรูปภาพเอกสารใบรับครุภัณฑ์ ระบบจะอ่านตารางอัตโนมัติ รองรับหลายภาพ/หลายหน้า
+                                    อัปโหลดรูปภาพเอกสาร หรือ <strong className="text-purple-700">ไฟล์ PDF</strong> ใบรับครุภัณฑ์ ระบบจะอ่านตารางอัตโนมัติ รองรับหลายภาพ/หลายหน้า
                                 </p>
                             </div>
                         </div>
@@ -640,7 +758,7 @@ export default function OcrImportTab() {
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*"
+                            accept="image/*,.pdf,application/pdf"
                             multiple
                             onChange={handleFileSelect}
                             className="hidden"
@@ -652,10 +770,15 @@ export default function OcrImportTab() {
                                 <ImageIcon className={`w-8 h-8 ${isDragging ? 'text-purple-600' : 'text-gray-400'}`} />
                             </div>
                             <p className="text-base font-semibold text-gray-700 mb-1">
-                                {isDragging ? 'วางรูปภาพที่นี่' : images.length > 0 ? 'เพิ่มรูปภาพอีก' : 'คลิกเพื่อเลือกรูปภาพเอกสาร'}
+                                {isDragging ? 'วางไฟล์ที่นี่' : images.length > 0 ? 'เพิ่มไฟล์อีก' : 'คลิกเพื่อเลือกรูปภาพเอกสาร หรือไฟล์ PDF'}
                             </p>
-                            <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่ • รองรับหลายภาพ</p>
-                            <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP</p>
+                            <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่ • รองรับหลายไฟล์</p>
+                            <p className="text-xs text-gray-400 mt-1 flex items-center justify-center gap-2">
+                                <span>JPG, PNG, WebP</span>
+                                <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                                    <FileUp size={10} /> PDF
+                                </span>
+                            </p>
                         </label>
                     </div>
                 </div>
