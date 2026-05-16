@@ -23,21 +23,21 @@ export function NotificationProvider({ children }) {
 
             // Fetch data from multiple endpoints in parallel
             const [
-                overdueRes,
-                upcomingRes,
+                settingsRes,
+                annStatsRes,
                 statusRes,
                 uncheckedRes,
                 borrowsRes
             ] = await Promise.all([
-                api.get('/check-schedules/overdue').catch(() => ({ data: { data: [] } })),
-                api.get('/check-schedules/notifications?days=7').catch(() => ({ data: { data: [] } })),
+                api.get('/settings').catch(() => ({ data: { data: {} } })),
+                api.get('/checks/annual-stats').catch(() => ({ data: { data: { total: 0, checked: 0, unchecked: 0 } } })),
                 api.get('/reports/by-status').catch(() => ({ data: { data: [] } })),
                 api.get('/reports/unchecked?days=365').catch(() => ({ data: { data: [] } })),
                 api.get('/borrows?status=pending').catch(() => ({ data: { data: [] } }))
             ]);
 
-            const overdueAssets = overdueRes.data.data || [];
-            const upcomingChecks = upcomingRes.data.data || [];
+            const settings = settingsRes.data.data || {};
+            const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
             const statusReport = statusRes.data.data || [];
             const uncheckedData = uncheckedRes.data.data || { items: [], total: 0 };
             const uncheckedCount = typeof uncheckedData.total === 'number' ? uncheckedData.total : (Array.isArray(uncheckedData) ? uncheckedData.length : 0);
@@ -65,62 +65,35 @@ export function NotificationProvider({ children }) {
                 pendingDisposal: statusCounts['รอจำหน่าย']
             });
 
-            // 1. Overdue Assets - DANGER
-            if (overdueAssets.length > 0) {
-                allNotifications.push({
-                    id: 'overdue-assets',
-                    type: 'danger',
-                    title: `เลยกำหนดตรวจสอบ ${overdueAssets.length} รายการ`,
-                    message: `ครุภัณฑ์ที่เลยกำหนดการตรวจสอบ`,
-                    time: 'ต้องดำเนินการทันที',
-                    read: false,
-                    link: '/check',
-                    priority: 1
-                });
-            }
+            // 1. Annual Check Overdue - DANGER (ใช้ระบบตรวจประจำปีแทน check-schedules)
+            const endDate = settings.annual_check_end || '';
+            if (endDate) {
+                const endTime = new Date(endDate).getTime();
+                const diffDays = Math.floor((endTime - Date.now()) / 86400000);
 
-            // 2. Missing Assets - DANGER
-            if (statusCounts['ไม่พบ'] > 0) {
-                allNotifications.push({
-                    id: 'missing-assets',
-                    type: 'danger',
-                    title: `ครุภัณฑ์ไม่พบ ${statusCounts['ไม่พบ']} รายการ`,
-                    message: 'ต้องตรวจสอบและดำเนินการ',
-                    time: 'สำคัญ',
-                    read: false,
-                    link: '/assets?status=ไม่พบ',
-                    priority: 2
-                });
-            }
-
-            // 3. Upcoming Checks Today - WARNING
-            const todayChecks = upcomingChecks.filter(a => a.urgency_level === 'วันนี้');
-            if (todayChecks.length > 0) {
-                allNotifications.push({
-                    id: 'today-checks',
-                    type: 'warning',
-                    title: `ต้องตรวจวันนี้ ${todayChecks.length} รายการ`,
-                    message: 'ครุภัณฑ์ที่ถึงกำหนดตรวจวันนี้',
-                    time: 'วันนี้',
-                    read: false,
-                    link: '/check',
-                    priority: 3
-                });
-            }
-
-            // 4. Upcoming Urgent Checks - WARNING
-            const urgentChecks = upcomingChecks.filter(a => a.urgency_level === 'เร่งด่วน');
-            if (urgentChecks.length > 0) {
-                allNotifications.push({
-                    id: 'urgent-checks',
-                    type: 'warning',
-                    title: `ใกล้ถึงกำหนดตรวจ ${urgentChecks.length} รายการ`,
-                    message: 'ครุภัณฑ์ที่ใกล้ถึงกำหนดตรวจใน 7 วัน',
-                    time: 'ภายใน 7 วัน',
-                    read: false,
-                    link: '/check',
-                    priority: 4
-                });
+                if (diffDays < 0 && annStats.unchecked > 0) {
+                    allNotifications.push({
+                        id: 'overdue-annual',
+                        type: 'danger',
+                        title: `เลยกำหนดตรวจประจำปี ${annStats.unchecked} รายการ`,
+                        message: `ยังไม่ได้ตรวจสอบในรอบปี`,
+                        time: 'ต้องดำเนินการทันที',
+                        read: false,
+                        link: '/check',
+                        priority: 1
+                    });
+                } else if (diffDays >= 0 && diffDays <= 7 && annStats.unchecked > 0) {
+                    allNotifications.push({
+                        id: 'urgent-annual',
+                        type: 'warning',
+                        title: `ใกล้หมดเขตตรวจประจำปี เหลือ ${diffDays} วัน`,
+                        message: `ยังเหลือ ${annStats.unchecked} รายการที่ยังไม่ได้ตรวจ`,
+                        time: `อีก ${diffDays} วัน`,
+                        read: false,
+                        link: '/check',
+                        priority: 3
+                    });
+                }
             }
 
             // 5. Unchecked Assets - WARNING

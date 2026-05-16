@@ -487,3 +487,58 @@ Stack trace:
 [15-May-2026 09:32:11 Europe/Berlin] ImageUpload: Received file: f4dd499c-f8a6-4467-89d2-e7517d0a99fa.jpeg size: 18136 type: image/jpeg
 [15-May-2026 09:32:11 Europe/Berlin] ImageUpload: Attempting to resize image
 [15-May-2026 09:32:11 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a06cbfb50cb54.59955448.jpg
+[16-May-2026 14:56:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php:138
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(327): authenticate()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php on line 138
+[16-May-2026 14:56:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php:138
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php(166): authenticate()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php(176): requireRole(Array)
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(438): requireAdmin()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php on line 138
+[16-May-2026 14:56:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:256
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(153): AssetCheckController->getAnnualStats()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 256
+[16-May-2026 14:56:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php:138
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(327): authenticate()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php on line 138
+[16-May-2026 14:56:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:29
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(200): BorrowController->getAll()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 29
+[16-May-2026 15:01:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php:138
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(327): authenticate()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php on line 138
+[16-May-2026 15:01:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php:138
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php(166): authenticate()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php(176): requireRole(Array)
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(438): requireAdmin()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php on line 138
+[16-May-2026 15:01:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:256
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(153): AssetCheckController->getAnnualStats()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 256
+[16-May-2026 15:01:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php:138
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(327): authenticate()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\middleware\auth.php on line 138
+[16-May-2026 15:01:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:29
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(200): BorrowController->getAll()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 29
+[16-May-2026 15:05:32 Europe/Berlin] Import: Starting import of 515 rows

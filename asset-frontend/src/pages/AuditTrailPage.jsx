@@ -45,7 +45,7 @@ const FIELD_LABELS = {
   purchase_price: 'ราคา', warranty_end: 'วันหมดประกัน', remark: 'หมายเหตุ',
   description: 'รายละเอียด', image_url: 'รูปภาพ', created_at: 'วันที่สร้าง',
   updated_at: 'วันที่อัปเดต', user_id: 'รหัสผู้ใช้', fullname: 'ชื่อผู้ใช้',
-  check_status: 'สถานะการตรวจ', check_date: 'วันที่ตรวจ', next_check_date: 'วันตรวจครั้งถัดไป',
+  check_status: 'สถานะการตรวจ', check_date: 'วันที่ตรวจ',
   borrow_date: 'วันที่ยืม', return_date: 'วันที่คืน', borrower_name: 'ผู้ยืม',
   purpose: 'วัตถุประสงค์', price: 'ราคา', quantity: 'จำนวน', unit: 'หน่วย',
   received_date: 'วันที่รับ', barcode: 'บาร์โค้ด', reference_number: 'เลขอ้างอิง',

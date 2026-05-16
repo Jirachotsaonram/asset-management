@@ -61,8 +61,8 @@ export default function DashboardPage() {
   });
   const [statusData, setStatusData] = useState([]);
   const [auditTrail, setAuditTrail] = useState([]);
-  const [overdueAssets, setOverdueAssets] = useState([]);
-  const [notifications, setNotifications] = useState([]);
+
+
   const [showNotifModal, setShowNotifModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -71,12 +71,10 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [assetsRes, statusRes, auditsRes, notifsRes, overdueRes, settingsRes] = await Promise.all([
+      const [assetsRes, statusRes, auditsRes, settingsRes] = await Promise.all([
         api.get('/assets?limit=1'),
         api.get('/reports/by-status'),
         api.get('/audits'),
-        api.get('/check-schedules/notifications?days=30').catch(() => ({ data: { data: [] } })),
-        api.get('/check-schedules/overdue').catch(() => ({ data: { data: [] } })),
         api.get('/settings').catch(() => ({ data: { data: [] } }))
       ]);
 
@@ -127,8 +125,6 @@ export default function DashboardPage() {
       const auditsData = auditsRes.data.data;
       const auditsList = Array.isArray(auditsData) ? auditsData : (auditsData?.items || []);
       setAuditTrail(auditsList.slice(0, 8));
-      setNotifications(notifsRes.data.data || []);
-      setOverdueAssets(overdueRes.data.data || []);
     } catch (error) {
       toast.error('ไม่สามารถโหลดข้อมูล Dashboard ได้');
     } finally { setLoading(false); }
@@ -138,9 +134,8 @@ export default function DashboardPage() {
   const availablePct = stats.total > 0 ? ((stats.available / stats.total) * 100).toFixed(1) : 0;
 
   const alertCount = useMemo(() => {
-    const urgent = notifications.filter(n => n.urgency_level === 'เร่งด่วน' || n.urgency_level === 'วันนี้');
-    return overdueAssets.length + urgent.length + (stats.unchecked > 0 ? 1 : 0) + (stats.missing > 0 ? 1 : 0) + (stats.maintenance > 0 ? 1 : 0);
-  }, [notifications, overdueAssets, stats]);
+    return (stats.unchecked > 0 ? 1 : 0) + (stats.missing > 0 ? 1 : 0) + (stats.maintenance > 0 ? 1 : 0);
+  }, [stats]);
 
   const getActionColor = (a) => ({
     'Add': 'bg-green-100 text-green-700', 'Edit': 'bg-yellow-100 text-yellow-700',
@@ -230,7 +225,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ==================== Alert Banners ==================== */}
-      {(stats.missing > 0 || stats.maintenance > 0 || overdueAssets.length > 0) && (
+      {(stats.missing > 0 || stats.maintenance > 0 || stats.unchecked > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {stats.missing > 0 && (
             <div onClick={() => navigate('/assets')}
@@ -254,13 +249,13 @@ export default function DashboardPage() {
               <ArrowRight size={16} className="text-yellow-400 group-hover:translate-x-1 transition-transform" />
             </div>
           )}
-          {overdueAssets.length > 0 && (
+          {stats.unchecked > 0 && (
             <div onClick={() => navigate('/check')}
               className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:bg-orange-100 transition group">
               <div className="bg-orange-100 p-2 rounded-lg"><Clock size={18} className="text-orange-600" /></div>
               <div className="flex-1">
-                <p className="font-semibold text-orange-800 text-sm">เลยกำหนดตรวจ {overdueAssets.length} รายการ</p>
-                <p className="text-xs text-orange-600">ไปจัดการ</p>
+                <p className="font-semibold text-orange-800 text-sm">ยังไม่ได้ตรวจ {stats.unchecked} รายการ</p>
+                <p className="text-xs text-orange-600">ไปตรวจสอบ</p>
               </div>
               <ArrowRight size={16} className="text-orange-400 group-hover:translate-x-1 transition-transform" />
             </div>
@@ -451,8 +446,6 @@ export default function DashboardPage() {
       {/* ==================== Notification Modal ==================== */}
       {showNotifModal && (
         <NotificationModal
-          overdueAssets={overdueAssets}
-          notifications={notifications}
           stats={stats}
           onClose={() => setShowNotifModal(false)}
           onCheck={() => navigate('/check')}
@@ -463,9 +456,8 @@ export default function DashboardPage() {
 }
 
 // ==================== Notification Modal ====================
-function NotificationModal({ overdueAssets, notifications, stats, onClose, onCheck }) {
-  const urgent = notifications.filter(n => n.urgency_level === 'เร่งด่วน' || n.urgency_level === 'วันนี้');
-  const total = overdueAssets.length + urgent.length + (stats.unchecked > 0 ? 1 : 0) + (stats.missing > 0 ? 1 : 0) + (stats.maintenance > 0 ? 1 : 0);
+function NotificationModal({ stats, onClose, onCheck }) {
+  const total = (stats.unchecked > 0 ? 1 : 0) + (stats.missing > 0 ? 1 : 0) + (stats.maintenance > 0 ? 1 : 0);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -490,39 +482,8 @@ function NotificationModal({ overdueAssets, notifications, stats, onClose, onChe
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
-          {overdueAssets.length > 0 && (
-            <AlertSection title={`เลยกำหนดตรวจ (${overdueAssets.length})`} icon={AlertTriangle} color="red">
-              {overdueAssets.map(a => (
-                <div key={a.asset_id} className="bg-white rounded-lg p-3 border border-red-200 flex justify-between items-center">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{a.asset_name}</p>
-                    <p className="text-xs text-gray-500">ID: {a.asset_id}{a.building_name && ` | ${a.building_name} ชั้น ${a.floor}`}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-red-600">เลย {a.days_overdue} วัน</p>
-                    <p className="text-[10px] text-gray-400">กำหนด: {new Date(a.next_check_date).toLocaleDateString('th-TH')}</p>
-                  </div>
-                </div>
-              ))}
-            </AlertSection>
-          )}
-          {urgent.length > 0 && (
-            <AlertSection title={`ใกล้กำหนดตรวจ (${urgent.length})`} icon={Clock} color="yellow">
-              {urgent.map(a => (
-                <div key={a.asset_id} className="bg-white rounded-lg p-3 border border-yellow-200 flex justify-between items-center">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{a.asset_name}</p>
-                    <p className="text-xs text-gray-500">ID: {a.asset_id}</p>
-                  </div>
-                  <p className="text-xs font-bold text-yellow-600">
-                    {a.urgency_level === 'วันนี้' ? 'วันนี้' : `อีก ${a.days_until_check} วัน`}
-                  </p>
-                </div>
-              ))}
-            </AlertSection>
-          )}
           {stats.unchecked > 0 && (
-            <SimpleAlert icon={AlertCircle} color="orange" title={`ยังไม่ได้ตรวจ ${stats.unchecked} รายการ`} desc="ในรอบปีที่ผ่านมา" />
+            <SimpleAlert icon={AlertCircle} color="orange" title={`ยังไม่ได้ตรวจ ${stats.unchecked} รายการ`} desc="ครุภัณฑ์ที่ยังไม่ได้ตรวจสอบในรอบปีนี้" />
           )}
           {stats.missing > 0 && (
             <SimpleAlert icon={XCircle} color="red" title={`ครุภัณฑ์สูญหาย ${stats.missing} รายการ`} desc="สถานะ 'ไม่พบ' ต้องดำเนินการ" />

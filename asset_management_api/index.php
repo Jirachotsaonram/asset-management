@@ -379,30 +379,7 @@ switch ($endpoint) {
         }
         break;
 
-    // ==================== CHECK SCHEDULES ====================
-    case 'check-schedules':
-        require_once 'controllers/CheckScheduleController.php';
-        require_once 'middleware/auth.php';
-        
-        authenticate();
-        $controller = new CheckScheduleController();
-        
-        if ($request_method === 'GET' && !$id) {
-            $controller->getAllSchedules();
-        } elseif ($request_method === 'GET' && $id === 'notifications') {
-            $controller->getNotifications();
-        } elseif ($request_method === 'GET' && $id === 'overdue') {
-            $controller->getOverdue();
-        } elseif ($request_method === 'GET' && $id === 'all-notifications') {
-            $controller->getAllNotifications();
-        } elseif ($request_method === 'POST' && $id === 'assign-asset') {
-            $controller->assignToAsset();
-        } elseif ($request_method === 'POST' && $id === 'assign-location') {
-            $controller->assignToLocation();
-        } else {
-            Response::error('ไม่พบเส้นทาง API', 404);
-        }
-        break;
+
 
     // ==================== IMPORT ====================
     case 'import':

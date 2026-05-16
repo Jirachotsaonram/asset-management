@@ -67,49 +67,45 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
         });
       }
 
-      // 2. Fetch Overdue Checks
+      // 2. Fetch Annual Check Stats (แทนที่ระบบ check-schedules เดิม)
       try {
-        const overdueRes = await api.get('/check-schedules/overdue').catch(() => ({ data: { data: [] } }));
-        const overdueItems = overdueRes.data.data || [];
-        if (overdueItems.length > 0) {
-          allNotifications.push({
-            id: 'overdue-checks',
-            type: 'danger',
-            title: `เลยกำหนดตรวจสอบ ${overdueItems.length} รายการ`,
-            message: 'ครุภัณฑ์ที่เลยกำหนดการตรวจสอบ',
-            time: 'ต้องดำเนินการทันที',
-            action: () => navigate('/check?filter=overdue')
-          });
-        }
-      } catch (e) { console.error(e); }
+        const settingsRes = await api.get('/settings').catch(() => ({ data: { data: {} } }));
+        const settings = settingsRes.data.data || {};
+        const startDate = settings.annual_check_start || '';
+        const endDate = settings.annual_check_end || '';
 
-      // 3. Fetch Upcoming Checks
-      try {
-        const upcomingRes = await api.get('/check-schedules/notifications?days=7').catch(() => ({ data: { data: [] } }));
-        const upcomingItems = upcomingRes.data.data || [];
+        let statsParams = '';
+        if (startDate && endDate) statsParams = `?start_date=${startDate}&end_date=${endDate}`;
+        const annStatsRes = await api.get(`/checks/annual-stats${statsParams}`).catch(() => ({ data: { data: { total: 0, checked: 0, unchecked: 0 } } }));
+        const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
 
-        const todayChecks = upcomingItems.filter(a => a.urgency_level === 'วันนี้');
-        if (todayChecks.length > 0) {
-          allNotifications.push({
-            id: 'today-checks',
-            type: 'warning',
-            title: `ต้องตรวจวันนี้ ${todayChecks.length} รายการ`,
-            message: 'ครุภัณฑ์ที่ถึงกำหนดตรวจวันนี้',
-            time: 'วันนี้',
-            action: () => navigate('/check?filter=today')
-          });
-        }
+        // คำนวณสถานะจากรอบประจำปี
+        if (endDate) {
+          const endTime = new Date(endDate).getTime();
+          const now = Date.now();
+          const diffDays = Math.floor((endTime - now) / 86400000);
 
-        const urgentChecks = upcomingItems.filter(a => a.urgency_level === 'เร่งด่วน');
-        if (urgentChecks.length > 0) {
-          allNotifications.push({
-            id: 'urgent-checks',
-            type: 'warning',
-            title: `ใกล้ถึงกำหนดตรวจ ${urgentChecks.length} รายการ`,
-            message: 'ครุภัณฑ์ที่ใกล้ถึงกำหนดตรวจใน 7 วัน',
-            time: 'ภายใน 7 วัน',
-            action: () => navigate('/check?filter=urgent')
-          });
+          if (diffDays < 0 && annStats.unchecked > 0) {
+            // เลยกำหนดรอบประจำปี
+            allNotifications.push({
+              id: 'overdue-annual',
+              type: 'danger',
+              title: `เลยกำหนดตรวจประจำปี ${annStats.unchecked} รายการ`,
+              message: `ยังไม่ได้ตรวจสอบในรอบปีที่ผ่านมา`,
+              time: 'ต้องดำเนินการทันที',
+              action: () => navigate('/check')
+            });
+          } else if (diffDays >= 0 && diffDays <= 7 && annStats.unchecked > 0) {
+            // ใกล้หมดเขตรอบประจำปี
+            allNotifications.push({
+              id: 'urgent-annual',
+              type: 'warning',
+              title: `ใกล้หมดเขตตรวจประจำปี เหลือ ${diffDays} วัน`,
+              message: `ยังเหลือ ${annStats.unchecked} รายการที่ยังไม่ได้ตรวจ`,
+              time: `อีก ${diffDays} วัน`,
+              action: () => navigate('/check')
+            });
+          }
         }
       } catch (e) { console.error(e); }
 

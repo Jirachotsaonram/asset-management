@@ -27,26 +27,16 @@ function computeCheckStatus(asset, globalPeriod) {
   let checkDateStr = null;
   if (asset.last_check_date) checkDateStr = asset.last_check_date.split(' ')[0];
 
-  if (!asset.last_check_date || (globalPeriod.start && checkDateStr < globalPeriod.start) || (globalPeriod.end && checkDateStr > globalPeriod.end)) {
+  // ตรวจสอบว่ามีการตรวจอยู่ภายในช่วงเวลาประจำปีหรือไม่
+  const isCheckedInPeriod = checkDateStr && 
+    (!globalPeriod.start || checkDateStr >= globalPeriod.start) && 
+    (!globalPeriod.end || checkDateStr <= globalPeriod.end);
+
+  if (!isCheckedInPeriod) {
     return { ...STATUS_CONFIGS.never_checked, status: 'never_checked', days: null, text: 'ยังไม่ได้ตรวจ' };
   }
 
-  const today = Date.now();
-  const nextCheck = asset.next_check_date ? new Date(asset.next_check_date).getTime() : null;
-
-  if (!nextCheck) {
-    // If it has been checked, but no future schedule is set, it's still "checked" for now.
-    return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: null };
-  }
-
-  const daysUntil = Math.floor((nextCheck - today) / 86400000);
-  if (daysUntil < 0) {
-    return { ...STATUS_CONFIGS.overdue, status: 'overdue', label: `เลย ${Math.abs(daysUntil)} วัน`, days: daysUntil };
-  }
-  if (daysUntil <= 7) {
-    return { ...STATUS_CONFIGS.due_soon, status: 'due_soon', label: `อีก ${daysUntil} วัน`, days: daysUntil };
-  }
-  return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: daysUntil };
+  return { ...STATUS_CONFIGS.checked, status: 'checked', label: `ตรวจแล้ว ${checkDateStr}`, days: null };
 }
 
 // ==================== Main Component ====================
