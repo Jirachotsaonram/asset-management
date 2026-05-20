@@ -223,7 +223,7 @@ graph TD
 
 คำอธิบายรายละเอียดของแฟ้มข้อมูล (Data Store) ทั้งหมดที่ใช้ในการจัดการระบบ
 
-#### ตารางที่ 3-11 รายละเอียดแหล่งเก็บข้อมูล (Data Stores D1 - D11)
+#### ตารางที่ 3-11 รายละเอียดแหล่งเก็บข้อมูล (Data Stores D1 - D10)
 | รหัส | ชื่อแหล่งเก็บข้อมูล | ตารางที่เกี่ยวข้อง | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
 | **D1** | ข้อมูลผู้ใช้งาน | `users`, `login_attempts` | เก็บข้อมูลบัญชีผู้ใช้ สิทธิ์ และประวัติการพยายามเข้าใช้งาน |
@@ -231,12 +231,11 @@ graph TD
 | **D3** | ข้อมูลสถานที่ | `locations` | เก็บรายชื่ออาคาร ชั้น และเลขห้อง |
 | **D4** | ข้อมูลครุภัณฑ์ | `assets` | แหล่งเก็บข้อมูลหลักของรายละเอียดครุภัณฑ์และสถานะปัจจุบัน |
 | **D5** | ข้อมูลการตรวจสภาพ | `asset_check` | เก็บประวัติผลการสำรวจและตรวจสอบสภาพจาก Mobile App |
-| **D6** | ข้อมูลรอบการตรวจสอบ | `check_schedules` | เก็บแม่แบบระยะเวลากำหนดการตรวจสอบ (เช่น รายปี, ราย 6 เดือน) |
-| **D7** | ข้อมูลกำหนดการรายชิ้น | `asset_schedules` | เก็บวันกำหนดตรวจครั้งถัดไปของครุภัณฑ์แต่ละชิ้น |
-| **D8** | ข้อมูลการยืม-คืน | `borrow` | เก็บรายละเอียดผู้ยืม วันที่ยืม และกำหนดคืน |
-| **D9** | ข้อมูลบันทึกประวัติการใช้งาน | `audittrail` | เก็บ Log การเปลี่ยนแปลงข้อมูล (ค่าเก่า-ค่าใหม่) เพื่อตรวจสอบย้อนหลัง |
-| **D10** | ข้อมูลประวัติการเคลื่อนย้าย | `asset_history` | เก็บประวัติการย้ายสถานที่จัดเก็บครุภัณฑ์ |
-| **D11** | ข้อมูลประวัติการนำเข้า | `import_history` | เก็บสถิติผลการนำเข้าข้อมูลครุภัณฑ์จากไฟล์ภายนอก |
+| **D6** | ข้อมูลการตั้งค่าระบบ | `system_settings` | เก็บข้อมูลการตั้งค่าในระบบ เช่น รอบการตรวจสอบสภาพครุภัณฑ์ประจำปี |
+| **D7** | ข้อมูลการยืม-คืน | `borrow` | เก็บรายละเอียดผู้ยืม วันที่ยืม และกำหนดคืน |
+| **D8** | ข้อมูลบันทึกประวัติการใช้งาน | `audittrail` | เก็บ Log การเปลี่ยนแปลงข้อมูล (ค่าเก่า-ค่าใหม่) เพื่อตรวจสอบย้อนหลัง |
+| **D9** | ข้อมูลประวัติการเคลื่อนย้าย | `asset_history` | เก็บประวัติการย้ายสถานที่จัดเก็บครุภัณฑ์ |
+| **D10** | ข้อมูลประวัติการนำเข้า | `import_history` | เก็บสถิติผลการนำเข้าข้อมูลครุภัณฑ์จากไฟล์ภายนอก |
 
 ---
 
@@ -358,133 +357,132 @@ graph TD
 
 ## 3.7 พจนานุกรมข้อมูล (Data Dictionary)
 
-พจนานุกรมข้อมูลแสดงรายละเอียดโครงสร้างของแฟ้มข้อมูล (Data Store) ทั้งหมด 12 ตารางที่ใช้ในระบบ เพื่อให้ทราบถึงประเภทข้อมูล ขนาด และข้อกำหนดต่างๆ ของฐานข้อมูล
+พจนานุกรมข้อมูลแสดงรายละเอียดโครงสร้างของแฟ้มข้อมูล (Data Store) ทั้งหมด 11 ตารางที่ใช้ในระบบ เพื่อให้ทราบถึงประเภทข้อมูล ขนาด และข้อกำหนดต่างๆ ของฐานข้อมูล
 
 #### ตารางที่ 3-22 แฟ้มข้อมูลผู้ใช้งาน (Users Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
 | `user_id` | INT | 11 | รหัสผู้ใช้งาน (Primary Key, Auto Increment) |
-| `username` | VARCHAR | 50 | ชื่อผู้ใช้งานสำหรับเข้าระบบ |
+| `username` | VARCHAR | 50 | ชื่อผู้ใช้งานสำหรับเข้าระบบ (Unique) |
 | `password` | VARCHAR | 255 | รหัสผ่าน (Hashed) |
 | `fullname` | VARCHAR | 100 | ชื่อ-นามสกุลจริง |
-| `role` | ENUM | - | บทบาท (admin, inspector, viewer) |
-| `status` | ENUM | - | สถานะบัญชี (active, inactive) |
+| `role` | ENUM | - | บทบาท (Admin, Inspector, Viewer) |
+| `status` | ENUM | - | สถานะบัญชี (Active, Inactive) |
 | `email` | VARCHAR | 100 | อีเมลติดต่อ |
 | `phone` | VARCHAR | 20 | เบอร์โทรศัพท์ |
 | `created_at` | TIMESTAMP | - | วันเวลาที่สร้างบัญชี |
+| `updated_at` | TIMESTAMP | - | วันเวลาที่แก้ไขล่าสุด |
 
 #### ตารางที่ 3-23 แฟ้มข้อมูลหน่วยงาน (Departments Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `department_id` | INT | 11 | รหัสหน่วยงาน (Primary Key) |
+| `department_id` | INT | 11 | รหัสหน่วยงาน (Primary Key, Auto Increment) |
 | `department_name` | VARCHAR | 100 | ชื่อหน่วยงาน/แผนก |
+| `faculty` | VARCHAR | 100 | ชื่อคณะ |
+| `created_at` | TIMESTAMP | - | วันเวลาที่สร้างข้อมูล |
 
 #### ตารางที่ 3-24 แฟ้มข้อมูลสถานที่ (Locations Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `location_id` | INT | 11 | รหัสสถานที่ (Primary Key) |
+| `location_id` | INT | 11 | รหัสสถานที่ (Primary Key, Auto Increment) |
 | `building_name` | VARCHAR | 100 | ชื่ออาคาร |
 | `floor` | VARCHAR | 10 | ชั้นที่ตั้ง |
-| `room_number` | VARCHAR | 20 | เลขห้อง |
+| `room_number` | VARCHAR | 50 | เลขห้อง |
+| `description` | TEXT | - | รายละเอียดเพิ่มเติม |
+| `created_at` | TIMESTAMP | - | วันเวลาที่สร้างข้อมูล |
 
 #### ตารางที่ 3-25 แฟ้มข้อมูลครุภัณฑ์ (Assets Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `asset_id` | VARCHAR | 50 | รหัสครุภัณฑ์ (Primary Key) |
+| `asset_id` | INT | 11 | รหัสครุภัณฑ์ (Primary Key, Auto Increment) |
 | `asset_name` | VARCHAR | 255 | ชื่อครุภัณฑ์ |
-| `serial_number` | VARCHAR | 100 | หมายเลขซีเรียล (SN) |
-| `barcode` | VARCHAR | 100 | รหัสบาร์โค้ดหน้าป้าย |
+| `serial_number` | TEXT | - | หมายเลขซีเรียล (SN) |
 | `quantity` | INT | 11 | จำนวน |
-| `unit` | VARCHAR | 50 | หน่วยนับ |
-| `price` | DECIMAL | 10,2 | ราคาต่อหน่วย |
-| `received_date` | DATE | - | วันที่ได้รับครุภัณฑ์ |
+| `unit` | VARCHAR | 50 | หน่วยนับ (เช่น เครื่อง, ชุด) |
+| `price` | DECIMAL | 15,2 | มูลค่าครุภัณฑ์ (บาท) |
+| `received_date` | DATE | - | วันที่รับครุภัณฑ์เข้าคลัง |
 | `department_id` | INT | 11 | รหัสหน่วยงานที่สังกัด (FK) |
 | `location_id` | INT | 11 | รหัสสถานที่จัดเก็บ (FK) |
-| `status` | VARCHAR | 50 | สถานะปัจจุบัน (ใช้งานอยู่, ชำรุด, ยืม) |
-| `fund_code` | VARCHAR | 50 | รหัสแหล่งเงินทุน |
-| `image` | TEXT | - | ชื่อไฟล์รูปภาพครุภัณฑ์ |
-| `created_at` | TIMESTAMP | - | วันที่ลงทะเบียน |
+| `status` | VARCHAR | 50 | สถานะปัจจุบัน (เช่น ใช้งานได้, รอซ่อม) |
+| `barcode` | VARCHAR | 100 | หมายเลขครุภัณฑ์/บาร์โค้ด |
+| `fund_code` | VARCHAR | 50 | รหัสกองทุน |
+| `image` | VARCHAR | 255 | ชื่อไฟล์รูปภาพครุภัณฑ์ |
+| `updated_at` | TIMESTAMP | - | วันเวลาที่แก้ไขล่าสุด |
 
 #### ตารางที่ 3-26 แฟ้มข้อมูลการตรวจสภาพ (Asset Check Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `check_id` | INT | 11 | รหัสการตรวจ (PK) |
-| `asset_id` | VARCHAR | 50 | รหัสครุภัณฑ์ที่ถูกตรวจ (FK) |
+| `check_id` | INT | 11 | รหัสการตรวจ (Primary Key, Auto Increment) |
+| `asset_id` | INT | 11 | รหัสครุภัณฑ์ที่ถูกตรวจ (FK) |
 | `user_id` | INT | 11 | รหัสผู้ตรวจ (FK) |
-| `check_date` | DATETIME | - | วันเวลาที่สแกนตรวจสภาพ |
-| `check_status` | VARCHAR | 50 | สถานะที่พบ (ปกติ, ชำรุด, สูญหาย) |
+| `check_date` | DATE | - | วันที่ตรวจสอบสภาพ |
+| `check_status` | ENUM | - | สถานะที่พบ (ใช้งานได้, รอซ่อม, ฯลฯ) |
 | `remark` | TEXT | - | หมายเหตุเพิ่มเติม |
+| `created_at` | TIMESTAMP | - | วันเวลาที่บันทึกข้อมูล |
 
-#### ตารางที่ 3-27 แฟ้มข้อมูลการยืม-คืน (Borrow Table)
+#### ตารางที่ 3-27 แฟ้มข้อมูลประวัติการเคลื่อนย้าย (Asset History Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `borrow_id` | INT | 11 | รหัสรายการยืม (PK) |
-| `asset_id` | VARCHAR | 50 | รหัสครุภัณฑ์ (FK) |
-| `borrower_name` | VARCHAR | 100 | ชื่อผู้ยืม |
-| `borrow_date` | DATETIME | - | วันที่ยืม |
-| `due_date` | DATETIME | - | กำหนดส่งคืน |
-| `return_date` | DATETIME | - | วันที่คืนจริง |
-| `status` | VARCHAR | 50 | สถานะ (ยืม, คืนแล้ว) |
-
-#### ตารางที่ 3-28 แฟ้มข้อมูลประวัติการเคลื่อนย้าย (Asset History Table)
-| ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
-|:--- |:--- |:--- |:--- |
-| `history_id` | INT | 11 | รหัสประวัติ (PK) |
-| `asset_id` | VARCHAR | 50 | รหัสครุภัณฑ์ (FK) |
+| `history_id` | INT | 11 | รหัสประวัติการย้าย (Primary Key, AI) |
+| `asset_id` | INT | 11 | รหัสครุภัณฑ์ (FK) |
 | `old_location_id` | INT | 11 | รหัสสถานที่เดิม (FK) |
 | `new_location_id` | INT | 11 | รหัสสถานที่ใหม่ (FK) |
 | `moved_by` | INT | 11 | รหัสผู้ดำเนินการย้าย (FK) |
-| `move_date` | DATETIME | - | วันเวลาที่เคลื่อนย้าย |
+| `move_date` | DATE | - | วันที่เคลื่อนย้าย |
 | `remark` | TEXT | - | หมายเหตุ |
 
-#### ตารางที่ 3-29 แฟ้มข้อมูลบันทึกการใช้งาน (Audit Trail Table)
+#### ตารางที่ 3-28 แฟ้มข้อมูลบันทึกการใช้งาน (Audit Trail Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `audit_id` | INT | 11 | รหัส Log (PK) |
-| `user_id` | INT | 11 | รหัสผู้กระทำ (FK) |
-| `asset_id` | VARCHAR | 50 | รหัสครุภัณฑ์ที่เกี่ยวข้อง (FK) |
-| `action` | VARCHAR | 255 | การกระทำ (เช่น Create, Update, Delete) |
-| `old_value` | TEXT | - | ค่าเดิมก่อนการเปลี่ยน |
-| `new_value` | TEXT | - | ค่าใหม่หลังการเปลี่ยน |
-| `action_date` | TIMESTAMP | - | วันเวลาที่เกิดเหตุการณ์ |
+| `audit_id` | INT | 11 | รหัส Log (Primary Key, Auto Increment) |
+| `user_id` | INT | 11 | รหัสผู้กระทำกิจกรรม (FK) |
+| `asset_id` | INT | 11 | รหัสครุภัณฑ์ที่เกี่ยวข้อง (FK) |
+| `action` | ENUM | - | การกระทำ (Add, Edit, Move, ฯลฯ) |
+| `old_value` | TEXT | - | ค่าเดิมก่อนการเปลี่ยนแปลง |
+| `new_value` | TEXT | - | ค่าใหม่หลังการเปลี่ยนแปลง |
+| `action_date` | DATETIME | - | วันเวลาที่เกิดเหตุการณ์ |
 
-#### ตารางที่ 3-30 แฟ้มข้อมูลรอบการตรวจสอบ (Check Schedules Table)
+#### ตารางที่ 3-29 แฟ้มข้อมูลการยืม-คืน (Borrow Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `schedule_id` | INT | 11 | รหัสรอบการตรวจ (PK) |
-| `name` | VARCHAR | 100 | ชื่อรอบ (เช่น ราย 3 เดือน, รายปี) |
-| `check_interval_months` | INT | 11 | ระยะเวลาห่าง (เดือน) |
-| `is_active` | TINYINT | 1 | สถานะการใช้งาน |
+| `borrow_id` | INT | 11 | รหัสรายการยืม (Primary Key, Auto Increment) |
+| `asset_id` | INT | 11 | รหัสครุภัณฑ์ (FK) |
+| `borrower_name` | VARCHAR | 100 | ชื่อผู้ยืม |
+| `department_id` | INT | 11 | รหัสหน่วยงานผู้ยืม (FK) |
+| `borrow_date` | DATE | - | วันที่ยืม |
+| `due_date` | DATE | - | กำหนดส่งคืน |
+| `return_date` | DATE | - | วันที่คืนจริง |
+| `status` | ENUM | - | สถานะ (ยืม, คืนแล้ว) |
+| `updated_at` | TIMESTAMP | - | วันเวลาที่อัปเดตข้อมูลล่าสุด |
 
-#### ตารางที่ 3-31 แฟ้มข้อมูลกำหนดการตรวจสอบรายชิ้น (Asset Schedules Table)
+#### ตารางที่ 3-30 แฟ้มข้อมูลประวัติการนำเข้าข้อมูล (Import History Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `asset_schedule_id` | INT | 11 | รหัสกำหนดการ (PK) |
-| `asset_id` | VARCHAR | 50 | รหัสครุภัณฑ์ (FK) |
-| `schedule_id` | INT | 11 | รหัสรอบการตรวจที่เลือก (FK) |
-| `next_check_date` | DATE | - | วันที่ต้องตรวจครั้งถัดไป |
-| `last_notified_date` | DATE | - | วันที่แจ้งเตือนล่าสุด |
-| `is_dismissed` | TINYINT | 1 | สถานะการยกเลิกแจ้งเตือน |
-
-#### ตารางที่ 3-32 แฟ้มข้อมูลเก็บประวัติการนำเข้าข้อมูล (Import History Table)
-| ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
-|:--- |:--- |:--- |:--- |
-| `import_id` | INT | 11 | รหัสการนำเข้า (PK, AI) |
-| `import_date` | DATETIME | - | วันที่และเวลานำเข้า |
+| `import_id` | INT | 11 | รหัสการนำเข้า (Primary Key, AI) |
+| `import_date` | DATETIME | - | วันเวลาที่นำเข้าไฟล์ |
 | `filename` | VARCHAR | 255 | ชื่อไฟล์ที่นำเข้า |
-| `total_rows` | INT | 11 | จำนวนแถวทั้งหมด |
-| `success_count` | INT | 11 | จำนวนที่สำเร็จ |
+| `total_rows` | INT | 11 | จำนวนแถวทั้งหมดในไฟล์ |
+| `success_count` | INT | 11 | จำนวนที่นำเข้าสำเร็จ |
 | `failed_count` | INT | 11 | จำนวนที่ล้มเหลว |
 | `user_id` | INT | 11 | รหัสผู้ใช้งานที่นำเข้า (FK) |
 
-#### ตารางที่ 3-33 แฟ้มข้อมูลเก็บประวัติการเข้าสู่ระบบ (Login Attempts Table)
+#### ตารางที่ 3-31 แฟ้มข้อมูลบันทึกการเข้าสู่ระบบ (Login Attempts Table)
 | ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
 |:--- |:--- |:--- |:--- |
-| `id` | INT | 11 | รหัสประวัติ (PK, AI) |
-| `username` | VARCHAR | 100 | ชื่อผู้ใช้งาน |
-| `attempt_time` | DATETIME | - | เวลาที่พยายามเข้าสู่ระบบ |
+| `id` | INT | 11 | รหัสประวัติ (Primary Key, AI) |
+| `username` | VARCHAR | 100 | ชื่อผู้ใช้งานที่พยายามเข้าระบบ |
+| `attempt_time` | DATETIME | - | วันเวลาที่พยายามเข้าระบบ |
 | `success` | TINYINT | 1 | สถานะ (0=ล้มเหลว, 1=สำเร็จ) |
-| `ip_address` | VARCHAR | 45 | หมายเลข IP |
+| `ip_address` | VARCHAR | 45 | หมายเลข IP ของผู้ใช้งาน |
+
+#### ตารางที่ 3-32 แฟ้มข้อมูลการตั้งค่าระบบ (System Settings Table)
+| ชื่อฟิลด์ | ประเภทข้อมูล | ขนาด | คำอธิบาย |
+|:--- |:--- |:--- |:--- |
+| `setting_id` | INT | 11 | รหัสการตั้งค่า (Primary Key, Auto Increment) |
+| `setting_key` | VARCHAR | 100 | ชื่อคีย์การตั้งค่า (Unique) |
+| `setting_value` | TEXT | - | ค่าของการตั้งค่า |
+| `description` | VARCHAR | 255 | คำอธิบายการตั้งค่า |
+| `updated_at` | TIMESTAMP | - | วันเวลาที่แก้ไขล่าสุด |
 
 ---
 
@@ -492,7 +490,7 @@ graph TD
 
 ## 3.8 แผนผังความสัมพันธ์เอนทิตี้ (ER Diagram)
 
-แผนภาพแสดงความสัมพันธ์ของข้อมูลในระบบทั้งหมด 12 ตาราง
+แผนภาพแสดงความสัมพันธ์ของข้อมูลในระบบทั้งหมด 11 ตาราง
 
 ```mermaid
 erDiagram
@@ -505,12 +503,15 @@ erDiagram
         string status
         string email
         string phone
-        datetime created_at
+        timestamp created_at
+        timestamp updated_at
     }
 
     DEPARTMENTS {
         int department_id PK
         string department_name
+        string faculty
+        timestamp created_at
     }
 
     LOCATIONS {
@@ -518,13 +519,14 @@ erDiagram
         string building_name
         string floor
         string room_number
+        text description
+        timestamp created_at
     }
 
     ASSETS {
-        string asset_id PK
+        int asset_id PK
         string asset_name
-        string serial_number
-        string barcode
+        text serial_number
         int quantity
         string unit
         decimal price
@@ -532,74 +534,64 @@ erDiagram
         int department_id FK
         int location_id FK
         string status
+        string barcode
         string fund_code
         string image
-        datetime created_at
+        timestamp created_at
+        timestamp updated_at
     }
 
     ASSET_CHECK {
         int check_id PK
-        string asset_id FK
+        int asset_id FK
         int user_id FK
-        datetime check_date
+        date check_date
         string check_status
         text remark
-    }
-
-    BORROW {
-        int borrow_id PK
-        string asset_id FK
-        string borrower_name
-        datetime borrow_date
-        datetime due_date
-        datetime return_date
-        string status
+        timestamp created_at
     }
 
     ASSET_HISTORY {
         int history_id PK
-        string asset_id FK
+        int asset_id FK
         int old_location_id FK
         int new_location_id FK
         int moved_by FK
-        datetime move_date
+        date move_date
         text remark
+        timestamp created_at
     }
 
     AUDITTRAIL {
         int audit_id PK
         int user_id FK
-        string asset_id FK
+        int asset_id FK
         string action
         text old_value
         text new_value
         datetime action_date
     }
 
-    CHECK_SCHEDULES {
-        int schedule_id PK
-        string name
-        int check_interval_months
-        boolean is_active
-    }
-
-    ASSET_SCHEDULES {
-        int asset_schedule_id PK
-        string asset_id FK
-        int schedule_id FK
-        date next_check_date
-        date last_notified_date
-        boolean is_dismissed
+    BORROW {
+        int borrow_id PK
+        int asset_id FK
+        string borrower_name
+        int department_id FK
+        date borrow_date
+        date due_date
+        date return_date
+        string status
+        timestamp updated_at
     }
 
     IMPORT_HISTORY {
         int import_id PK
+        int user_id FK
         datetime import_date
         string filename
         int total_rows
         int success_count
         int failed_count
-        int user_id FK
     }
 
     LOGIN_ATTEMPTS {
@@ -610,15 +602,21 @@ erDiagram
         string ip_address
     }
 
+    SYSTEM_SETTINGS {
+        int setting_id PK
+        string setting_key
+        text setting_value
+        string description
+        timestamp updated_at
+    }
+
     USERS ||--o{ ASSET_CHECK : "บันทึกผลการตรวจ"
     USERS ||--o{ ASSET_HISTORY : "ดำเนินการเคลื่อนย้าย"
     USERS ||--o{ AUDITTRAIL : "บันทึกกิจกรรม"
     USERS ||--o{ IMPORT_HISTORY : "บันทึกประวัติการนำเข้า"
-    USERS ||--o{ LOGIN_ATTEMPTS : "บันทึกประวัติการล็อคอิน"
     
     ASSETS ||--o{ ASSET_CHECK : "ถูกตรวจสอบสภาพ"
     ASSETS ||--o{ ASSET_HISTORY : "มีประวัติการย้าย"
-    ASSETS ||--o{ ASSET_SCHEDULES : "กำหนดรอบการตรวจ"
     ASSETS ||--o{ BORROW : "ถูกยืมคืน"
     ASSETS ||--o{ AUDITTRAIL : "ถูกบันทึกประวัติใช้งาน"
     
@@ -627,8 +625,6 @@ erDiagram
     
     LOCATIONS ||--o{ ASSETS : "ตั้งวางอยู่"
     LOCATIONS ||--o{ ASSET_HISTORY : "ปลายทางหรือต้นทาง"
-    
-    CHECK_SCHEDULES ||--o{ ASSET_SCHEDULES : "แบ่งรอบ"
 ```
 
 ---

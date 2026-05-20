@@ -542,3 +542,22 @@ Stack trace:
 #1 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 29
 [16-May-2026 15:05:32 Europe/Berlin] Import: Starting import of 515 rows
+[20-May-2026 17:09:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php:256
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(153): AssetCheckController->getAnnualStats()
+#1 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetCheckController.php on line 256
+[20-May-2026 17:10:06 Europe/Berlin] AuthController: Database connection failed.
+[20-May-2026 17:10:06 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:25
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(35): User->login()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 25
+[20-May-2026 17:11:09 Europe/Berlin] AuthController: Database connection failed.
+[20-May-2026 17:11:09 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:25
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(35): User->login()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 25
