@@ -137,12 +137,16 @@ export default function AnnualCheckPage() {
     }, [settings.annual_check_start, settings.annual_check_end, selectedYear]);
 
     const handleSaveSettings = async () => {
+        if (!isAdmin) {
+            toast.error("ไม่สามารถบันทึกการตั้งค่าได้ (เฉพาะสิทธิ์ผู้ดูแลระบบ (Admin) เท่านั้น)");
+            return;
+        }
         setSavingSettings(true);
         try {
             await api.post("/settings", settings);
             toast.success("บันทึกช่วงเวลาตรวจสอบสำเร็จ");
         } catch (error) {
-            toast.error("ไม่สามารถบันทึกการตั้งค่าได้");
+            toast.error("ไม่สามารถบันทึกการตั้งค่าได้ (เฉพาะสิทธิ์ผู้ดูแลระบบ (Admin) เท่านั้น)");
         } finally {
             setSavingSettings(false);
         }
@@ -460,7 +464,8 @@ export default function AnnualCheckPage() {
                                         type="date"
                                         value={settings.annual_check_start || ""}
                                         onChange={(e) => setSettings(s => ({ ...s, annual_check_start: e.target.value }))}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        disabled={!isAdmin}
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none disabled:bg-gray-50 disabled:text-gray-500"
                                     />
                                 </div>
                             </div>
@@ -475,27 +480,40 @@ export default function AnnualCheckPage() {
                                         type="date"
                                         value={settings.annual_check_end || ""}
                                         onChange={(e) => setSettings(s => ({ ...s, annual_check_end: e.target.value }))}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        disabled={!isAdmin}
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none disabled:bg-gray-50 disabled:text-gray-500"
                                     />
                                 </div>
                             </div>
 
                             <div className="mt-2 mb-2">
-                                <button onClick={() => {
-                                    const y = new Date().getFullYear();
-                                    setSettings(s => ({ ...s, annual_check_start: `${y}-01-01`, annual_check_end: `${y}-12-31` }))
-                                }} className="w-full text-[11px] bg-blue-50 text-blue-600 py-1.5 rounded-lg font-bold hover:bg-blue-100 transition border border-blue-100">ปีปฏิทินนี้</button>
+                                <button 
+                                    onClick={() => {
+                                        const y = new Date().getFullYear();
+                                        setSettings(s => ({ ...s, annual_check_start: `${y}-01-01`, annual_check_end: `${y}-12-31` }))
+                                    }} 
+                                    disabled={!isAdmin}
+                                    className="w-full text-[11px] bg-blue-50 text-blue-600 py-1.5 rounded-lg font-bold hover:bg-blue-100 transition border border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    ปีปฏิทินนี้
+                                </button>
                             </div>
 
                             <div className="pt-2">
-                                <button
-                                    onClick={handleSaveSettings}
-                                    disabled={savingSettings}
-                                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition disabled:opacity-50 font-bold shadow-lg shadow-blue-600/20"
-                                >
-                                    {savingSettings ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-                                    บันทึกช่วงเวลา
-                                </button>
+                                {isAdmin ? (
+                                    <button
+                                        onClick={handleSaveSettings}
+                                        disabled={savingSettings}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition disabled:opacity-50 font-bold shadow-lg shadow-blue-600/20"
+                                    >
+                                        {savingSettings ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
+                                        บันทึกช่วงเวลา
+                                    </button>
+                                ) : (
+                                    <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs font-semibold text-center leading-relaxed">
+                                        เฉพาะสิทธิ์ผู้ดูแลระบบ (Admin) เท่านั้น<br />ที่สามารถกำหนดช่วงเวลาตรวจนับได้
+                                    </div>
+                                )}
                             </div>
 
                             {periodInfo && (

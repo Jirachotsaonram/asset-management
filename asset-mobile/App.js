@@ -30,6 +30,9 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  const { user } = useAuth();
+  const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -85,16 +88,20 @@ function MainTabs() {
         component={AssetsScreen}
         options={{ title: 'ครุภัณฑ์' }}
       />
-      <Tab.Screen
-        name="Check"
-        component={CheckScreen}
-        options={{ title: 'ตรวจสอบ' }}
-      />
-      <Tab.Screen
-        name="Borrows"
-        component={BorrowsScreen}
-        options={{ title: 'ยืม/คืน' }}
-      />
+      {isAdminOrInspector && (
+        <Tab.Screen
+          name="Check"
+          component={CheckScreen}
+          options={{ title: 'ตรวจสอบ' }}
+        />
+      )}
+      {isAdminOrInspector && (
+        <Tab.Screen
+          name="Borrows"
+          component={BorrowsScreen}
+          options={{ title: 'ยืม/คืน' }}
+        />
+      )}
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}

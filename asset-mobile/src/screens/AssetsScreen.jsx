@@ -20,11 +20,14 @@ import api, { getImageUrl } from '../services/api';
 import offlineService from '../services/offlineService';
 import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL, ASSET_STATUS } from '../utils/constants';
 
 const ITEMS_PER_PAGE = 20;
 
 export default function AssetsScreen({ navigation }) {
+  const { user } = useAuth();
+  const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -311,12 +314,14 @@ export default function AssetsScreen({ navigation }) {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.filterButton, { backgroundColor: '#10B981', borderColor: '#059669' }]}
-          onPress={() => navigation.navigate('AssetEdit', { mode: 'add' })}
-        >
-          <Ionicons name="add" size={24} color="#fff" />
-        </TouchableOpacity>
+        {isAdminOrInspector && (
+          <TouchableOpacity
+            style={[styles.filterButton, { backgroundColor: '#10B981', borderColor: '#059669' }]}
+            onPress={() => navigation.navigate('AssetEdit', { mode: 'add' })}
+          >
+            <Ionicons name="add" size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Stats Bar */}

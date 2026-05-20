@@ -121,6 +121,8 @@ export default function ScanPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  const canEdit = user?.role === 'Admin' || user?.role === 'Inspector';
+
   // ค้นหาครุภัณฑ์จาก Barcode
   const handleScan = async () => {
     if (!barcode.trim()) {
@@ -743,60 +745,62 @@ export default function ScanPage() {
                 </div>
 
                 {/* Check Form */}
-                <div className="border-t border-gray-100 pt-4 space-y-4">
-                  <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                    <FileCheck size={18} className="text-primary-600" />
-                    บันทึกการตรวจสอบ
-                  </h3>
+                {canEdit && (
+                  <div className="border-t border-gray-100 pt-4 space-y-4">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                      <FileCheck size={18} className="text-primary-600" />
+                      บันทึกการตรวจสอบ
+                    </h3>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      สถานะหลังตรวจสอบ
-                    </label>
-                    <select
-                      value={checkStatus}
-                      onChange={(e) => setCheckStatus(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        สถานะหลังตรวจสอบ
+                      </label>
+                      <select
+                        value={checkStatus}
+                        onChange={(e) => setCheckStatus(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+                      >
+                        <option value="ใช้งานได้">ใช้งานได้</option>
+                        <option value="รอซ่อม">รอซ่อม</option>
+                        <option value="รอจำหน่าย">รอจำหน่าย</option>
+                        <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
+                        <option value="ไม่พบ">ไม่พบ</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        หมายเหตุ (ถ้ามี)
+                      </label>
+                      <textarea
+                        value={remark}
+                        onChange={(e) => setRemark(e.target.value)}
+                        placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all resize-none"
+                        rows={3}
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleCheckAsset}
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white py-3.5 rounded-xl transition-all font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-success-500/20"
                     >
-                      <option value="ใช้งานได้">ใช้งานได้</option>
-                      <option value="รอซ่อม">รอซ่อม</option>
-                      <option value="รอจำหน่าย">รอจำหน่าย</option>
-                      <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
-                      <option value="ไม่พบ">ไม่พบ</option>
-                    </select>
+                      {loading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          กำลังบันทึก...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={20} />
+                          บันทึกการตรวจสอบ
+                        </>
+                      )}
+                    </button>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      หมายเหตุ (ถ้ามี)
-                    </label>
-                    <textarea
-                      value={remark}
-                      onChange={(e) => setRemark(e.target.value)}
-                      placeholder="ระบุรายละเอียดเพิ่มเติม..."
-                      className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all resize-none"
-                      rows={3}
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleCheckAsset}
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white py-3.5 rounded-xl transition-all font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-success-500/20"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        กำลังบันทึก...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle size={20} />
-                        บันทึกการตรวจสอบ
-                      </>
-                    )}
-                  </button>
-                </div>
+                )}
               </div>
             </div>
           ) : (

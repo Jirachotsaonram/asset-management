@@ -29,6 +29,8 @@ export default function ProfileScreen({ navigation }) {
     ]);
   };
 
+  const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
@@ -79,26 +81,28 @@ export default function ProfileScreen({ navigation }) {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>การจัดการข้อมูล</Text>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Import')}
-        >
-          <Ionicons name="cloud-upload-outline" size={24} color="#2563EB" />
-          <Text style={styles.menuText}>นำเข้าข้อมูล (File / OCR)</Text>
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
+      {isAdminOrInspector && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>การจัดการข้อมูล</Text>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('Import')}
+          >
+            <Ionicons name="cloud-upload-outline" size={24} color="#2563EB" />
+            <Text style={styles.menuText}>นำเข้าข้อมูล (File / OCR)</Text>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Offline')}
-        >
-          <Ionicons name="cloud-offline-outline" size={24} color="#2563EB" />
-          <Text style={styles.menuText}>จัดการข้อมูลออฟไลน์</Text>
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('Offline')}
+          >
+            <Ionicons name="cloud-offline-outline" size={24} color="#2563EB" />
+            <Text style={styles.menuText}>จัดการข้อมูลออฟไลน์</Text>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       <View style={styles.section}>
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>

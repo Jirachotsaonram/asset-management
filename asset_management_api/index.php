@@ -435,7 +435,12 @@ switch ($endpoint) {
         require_once 'controllers/SystemSettingController.php';
         require_once 'middleware/auth.php';
         
-        requireAdmin(); // เฉพาะ Admin เท่านั้น
+        if ($request_method === 'GET') {
+            authenticate(); // ทุกคนที่ล็อกอินแล้วสามารถดูได้
+        } else {
+            requireAdmin(); // เฉพาะ Admin เท่านั้นที่แก้ไขได้
+        }
+        
         $controller = new SystemSettingController();
         
         if ($request_method === 'GET' && !$id) {
@@ -447,4 +452,7 @@ switch ($endpoint) {
         }
         break;
 }
+
+        
+
 ?>

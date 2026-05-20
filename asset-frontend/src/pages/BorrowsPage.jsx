@@ -97,7 +97,8 @@ export default function BorrowsPage() {
         ...borrow,
         daysBorrowed,
         isOverdue,
-        serial_number: allAssetsMap[borrow.asset_id]?.serial_number || '-'
+        serial_number: borrow.serial_number || allAssetsMap[borrow.asset_id]?.serial_number || '-',
+        barcode: borrow.barcode || allAssetsMap[borrow.asset_id]?.barcode || ''
       };
     });
   }, [borrows, allAssetsMap]);
@@ -108,6 +109,7 @@ export default function BorrowsPage() {
         borrow.asset_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         borrow.borrower_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         borrow.asset_id?.toString().includes(searchTerm) ||
+        borrow.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         borrow.serial_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         borrow.purpose?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -293,7 +295,7 @@ export default function BorrowsPage() {
                   <tr key={borrow.borrow_id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900">{borrow.asset_name}</p>
-                      <p className="text-xs text-gray-500">SN: {borrow.serial_number}</p>
+                      <p className="text-xs text-gray-500">หมายเลขครุภัณฑ์: {borrow.barcode || borrow.asset_id} • SN: {borrow.serial_number}</p>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">{borrow.borrower_name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{borrow.borrow_date}</td>
@@ -401,6 +403,7 @@ function BorrowModal({ formData, setFormData, formErrors, allAssets, onSubmit, o
     allAssets.filter(a => a.status === 'ใช้งานได้' &&
       (a.asset_name?.toLowerCase().includes(search.toLowerCase()) ||
         a.serial_number?.toLowerCase().includes(search.toLowerCase()) ||
+        a.barcode?.toLowerCase().includes(search.toLowerCase()) ||
         a.asset_id?.toString().includes(search))
     ).slice(0, 20),
     [allAssets, search]);
@@ -434,7 +437,7 @@ function BorrowModal({ formData, setFormData, formErrors, allAssets, onSubmit, o
                 {selectedAsset ? (
                   <div>
                     <p className="font-bold text-gray-900 text-sm">{selectedAsset.asset_name}</p>
-                    <p className="text-xs text-gray-500">ID: {selectedAsset.asset_id} • SN: {selectedAsset.serial_number || '-'}</p>
+                    <p className="text-xs text-gray-500">หมายเลขครุภัณฑ์: {selectedAsset.barcode || selectedAsset.asset_id} • SN: {selectedAsset.serial_number || '-'}</p>
                   </div>
                 ) : <span className="text-gray-400 text-sm">ค้นหาครุภัณฑ์ที่ต้องการยืม...</span>}
               </div>
@@ -457,7 +460,7 @@ function BorrowModal({ formData, setFormData, formErrors, allAssets, onSubmit, o
                       className="p-3 hover:bg-primary-50 cursor-pointer border-b last:border-0"
                     >
                       <p className="font-bold text-sm text-gray-800">{asset.asset_name}</p>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-wider">ID: {asset.asset_id} • SN: {asset.serial_number || '-'}</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-wider">หมายเลขครุภัณฑ์: {asset.barcode || asset.asset_id} • SN: {asset.serial_number || '-'}</p>
                     </div>
                   )) : <div className="p-8 text-center text-gray-400 text-sm italic">ไม่พบครุภัณฑ์ที่สามารถยืมได้</div>}
                 </div>
@@ -514,7 +517,7 @@ function ReturnModal({ borrow, returnRemark, setReturnRemark, returnCondition, s
         <div className="p-6 space-y-4">
           <div className="bg-primary-50 rounded-2xl p-4 border border-primary-100">
             <p className="font-bold text-gray-900">{borrow.asset_name}</p>
-            <p className="text-xs text-gray-600 mt-1">ผู้ยืม: {borrow.borrower_name} • รวม {days} วัน</p>
+            <p className="text-xs text-gray-600 mt-1">หมายเลขครุภัณฑ์: {borrow.barcode || borrow.asset_id} • ผู้ยืม: {borrow.borrower_name} • รวม {days} วัน</p>
           </div>
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">สถานะครุภัณฑ์หลังคืน</label>
@@ -545,7 +548,7 @@ function ReturnModal({ borrow, returnRemark, setReturnRemark, returnCondition, s
 function DetailModal({ borrow, onClose, onReturn }) {
   const isReturned = borrow.status === 'คืนแล้ว';
   const stats = [
-    { label: 'รหัสครุภัณฑ์', value: borrow.asset_id },
+    { label: 'หมายเลขครุภัณฑ์', value: borrow.barcode || borrow.asset_id },
     { label: 'Serial Number', value: borrow.serial_number, mono: true },
     { label: 'ผู้ยืม', value: borrow.borrower_name },
     { label: 'วันที่ยืม', value: borrow.borrow_date },

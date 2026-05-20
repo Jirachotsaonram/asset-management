@@ -55,7 +55,7 @@ class AssetHistory {
     }
 
     public function readAll() {
-        $query = "SELECT ah.*, a.asset_name,
+        $query = "SELECT ah.*, a.asset_name, a.barcode,
                          l1.building_name as old_building, l1.floor as old_floor, l1.room_number as old_room,
                          l2.building_name as new_building, l2.floor as new_floor, l2.room_number as new_room,
                          u.fullname as moved_by_name

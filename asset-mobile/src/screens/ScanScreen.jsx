@@ -28,6 +28,7 @@ const { width } = Dimensions.get('window');
 
 export default function ScanScreen({ navigation }) {
   const { user } = useAuth();
+  const canEdit = user?.role === 'Admin' || user?.role === 'Inspector';
   const { isConnected } = useNetwork();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -485,74 +486,82 @@ export default function ScanScreen({ navigation }) {
               )}
 
               {/* Borrow/Return Quick Action */}
-              <View style={styles.quickActionContainer}>
-                {scannedAsset.status === ASSET_STATUS.AVAILABLE ? (
-                  <TouchableOpacity
-                    style={styles.borrowQuickBtn}
-                    onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
-                  >
-                    <Ionicons name="share-outline" size={20} color="#fff" />
-                    <Text style={styles.borrowQuickBtnText}>ยืมครุภัณฑ์นี้</Text>
-                  </TouchableOpacity>
-                ) : scannedAsset.status === 'ยืม' ? (
-                  <TouchableOpacity
-                    style={[styles.borrowQuickBtn, { backgroundColor: '#F59E0B' }]}
-                    onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
-                  >
-                    <Ionicons name="return-down-back-outline" size={20} color="#fff" />
-                    <Text style={styles.borrowQuickBtnText}>คืนครุภัณฑ์นี้</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
+              {canEdit && (
+                <View style={styles.quickActionContainer}>
+                  {scannedAsset.status === ASSET_STATUS.AVAILABLE ? (
+                    <TouchableOpacity
+                      style={styles.borrowQuickBtn}
+                      onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
+                    >
+                      <Ionicons name="share-outline" size={20} color="#fff" />
+                      <Text style={styles.borrowQuickBtnText}>ยืมครุภัณฑ์นี้</Text>
+                    </TouchableOpacity>
+                  ) : scannedAsset.status === 'ยืม' ? (
+                    <TouchableOpacity
+                      style={[styles.borrowQuickBtn, { backgroundColor: '#F59E0B' }]}
+                      onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
+                    >
+                      <Ionicons name="return-down-back-outline" size={20} color="#fff" />
+                      <Text style={styles.borrowQuickBtnText}>คืนครุภัณฑ์นี้</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              )}
             </View>
 
             {/* Checkin Form */}
-            <View style={styles.formCard}>
-              <Text style={styles.formTitle}>ผลการตรวจสอบ</Text>
+            {canEdit ? (
+              <View style={styles.formCard}>
+                <Text style={styles.formTitle}>ผลการตรวจสอบ</Text>
 
-              <View style={styles.statusGrid}>
-                {[ASSET_STATUS.AVAILABLE, ASSET_STATUS.MAINTENANCE, ASSET_STATUS.PENDING_DISPOSAL, ASSET_STATUS.DISPOSED, ASSET_STATUS.MISSING].map((status) => (
-                  <TouchableOpacity
-                    key={status}
-                    style={[
-                      styles.statusSelectBtn,
-                      checkStatus === status && { backgroundColor: getStatusColor(status) + '20', borderColor: getStatusColor(status) }
-                    ]}
-                    onPress={() => setCheckStatus(status)}
-                  >
-                    <View style={[styles.statusRadio, checkStatus === status && { backgroundColor: getStatusColor(status) }]} />
-                    <Text style={[styles.statusSelectText, checkStatus === status && { color: getStatusColor(status), fontWeight: 'bold' }]}>
-                      {status}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                <View style={styles.statusGrid}>
+                  {[ASSET_STATUS.AVAILABLE, ASSET_STATUS.MAINTENANCE, ASSET_STATUS.PENDING_DISPOSAL, ASSET_STATUS.DISPOSED, ASSET_STATUS.MISSING].map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      style={[
+                        styles.statusSelectBtn,
+                        checkStatus === status && { backgroundColor: getStatusColor(status) + '20', borderColor: getStatusColor(status) }
+                      ]}
+                      onPress={() => setCheckStatus(status)}
+                    >
+                      <View style={[styles.statusRadio, checkStatus === status && { backgroundColor: getStatusColor(status) }]} />
+                      <Text style={[styles.statusSelectText, checkStatus === status && { color: getStatusColor(status), fontWeight: 'bold' }]}>
+                        {status}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <Text style={styles.formLabel}>หมายเหตุ (ถ้ามี)</Text>
+                <TextInput
+                  style={styles.remarkInput}
+                  placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                  value={remark}
+                  onChangeText={setRemark}
+                  multiline
+                  numberOfLines={3}
+                />
+
+                <TouchableOpacity style={styles.submitBtn} onPress={handleCheckAsset} disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons name="save" size={22} color="#fff" />
+                      <Text style={styles.submitBtnText}>บันทึกการตรวจสอบ</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.cancelBtn} onPress={handleReset}>
+                  <Text style={styles.cancelBtnText}>ยกเลิกและสแกนใหม่</Text>
+                </TouchableOpacity>
               </View>
-
-              <Text style={styles.formLabel}>หมายเหตุ (ถ้ามี)</Text>
-              <TextInput
-                style={styles.remarkInput}
-                placeholder="ระบุรายละเอียดเพิ่มเติม..."
-                value={remark}
-                onChangeText={setRemark}
-                multiline
-                numberOfLines={3}
-              />
-
-              <TouchableOpacity style={styles.submitBtn} onPress={handleCheckAsset} disabled={loading}>
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <>
-                    <Ionicons name="save" size={22} color="#fff" />
-                    <Text style={styles.submitBtnText}>บันทึกการตรวจสอบ</Text>
-                  </>
-                )}
+            ) : (
+              <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: '#fff', marginTop: 10, paddingVertical: 15, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB' }]} onPress={handleReset}>
+                <Text style={[styles.cancelBtnText, { color: '#4B5563', fontWeight: 'bold' }]}>ยกเลิกและสแกนใหม่</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity style={styles.cancelBtn} onPress={handleReset}>
-                <Text style={styles.cancelBtnText}>ยกเลิกและสแกนใหม่</Text>
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
         )}
       </ScrollView>

@@ -71,6 +71,7 @@ export default function AssetHistoryPage() {
       const matchSearch =
         item.asset_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.asset_id?.toString().includes(searchTerm) ||
+        item.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.moved_by_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.remark?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -163,7 +164,7 @@ export default function AssetHistoryPage() {
     filteredHistory.forEach((item) => {
       const from = `${item.old_building || ''} ห้อง ${item.old_room || ''}`.trim();
       const to = `${item.new_building || ''} ห้อง ${item.new_room || ''}`.trim();
-      csv += `"${item.move_date}","${item.asset_id}","${item.asset_name}","${from}","${to}","${item.moved_by_name}","${item.remark || ''}"\n`;
+      csv += `"${item.move_date}","${item.barcode || item.asset_id}","${item.asset_name}","${from}","${to}","${item.moved_by_name}","${item.remark || ''}"\n`;
     });
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -284,7 +285,7 @@ function HistoryCard({ item, isExpanded, onToggle }) {
         <div className="flex-1 min-w-0">
           <h4 className="font-bold text-gray-900 truncate">{item.asset_name}</h4>
           <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-            <span className="bg-gray-100 px-1.5 py-0.5 rounded">ID: {item.asset_id}</span>
+            <span className="bg-gray-100 px-1.5 py-0.5 rounded">หมายเลขครุภัณฑ์: {item.barcode || item.asset_id}</span>
             <span>•</span>
             <span className="flex items-center gap-1"><Calendar size={12} /> {item.move_date}</span>
           </div>
@@ -342,6 +343,7 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
     assets.filter(a =>
       a.asset_name?.toLowerCase().includes(search.toLowerCase()) ||
       a.asset_id?.toString().includes(search) ||
+      a.barcode?.toLowerCase().includes(search.toLowerCase()) ||
       a.serial_number?.toLowerCase().includes(search.toLowerCase())
     ).slice(0, 20),
     [assets, search]);
@@ -381,7 +383,7 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
                 {selectedAsset ? (
                   <div>
                     <p className="font-bold text-sm text-gray-900">{selectedAsset.asset_name}</p>
-                    <p className="text-[10px] text-gray-500">ID: {selectedAsset.asset_id} • SN: {selectedAsset.serial_number || '-'}</p>
+                    <p className="text-[10px] text-gray-500">หมายเลขครุภัณฑ์: {selectedAsset.barcode || selectedAsset.asset_id} • SN: {selectedAsset.serial_number || '-'}</p>
                   </div>
                 ) : <span className="text-gray-400 text-sm">ค้นหาครุภัณฑ์ที่ต้องการย้าย...</span>}
               </div>
@@ -394,7 +396,7 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
                   {availableAssets.map(a => (
                     <div key={a.asset_id} onClick={() => { onAssetChange(a.asset_id); setIsOpen(false); }} className="px-4 py-2 hover:bg-primary-50 cursor-pointer border-b last:border-0 text-sm">
                       <p className="font-bold">{a.asset_name}</p>
-                      <p className="text-[10px] text-gray-500">ID: {a.asset_id} • SN: {a.serial_number || '-'}</p>
+                      <p className="text-[10px] text-gray-500">หมายเลขครุภัณฑ์: {a.barcode || a.asset_id} • SN: {a.serial_number || '-'}</p>
                     </div>
                   ))}
                 </div>

@@ -180,8 +180,8 @@ export default function UsersPage() {
             setEditingUser(null); 
             setFormData({ 
               username: '', 
-              password: 'Asset@2026#', 
-              confirm_password: 'Asset@2026#', 
+              password: '', 
+              confirm_password: '', 
               fullname: '', 
               email: '', 
               phone: '', 
@@ -359,9 +359,11 @@ function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, load
             </label>
             <input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
               placeholder={editingUser ? '••••••••' : 'Complexity required'} className="form-input h-12 rounded-2xl border-2 font-bold" required={!editingUser} autoComplete="new-password" />
-            <p className="text-[10px] text-gray-400 ml-1">
-              {editingUser ? 'เว้นว่างหากไม่ต้องการเปลี่ยนรหัสผ่าน' : 'รหัสผ่านมาตรฐาน: Asset@2026#'}
-            </p>
+            {editingUser && (
+              <p className="text-[10px] text-gray-400 ml-1">
+                เว้นว่างหากไม่ต้องการเปลี่ยนรหัสผ่าน
+              </p>
+            )}
           </div>
 
           {/* Confirm Password - เต็มบรรทัด */}

@@ -561,3 +561,9 @@ Stack trace:
 #1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(42): AuthController->login()
 #2 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 25
+[20-May-2026 18:43:24 Europe/Berlin] ImageUpload: Received file: 49cb8c31-0bb1-4807-b304-0f6b881cc487.jpeg size: 18136 type: image/jpeg
+[20-May-2026 18:43:24 Europe/Berlin] ImageUpload: Attempting to resize image
+[20-May-2026 18:43:24 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0de4ac45e263.33524914.jpg
+[20-May-2026 18:45:03 Europe/Berlin] ImageUpload: Received file: images__1_-removebg-preview.png size: 74776 type: image/png
+[20-May-2026 18:45:03 Europe/Berlin] ImageUpload: Attempting to resize image
+[20-May-2026 18:45:03 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0de50f188739.85378862.png

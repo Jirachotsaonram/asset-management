@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import api, { getImageUrl } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL, ASSET_STATUS } from '../utils/constants';
 
 const { width } = Dimensions.get('window');
@@ -25,6 +26,8 @@ const { width } = Dimensions.get('window');
 export default function AssetDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
+  const { user } = useAuth();
+  const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
   const { asset: initialAsset } = route.params || {};
   const [asset, setAsset] = useState(initialAsset);
   const [loading, setLoading] = useState(false);
@@ -273,10 +276,12 @@ export default function AssetDetailScreen() {
           </View>
 
           {/* Edit Photo Button */}
-          <TouchableOpacity style={styles.editPhotoButton} onPress={handlePickImage} activeOpacity={0.8}>
-            <Ionicons name="camera" size={18} color="#fff" />
-            <Text style={styles.editPhotoText}>เปลี่ยนรูป</Text>
-          </TouchableOpacity>
+          {isAdminOrInspector && (
+            <TouchableOpacity style={styles.editPhotoButton} onPress={handlePickImage} activeOpacity={0.8}>
+              <Ionicons name="camera" size={18} color="#fff" />
+              <Text style={styles.editPhotoText}>เปลี่ยนรูป</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Top Actions */}
           <SafeAreaView style={styles.headerActions}>
@@ -288,12 +293,14 @@ export default function AssetDetailScreen() {
                 <View style={[styles.statusDot, { backgroundColor: statusStyle.color }]} />
                 <Text style={[styles.statusText, { color: statusStyle.color }]}>{asset?.status}</Text>
               </View>
-              <TouchableOpacity
-                style={styles.headerActionButton}
-                onPress={() => navigation.navigate('AssetEdit', { asset: asset, mode: 'edit' })}
-              >
-                <Ionicons name="create-outline" size={24} color="#fff" />
-              </TouchableOpacity>
+              {isAdminOrInspector && (
+                <TouchableOpacity
+                  style={styles.headerActionButton}
+                  onPress={() => navigation.navigate('AssetEdit', { asset: asset, mode: 'edit' })}
+                >
+                  <Ionicons name="create-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
             </View>
           </SafeAreaView>
         </View>
@@ -441,15 +448,17 @@ export default function AssetDetailScreen() {
       </ScrollView >
 
       {/* Floating Action Button */}
-      < View style={styles.bottomActions} >
-        <TouchableOpacity
-          style={styles.mainActionButton}
-          onPress={() => navigation.navigate('Scan', { assetId: asset?.asset_id })}
-        >
-          <Ionicons name="checkmark-done-circle" size={24} color="#fff" />
-          <Text style={styles.mainActionButtonText}>ตรวจสอบครุภัณฑ์นี้</Text>
-        </TouchableOpacity>
-      </View >
+      {isAdminOrInspector && (
+        <View style={styles.bottomActions}>
+          <TouchableOpacity
+            style={styles.mainActionButton}
+            onPress={() => navigation.navigate('Scan', { assetId: asset?.asset_id })}
+          >
+            <Ionicons name="checkmark-done-circle" size={24} color="#fff" />
+            <Text style={styles.mainActionButtonText}>ตรวจสอบครุภัณฑ์นี้</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {loading && (
         <View style={styles.loadingOverlay}>

@@ -38,7 +38,7 @@ class Borrow {
     }
 
     public function readAll() {
-        $query = "SELECT b.*, a.asset_name, d.department_name
+        $query = "SELECT b.*, a.asset_name, a.barcode, d.department_name
                   FROM " . $this->table_name . " b
                   LEFT JOIN assets a ON b.asset_id = a.asset_id
                   LEFT JOIN departments d ON b.department_id = d.department_id
@@ -63,7 +63,7 @@ class Borrow {
     }
 
     public function readActive() {
-        $query = "SELECT b.*, a.asset_name, d.department_name
+        $query = "SELECT b.*, a.asset_name, a.barcode, d.department_name
                   FROM " . $this->table_name . " b
                   LEFT JOIN assets a ON b.asset_id = a.asset_id
                   LEFT JOIN departments d ON b.department_id = d.department_id
@@ -114,7 +114,7 @@ class Borrow {
         $params = [];
         
         if ($search) {
-            $conditions[] = "(a.asset_name LIKE :search OR b.borrower_name LIKE :search OR b.asset_id LIKE :search)";
+            $conditions[] = "(a.asset_name LIKE :search OR b.borrower_name LIKE :search OR b.asset_id LIKE :search OR a.barcode LIKE :search)";
             $params[':search'] = "%$search%";
         }
         
@@ -125,7 +125,7 @@ class Borrow {
         
         $where = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
         
-        $query = "SELECT b.*, a.asset_name, d.department_name
+        $query = "SELECT b.*, a.asset_name, a.barcode, d.department_name
                   FROM " . $this->table_name . " b
                   LEFT JOIN assets a ON b.asset_id = a.asset_id
                   LEFT JOIN departments d ON b.department_id = d.department_id
@@ -151,7 +151,7 @@ class Borrow {
         $params = [];
         
         if ($search) {
-            $conditions[] = "(a.asset_name LIKE :search OR b.borrower_name LIKE :search OR b.asset_id LIKE :search)";
+            $conditions[] = "(a.asset_name LIKE :search OR b.borrower_name LIKE :search OR b.asset_id LIKE :search OR a.barcode LIKE :search)";
             $params[':search'] = "%$search%";
         }
         
