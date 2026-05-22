@@ -42,6 +42,8 @@ switch ($endpoint) {
             $controller->login();
         } elseif ($id === 'register' && $request_method === 'POST') {
             $controller->register();
+        } elseif ($id === 'google' && $request_method === 'POST') {
+            $controller->googleLogin();
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);
         }
@@ -203,15 +205,15 @@ switch ($endpoint) {
         } elseif ($request_method === 'GET' && $id === 'asset' && $action) {
             $controller->getByAsset($action);
         } 
-        // POST, PUT - เฉพาะ Admin และ Inspector เท่านั้น
+        // POST, PUT - สำหรับ Admin, Inspector, Authority
         elseif (($request_method === 'POST' || $request_method === 'PUT') && $id && $action === 'return') {
-            $user_data = requireAdminOrInspector();
+            $user_data = requireBorrowAuthority();
             $controller->returnAsset($id, $user_data);
         } elseif ($request_method === 'POST') {
-            $user_data = requireAdminOrInspector();
+            $user_data = requireBorrowAuthority();
             $controller->create($user_data);
         } elseif ($request_method === 'PUT' && $id) {
-            $user_data = requireAdminOrInspector();
+            $user_data = requireBorrowAuthority();
             $controller->returnAsset($id, $user_data);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);

@@ -3211,3 +3211,8 @@ Stack trace:
 [22-May-2026 13:16:02 Europe/Berlin] Row 618 parsed department_id: 1
 [22-May-2026 13:16:02 Europe/Berlin] Row 619 parsed department_id: 1
 [22-May-2026 13:16:02 Europe/Berlin] Row 620 parsed department_id: 1
+[22-May-2026 17:30:14 Europe/Berlin] OCR: Starting process for uploads/ocr_temp/ocr_1779463814_5255.jpg
+[22-May-2026 17:30:14 Europe/Berlin] OCR: Received data via Base64/JSON
+[22-May-2026 17:30:14 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
+[22-May-2026 17:30:14 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1779463814_5255.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
+[22-May-2026 17:30:18 Europe/Berlin] OCR: Return code: 0

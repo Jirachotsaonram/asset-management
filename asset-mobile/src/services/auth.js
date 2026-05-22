@@ -19,6 +19,23 @@ export const authService = {
     return response.data;
   },
 
+  async googleLogin(credential) {
+    const response = await api.post('/auth/google', { credential });
+    if (response.data.success && response.data.data) {
+      const token = response.data.data.token;
+      const user = response.data.data.user;
+      
+      if (token) {
+        await AsyncStorage.setItem('token', token);
+      }
+      
+      if (user) {
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+      }
+    }
+    return response.data;
+  },
+
   async register(userData) {
     const response = await api.post('/auth/register', userData);
     return response.data;

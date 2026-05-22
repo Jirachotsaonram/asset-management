@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Platform,
   ScrollView,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
@@ -13,20 +14,28 @@ import { Ionicons } from '@expo/vector-icons';
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    Alert.alert('ออกจากระบบ', 'คุณต้องการออกจากระบบหรือไม่?', [
-      {
-        text: 'ยกเลิก',
-        style: 'cancel',
-      },
-      {
-        text: 'ออกจากระบบ',
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
+  const handleLogout = async () => {
+    if (Platform.OS === 'web') {
+      // บนเว็บ Alert.alert ไม่ทำงาน ให้ใช้ window.confirm แทน
+      const confirmed = window.confirm('คุณต้องการออกจากระบบหรือไม่?');
+      if (confirmed) {
+        await logout();
+      }
+    } else {
+      Alert.alert('ออกจากระบบ', 'คุณต้องการออกจากระบบหรือไม่?', [
+        {
+          text: 'ยกเลิก',
+          style: 'cancel',
         },
-      },
-    ]);
+        {
+          text: 'ออกจากระบบ',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+          },
+        },
+      ]);
+    }
   };
 
   const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';

@@ -16,6 +16,20 @@ export const authService = {
     return response.data;
   },
 
+  async googleLogin(credential) {
+    const response = await api.post('/auth/google', { credential });
+    if (response.data.success) {
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      if (response.data.data.expires_in) {
+        const expiryTime = Math.floor(Date.now() / 1000) + response.data.data.expires_in;
+        localStorage.setItem('token_expiry', expiryTime.toString());
+      }
+      localStorage.setItem('last_activity', Date.now().toString());
+    }
+    return response.data;
+  },
+
   async register(userData) {
     const response = await api.post('/auth/register', userData);
     return response.data;

@@ -79,6 +79,21 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const googleLogin = async (credential) => {
+    const data = await authService.googleLogin(credential);
+    setUser(data.data.user);
+
+    if (data.data.expires_in) {
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      sessionTimerRef.current = setTimeout(() => {
+        handleLogout();
+      }, data.data.expires_in * 1000);
+    }
+
+    resetActivityTimer();
+    return data;
+  };
+
   const handleLogout = useCallback(() => {
     authService.logout();
     setUser(null);
@@ -94,6 +109,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     login,
+    googleLogin,
     logout,
     isAuthenticated: !!user && authService.isAuthenticated(),
     loading

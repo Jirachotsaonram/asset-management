@@ -158,5 +158,17 @@ class User {
         }
         return false;
     }
+
+    public function findByEmail($email) {
+        $query = "SELECT user_id, username, password, fullname, role, status, email, phone 
+                  FROM " . $this->table_name . " 
+                  WHERE email = :email LIMIT 1";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+        
+        return $stmt;
+    }
 }
 ?>

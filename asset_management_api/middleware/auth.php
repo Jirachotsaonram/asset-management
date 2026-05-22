@@ -179,4 +179,8 @@ function requireAdmin() {
 function requireAdminOrInspector() {
     return requireRole(['Admin', 'Inspector']);
 }
+
+function requireBorrowAuthority() {
+    return requireRole(['Admin', 'Inspector', 'Authority']);
+}
 ?>

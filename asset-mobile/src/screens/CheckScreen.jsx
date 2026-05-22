@@ -9,6 +9,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import CheckByAsset from '../components/Check/CheckByAsset';
 import CheckByRoom from '../components/Check/CheckByRoom';
+import { useNetwork } from '../hooks/useNetwork';
+import OfflineWarning from '../components/common/OfflineWarning';
 
 const TABS = [
   { key: 'asset', label: 'ตามครุภัณฑ์', icon: 'cube-outline' },
@@ -19,6 +21,7 @@ export default function CheckScreen({ navigation, route }) {
   // Support navigating directly to a specific tab (e.g. from Dashboard)
   const initialTab = route?.params?.tab || 'asset';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const { isConnected } = useNetwork();
 
   return (
     <View style={styles.container}>
@@ -47,6 +50,8 @@ export default function CheckScreen({ navigation, route }) {
           ))}
         </View>
       </View>
+
+      <OfflineWarning message="โหมดออฟไลน์: ข้อมูลจะถูกบันทึกในเครื่องและซิงค์เมื่อเชื่อมต่ออินเทอร์เน็ต" />
 
       {/* ── Tab Content ── */}
       <View style={styles.content}>

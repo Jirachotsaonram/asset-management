@@ -26,7 +26,7 @@ export default function UsersPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
-    username: '', password: '', confirm_password: '', fullname: '', email: '', phone: '', role: 'Inspector', status: 'Active'
+    username: '', fullname: '', email: '', phone: '', role: 'User', status: 'Active'
   });
   const [formLoading, setFormLoading] = useState(false);
 
@@ -83,7 +83,7 @@ export default function UsersPage() {
 
   const handleOpenEdit = (u) => {
     setEditingUser(u);
-    setFormData({ ...u, password: '', confirm_password: '' });
+    setFormData({ ...u });
     setShowModal(true);
   };
 
@@ -102,32 +102,9 @@ export default function UsersPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // ตรวจสอบข้อมูลที่จำเป็นต้องกรอก
-    if (!formData.username || !formData.fullname || !formData.email) {
-      return toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (Username, Full Name, Email)');
-    }
-
-    // กรณีสร้างผู้ใช้ใหม่ ต้องมีรหัสผ่าน
-    if (!editingUser && !formData.password) {
-      return toast.error('กรุณากำหนดรหัสผ่าน');
-    }
-
-    // ตรวจสอบความปลอดภัยรหัสผ่าน (8 ตัว+, ตัวใหญ่, ตัวเล็ก, เลข, สัญลักษณ์)
-    if (formData.password) {
-      if (formData.password !== formData.confirm_password) {
-        return toast.error('รหัสผ่านไม่ตรงกัน');
-      }
-      
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
-        return toast.error('รหัสผ่านไม่ปลอดภัยพอ: ต้องมีอย่างน้อย 8 ตัว, มีตัวพิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข และสัญลักษณ์ผสมกัน');
-      }
-    }
-
     setFormLoading(true);
     try {
       const data = { ...formData };
-      if (editingUser && !data.password) delete data.password;
       if (editingUser) await api.put(`/users/${editingUser.user_id}`, data);
       else await api.post('/users', data);
       toast.success(editingUser ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ');
@@ -180,12 +157,10 @@ export default function UsersPage() {
             setEditingUser(null); 
             setFormData({ 
               username: '', 
-              password: '', 
-              confirm_password: '', 
               fullname: '', 
               email: '', 
               phone: '', 
-              role: 'Inspector', 
+              role: 'User', 
               status: 'Active' 
             }); 
             setShowModal(true); 
@@ -218,7 +193,7 @@ export default function UsersPage() {
           <div className="flex gap-2">
             <select value={filterRole} onChange={e => setFilterRole(e.target.value)} className="form-select rounded-2xl border-gray-100 bg-gray-50/50 px-4">
               <option value="all">ทุกบทบาท</option>
-              {['Admin', 'Inspector', 'Viewer'].map(r => <option key={r} value={r}>{r}</option>)}
+              {['Admin', 'Inspector', 'Authority', 'User'].map(r => <option key={r} value={r}>{r}</option>)}
             </select>
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-select rounded-2xl border-gray-100 bg-gray-50/50 px-4">
               <option value="all">ทุกสถานะ</option>
@@ -352,29 +327,7 @@ function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, load
               disabled={!!editingUser} className="form-input h-12 rounded-2xl border-2 font-bold disabled:bg-gray-50 disabled:text-gray-400" required autoComplete="off" />
           </div>
 
-          {/* Password - เต็มบรรทัด */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
-              Password {!editingUser && <span className="text-red-500">*</span>}
-            </label>
-            <input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
-              placeholder={editingUser ? '••••••••' : 'Complexity required'} className="form-input h-12 rounded-2xl border-2 font-bold" required={!editingUser} autoComplete="new-password" />
-            {editingUser && (
-              <p className="text-[10px] text-gray-400 ml-1">
-                เว้นว่างหากไม่ต้องการเปลี่ยนรหัสผ่าน
-              </p>
-            )}
-          </div>
 
-          {/* Confirm Password - เต็มบรรทัด */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
-              Confirm Password {!editingUser && <span className="text-red-500">*</span>}
-            </label>
-            <input type="password" value={formData.confirm_password} onChange={e => setFormData({ ...formData, confirm_password: e.target.value })}
-              placeholder={editingUser ? '••••••••' : 'Confirm your password'} className="form-input h-12 rounded-2xl border-2 font-bold" required={!!formData.password || !editingUser} autoComplete="new-password" />
-            <p className="text-[10px] text-gray-500 ml-1">ข้อกำหนด: 8+ ตัวอักษร, ตัวใหญ่, ตัวเล็ก, ตัวเลข และสัญลักษณ์ (แนะนำ 12 ตัว)</p>
-          </div>
 
           {/* Full Name - เต็มบรรทัด */}
           <div className="space-y-1.5">
@@ -406,9 +359,10 @@ function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, load
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Access Role</label>
               <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer">
-                <option value="Inspector">Inspector</option>
-                <option value="Viewer">Viewer</option>
                 <option value="Admin">Admin</option>
+                <option value="Inspector">Inspector</option>
+                <option value="Authority">Authority</option>
+                <option value="User">User</option>
               </select>
             </div>
             <div className="space-y-1.5">

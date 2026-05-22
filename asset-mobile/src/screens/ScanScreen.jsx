@@ -23,6 +23,7 @@ import offlineService from '../services/offlineService';
 import { useNetwork } from '../hooks/useNetwork';
 import { Ionicons } from '@expo/vector-icons';
 import { ASSET_STATUS } from '../utils/constants';
+import OfflineWarning from '../components/common/OfflineWarning';
 
 const { width } = Dimensions.get('window');
 
@@ -361,6 +362,8 @@ export default function ScanScreen({ navigation }) {
         </View>
       </View>
 
+      <OfflineWarning message="โหมดออฟไลน์: ข้อมูลการสแกนจะถูกบันทึกในเครื่องและซิงค์เมื่อออนไลน์" />
+
       <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
         {!scannedAsset ? (
           <View style={styles.mainContent}>
@@ -490,16 +493,18 @@ export default function ScanScreen({ navigation }) {
                 <View style={styles.quickActionContainer}>
                   {scannedAsset.status === ASSET_STATUS.AVAILABLE ? (
                     <TouchableOpacity
-                      style={styles.borrowQuickBtn}
+                      style={[styles.borrowQuickBtn, !isConnected && { opacity: 0.5 }]}
                       onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
+                      disabled={!isConnected}
                     >
                       <Ionicons name="share-outline" size={20} color="#fff" />
                       <Text style={styles.borrowQuickBtnText}>ยืมครุภัณฑ์นี้</Text>
                     </TouchableOpacity>
                   ) : scannedAsset.status === 'ยืม' ? (
                     <TouchableOpacity
-                      style={[styles.borrowQuickBtn, { backgroundColor: '#F59E0B' }]}
+                      style={[styles.borrowQuickBtn, { backgroundColor: '#F59E0B' }, !isConnected && { opacity: 0.5 }]}
                       onPress={() => navigation.navigate('Borrows', { scanAsset: scannedAsset })}
+                      disabled={!isConnected}
                     >
                       <Ionicons name="return-down-back-outline" size={20} color="#fff" />
                       <Text style={styles.borrowQuickBtnText}>คืนครุภัณฑ์นี้</Text>

@@ -16,8 +16,11 @@ import {
 } from 'react-native';
 import api from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
+import { useNetwork } from '../hooks/useNetwork';
+import OfflineWarning from '../components/common/OfflineWarning';
 
 export default function BorrowsScreen({ route, navigation }) {
+  const { isConnected } = useNetwork();
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -373,6 +376,8 @@ export default function BorrowsScreen({ route, navigation }) {
         </ScrollView>
       </View>
 
+      <OfflineWarning message="โหมดออฟไลน์: ไม่สามารถทำรายการยืม-คืนได้ในขณะนี้" />
+
       <FlatList
         data={borrows}
         renderItem={renderBorrowItem}
@@ -483,8 +488,9 @@ export default function BorrowsScreen({ route, navigation }) {
 
                 {selectedBorrow.status === 'ยืม' && (
                   <TouchableOpacity
-                    style={styles.returnBtn}
+                    style={[styles.returnBtn, !isConnected && { opacity: 0.5 }]}
                     onPress={handleReturn}
+                    disabled={!isConnected}
                   >
                     <Ionicons name="return-down-back-outline" size={20} color="#fff" />
                     <Text style={styles.returnBtnText}>บันทึกการคืน</Text>
@@ -550,8 +556,9 @@ export default function BorrowsScreen({ route, navigation }) {
               </View>
 
               <TouchableOpacity
-                style={styles.submitBorrowBtn}
+                style={[styles.submitBorrowBtn, !isConnected && { opacity: 0.5 }]}
                 onPress={handleCreateBorrow}
+                disabled={!isConnected}
               >
                 <Ionicons name="save-outline" size={20} color="#fff" />
                 <Text style={styles.submitBorrowBtnText}>บันทึกข้อมูล</Text>

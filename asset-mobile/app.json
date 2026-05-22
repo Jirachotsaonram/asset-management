@@ -41,7 +41,8 @@
           "cameraPermission": "Allow Asset Management to access your camera to take asset photos."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {

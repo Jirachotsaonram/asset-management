@@ -115,6 +115,106 @@ class AuthController {
         }
     }
 
+    // ==================== Google Login ====================
+    public function googleLogin() {
+        $data = json_decode(file_get_contents("php://input"));
+        
+        if (!empty($data->credential)) {
+            $id_token = $data->credential;
+            // Verify Google Token
+            $url = "https://oauth2.googleapis.com/tokeninfo?id_token=" . $id_token;
+            
+            // ใช้ curl เพื่อเรียก Google API
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            
+            $payload = json_decode($response);
+            
+            if (isset($payload->error) || !isset($payload->email)) {
+                Response::error('Token ของ Google ไม่ถูกต้อง: ' . ($payload->error_description ?? 'Unknown error'), 401);
+                return;
+            }
+            
+            $email = $payload->email;
+            $name = $payload->name ?? 'Google User';
+            
+            $stmt = $this->user->findByEmail($email);
+            $num = $stmt->rowCount();
+            
+            if ($num > 0) {
+                // บัญชีมีอยู่แล้ว
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($row['status'] === 'Inactive') {
+                    Response::error('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ', 403);
+                    return;
+                }
+                
+                // สร้าง Token
+                $token = generateToken([
+                    'user_id' => $row['user_id'],
+                    'username' => $row['username'],
+                    'role' => $row['role']
+                ]);
+
+                Response::success('เข้าสู่ระบบสำเร็จ', [
+                    'token' => $token,
+                    'expires_in' => JWT_EXPIRY,
+                    'user' => [
+                        'user_id' => $row['user_id'],
+                        'username' => $row['username'],
+                        'fullname' => $row['fullname'],
+                        'role' => $row['role'],
+                        'email' => $row['email'],
+                        'phone' => $row['phone']
+                    ]
+                ]);
+            } else {
+                // สร้างบัญชีใหม่ให้สิทธิ์เป็น User และสถานะเป็น Active
+                $this->user->username = explode('@', $email)[0] . '_' . rand(100, 999);
+                $this->user->password = bin2hex(random_bytes(8)); // สุ่มรหัสผ่าน
+                $this->user->fullname = $name;
+                $this->user->role = 'User';
+                $this->user->status = 'Active';
+                $this->user->email = $email;
+                $this->user->phone = '';
+                
+                if ($this->user->create()) {
+                    // ดึงข้อมูลบัญชีที่เพิ่งสร้าง
+                    $stmt = $this->user->findByEmail($email);
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    $token = generateToken([
+                        'user_id' => $row['user_id'],
+                        'username' => $row['username'],
+                        'role' => $row['role']
+                    ]);
+
+                    Response::success('เข้าสู่ระบบสำเร็จ (บัญชีใหม่)', [
+                        'token' => $token,
+                        'expires_in' => JWT_EXPIRY,
+                        'user' => [
+                            'user_id' => $row['user_id'],
+                            'username' => $row['username'],
+                            'fullname' => $row['fullname'],
+                            'role' => $row['role'],
+                            'email' => $row['email'],
+                            'phone' => $row['phone']
+                        ]
+                    ]);
+                } else {
+                    Response::error('ไม่สามารถสร้างบัญชีผู้ใช้ใหม่ได้', 500);
+                }
+            }
+        } else {
+            Response::error('ไม่มีข้อมูล Credential', 400);
+        }
+    }
+
     // ==================== Rate Limiting Helpers ====================
 
     /**

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -31,6 +32,7 @@ const Tab = createBottomTabNavigator();
 
 function MainTabs() {
   const { user } = useAuth();
+  const { isConnected } = useNetwork();
   const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
 
   return (
@@ -92,14 +94,36 @@ function MainTabs() {
         <Tab.Screen
           name="Check"
           component={CheckScreen}
-          options={{ title: 'ตรวจสอบ' }}
+          options={{ 
+            title: 'ตรวจสอบ',
+            tabBarItemStyle: !isConnected ? { opacity: 0.5 } : {},
+          }}
+          listeners={{
+            tabPress: (e) => {
+              if (!isConnected) {
+                e.preventDefault();
+                Alert.alert('ออฟไลน์', 'ไม่สามารถใช้งานเมนูตรวจสอบได้ในขณะออฟไลน์');
+              }
+            },
+          }}
         />
       )}
       {isAdminOrInspector && (
         <Tab.Screen
           name="Borrows"
           component={BorrowsScreen}
-          options={{ title: 'ยืม/คืน' }}
+          options={{ 
+            title: 'ยืม/คืน',
+            tabBarItemStyle: !isConnected ? { opacity: 0.5 } : {},
+          }}
+          listeners={{
+            tabPress: (e) => {
+              if (!isConnected) {
+                e.preventDefault();
+                Alert.alert('ออฟไลน์', 'ไม่สามารถใช้งานเมนูยืม/คืนได้ในขณะออฟไลน์');
+              }
+            },
+          }}
         />
       )}
       <Tab.Screen

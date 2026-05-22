@@ -42,7 +42,7 @@ class UserController {
     public function create() {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!empty($data->username) && !empty($data->password) && !empty($data->fullname)) {
+        if (!empty($data->username) && !empty($data->fullname)) {
             // ตรวจสอบว่า username ซ้ำหรือไม่
             $checkQuery = "SELECT user_id FROM users WHERE username = :username";
             $checkStmt = $this->db->prepare($checkQuery);
@@ -55,7 +55,7 @@ class UserController {
             }
 
             $this->user->username = $data->username;
-            $this->user->password = $data->password;
+            $this->user->password = !empty($data->password) ? $data->password : bin2hex(random_bytes(8));
             $this->user->fullname = $data->fullname;
             $this->user->role = $data->role ?? 'Inspector';
             $this->user->status = $data->status ?? 'Active';
@@ -68,7 +68,7 @@ class UserController {
                 Response::error('ไม่สามารถเพิ่มผู้ใช้ได้', 500);
             }
         } else {
-            Response::error('กรุณากรอกข้อมูลให้ครบถ้วน (username, password, fullname)', 400);
+            Response::error('กรุณากรอกข้อมูลให้ครบถ้วน (username, fullname)', 400);
         }
     }
 

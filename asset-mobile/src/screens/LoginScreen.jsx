@@ -13,18 +13,24 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { DEFAULT_SERVER_IP, buildApiUrl } from '../utils/constants';
 import { SERVER_IP_KEY } from '../services/api';
 
+WebBrowser.maybeCompleteAuthSession();
+
 export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { login } = useAuth();
+  const { googleLogin } = useAuth();
+  
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: '120709720620-5a7p2caf9pihnqimn9oj963odmag9o3k.apps.googleusercontent.com', 
+  });
 
   // Server Settings Modal
   const [showSettings, setShowSettings] = useState(false);
@@ -98,22 +104,27 @@ export default function LoginScreen({ navigation }) {
     );
   };
 
-  const handleSubmit = async () => {
-    if (!username.trim() || !password.trim()) {
-      Alert.alert('ผิดพลาด', 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
-      return;
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      handleGoogleLogin(id_token);
+    } else if (response?.type === 'error') {
+      setError('การเข้าสู่ระบบด้วย Google ล้มเหลว');
     }
+  }, [response]);
+
+  const handleGoogleLogin = async (idToken) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await login({ username, password });
+      const result = await googleLogin(idToken);
       if (result.success) {
-        console.log('Login successful');
+        console.log('Google Login successful');
       } else {
-        setError(result.message || 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน');
+        setError(result.message || 'การยืนยันตัวตนล้มเหลว');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Google Login error:', error);
       let errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้';
       if (error.response) {
         errorMessage = error.response.data?.message || `เกิดข้อผิดพลาด (${error.response.status})`;
@@ -149,47 +160,18 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.subtitle}>ภาควิชาเทคโนโลยีสารสนเทศ</Text>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>ชื่อผู้ใช้</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="กรอกชื่อผู้ใช้"
-              placeholderTextColor="#9CA3AF"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>รหัสผ่าน</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="กรอกรหัสผ่าน"
-              placeholderTextColor="#9CA3AF"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
-
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
-
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSubmit}
-            disabled={loading}
+            style={[styles.googleButton, (!request || loading) && styles.buttonDisabled]}
+            onPress={() => promptAsync()}
+            disabled={!request || loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>เข้าสู่ระบบ</Text>
+              <>
+                <Ionicons name="logo-google" size={24} color="#fff" style={styles.googleIcon} />
+                <Text style={styles.buttonText}>Sign in with Google</Text>
+              </>
             )}
           </TouchableOpacity>
         </View>
@@ -316,30 +298,17 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#111827',
-    backgroundColor: '#fff',
-  },
-  button: {
-    backgroundColor: '#2563EB',
+  googleButton: {
+    backgroundColor: '#DB4437',
     borderRadius: 8,
     padding: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8,
+  },
+  googleIcon: {
+    marginRight: 12,
   },
   buttonDisabled: {
     opacity: 0.6,
