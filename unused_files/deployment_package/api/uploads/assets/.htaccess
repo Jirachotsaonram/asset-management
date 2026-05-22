@@ -1,0 +1,11 @@
+# อนุญาตให้เข้าถึงไฟล์รูปภาพ
+<FilesMatch "\.(jpg|jpeg|png|gif)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# ป้องกันการเข้าถึง PHP files
+<FilesMatch "\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>

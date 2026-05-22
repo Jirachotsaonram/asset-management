@@ -567,3 +567,15 @@ Stack trace:
 [20-May-2026 18:45:03 Europe/Berlin] ImageUpload: Received file: images__1_-removebg-preview.png size: 74776 type: image/png
 [20-May-2026 18:45:03 Europe/Berlin] ImageUpload: Attempting to resize image
 [20-May-2026 18:45:03 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0de50f188739.85378862.png
+[21-May-2026 09:45:19 Europe/Berlin] Import: Starting import of 105 rows
+[21-May-2026 10:22:13 Europe/Berlin] ImageUpload: Received file: images.jpg size: 3080 type: image/jpeg
+[21-May-2026 10:22:13 Europe/Berlin] ImageUpload: Attempting to resize image
+[21-May-2026 10:22:13 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0ec0b55c95a1.22368194.jpg
+[21-May-2026 10:22:36 Europe/Berlin] ImageUpload: Received file: 394792f6-1bca-4474-b8d6-265f9521af7b.jpeg size: 18136 type: image/jpeg
+[21-May-2026 10:22:36 Europe/Berlin] ImageUpload: Attempting to resize image
+[21-May-2026 10:22:36 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0ec0cc844b00.31960475.jpg
+[21-May-2026 15:59:45 Europe/Berlin] Import: Starting import of 449 rows
+[21-May-2026 16:02:31 Europe/Berlin] Import: Starting import of 515 rows
+[21-May-2026 16:26:53 Europe/Berlin] ImageUpload: Received file: 7d2d65b5-a6e7-4e2a-8d8c-a48bea88581a.jpeg size: 18136 type: image/jpeg
+[21-May-2026 16:26:53 Europe/Berlin] ImageUpload: Attempting to resize image
+[21-May-2026 16:26:54 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0f162dee9d05.30268061.jpg
