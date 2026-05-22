@@ -159,23 +159,26 @@ export default function ProfilePage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">ข้อมูลส่วนตัว</h1>
-        <p className="text-gray-600 mt-1">แก้ไขข้อมูลโปรไฟล์และเปลี่ยนรหัสผ่าน</p>
+        <p className="text-gray-600 mt-1">แก้ไขข้อมูลโปรไฟล์ของคุณ</p>
       </div>
 
       {/* User Info Card - Full Width */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
-            <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl flex items-center justify-center shadow-xl shadow-primary-500/30">
-              <span className="text-3xl font-bold text-white">{user.fullname?.charAt(0)?.toUpperCase() || 'U'}</span>
-            </div>
+            {user?.picture || user?.avatar_url ? (
+              <img src={user?.picture || user?.avatar_url} alt={user.fullname} className="w-24 h-24 rounded-3xl object-cover shadow-xl shadow-primary-500/20 border-4 border-white" />
+            ) : (
+              <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl flex items-center justify-center shadow-xl shadow-primary-500/30">
+                <span className="text-3xl font-bold text-white">{user.fullname?.charAt(0)?.toUpperCase() || 'U'}</span>
+              </div>
+            )}
             <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-success-500 rounded-xl flex items-center justify-center shadow-lg border-2 border-white">
               <CheckCircle size={14} className="text-white" />
             </div>
           </div>
           <div className="text-center sm:text-left flex-1">
             <h2 className="text-xl font-bold text-gray-900">{user.fullname}</h2>
-            <p className="text-sm text-gray-500 mt-0.5">@{user.username}</p>
             <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-1.5 rounded-xl shadow-lg shadow-primary-500/30">
               <Shield size={14} />
               <span className="font-semibold text-sm">{user.role}</span>
@@ -183,10 +186,6 @@ export default function ProfilePage() {
           </div>
           {/* Contact Info - แสดงเต็มบรรทัด */}
           <div className="w-full sm:w-auto sm:min-w-[280px] space-y-2 bg-gray-50 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <User size={16} className="text-gray-400 flex-shrink-0" />
-              <span className="text-sm text-gray-700 font-medium truncate">{user.username}</span>
-            </div>
             <div className="flex items-center gap-3">
               <Mail size={16} className="text-gray-400 flex-shrink-0" />
               <span className="text-sm text-gray-600 truncate">{user.email || 'ไม่ระบุอีเมล'}</span>
@@ -207,18 +206,6 @@ export default function ProfilePage() {
         </h3>
 
         <div className="space-y-4">
-          {/* Username - เต็มบรรทัด */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              ชื่อผู้ใช้ (ไม่สามารถแก้ไขได้)
-            </label>
-            <input
-              type="text"
-              value={user.username}
-              disabled
-              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
-            />
-          </div>
 
           {/* ชื่อ-นามสกุล - เต็มบรรทัด */}
           <div>
@@ -234,17 +221,16 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* อีเมล - เต็มบรรทัด */}
+          {/* อีเมล - เต็มบรรทัด (ล็อกการแก้ไข) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              อีเมล
+              อีเมล (ผูกกับ Google Account ไม่สามารถแก้ไขได้)
             </label>
             <input
               type="email"
               value={profileData.email}
-              onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-              placeholder="example@email.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              disabled
+              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
 
@@ -273,72 +259,6 @@ export default function ProfilePage() {
           >
             <Save size={20} />
             {loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
-          </button>
-        </div>
-      </div>
-
-      {/* Change Password - Full Width, ไม่มี toggle แสดงรหัสผ่าน (PDPA) */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <Lock size={24} className="text-purple-600" />
-          เปลี่ยนรหัสผ่าน
-        </h3>
-        <p className="text-xs text-gray-500 mb-6 flex items-center gap-1.5">
-          <Info size={14} className="text-gray-400" />
-          หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ (Admin) เพื่อรีเซ็ตรหัสผ่าน
-        </p>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              รหัสผ่านปัจจุบัน <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              value={passwordData.current_password}
-              onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-              placeholder="••••••••"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              รหัสผ่านใหม่ <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              value={passwordData.password}
-              onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-              placeholder="••••••••"
-              autoComplete="new-password"
-            />
-            <p className="text-xs text-gray-500 mt-1">ข้อกำหนด: 8+ ตัวอักษร, ตัวใหญ่, ตัวเล็ก, ตัวเลข และสัญลักษณ์ (แนะนำ 12 ตัว)</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              ยืนยันรหัสผ่านใหม่ <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              value={passwordData.confirm_password}
-              onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-              placeholder="••••••••"
-              autoComplete="new-password"
-            />
-          </div>
-
-          <button
-            onClick={handlePasswordChange}
-            disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <Lock size={20} />
-            {loading ? 'กำลังเปลี่ยน...' : 'เปลี่ยนรหัสผ่าน'}
           </button>
         </div>
       </div>

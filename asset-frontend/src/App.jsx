@@ -34,6 +34,19 @@ function PrivateRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
+function RootRedirect() {
+  const { user } = useAuth();
+  return <Navigate to={user?.role === 'User' ? "/assets" : "/dashboard"} />;
+}
+
+function RestrictUserRoute({ children }) {
+  const { user } = useAuth();
+  if (user?.role === 'User') {
+    return <Navigate to="/assets" />;
+  }
+  return children;
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -48,20 +61,20 @@ function App() {
                 <Layout />
               </PrivateRoute>
             }>
-              <Route index element={<Navigate to="/dashboard" />} />
-              <Route path="dashboard" element={<DashboardPage />} />
+              <Route index element={<RootRedirect />} />
+              <Route path="dashboard" element={<RestrictUserRoute><DashboardPage /></RestrictUserRoute>} />
               <Route path="assets" element={<AssetsPage />} />
               <Route path="scan" element={<ScanPage />} />
-              <Route path="check" element={<CheckPage />} />
-              <Route path="reports" element={<ReportsPage />} />
-              <Route path="locations" element={<LocationsPage />} />
-              <Route path="borrows" element={<BorrowsPage />} />
-              <Route path="users" element={<UsersPage />} />
-              <Route path="asset-history" element={<AssetHistoryPage />} />
-              <Route path="import" element={<ImportPage />} />
+              <Route path="check" element={<RestrictUserRoute><CheckPage /></RestrictUserRoute>} />
+              <Route path="reports" element={<RestrictUserRoute><ReportsPage /></RestrictUserRoute>} />
+              <Route path="locations" element={<RestrictUserRoute><LocationsPage /></RestrictUserRoute>} />
+              <Route path="borrows" element={<RestrictUserRoute><BorrowsPage /></RestrictUserRoute>} />
+              <Route path="users" element={<RestrictUserRoute><UsersPage /></RestrictUserRoute>} />
+              <Route path="asset-history" element={<RestrictUserRoute><AssetHistoryPage /></RestrictUserRoute>} />
+              <Route path="import" element={<RestrictUserRoute><ImportPage /></RestrictUserRoute>} />
               <Route path="profile" element={<ProfilePage />} />
-              <Route path="audit-trail" element={<AuditTrailPage />} />
-              <Route path="annual-check" element={<AnnualCheckPage />} />
+              <Route path="audit-trail" element={<RestrictUserRoute><AuditTrailPage /></RestrictUserRoute>} />
+              <Route path="annual-check" element={<RestrictUserRoute><AnnualCheckPage /></RestrictUserRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

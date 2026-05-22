@@ -22,11 +22,16 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
   const location = useLocation();
   const { user } = useAuth();
 
-  // เมนูพื้นฐานที่ทุกคนเข้าถึงได้
-  const baseMenuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
+  // เมนูสำหรับผู้ใช้ทั่วไป (เห็นแค่ 2 เมนู)
+  const userMenuItems = [
     { path: '/assets', label: 'ครุภัณฑ์', icon: Package, section: 'main' },
     { path: '/scan', label: 'สแกน QR Code', icon: QrCode, section: 'main' },
+  ];
+
+  // เมนูพื้นฐาน (Admin/Inspector จะเห็น)
+  const baseMenuItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
+    ...userMenuItems,
     { path: '/reports', label: 'รายงาน', icon: FileText, section: 'main' },
     { path: '/audit-trail', label: 'ประวัติการใช้งาน', icon: History, section: 'main' },
   ];
@@ -47,7 +52,13 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
   ];
 
   // รวมเมนูตาม role
-  let menuItems = [...baseMenuItems];
+  let menuItems = [];
+
+  if (user?.role === 'User') {
+    menuItems = [...userMenuItems];
+  } else {
+    menuItems = [...baseMenuItems];
+  }
 
   if (user?.role === 'Admin' || user?.role === 'Inspector') {
     menuItems = [...menuItems, ...inspectorMenuItems];

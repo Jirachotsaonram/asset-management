@@ -7,6 +7,7 @@ import {
   Alert,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,9 +45,16 @@ export default function ProfileScreen({ navigation }) {
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={48} color="#2563EB" />
+          {user?.picture ? (
+            <Image 
+              source={{ uri: user.picture }} 
+              style={{ width: 100, height: 100, borderRadius: 50 }} 
+            />
+          ) : (
+            <Ionicons name="person" size={48} color="#2563EB" />
+          )}
         </View>
-        <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
+        <Text style={styles.userName}>{user?.full_name || user?.fullname || user?.username}</Text>
         <Text style={styles.userRole}>{user?.role || 'ผู้ใช้'}</Text>
       </View>
 

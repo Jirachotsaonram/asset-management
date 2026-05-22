@@ -134,7 +134,7 @@ function authenticate() {
         $database = new Database();
         $conn = $database->getConnection();
         
-        $query = "SELECT user_id, username, fullname, role, status FROM Users WHERE user_id = :user_id";
+        $query = "SELECT user_id, fullname, role, status FROM Users WHERE user_id = :user_id";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':user_id', $user_data['user_id']);
         $stmt->execute();
@@ -152,7 +152,6 @@ function authenticate() {
         // เพิ่มข้อมูลผู้ใช้ล่าสุดจาก DB
         $user_data['role'] = $user['role'];
         $user_data['fullname'] = $user['fullname'];
-        $user_data['username'] = $user['username'];
         
         return $user_data;
     } catch (Exception $e) {

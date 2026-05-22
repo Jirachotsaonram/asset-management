@@ -3216,3 +3216,31 @@ Stack trace:
 [22-May-2026 17:30:14 Europe/Berlin] OCR: Found Tesseract at "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe"
 [22-May-2026 17:30:14 Europe/Berlin] OCR: Running command: "D:\xampp_assets\htdocs\asset-management\Tesseract-OCR\tesseract.exe" "uploads/ocr_temp/ocr_1779463814_5255.jpg" stdout -l tha+eng --oem 1 --psm 6 2>&1
 [22-May-2026 17:30:18 Europe/Berlin] OCR: Return code: 0
+[22-May-2026 18:03:18 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'username' in 'field list' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:169
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php(169): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(145): User->findByEmail('s6706021411288@...')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(46): AuthController->googleLogin()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 169
+[22-May-2026 18:05:59 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'username' in 'field list' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:169
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php(169): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(145): User->findByEmail('s6706021411288@...')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(46): AuthController->googleLogin()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 169
+[22-May-2026 18:07:13 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'username' in 'field list' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:169
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php(169): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(145): User->findByEmail('s6706021411288@...')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(46): AuthController->googleLogin()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 169
+[22-May-2026 18:20:44 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'username' in 'field list' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php:142
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php(142): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AuthController.php(52): User->findByGoogleSubId('100112813975281...')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(46): AuthController->googleLogin()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 142

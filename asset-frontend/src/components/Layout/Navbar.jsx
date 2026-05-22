@@ -22,6 +22,8 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
 
   // Fetch notifications directly from API
   const fetchNotifications = useCallback(async () => {
+    if (user?.role === 'User') return; // User ธรรมดาไม่ใช้ระบบแจ้งเตือน
+    
     setLoading(true);
     try {
       const allNotifications = [];
@@ -293,8 +295,9 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
 
           {/* Right side - Actions & User menu */}
           <div className="flex items-center gap-2">
-            {/* Notifications Dropdown */}
-            <div className="relative" ref={notifRef}>
+            {/* Notifications Dropdown (ซ่อนสำหรับ User ธรรมดา) */}
+            {user?.role !== 'User' && (
+              <div className="relative" ref={notifRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={`p-2.5 rounded-xl transition-colors relative ${showNotifications ? 'bg-gray-100' : 'hover:bg-gray-100'
@@ -410,12 +413,17 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
                 </div>
               )}
             </div>
+            )}
 
             {/* User info - Desktop only */}
             <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50/80 border border-gray-100">
-              <div className="bg-primary-100 p-1.5 rounded-lg">
-                <User className="w-4 h-4 text-primary-600" />
-              </div>
+              {user?.picture || user?.avatar_url ? (
+                <img src={user?.picture || user?.avatar_url} alt="Profile" className="w-8 h-8 rounded-lg object-cover border border-gray-200" />
+              ) : (
+                <div className="bg-primary-100 p-1.5 rounded-lg w-8 h-8 flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary-600" />
+                </div>
+              )}
               <div className="text-left">
                 <p className="text-sm font-medium text-gray-800">{user?.fullname}</p>
                 <span className={`text-xs px-2 py-0.5 rounded-full border ${getRoleBadgeColor(user?.role)}`}>
@@ -430,9 +438,13 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition-colors"
               >
-                <div className="bg-primary-600 p-1.5 rounded-lg">
-                  <User className="w-4 h-4 text-white" />
-                </div>
+                {user?.picture || user?.avatar_url ? (
+                  <img src={user?.picture || user?.avatar_url} alt="Profile" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
+                ) : (
+                  <div className="bg-primary-600 p-1.5 rounded-lg w-8 h-8 flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                )}
                 <ChevronDown
                   className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`}
                 />
@@ -443,7 +455,7 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
                   {/* User info header */}
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-800">{user?.fullname}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{user?.email || user?.username}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{user?.email}</p>
                     <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full border ${getRoleBadgeColor(user?.role)}`}>
                       {user?.role}
                     </span>

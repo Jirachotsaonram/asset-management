@@ -42,24 +42,22 @@ class UserController {
     public function create() {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!empty($data->username) && !empty($data->fullname)) {
-            // ตรวจสอบว่า username ซ้ำหรือไม่
-            $checkQuery = "SELECT user_id FROM users WHERE username = :username";
+        if (!empty($data->fullname) && !empty($data->email)) {
+            // ตรวจสอบว่าอีเมลซ้ำหรือไม่
+            $checkQuery = "SELECT user_id FROM users WHERE email = :email";
             $checkStmt = $this->db->prepare($checkQuery);
-            $checkStmt->bindParam(":username", $data->username);
+            $checkStmt->bindParam(":email", $data->email);
             $checkStmt->execute();
             
             if ($checkStmt->rowCount() > 0) {
-                Response::error('ชื่อผู้ใช้นี้มีอยู่แล้ว', 400);
+                Response::error('อีเมลนี้มีอยู่ในระบบแล้ว', 400);
                 return;
             }
 
-            $this->user->username = $data->username;
-            $this->user->password = !empty($data->password) ? $data->password : bin2hex(random_bytes(8));
             $this->user->fullname = $data->fullname;
-            $this->user->role = $data->role ?? 'Inspector';
+            $this->user->role = $data->role ?? 'User';
             $this->user->status = $data->status ?? 'Active';
-            $this->user->email = $data->email ?? '';
+            $this->user->email = $data->email;
             $this->user->phone = $data->phone ?? '';
 
             if ($this->user->create()) {
@@ -68,7 +66,7 @@ class UserController {
                 Response::error('ไม่สามารถเพิ่มผู้ใช้ได้', 500);
             }
         } else {
-            Response::error('กรุณากรอกข้อมูลให้ครบถ้วน (username, fullname)', 400);
+            Response::error('กรุณากรอกข้อมูลให้ครบถ้วน (ชื่อ, อีเมล)', 400);
         }
     }
 
@@ -94,47 +92,32 @@ class UserController {
 
         // 2. Merge ข้อมูล (เก็บค่าเดิมถ้าไม่ส่งมา)
         $this->user->fullname = $data->fullname;
-        $this->user->email = isset($data->email) ? $data->email : $currentData['email'];
+        // ✅ ไม่อนุญาตให้แก้ไขอีเมลผ่าน Profile (ผูกกับ Google ถาวร)
+        $this->user->email = $currentData['email'];
         $this->user->phone = isset($data->phone) ? $data->phone : $currentData['phone'];
         
         // ✅ ป้องกัน Role และ Status ถูกแก้ไขจากหน้า Profile
         $this->user->role = $currentData['role'];
         $this->user->status = $currentData['status'];
         
-        // 3. ตรวจสอบว่าต้องการเปลี่ยนรหัสผ่านด้วยหรือไม่
-        if (!empty($data->password)) {
-            // ต้องส่ง current_password มาด้วยเพื่อยืนยัน
-            if (empty($data->current_password)) {
-                Response::error('กรุณากรอกรหัสผ่านปัจจุบัน', 400);
-                return;
-            }
-            
-            // ตรวจสอบรหัสผ่านเดิม
-            if (!password_verify($data->current_password, $currentData['password'])) {
-                Response::error('รหัสผ่านปัจจุบันไม่ถูกต้อง', 400);
-                return;
-            }
-            
-            // อัปเดตพร้อมรหัสผ่าน
-            $this->user->password = $data->password;
-            
-            if ($this->user->updateWithPassword()) {
-                Response::success('อัปเดตโปรไฟล์และรหัสผ่านสำเร็จ');
-            } else {
-                Response::error('ไม่สามารถอัปเดตได้', 500);
-            }
+        // 3. อัปเดตข้อมูลโปรไฟล์
+        if ($this->user->update()) {
+            Response::success('อัปเดตโปรไฟล์สำเร็จ');
         } else {
-            // อัปเดตเฉพาะข้อมูลโปรไฟล์
-            if ($this->user->update()) {
-                Response::success('อัปเดตโปรไฟล์สำเร็จ');
-            } else {
-                Response::error('ไม่สามารถอัปเดตได้', 500);
-            }
+            Response::error('ไม่สามารถอัปเดตได้', 500);
         }
     }
 
-    public function update($id) {
+    public function update($id, $user_data = null) {
         $data = json_decode(file_get_contents("php://input"));
+
+        // ✅ ป้องกันการแบนตัวเองหรือลดสิทธิ์ตัวเอง
+        if ($user_data && $user_data['user_id'] == $id) {
+            if ((isset($data->status) && $data->status === 'Inactive') || (isset($data->role) && $data->role !== 'Admin')) {
+                Response::error('ไม่สามารถเปลี่ยนแปลงบทบาทหรือระงับบัญชีของตนเองได้', 400);
+                return;
+            }
+        }
 
         $this->user->user_id = $id;
         $this->user->fullname = $data->fullname;
@@ -143,25 +126,21 @@ class UserController {
         $this->user->email = $data->email ?? '';
         $this->user->phone = $data->phone ?? '';
         
-        // ถ้ามีการส่ง password มาด้วย
-        if (!empty($data->password)) {
-            $this->user->password = $data->password;
-            if ($this->user->updateWithPassword()) {
-                Response::success('อัปเดตผู้ใช้สำเร็จ');
-            } else {
-                Response::error('ไม่สามารถอัปเดตผู้ใช้ได้', 500);
-            }
+        if ($this->user->update()) {
+            Response::success('อัปเดตผู้ใช้สำเร็จ');
         } else {
-            if ($this->user->update()) {
-                Response::success('อัปเดตผู้ใช้สำเร็จ');
-            } else {
-                Response::error('ไม่สามารถอัปเดตผู้ใช้ได้', 500);
-            }
+            Response::error('ไม่สามารถอัปเดตผู้ใช้ได้', 500);
         }
     }
 
-    public function updateStatus($id) {
+    public function updateStatus($id, $user_data = null) {
         $data = json_decode(file_get_contents("php://input"));
+
+        // ✅ ป้องกันการแบนตัวเอง
+        if ($user_data && $user_data['user_id'] == $id && isset($data->status) && $data->status === 'Inactive') {
+            Response::error('ไม่สามารถระงับการใช้งานบัญชีของตนเองได้', 400);
+            return;
+        }
 
         $this->user->user_id = $id;
         $this->user->status = $data->status;

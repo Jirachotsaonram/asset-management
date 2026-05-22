@@ -53,7 +53,7 @@ export default function UsersPage() {
 
   const filteredUsers = useMemo(() => {
     let result = users.filter(u => {
-      const matchesSearch = !searchTerm || [u.username, u.fullname, u.email, u.phone].some(f => f?.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch = !searchTerm || [u.fullname, u.email, u.phone].some(f => f?.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesRole = filterRole === 'all' || u.role === filterRole;
       const matchesStatus = filterStatus === 'all' || u.status === filterStatus;
       return matchesSearch && matchesRole && matchesStatus;
@@ -218,12 +218,16 @@ export default function UsersPage() {
                 <tr key={u.user_id} className="hover:bg-gray-50/50 transition">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-black text-gray-500 shadow-sm border border-white">
-                        {u.fullname.charAt(0)}
-                      </div>
+                      {u.avatar_url ? (
+                        <img src={u.avatar_url} alt={u.fullname} className="w-10 h-10 rounded-xl object-cover shadow-sm border border-gray-200" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-black text-gray-500 shadow-sm border border-white">
+                          {u.fullname.charAt(0)}
+                        </div>
+                      )}
                       <div>
                         <p className="font-black text-gray-900">{u.fullname}</p>
-                        <p className="text-xs text-gray-400 font-bold">@{u.username}</p>
+                        <p className="text-xs text-gray-400 font-bold">{u.email ? u.email : 'Google Account'}</p>
                       </div>
                     </div>
                   </td>
@@ -272,6 +276,7 @@ export default function UsersPage() {
         <UserModal
           formData={formData} setFormData={setFormData} editingUser={editingUser}
           onClose={() => setShowModal(false)} onSubmit={handleSubmit} loading={formLoading}
+          currentUser={user}
         />
       )}
     </div>
@@ -298,7 +303,8 @@ function UserStat({ label, value, icon: Icon, color }) {
   );
 }
 
-function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, loading }) {
+function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, loading, currentUser }) {
+  const isCurrentUser = editingUser && currentUser && editingUser.user_id === currentUser.user_id;
   // Handler สำหรับกรอกเบอร์โทรศัพท์ - รับเฉพาะตัวเลข
   const handlePhoneChange = (e) => {
     const value = e.target.value;
@@ -318,14 +324,7 @@ function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, load
           <button onClick={onClose} className="p-3 hover:bg-gray-200 rounded-full transition text-gray-400"><X size={24} /></button>
         </div>
         <form onSubmit={onSubmit} className="p-8 space-y-5 overflow-y-auto custom-scrollbar" autoComplete="off">
-          {/* Username - เต็มบรรทัด */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">
-              Username <span className="text-red-500">*</span>
-            </label>
-            <input type="text" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })}
-              disabled={!!editingUser} className="form-input h-12 rounded-2xl border-2 font-bold disabled:bg-gray-50 disabled:text-gray-400" required autoComplete="off" />
-          </div>
+          {/* Removed Username Field */}
 
 
 
@@ -358,7 +357,7 @@ function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, load
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">Access Role</label>
-              <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer">
+              <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} disabled={isCurrentUser} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
                 <option value="Admin">Admin</option>
                 <option value="Inspector">Inspector</option>
                 <option value="Authority">Authority</option>
@@ -367,11 +366,16 @@ function UserModal({ formData, setFormData, editingUser, onClose, onSubmit, load
             </div>
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider ml-1">สถานะผู้ใช้งาน</label>
-              <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer">
+              <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} disabled={isCurrentUser} className="form-select h-12 rounded-2xl border-2 font-bold cursor-pointer disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
                 <option value="Active">ใช้งาน</option>
                 <option value="Inactive">ระงับการใช้งาน</option>
               </select>
             </div>
+            {isCurrentUser && (
+              <div className="col-span-2 text-xs text-danger-500 font-bold bg-danger-50 p-2 rounded-xl text-center">
+                ไม่สามารถแก้ไขบทบาทหรือระงับการใช้งานบัญชีของตนเองได้
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 pt-4">

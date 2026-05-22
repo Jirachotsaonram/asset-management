@@ -228,19 +228,21 @@ export default function DashboardScreen({ navigation }) {
             <Text style={styles.welcomeText}>ยินดีต้อนรับ,</Text>
             <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.notificationBell}
-            onPress={() => setShowNotifications(true)}
-          >
-            <Ionicons name="notifications-outline" size={28} color="#1F2937" />
-            {totalNotifs > 0 && (
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationBadgeText}>
-                  {totalNotifs > 99 ? '99+' : totalNotifs}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          {user?.role !== 'User' && (
+            <TouchableOpacity
+              style={styles.notificationBell}
+              onPress={() => setShowNotifications(true)}
+            >
+              <Ionicons name="notifications-outline" size={28} color="#1F2937" />
+              {totalNotifs > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {totalNotifs > 99 ? '99+' : totalNotifs}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.statsContainer}>
@@ -318,29 +320,33 @@ export default function DashboardScreen({ navigation }) {
               <Text style={styles.actionText}>รายการครุภัณฑ์</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Check')}
-            >
-              <Ionicons name="checkmark-done-outline" size={32} color="#2563EB" />
-              <Text style={styles.actionText}>ตรวจสอบ</Text>
-            </TouchableOpacity>
+            {user?.role !== 'User' && (
+              <>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => navigation.navigate('Check')}
+                >
+                  <Ionicons name="checkmark-done-outline" size={32} color="#2563EB" />
+                  <Text style={styles.actionText}>ตรวจสอบ</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Borrows')}
-            >
-              <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
-              <Text style={styles.actionText}>ยืม/คืน</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => navigation.navigate('Borrows')}
+                >
+                  <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
+                  <Text style={styles.actionText}>ยืม/คืน</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Check', { tab: 'room' })}
-            >
-              <Ionicons name="business-outline" size={32} color="#2563EB" />
-              <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => navigation.navigate('Check', { tab: 'room' })}
+                >
+                  <Ionicons name="business-outline" size={32} color="#2563EB" />
+                  <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </View>
 

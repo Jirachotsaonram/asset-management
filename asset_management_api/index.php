@@ -281,13 +281,13 @@ switch ($endpoint) {
             
         } elseif ($request_method === 'PUT' && $id && $action === 'status') {
             // PUT /users/{id}/status - อัปเดตสถานะ (เฉพาะ Admin)
-            requireAdmin();
-            $controller->updateStatus($id);
+            $user_data = requireAdmin();
+            $controller->updateStatus($id, $user_data);
             
         } elseif ($request_method === 'PUT' && $id && !$action) {
             // PUT /users/{id} - อัปเดตข้อมูลผู้ใช้ (เฉพาะ Admin)
-            requireAdmin();
-            $controller->update($id);
+            $user_data = requireAdmin();
+            $controller->update($id, $user_data);
             
         } elseif ($request_method === 'DELETE' && $id) {
             // DELETE /users/{id} - ลบผู้ใช้ (เฉพาะ Admin)
