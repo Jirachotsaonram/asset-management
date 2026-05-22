@@ -29,9 +29,7 @@ export default function AssetHistoryPage() {
   const [formData, setFormData] = useState({
     asset_id: "",
     old_location_id: null,
-    old_room_text: "",
     new_location_id: "",
-    room_text: "", // new room text
     move_date: new Date().toISOString().split("T")[0],
     remark: "",
   });
@@ -117,7 +115,7 @@ export default function AssetHistoryPage() {
 
   const handleAssetChange = (assetId) => {
     if (!assetId) {
-      setFormData({ ...formData, asset_id: "", old_location_id: null, old_room_text: "", room_text: "" });
+      setFormData({ ...formData, asset_id: "", old_location_id: null });
       return;
     }
     const selectedAsset = assets.find(a => String(a.asset_id) === String(assetId));
@@ -125,8 +123,6 @@ export default function AssetHistoryPage() {
       ...formData,
       asset_id: assetId,
       old_location_id: selectedAsset?.location_id || null,
-      old_room_text: selectedAsset?.room_text || "",
-      room_text: selectedAsset?.room_text || "" // Default new room to old room
     });
   };
 
@@ -145,9 +141,7 @@ export default function AssetHistoryPage() {
       setFormData({
         asset_id: "",
         old_location_id: null,
-        old_room_text: "",
         new_location_id: "",
-        room_text: "",
         move_date: new Date().toISOString().split("T")[0],
         remark: "",
       });
@@ -411,9 +405,8 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
                 {currentLocation ? (
                   <>
                     {currentLocation.building_name} ชั้น {currentLocation.floor} ห้อง {currentLocation.room_number}
-                    {formData.old_room_text && <span className="block text-primary-600 mt-1 font-bold">({formData.old_room_text})</span>}
                   </>
-                ) : (formData.old_room_text || '-')}
+                ) : '-'}
               </div>
             </div>
             <div className="space-y-1.5">
@@ -437,15 +430,9 @@ function MoveModal({ formData, setFormData, assets, locations, onAssetChange, on
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">วันที่ย้าย <span className="text-danger-500">*</span></label>
-              <input type="date" value={formData.move_date} onChange={e => setFormData({ ...formData, move_date: e.target.value })} className="form-input h-11 rounded-2xl border-2" required />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">ห้อง/สถานที่ใหม่ (ระบุเอง)</label>
-              <input type="text" value={formData.room_text} onChange={e => setFormData({ ...formData, room_text: e.target.value })} placeholder="เช่น ห้อง 405 (เดิม), ตึกวิศวกรรม..." className="form-input h-11 rounded-2xl border-2" />
-            </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">วันที่ย้าย <span className="text-danger-500">*</span></label>
+            <input type="date" value={formData.move_date} onChange={e => setFormData({ ...formData, move_date: e.target.value })} className="form-input h-11 rounded-2xl border-2" required />
           </div>
 
           <div className="space-y-1.5">

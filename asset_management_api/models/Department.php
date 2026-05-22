@@ -4,8 +4,9 @@ class Department {
     private $table_name = "departments";
 
     public $department_id;
-    public $department_name;
     public $faculty;
+    public $division_name;
+    public $created_at;
 
     public function __construct($db) {
         $this->conn = $db;
@@ -13,11 +14,11 @@ class Department {
 
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  SET department_name=:department_name, faculty=:faculty";
+                  SET faculty=:faculty, division_name=:division_name";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":department_name", $this->department_name);
         $stmt->bindParam(":faculty", $this->faculty);
+        $stmt->bindParam(":division_name", $this->division_name);
 
         if($stmt->execute()) {
             return $this->conn->lastInsertId();
@@ -26,7 +27,7 @@ class Department {
     }
 
     public function readAll() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY department_name";
+        $query = "SELECT * FROM " . $this->table_name . " ORDER BY faculty";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
@@ -44,12 +45,16 @@ class Department {
 
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
-                  SET department_name=:department_name, faculty=:faculty
+                  SET faculty=:faculty, division_name=:division_name
                   WHERE department_id = :department_id";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":department_name", $this->department_name);
+
+        $this->faculty = htmlspecialchars(strip_tags($this->faculty));
+        $this->division_name = htmlspecialchars(strip_tags($this->division_name ?? ''));
+
         $stmt->bindParam(":faculty", $this->faculty);
+        $stmt->bindParam(":division_name", $this->division_name);
         $stmt->bindParam(":department_id", $this->department_id);
 
         return $stmt->execute();

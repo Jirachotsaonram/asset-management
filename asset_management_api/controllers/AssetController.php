@@ -39,6 +39,7 @@ class AssetController {
             if (!empty($_GET['department_id'])) $filters['department_id'] = $_GET['department_id'];
             if (!empty($_GET['building'])) $filters['building'] = $_GET['building'];
             if (!empty($_GET['floor'])) $filters['floor'] = $_GET['floor'];
+            if (!empty($_GET['faculty_name'])) $filters['faculty_name'] = $_GET['faculty_name'];
             if (!empty($_GET['search'])) $filters['search'] = $_GET['search'];
             if (!empty($_GET['unchecked'])) $filters['unchecked'] = $_GET['unchecked'];
             if (!empty($_GET['checked'])) $filters['checked'] = $_GET['checked'];
@@ -113,12 +114,10 @@ class AssetController {
             // ถ้า department_id หรือ location_id เป็น string ว่าง ให้ส่ง null แทน เพื่อไม่ให้ foreign key constraint หัก
             $this->asset->department_id = (!empty($data->department_id) && $data->department_id !== '') ? $data->department_id : null;
             $this->asset->location_id = (!empty($data->location_id) && $data->location_id !== '') ? $data->location_id : null;
-            $this->asset->room_text = $data->room_text ?? '';
             $this->asset->status = $data->status ?? 'ใช้งานได้';
             $this->asset->barcode = $data->barcode ?? uniqid('QR');
             $this->asset->description = $data->description ?? '';
             $this->asset->reference_number = $data->reference_number ?? '';
-            $this->asset->faculty_name = $data->faculty_name ?? '';
             $this->asset->delivery_number = $data->delivery_number ?? '';
             $this->asset->fund_code = $data->fund_code ?? '';
             $this->asset->plan_code = $data->plan_code ?? '';
@@ -186,11 +185,9 @@ class AssetController {
         $this->asset->price = $data->price ?? 0;
         $this->asset->department_id = (!empty($data->department_id) && $data->department_id !== '') ? $data->department_id : null;
         $this->asset->location_id = (!empty($data->location_id) && $data->location_id !== '') ? $data->location_id : null;
-        $this->asset->room_text = $data->room_text ?? '';
         $this->asset->status = $data->status ?? 'ใช้งานได้';
         $this->asset->description = $data->description ?? '';
         $this->asset->reference_number = $data->reference_number ?? '';
-        $this->asset->faculty_name = $data->faculty_name ?? '';
         $this->asset->delivery_number = $data->delivery_number ?? '';
         $this->asset->fund_code = $data->fund_code ?? '';
         $this->asset->plan_code = $data->plan_code ?? '';
@@ -202,8 +199,8 @@ class AssetController {
             $changes = [];
             $fields_to_track = [
                 'asset_name', 'serial_number', 'quantity', 'unit', 
-                'price', 'department_id', 'location_id', 'room_text', 'status',
-                'description', 'reference_number', 'faculty_name', 'delivery_number',
+                'price', 'department_id', 'location_id', 'status',
+                'description', 'reference_number', 'delivery_number',
                 'fund_code', 'plan_code', 'project_code'
             ];
 

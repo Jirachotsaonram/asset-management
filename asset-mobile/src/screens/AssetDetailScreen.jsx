@@ -345,41 +345,41 @@ export default function AssetDetailScreen() {
               <Text style={styles.cardTitle}>ข้อมูลพื้นฐาน</Text>
             </View>
             <View style={styles.grid}>
-              <InfoItem label="Serial Number" value={asset?.serial_number} icon="barcode-outline" />
               <InfoItem label="Barcode" value={asset?.barcode} icon="qr-code-outline" />
-              <InfoItem label="จำนวน" value={`${asset?.quantity || 1} ${asset?.unit || ''}`} icon="apps-outline" />
-              <InfoItem label="ราคา" value={asset?.price ? `${Number(asset.price).toLocaleString('th-TH')} ฿` : '-'} icon="cash-outline" />
-              <InfoItem label="วันที่ได้รับ" value={asset?.received_date} icon="calendar-outline" />
-              <InfoItem label="หน่วยงาน" value={asset?.department_name} icon="business-outline" />
+              <InfoItem label="Serial Number" value={asset?.serial_number} icon="barcode-outline" />
             </View>
           </View>
 
-          {/* Location Card */}
+          {/* Location & Department Card */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="location" size={20} color="#2563EB" />
-              <Text style={styles.cardTitle}>สถานที่และตำแหน่ง</Text>
+              <Ionicons name="location" size={20} color="#8B5CF6" />
+              <Text style={styles.cardTitle}>ที่ตั้งและสังกัด</Text>
             </View>
             <View style={styles.grid}>
+              <InfoItem label="คณะ" value={asset?.faculty_name} icon="school-outline" fullWidth />
+              <InfoItem label="ภาควิชา" value={asset?.division_name} icon="business-outline" fullWidth />
               <InfoItem label="อาคาร" value={asset?.building_name} icon="map-outline" />
-              <InfoItem label="อาคาร (ระบุเอง)" value={asset?.room_text} icon="create-outline" />
               <InfoItem label="ชั้น" value={asset?.floor} icon="layers-outline" />
               <InfoItem label="ห้อง" value={asset?.room_number} icon="enter-outline" />
-              <InfoItem label="คณะ" value={asset?.faculty_name} icon="school-outline" fullWidth />
             </View>
           </View>
 
           {/* Finance & Project Card */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="wallet" size={20} color="#2563EB" />
-              <Text style={styles.cardTitle}>การเงินและโครงการ</Text>
+              <Ionicons name="wallet" size={20} color="#10B981" />
+              <Text style={styles.cardTitle}>การจัดซื้อและงบประมาณ</Text>
             </View>
             <View style={styles.grid}>
-              <InfoItem label="รหัสกองทุน" value={asset?.fund_code} icon="cash-outline" />
-              <InfoItem label="รหัสแผน" value={asset?.plan_code} icon="document-text-outline" />
-              <InfoItem label="รหัสโครงการ" value={asset?.project_code} icon="construct-outline" />
+              <InfoItem label="ราคา" value={asset?.price ? `${Number(asset.price).toLocaleString('th-TH')} ฿` : '-'} icon="cash-outline" />
+              <InfoItem label="จำนวน" value={`${asset?.quantity || 1} ${asset?.unit || ''}`} icon="apps-outline" />
+              <InfoItem label="วันที่ได้รับ" value={asset?.received_date} icon="calendar-outline" />
+              <InfoItem label="อ้างอิงใบตรวจรับ" value={asset?.reference_number} icon="document-text-outline" />
               <InfoItem label="เลขที่ใบส่งของ" value={asset?.delivery_number} icon="clipboard-outline" />
+              <InfoItem label="รหัสกองทุน" value={asset?.fund_code} icon="cash-outline" />
+              <InfoItem label="รหัสแผน" value={asset?.plan_code} icon="pie-chart-outline" />
+              <InfoItem label="รหัสโครงการ" value={asset?.project_code} icon="construct-outline" />
             </View>
           </View>
 

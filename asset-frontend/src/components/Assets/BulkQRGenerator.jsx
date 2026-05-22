@@ -57,7 +57,7 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
 
       if (printStyle === 'detailed') {
         const cardWidth = 90;
-        const cardHeight = 55;   // เพิ่มความสูงรองรับข้อมูลหน่วยงาน
+        const cardHeight = 55;   // เพิ่มความสูงรองรับข้อมูลคณะ
         const cols = 2;
         const rowsPerPage = 5;
         const spacingX = 0;
@@ -133,10 +133,10 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
           const fiscalImg = drawThaiText(fiscalText, 9);
           if (fiscalImg) { pdf.addImage(fiscalImg.dataUrl, 'PNG', x + 5, currentY, fiscalImg.w, fiscalImg.h); currentY += 4.5; }
 
-          const deptText = `หน่วยงาน ${asset.department_name || '-'}`;
+          const deptText = `คณะ ${asset.faculty || '-'}`;
           const deptImg = drawThaiText(deptText, 9);
           if (deptImg) { pdf.addImage(deptImg.dataUrl, 'PNG', x + 5, currentY, deptImg.w, deptImg.h); }
-        }    // เอา "คณะ" หรือ "หน่วยงาน" ออกตามที่ผู้ใช้แจ้ง
+        }    // เอา "คณะ" หรือ "คณะ" ออกตามที่ผู้ใช้แจ้ง
       } else {
         const barcodeWidth = 63; 
         const barcodeHeight = 31; // เพิ่มความสูงเป็น 31mm เพื่อให้มีพื้นที่พอดีกับข้อความ
@@ -249,7 +249,7 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
               </div>
               <div>
                 <h3 className="font-bold text-lg text-gray-900">แบบต้นขั้ว (Detailed)</h3>
-                <p className="text-sm text-gray-500">ข้อมูลครบพร้อมชื่อหน่วยงาน (2 คอลัมน์)</p>
+                <p className="text-sm text-gray-500">ข้อมูลครบพร้อมชื่อคณะ (2 คอลัมน์)</p>
               </div>
             </div>
 

@@ -96,10 +96,10 @@ class ImportController {
                     if ($stmtDept->rowCount() === 0) {
                         $errors[] = "ไม่พบหน่วยงาน ID: {$row->department_id}";
                     }
-                } elseif (!empty($row->department_name_excel) || !empty($row->faculty_name)) {
-                    // Try to find department by name or faculty
-                    $deptName = !empty($row->department_name_excel) ? $row->department_name_excel : $row->faculty_name;
-                    $findDept = "SELECT department_id FROM Departments WHERE department_name = :dept_name OR faculty = :dept_name LIMIT 1";
+                } elseif (!empty($row->department_name_excel) || !empty($row->faculty_name) || !empty($row->division_name)) {
+                    // Try to find department by name, faculty, or division_name
+                    $deptName = !empty($row->department_name_excel) ? $row->department_name_excel : (!empty($row->faculty_name) ? $row->faculty_name : $row->division_name);
+                    $findDept = "SELECT department_id FROM Departments WHERE faculty = :dept_name OR division_name = :dept_name LIMIT 1";
                     $stmtFind = $this->db->prepare($findDept);
                     $stmtFind->bindParam(':dept_name', $deptName);
                     $stmtFind->execute();
@@ -119,9 +119,9 @@ class ImportController {
                     if ($stmtLoc->rowCount() === 0) {
                         $errors[] = "ไม่พบสถานที่ ID: {$row->location_id}";
                     }
-                } elseif (!empty($row->room_text) || !empty($row->location_name)) {
+                } elseif (!empty($row->location_name)) {
                     // Try to find location by room_number
-                    $locName = !empty($row->room_text) ? $row->room_text : $row->location_name;
+                    $locName = $row->location_name;
                     $findLoc = "SELECT location_id FROM Locations WHERE room_number = :loc_name LIMIT 1";
                     $stmtFindLoc = $this->db->prepare($findLoc);
                     $stmtFindLoc->bindParam(':loc_name', $locName);
@@ -152,10 +152,7 @@ class ImportController {
                 // Build description from extra Excel fields
                 $descParts = [];
                 if (!empty($row->description)) $descParts[] = $row->description;
-                // Store location_name in room_text if no location_id found
-                if (!empty($row->location_name) && empty($row->location_id)) {
-                    $row->room_text = $row->location_name;
-                }
+                // Build description from extra Excel fields
                 if (!empty($row->vendor)) $descParts[] = "ผู้ขาย: {$row->vendor}";
                 if (!empty($row->requester)) $descParts[] = "ผู้เบิก: {$row->requester}";
                 if (!empty($row->budget_year)) $descParts[] = "ปีงบประมาณ: {$row->budget_year}";
@@ -231,26 +228,34 @@ class ImportController {
                     $this->asset->price = $row->price ?? 0;
                     $this->asset->received_date = $row->received_date ?? date('Y-m-d');
                     // Auto-resolve or create Department
-                    if (empty($row->department_id) && (!empty($row->faculty_name) || !empty($row->department_name_excel))) {
-                        $deptName = !empty($row->faculty_name) ? $row->faculty_name : $row->department_name_excel;
+                    if (empty($row->department_id) && (!empty($row->faculty_name) || !empty($row->department_name_excel) || !empty($row->division_name))) {
+                        $deptName = !empty($row->faculty_name) ? $row->faculty_name : (!empty($row->department_name_excel) ? $row->department_name_excel : $row->division_name);
+                        $divisionName = $row->division_name ?? null;
                         
-                        $check = $this->db->prepare("SELECT department_id FROM Departments WHERE department_name = ? OR faculty = ? LIMIT 1");
+                        $check = $this->db->prepare("SELECT department_id FROM Departments WHERE faculty = ? OR division_name = ? LIMIT 1");
                         $check->execute([$deptName, $deptName]);
                         $found = $check->fetch();
                         
                         if ($found) {
                             $row->department_id = $found['department_id'];
+                            // Update division_name if provided and not yet set
+                            if ($divisionName) {
+                                $upd = $this->db->prepare("UPDATE Departments SET division_name = ? WHERE department_id = ? AND (division_name IS NULL OR division_name = '')");
+                                $upd->execute([$divisionName, $found['department_id']]);
+                            }
                         } else {
-                            $ins = $this->db->prepare("INSERT INTO Departments (department_name, faculty) VALUES (?, ?)");
-                            if ($ins->execute([$deptName, $deptName])) {
+                            $ins = $this->db->prepare("INSERT INTO Departments (faculty, division_name) VALUES (?, ?)");
+                            if ($ins->execute([$deptName, $divisionName])) {
                                 $row->department_id = $this->db->lastInsertId();
                             }
                         }
                     }
 
+                    error_log("Row {$rowNumber} parsed department_id: " . ($row->department_id ?? 'NULL'));
+
                     // Auto-resolve or create Location
-                    if (empty($row->location_id) && (!empty($row->room_text) || !empty($row->location_name))) {
-                        $locName = !empty($row->room_text) ? $row->room_text : $row->location_name;
+                    if (empty($row->location_id) && !empty($row->location_name)) {
+                        $locName = $row->location_name;
                         
                         $check = $this->db->prepare("SELECT location_id FROM Locations WHERE room_number = ? LIMIT 1");
                         $check->execute([$locName]);
@@ -309,12 +314,10 @@ class ImportController {
                     
                     $this->asset->description = $row->description ?? '';
                     $this->asset->reference_number = $row->reference_number ?? '';
-                    $this->asset->faculty_name = $row->faculty_name ?? null;
                     $this->asset->delivery_number = $row->delivery_number ?? null;
                     $this->asset->fund_code = $row->fund_code ?? null;
                     $this->asset->plan_code = $row->plan_code ?? null;
                     $this->asset->project_code = $row->project_code ?? null;
-                    $this->asset->room_text = $row->room_text ?? null;
                     $this->asset->image = '';
 
                     $asset_id = $this->asset->create();
@@ -449,7 +452,7 @@ class ImportController {
             $locations = [];
 
             // Get departments
-            $deptQuery = "SELECT department_id, department_name, faculty FROM Departments ORDER BY department_name";
+            $deptQuery = "SELECT department_id, faculty FROM Departments ORDER BY faculty";
             $stmtDept = $this->db->prepare($deptQuery);
             $stmtDept->execute();
             while ($row = $stmtDept->fetch(PDO::FETCH_ASSOC)) {

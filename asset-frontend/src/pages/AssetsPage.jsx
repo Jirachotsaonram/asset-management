@@ -1,11 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import toast from "react-hot-toast";
 import {
   Plus, Edit, Trash2, Eye, Upload, X, Package, QrCode,
   ChevronDown, ChevronRight, Building, Layers, MapPin,
-  Grid, List, Filter, RotateCcw, RefreshCw, BarChart3, Clock
+  Grid, List, Filter, RotateCcw, RefreshCw, BarChart3, Clock,
+  Images, CheckSquare, Square, CheckCheck
 } from "lucide-react";
 import { API_BASE_URL } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
@@ -59,11 +60,17 @@ export default function AssetsPage() {
   const [expandedFloors, setExpandedFloors] = useState({});
 
   // Filters (for server-side pagination via query params)
-  const [filters, setFilters] = useState({ status: "all", department: "all", building: "all", floor: "all" });
+  const [filters, setFilters] = useState({ status: "all", faculty: "all", building: "all", floor: "all" });
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [searchParams] = useSearchParams();
+
+  // Bulk Image Upload
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [bulkUploadAssets, setBulkUploadAssets] = useState([]);
+  const [bulkUploadSelecting, setBulkUploadSelecting] = useState(false);
+  const [selectedForBulk, setSelectedForBulk] = useState(new Set());
 
   // Debounce search
   const [searchDebounce, setSearchDebounce] = useState(null);
@@ -96,7 +103,7 @@ export default function AssetsPage() {
       params.set('order', sortOrder);
 
       if (filters.status !== 'all') params.set('status', filters.status);
-      if (filters.department !== 'all') params.set('department_id', filters.department);
+      if (filters.faculty !== 'all') params.set('faculty_name', filters.faculty);
       if (filters.building !== 'all') params.set('building', filters.building);
       if (filters.floor !== 'all') params.set('floor', filters.floor);
       if (searchTerm.trim()) params.set('search', searchTerm.trim());
@@ -140,7 +147,7 @@ export default function AssetsPage() {
   const handleItemsPerPageChange = (value) => { setItemsPerPage(value); setCurrentPage(1); };
 
   const handleResetFilters = () => {
-    setFilters({ status: "all", department: "all", building: "all", floor: "all" });
+    setFilters({ status: "all", faculty: "all", building: "all", floor: "all" });
     setSearchTerm("");
     setCurrentPage(1);
   };
@@ -153,6 +160,45 @@ export default function AssetsPage() {
       toast.success("อัปโหลดรูปภาพสำเร็จ");
       fetchAssets();
     } catch (error) { toast.error("อัปโหลดไม่สำเร็จ"); }
+  };
+
+  // ==================== Bulk Image Upload ====================
+  const handleBulkImageUpload = async (file) => {
+    if (!file || selectedForBulk.size === 0) return;
+    const assetIds = [...selectedForBulk];
+    let success = 0, fail = 0;
+    const toastId = toast.loading(`กำลังอัปโหลดรูปให้ ${assetIds.length} ครุภัณฑ์...`);
+    for (const assetId of assetIds) {
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        await api.post(`/upload/asset/${assetId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        success++;
+      } catch { fail++; }
+    }
+    toast.dismiss(toastId);
+    if (success > 0) toast.success(`อัปโหลดสำเร็จ ${success} รายการ${fail > 0 ? `, ล้มเหลว ${fail} รายการ` : ''}`);
+    else toast.error(`อัปโหลดล้มเหลวทั้งหมด ${fail} รายการ`);
+    setSelectedForBulk(new Set());
+    setBulkUploadSelecting(false);
+    setShowBulkUpload(false);
+    fetchAssets();
+  };
+
+  const toggleBulkSelect = (assetId) => {
+    setSelectedForBulk(prev => {
+      const next = new Set(prev);
+      if (next.has(assetId)) next.delete(assetId); else next.add(assetId);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedForBulk.size === assets.length) {
+      setSelectedForBulk(new Set());
+    } else {
+      setSelectedForBulk(new Set(assets.map(a => a.asset_id)));
+    }
   };
 
   const handleDelete = async (assetId) => {
@@ -200,12 +246,13 @@ export default function AssetsPage() {
     return colors[status?.trim()] || 'bg-gray-100 text-gray-600 border border-gray-200';
   };
 
-  // Get unique values for filters (from all locations, not just current page)
+  // Get unique values for filters
   const uniqueBuildings = useMemo(() => [...new Set(locations.map(l => l.building_name).filter(Boolean))], [locations]);
   const uniqueFloors = useMemo(() => [...new Set(locations.map(l => l.floor).filter(Boolean))].sort((a, b) => a - b), [locations]);
+  const uniqueFaculties = useMemo(() => [...new Set(departments.map(d => d.faculty).filter(Boolean))].sort(), [departments]);
 
   // Active filter count
-  const activeFilterCount = [filters.status, filters.department, filters.building, filters.floor].filter(f => f !== 'all').length;
+  const activeFilterCount = [filters.status, filters.faculty, filters.building, filters.floor].filter(f => f !== 'all').length;
 
   // ==================== ตาราง Columns สำหรับ VirtualTable ====================
   const tableColumns = useMemo(() => [
@@ -214,10 +261,12 @@ export default function AssetsPage() {
       render: (val, row) => (
         <div className="relative group">
           {row.image ? (
-            <img src={`${API_BASE_URL}/${row.image}`} alt="" className="h-10 w-10 rounded-lg object-cover"
-              onError={(e) => { e.target.src = ''; e.target.className = 'h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center'; }} />
+            <div className="h-10 w-10 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center border border-gray-200">
+              <img src={`${API_BASE_URL}/${row.image}`} alt="" className="max-h-10 max-w-10 object-contain"
+                onError={(e) => { e.target.style.display = 'none'; }} />
+            </div>
           ) : (
-            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
               <Package size={16} className="text-gray-400" />
             </div>
           )}
@@ -236,7 +285,6 @@ export default function AssetsPage() {
       render: (val, row) => (
         <div>
           <div className="text-sm font-medium text-gray-900 line-clamp-2" title={val}>{val}</div>
-          <div className="text-xs text-gray-400">ID: {row.asset_id}</div>
         </div>
       )
     },
@@ -246,12 +294,13 @@ export default function AssetsPage() {
       key: 'status', label: 'สถานะ', width: '110px',
       render: (val) => <span className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${getStatusColor(val)}`}>{val}</span>
     },
-    { key: 'department_name', label: 'หน่วยงาน', minWidth: '120px', render: (val) => val || '-' },
+    { key: 'faculty_name', label: 'คณะ', minWidth: '120px', render: (val) => val || '-' },
+    { key: 'division_name', label: 'ภาควิชา', minWidth: '120px', render: (val) => val || '-' },
     {
       key: 'building_name', label: 'สถานที่', minWidth: '180px',
       render: (val, row) => {
         const parts = [val, row.floor ? `ชั้น ${row.floor}` : null, row.room_number ? `ห้อง ${row.room_number}` : null].filter(Boolean);
-        return <span className="text-xs">{parts.join(' ') || row.room_text || '-'}</span>;
+        return <span className="text-xs">{parts.join(' ') || '-'}</span>;
       }
     },
     { key: 'price', label: 'ราคา (฿)', minWidth: '100px', render: (val) => val ? Number(val).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '-' },
@@ -261,7 +310,7 @@ export default function AssetsPage() {
     { key: 'fund_code', label: 'รหัสกองทุน', minWidth: '100px', render: (val) => val || '-' },
     { key: 'plan_code', label: 'รหัสแผน', minWidth: '100px', render: (val) => val || '-' },
     { key: 'project_code', label: 'รหัสโครงการ', minWidth: '100px', render: (val) => val || '-' },
-    { key: 'faculty_name', label: 'คณะ', minWidth: '120px', render: (val) => val || '-' },
+
     { key: 'delivery_number', label: 'เลขที่ใบส่งของ', minWidth: '120px', render: (val) => val || '-' },
     { key: 'description', label: 'รายละเอียด', minWidth: '180px', render: (val) => <span className="line-clamp-2 text-xs">{val || '-'}</span> },
   ], [canEdit]);
@@ -298,7 +347,7 @@ export default function AssetsPage() {
     assetList.forEach((asset) => {
       const building = asset.building_name || "ไม่ระบุอาคาร";
       const floor = asset.floor || "ไม่ระบุชั้น";
-      const room = asset.room_number || asset.room_text || "ไม่ระบุห้อง";
+      const room = asset.room_number || "ไม่ระบุห้อง";
       if (!grouped[building]) grouped[building] = {};
       if (!grouped[building][floor]) grouped[building][floor] = {};
       if (!grouped[building][floor][room]) grouped[building][floor][room] = [];
@@ -487,6 +536,16 @@ export default function AssetsPage() {
             <RefreshCw size={16} /> รีเฟรช
           </button>
 
+          {canEdit && (
+            <button
+              onClick={() => { setBulkUploadSelecting(true); setSelectedForBulk(new Set()); }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition text-sm"
+              title="อัปโหลดรูปหลายรายการพร้อมกัน"
+            >
+              <Images size={16} /> อัปโหลดรูปหลายรายการ
+            </button>
+          )}
+
           {sessionAddedAssets.length > 0 && (
             <div className="flex items-center gap-1">
               <button
@@ -573,10 +632,10 @@ export default function AssetsPage() {
                 <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
                 <option value="ไม่พบ">ไม่พบ</option>
               </select>
-              <select value={filters.department} onChange={(e) => { setFilters(f => ({ ...f, department: e.target.value })); setCurrentPage(1); }}
+              <select value={filters.faculty} onChange={(e) => { setFilters(f => ({ ...f, faculty: e.target.value })); setCurrentPage(1); }}
                 className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
-                <option value="all">หน่วยงาน: ทั้งหมด</option>
-                {departments.map(d => <option key={d.department_id} value={d.department_id}>{d.department_name}</option>)}
+                <option value="all">คณะ: ทั้งหมด</option>
+                {uniqueFaculties.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
               <select value={filters.building} onChange={(e) => { setFilters(f => ({ ...f, building: e.target.value })); setCurrentPage(1); }}
                 className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
@@ -651,39 +710,105 @@ export default function AssetsPage() {
               )}
 
               {selectedAsset.image && (
-                <img src={`${API_BASE_URL}/${selectedAsset.image}`} alt={selectedAsset.asset_name}
-                  className="w-full h-56 object-cover rounded-xl mb-5" />
+                <div className="w-full bg-gray-50 rounded-xl mb-5 overflow-hidden flex items-center justify-center" style={{maxHeight: '240px'}}>
+                  <img src={`${API_BASE_URL}/${selectedAsset.image}`} alt={selectedAsset.asset_name}
+                    className="max-w-full max-h-60 object-contain" />
+                </div>
               )}
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {[
-                  { label: 'รหัสครุภัณฑ์', value: selectedAsset.asset_id },
-                  { label: 'ชื่อครุภัณฑ์', value: selectedAsset.asset_name, span: 2 },
-                  { label: 'Serial Number', value: selectedAsset.serial_number },
-                  { label: 'หมายเลขครุภัณฑ์', value: selectedAsset.barcode },
-                  { label: 'สถานะ', value: selectedAsset.status, badge: true },
-                  { label: 'ราคา', value: selectedAsset.price ? `${Number(selectedAsset.price).toLocaleString('th-TH')} บาท` : '-' },
-                  { label: 'จำนวน', value: `${selectedAsset.quantity || 1} ${selectedAsset.unit || ''}` },
-                  { label: 'วันที่ตรวจรับ', value: selectedAsset.received_date },
-                  { label: 'หน่วยงาน', value: selectedAsset.department_name },
-                  { label: 'สถานที่', value: [selectedAsset.building_name, selectedAsset.floor ? `ชั้น ${selectedAsset.floor}` : null, selectedAsset.room_number ? `ห้อง ${selectedAsset.room_number}` : null].filter(Boolean).join(' ') || selectedAsset.room_text },
-                  { label: 'รหัสกองทุน', value: selectedAsset.fund_code },
-                  { label: 'รหัสแผน', value: selectedAsset.plan_code },
-                  { label: 'รหัสโครงการ', value: selectedAsset.project_code },
-                  { label: 'คณะ', value: selectedAsset.faculty_name },
-                  { label: 'เลขที่ใบส่งของ', value: selectedAsset.delivery_number },
-                  { label: 'รายละเอียด', value: selectedAsset.description, span: 3 },
-                  { label: 'อ้างอิงใบตรวจรับ', value: selectedAsset.reference_number },
-                ].map((item, idx) => (
-                  <div key={idx} className={item.span ? `col-span-${item.span}` : ''}>
-                    <label className="text-xs text-gray-500 block mb-0.5">{item.label}</label>
-                    {item.badge ? (
-                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(item.value)}`}>{item.value}</span>
-                    ) : (
-                      <p className="text-sm font-medium text-gray-800">{item.value || '-'}</p>
-                    )}
+              {/* ข้อมูลทั่วไป */}
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 border-b pb-2">
+                  <Package size={16} className="text-blue-600" /> ข้อมูลทั่วไป
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-3">
+                    <label className="text-xs text-gray-500 block mb-0.5">ชื่อครุภัณฑ์</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.asset_name || '-'}</p>
                   </div>
-                ))}
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">หมายเลขครุภัณฑ์</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.barcode || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">Serial Number</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.serial_number || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">สถานะ</label>
+                    <div>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(selectedAsset.status)}`}>{selectedAsset.status}</span>
+                    </div>
+                  </div>
+                  <div className="md:col-span-3">
+                    <label className="text-xs text-gray-500 block mb-0.5">รายละเอียด</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.description || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ที่ตั้งและสังกัด */}
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 border-b pb-2">
+                  <MapPin size={16} className="text-purple-600" /> ที่ตั้งและสังกัด
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">คณะ</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.faculty_name || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">ภาควิชา</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.division_name || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">สถานที่ตั้ง</label>
+                    <p className="text-sm font-medium text-gray-800">
+                      {[selectedAsset.building_name, selectedAsset.floor ? `ชั้น ${selectedAsset.floor}` : null, selectedAsset.room_number ? `ห้อง ${selectedAsset.room_number}` : null].filter(Boolean).join(' ') || '-'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ข้อมูลการจัดซื้อและงบประมาณ */}
+              <div className="mb-2">
+                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 border-b pb-2">
+                  <BarChart3 size={16} className="text-emerald-600" /> ข้อมูลการจัดซื้อและงบประมาณ
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">ราคา</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.price ? `${Number(selectedAsset.price).toLocaleString('th-TH')} บาท` : '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">จำนวน</label>
+                    <p className="text-sm font-medium text-gray-800">{`${selectedAsset.quantity || 1} ${selectedAsset.unit || ''}`}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">วันที่ตรวจรับ</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.received_date || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">อ้างอิงใบตรวจรับ</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.reference_number || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">เลขที่ใบส่งของ</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.delivery_number || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">รหัสกองทุน</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.fund_code || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">รหัสแผน</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.plan_code || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-0.5">รหัสโครงการ</label>
+                    <p className="text-sm font-medium text-gray-800">{selectedAsset.project_code || '-'}</p>
+                  </div>
+                </div>
               </div>
 
               <div className="mt-6 flex justify-end gap-3">
@@ -693,6 +818,121 @@ export default function AssetsPage() {
                 </button>
                 <button onClick={() => setSelectedAsset(null)}
                   className="px-6 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition text-sm">ปิด</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== Bulk Upload Modal ==================== */}
+      {bulkUploadSelecting && canEdit && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col" style={{maxHeight: '85vh'}}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 p-2.5 rounded-xl">
+                  <Images size={20} className="text-purple-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">อัปโหลดรูปพร้อมกันหลายรายการ</h2>
+                  <p className="text-xs text-gray-500 mt-0.5">เลือกครุภัณฑ์ที่ต้องการใช้รูปเดียวกัน แล้วกดอัปโหลด</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setBulkUploadSelecting(false); setSelectedForBulk(new Set()); }}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Stats + Select All */}
+            <div className="px-6 py-3 bg-purple-50 border-b border-purple-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-semibold px-3 py-1 rounded-full ${selectedForBulk.size > 0 ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                  เลือกแล้ว {selectedForBulk.size} รายการ
+                </span>
+                {assets.length < totalItems && (
+                  <span className="text-xs text-amber-600 flex items-center gap-1">
+                    <Filter size={11} /> แสดง {assets.length}/{totalItems.toLocaleString()} รายการ
+                  </span>
+                )}
+              </div>
+              <button onClick={toggleSelectAll}
+                className="flex items-center gap-1.5 text-sm text-purple-700 hover:text-purple-900 font-medium transition">
+                <CheckCheck size={15} />
+                {selectedForBulk.size === assets.length && assets.length > 0 ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด'}
+              </button>
+            </div>
+
+            {/* Asset List */}
+            <div className="overflow-y-auto flex-1 px-4 py-3">
+              {assets.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <Package size={40} className="mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">ไม่มีรายการในหน้านี้</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {assets.map(a => {
+                    const selected = selectedForBulk.has(a.asset_id);
+                    return (
+                      <button key={a.asset_id}
+                        onClick={() => toggleBulkSelect(a.asset_id)}
+                        className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
+                          selected
+                            ? 'bg-purple-50 border-purple-400 shadow-sm'
+                            : 'bg-white border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
+                        }`}>
+                        {/* Checkbox */}
+                        <div className="flex-shrink-0">
+                          {selected
+                            ? <CheckSquare size={20} className="text-purple-600" />
+                            : <Square size={20} className="text-gray-300" />}
+                        </div>
+                        {/* Thumbnail */}
+                        <div className="h-10 w-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-200">
+                          {a.image
+                            ? <img src={`${API_BASE_URL}/${a.image}`} alt="" className="max-h-10 max-w-10 object-contain" onError={e => e.target.style.display='none'} />
+                            : <Package size={14} className="text-gray-300" />}
+                        </div>
+                        {/* Info */}
+                        <div className="min-w-0 flex-1">
+                          <div className={`text-sm font-medium truncate ${selected ? 'text-purple-900' : 'text-gray-800'}`}>{a.asset_name}</div>
+                          <div className="text-[11px] text-gray-400 font-mono truncate">{a.barcode || '-'}</div>
+                        </div>
+                        {/* Has image indicator */}
+                        {a.image && (
+                          <div className="flex-shrink-0 text-[10px] text-green-600 font-medium bg-green-50 px-1.5 py-0.5 rounded-full border border-green-200">มีรูป</div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3 bg-gray-50 rounded-b-2xl">
+              <p className="text-xs text-gray-500">รูปที่เลือกจะถูกอัปโหลดทับรูปเดิมของทุกรายการที่เลือก</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => { setBulkUploadSelecting(false); setSelectedForBulk(new Set()); }}
+                  className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition"
+                >
+                  ยกเลิก
+                </button>
+                <label className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer ${
+                  selectedForBulk.size > 0
+                    ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/25'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}>
+                  <Upload size={15} />
+                  อัปโหลดรูป {selectedForBulk.size > 0 ? `(${selectedForBulk.size} รายการ)` : ''}
+                  <input type="file" accept="image/*" className="hidden" disabled={selectedForBulk.size === 0}
+                    onChange={(e) => { if (e.target.files[0] && selectedForBulk.size > 0) { handleBulkImageUpload(e.target.files[0]); } }} />
+                </label>
               </div>
             </div>
           </div>

@@ -16,12 +16,10 @@ class Asset {
     public $barcode;
     public $description;
     public $reference_number;
-    public $faculty_name;
     public $delivery_number;
     public $fund_code;
     public $plan_code;
     public $project_code;
-    public $room_text;
     public $image;
 
     public function __construct($db) {
@@ -33,9 +31,9 @@ class Asset {
                   SET asset_name=:asset_name, serial_number=:serial_number, 
                       quantity=:quantity, unit=:unit, price=:price, 
                       received_date=:received_date, department_id=:department_id, 
-                      location_id=:location_id, room_text=:room_text, status=:status, barcode=:barcode,
+                      location_id=:location_id, status=:status, barcode=:barcode,
                       description=:description, reference_number=:reference_number,
-                      faculty_name=:faculty_name, delivery_number=:delivery_number,
+                      delivery_number=:delivery_number,
                       fund_code=:fund_code, plan_code=:plan_code, project_code=:project_code,
                       image=:image";
         
@@ -48,12 +46,10 @@ class Asset {
         $stmt->bindParam(":received_date", $this->received_date);
         $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":location_id", $this->location_id);
-        $stmt->bindParam(":room_text", $this->room_text);
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":barcode", $this->barcode);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":reference_number", $this->reference_number);
-        $stmt->bindParam(":faculty_name", $this->faculty_name);
         $stmt->bindParam(":delivery_number", $this->delivery_number);
         $stmt->bindParam(":fund_code", $this->fund_code);
         $stmt->bindParam(":plan_code", $this->plan_code);
@@ -113,8 +109,8 @@ class Asset {
         $allowedSorts = [
             'asset_id', 'asset_name', 'serial_number', 'status', 'price', 
             'received_date', 'created_at', 'barcode', 'quantity',
-            'building_name', 'floor', 'room_number', 'department_name',
-            'fund_code', 'plan_code', 'project_code', 'faculty_name'
+            'building_name', 'floor', 'room_number', 'faculty',
+            'fund_code', 'plan_code', 'project_code'
         ];
         if (!in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
@@ -153,6 +149,12 @@ class Asset {
         if (!empty($filters['floor'])) {
             $conditions[] = "floor = :floor";
             $params[':floor'] = $filters['floor'];
+        }
+
+        // Filter by faculty_name
+        if (!empty($filters['faculty_name'])) {
+            $conditions[] = "faculty_name = :faculty_name";
+            $params[':faculty_name'] = $filters['faculty_name'];
         }
 
         // Filter by room_number
@@ -205,10 +207,8 @@ class Asset {
                 OR fund_code LIKE :search 
                 OR plan_code LIKE :search 
                 OR project_code LIKE :search 
-                OR department_name LIKE :search 
                 OR building_name LIKE :search 
-                OR room_number LIKE :search 
-                OR room_text LIKE :search 
+                OR room_number LIKE :search
                 OR faculty_name LIKE :search 
                 OR delivery_number LIKE :search 
                 OR description LIKE :search)";
@@ -258,6 +258,10 @@ class Asset {
             $conditions[] = "floor = :floor";
             $params[':floor'] = $filters['floor'];
         }
+        if (!empty($filters['faculty_name'])) {
+            $conditions[] = "faculty_name = :faculty_name";
+            $params[':faculty_name'] = $filters['faculty_name'];
+        }
         if (!empty($filters['location_id'])) {
             $conditions[] = "location_id = :location_id";
             $params[':location_id'] = $filters['location_id'];
@@ -295,10 +299,8 @@ class Asset {
                 OR fund_code LIKE :search 
                 OR plan_code LIKE :search 
                 OR project_code LIKE :search 
-                OR department_name LIKE :search 
                 OR building_name LIKE :search 
-                OR room_number LIKE :search 
-                OR room_text LIKE :search 
+                OR room_number LIKE :search
                 OR faculty_name LIKE :search 
                 OR delivery_number LIKE :search 
                 OR description LIKE :search)";
@@ -337,10 +339,10 @@ class Asset {
         $query = "UPDATE " . $this->table_name . " 
                   SET asset_name=:asset_name, serial_number=:serial_number, 
                       quantity=:quantity, unit=:unit, price=:price, 
-                      department_id=:department_id, location_id=:location_id, room_text=:room_text,
+                      department_id=:department_id, location_id=:location_id,
                       status=:status, description=:description,
                       reference_number=:reference_number,
-                      faculty_name=:faculty_name, delivery_number=:delivery_number,
+                      delivery_number=:delivery_number,
                       fund_code=:fund_code, plan_code=:plan_code, project_code=:project_code,
                       image=:image
                   WHERE asset_id = :asset_id";
@@ -353,11 +355,9 @@ class Asset {
         $stmt->bindParam(":price", $this->price);
         $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":location_id", $this->location_id);
-        $stmt->bindParam(":room_text", $this->room_text);
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":reference_number", $this->reference_number);
-        $stmt->bindParam(":faculty_name", $this->faculty_name);
         $stmt->bindParam(":delivery_number", $this->delivery_number);
         $stmt->bindParam(":fund_code", $this->fund_code);
         $stmt->bindParam(":plan_code", $this->plan_code);

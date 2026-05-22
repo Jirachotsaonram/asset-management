@@ -18,12 +18,10 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     received_date: asset?.received_date || new Date().toISOString().split("T")[0],
     department_id: asset?.department_id || "",
     location_id: asset?.location_id || "",
-    room_text: asset?.room_text || "",
     status: asset?.status || "ใช้งานได้",
     barcode: asset?.barcode || "",
     description: asset?.description || "",
     reference_number: asset?.reference_number || "",
-    faculty_name: asset?.faculty_name || "คณะเทคโนโลยีสารสนเทศ",
     delivery_number: asset?.delivery_number || "",
     fund_code: asset?.fund_code || "",
     plan_code: asset?.plan_code || "",
@@ -33,7 +31,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
   const [showDepartmentForm, setShowDepartmentForm] = useState(false);
-  const [departmentFormData, setDepartmentFormData] = useState({ department_name: "" });
+  const [departmentFormData, setDepartmentFormData] = useState({ faculty: "" });
   const [addingDepartment, setAddingDepartment] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
@@ -128,17 +126,16 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     setAddingDepartment(true);
     try {
       const response = await api.post("/departments", {
-        department_name: departmentFormData.department_name,
-        faculty: "",
+        faculty: departmentFormData.faculty,
       });
       const newDepartmentId = response.data.data.department_id;
       await fetchDepartments();
       setFormData((prev) => ({ ...prev, department_id: newDepartmentId }));
       setShowDepartmentForm(false);
-      setDepartmentFormData({ department_name: "" });
-      toast.success("เพิ่มหน่วยงานสำเร็จ");
+      setDepartmentFormData({ faculty: "" });
+      toast.success("เพิ่มคณะสำเร็จ");
     } catch (error) {
-      toast.error(error.response?.data?.message || "ไม่สามารถเพิ่มหน่วยงานได้");
+      toast.error(error.response?.data?.message || "ไม่สามารถเพิ่มคณะได้");
     } finally {
       setAddingDepartment(false);
     }
@@ -254,17 +251,17 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
 
           {/* ==================== สถานที่ ==================== */}
           <div>
-            <SectionHeader id="location" title="สถานที่และหน่วยงาน" icon={<MapPin size={18} className="text-red-600" />} />
+            <SectionHeader id="location" title="สถานที่และคณะ" icon={<MapPin size={18} className="text-red-600" />} />
             {expandedSections.location && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">หน่วยงาน</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">คณะ</label>
                   <div className="flex gap-2">
                     <select name="department_id" value={formData.department_id} onChange={handleChange}
                       className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500">
-                      <option value="">-- เลือกหน่วยงาน --</option>
+                      <option value="">-- เลือกคณะ --</option>
                       {departments.map((dept) => (
-                        <option key={dept.department_id} value={dept.department_id}>{dept.department_name}</option>
+                        <option key={dept.department_id} value={dept.department_id}>{dept.faculty}</option>
                       ))}
                     </select>
                     <button type="button" onClick={() => setShowDepartmentForm(true)}
@@ -283,11 +280,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">ห้อง (ข้อความ)</label>
-                  <input type="text" name="room_text" value={formData.room_text} onChange={handleChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" />
-                </div>
+
               </div>
             )}
           </div>
@@ -344,23 +337,23 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
         </form>
       </div>
 
-      {/* Modal เพิ่มหน่วยงานหน่วยงาน */}
+      {/* Modal เพิ่มคณะคณะ */}
       {showDepartmentForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
             <div className="border-b px-6 py-4 flex justify-between items-center">
-              <h3 className="text-lg font-bold">เพิ่มหน่วยงานใหม่</h3>
+              <h3 className="text-lg font-bold">เพิ่มคณะใหม่</h3>
               <button onClick={() => setShowDepartmentForm(false)} className="text-gray-400 hover:text-gray-600">
                 <X size={20} />
               </button>
             </div>
             <form onSubmit={handleAddDepartment} className="p-6">
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">ชื่อหน่วยงาน *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ชื่อคณะ *</label>
                 <input
                   type="text"
-                  value={departmentFormData.department_name}
-                  onChange={(e) => setDepartmentFormData({ department_name: e.target.value })}
+                  value={departmentFormData.faculty}
+                  onChange={(e) => setDepartmentFormData({ faculty: e.target.value })}
                   required
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
                   placeholder="เช่น ภาควิชาวิศวกรรมคอมพิวเตอร์"
@@ -379,7 +372,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
                   disabled={addingDepartment}
                   className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50"
                 >
-                  {addingDepartment ? "บันทึก..." : "เพิ่มหน่วยงาน"}
+                  {addingDepartment ? "บันทึก..." : "เพิ่มคณะ"}
                 </button>
               </div>
             </form>

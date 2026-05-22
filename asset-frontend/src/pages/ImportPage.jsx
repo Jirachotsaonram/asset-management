@@ -353,17 +353,44 @@ export default function ImportPage() {
         return;
       }
 
+      // --- Extract division_name from row 2 (index 1) ---
+      // Row 2 typically contains the division/department name e.g. "ภาควิชาเทคโนโลยีสารสนเทศ"
+      let divisionName = '';
+      if (sheetData.length > 1) {
+        const row2 = sheetData[1];
+        for (const cell of row2) {
+          const s = String(cell).trim();
+          if (s && s.includes('ภาควิชา')) {
+            divisionName = s;
+            break;
+          }
+          // Also capture any standalone non-empty cell in row 2 that looks like a department name (fallback)
+          if (s && s.length > 4 && !divisionName) {
+            divisionName = s;
+          }
+        }
+      }
+
+      if (divisionName) {
+        console.log('[Excel Import] Division extracted from row 2:', divisionName);
+        toast.success(`พบภาควิชา: "${divisionName}"`);
+      }
+
+      // Inject division_name into every row
+      const finalRows = rows.map(r => ({ ...r, division_name: divisionName || '' }));
+
       setSelectedSheet(sheetName);
       setColMapping(mapping);
-      setCsvData(rows);
+      setCsvData(finalRows);
       setStep(2);
       setLoading(false);
-      toast.success(`อ่านชีท "${sheetName}" สำเร็จ (${rows.length} รายการ, header แถวที่ ${headerIdx + 1})`);
+      toast.success(`อ่านชีท "${sheetName}" สำเร็จ (${finalRows.length} รายการ, header แถวที่ ${headerIdx + 1})`);
     } catch (err) {
       toast.error('เกิดข้อผิดพลาดในการประมวลผลชีท: ' + err.message);
       setLoading(false);
     }
   };
+
 
   const handleSheetSelect = (sheetName) => {
     setLoading(true);
@@ -428,7 +455,7 @@ export default function ImportPage() {
   };
 
   const downloadTemplate = () => {
-    const headers = ['ชื่อครุภัณฑ์', 'หมายเลขซีเรียล', 'จำนวน', 'หน่วยนับ', 'ราคา', 'วันที่ตรวจรับ', 'หน่วยงาน', 'อาคาร/ห้อง', 'สถานะ', 'หมายเลขครุภัณฑ์ (Barcode)', 'รายละเอียด', 'รหัสหมวดสินทรัพย์', 'รหัสกองทุน', 'รหัสแผนงาน', 'รหัสงาน/โครงการ', 'ชื่อคณะ', 'เลขที่ใบส่งของ'];
+    const headers = ['ชื่อครุภัณฑ์', 'หมายเลขซีเรียล', 'จำนวน', 'หน่วยนับ', 'ราคา', 'วันที่ตรวจรับ', 'คณะ', 'อาคาร/ห้อง', 'สถานะ', 'หมายเลขครุภัณฑ์ (Barcode)', 'รายละเอียด', 'รหัสหมวดสินทรัพย์', 'รหัสกองทุน', 'รหัสแผนงาน', 'รหัสงาน/โครงการ', 'ชื่อคณะ', 'เลขที่ใบส่งของ'];
     const row1 = ['คอมพิวเตอร์ Dell Optiplex 7080', 'SN123456789', '1', 'เครื่อง', '25000', '2024-01-15', 'สาขาวิชาเทคโนโลยีสารสนเทศ', 'อเนกประสงค์ ชั้น 3', 'ใช้งานได้', 'QR20240001', 'CPU Intel Core i7, RAM 16GB, SSD 512GB', 'REF-IT-2024', 'กองทุนทั่วไป', 'แผนงานหลัก', 'โครงการพัฒนานักศึกษา', 'คณะเทคโนโลยีอุตสาหกรรม', 'DEL-001/67'];
 
     const csvContent = [
@@ -658,7 +685,7 @@ export default function ImportPage() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
-                    <strong>ฟิลด์ที่รองรับ:</strong> ชื่อครุภัณฑ์, หมายเลขซีเรียล, จำนวน, หน่วยนับ, ราคา, วันที่ตรวจรับ, หน่วยงาน, อาคาร/ห้อง, สถานะ, Barcode, รายละเอียด, รหัสกองทุน, รหัสแผนงาน, รหัสโครงการ, คณะ, เลขที่ใบส่งของ
+                    <strong>ฟิลด์ที่รองรับ:</strong> ชื่อครุภัณฑ์, หมายเลขซีเรียล, จำนวน, หน่วยนับ, ราคา, วันที่ตรวจรับ, คณะ, อาคาร/ห้อง, สถานะ, Barcode, รายละเอียด, รหัสกองทุน, รหัสแผนงาน, รหัสโครงการ, คณะ, เลขที่ใบส่งของ
                   </p>
                   <p className="text-xs text-emerald-600 mt-1 font-medium">
                     <strong>Excel Auto-Mapping:</strong> ระบบรองรับหัวตารางภาษาไทยจากไฟล์ต้นฉบับได้ทันที ไม่ต้องเปลี่ยนชื่อคอลัมน์
@@ -1019,7 +1046,7 @@ function ReferenceModal({ references, onClose }) {
         <div className="px-6 border-b border-gray-100">
           <div className="flex gap-4">
             {[
-              { id: 'departments', label: 'หน่วยงาน', count: references.departments?.length },
+              { id: 'departments', label: 'คณะ', count: references.departments?.length },
               { id: 'locations', label: 'สถานที่', count: references.locations?.length },
               { id: 'statuses', label: 'สถานะ', count: references.valid_statuses?.length }
             ].map(tab => (
@@ -1045,7 +1072,7 @@ function ReferenceModal({ references, onClose }) {
                 <thead className="bg-gray-100 sticky top-0">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700">ชื่อหน่วยงาน</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">ชื่อคณะ</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">คณะ</th>
                   </tr>
                 </thead>
@@ -1053,7 +1080,7 @@ function ReferenceModal({ references, onClose }) {
                   {references.departments.map(dept => (
                     <tr key={dept.department_id} className="hover:bg-gray-100">
                       <td className="px-4 py-3 font-mono font-semibold text-primary-600">{dept.department_id}</td>
-                      <td className="px-4 py-3 text-gray-900">{dept.department_name}</td>
+                      <td className="px-4 py-3 text-gray-900">{dept.faculty}</td>
                       <td className="px-4 py-3 text-gray-600">{dept.faculty || '-'}</td>
                     </tr>
                   ))}

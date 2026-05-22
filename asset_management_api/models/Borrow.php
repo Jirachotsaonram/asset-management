@@ -6,7 +6,6 @@ class Borrow {
     public $borrow_id;
     public $asset_id;
     public $borrower_name;
-    public $department_id;
     public $borrow_date;
     public $return_date;
     public $due_date;
@@ -19,13 +18,12 @@ class Borrow {
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
                   SET asset_id=:asset_id, borrower_name=:borrower_name,
-                      department_id=:department_id, borrow_date=:borrow_date,
+                      borrow_date=:borrow_date,
                       return_date=:return_date, due_date=:due_date, status=:status";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":asset_id", $this->asset_id);
         $stmt->bindParam(":borrower_name", $this->borrower_name);
-        $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":borrow_date", $this->borrow_date);
         $stmt->bindParam(":return_date", $this->return_date);
         $stmt->bindParam(":due_date", $this->due_date);
@@ -38,10 +36,10 @@ class Borrow {
     }
 
     public function readAll() {
-        $query = "SELECT b.*, a.asset_name, a.barcode, d.department_name
+        $query = "SELECT b.*, a.asset_name, a.barcode, d.faculty, d.division_name
                   FROM " . $this->table_name . " b
                   LEFT JOIN assets a ON b.asset_id = a.asset_id
-                  LEFT JOIN departments d ON b.department_id = d.department_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
                   ORDER BY b.borrow_date DESC";
         
         $stmt = $this->conn->prepare($query);
@@ -50,9 +48,10 @@ class Borrow {
     }
 
     public function readByAsset() {
-        $query = "SELECT b.*, d.department_name
+        $query = "SELECT b.*, d.faculty, d.division_name
                   FROM " . $this->table_name . " b
-                  LEFT JOIN departments d ON b.department_id = d.department_id
+                  LEFT JOIN assets a ON b.asset_id = a.asset_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
                   WHERE b.asset_id = :asset_id
                   ORDER BY b.borrow_date DESC";
         
@@ -63,10 +62,10 @@ class Borrow {
     }
 
     public function readActive() {
-        $query = "SELECT b.*, a.asset_name, a.barcode, d.department_name
+        $query = "SELECT b.*, a.asset_name, a.barcode, d.faculty, d.division_name
                   FROM " . $this->table_name . " b
                   LEFT JOIN assets a ON b.asset_id = a.asset_id
-                  LEFT JOIN departments d ON b.department_id = d.department_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
                   WHERE b.status = 'ยืม'
                   ORDER BY b.borrow_date DESC";
         
@@ -84,7 +83,6 @@ class Borrow {
         if($row) {
             $this->asset_id = $row['asset_id'];
             $this->borrower_name = $row['borrower_name'];
-            $this->department_id = $row['department_id'];
             $this->borrow_date = $row['borrow_date'];
             $this->return_date = $row['return_date'];
             $this->due_date = $row['due_date'];
@@ -125,10 +123,10 @@ class Borrow {
         
         $where = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
         
-        $query = "SELECT b.*, a.asset_name, a.barcode, d.department_name
+        $query = "SELECT b.*, a.asset_name, a.barcode, d.faculty, d.division_name
                   FROM " . $this->table_name . " b
                   LEFT JOIN assets a ON b.asset_id = a.asset_id
-                  LEFT JOIN departments d ON b.department_id = d.department_id
+                  LEFT JOIN departments d ON a.department_id = d.department_id
                   $where
                   ORDER BY b.borrow_date DESC
                   LIMIT :limit OFFSET :offset";

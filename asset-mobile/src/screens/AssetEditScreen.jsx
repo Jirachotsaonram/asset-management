@@ -33,7 +33,6 @@ export default function AssetEditScreen() {
         status: ASSET_STATUS.AVAILABLE,
         department_id: null,
         location_id: null,
-        room_text: '',
         description: '',
         faculty_name: '',
         reference_number: '',
@@ -158,7 +157,6 @@ export default function AssetEditScreen() {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>ตำแหน่งและสถานที่</Text>
                 {renderInput('คณะ/ภาควิชา', 'faculty_name', 'เช่น คณะเทคโนโลยีสารสนเทศ')}
-                {renderInput('พื้นที่ (ห้อง/อาคาร)', 'room_text', 'ระบุรายละเอียดสถานที่')}
             </View>
 
             <View style={styles.section}>

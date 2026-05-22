@@ -21,10 +21,10 @@ class BorrowController {
         if (isset($_GET['page'])) {
             $this->getReadPaginated();
         } else {
-            $query = "SELECT b.*, a.asset_name, a.serial_number, a.barcode, d.department_name
+            $query = "SELECT b.*, a.asset_name, a.serial_number, a.barcode, d.faculty, d.division_name
                       FROM borrow b 
                       LEFT JOIN assets a ON b.asset_id = a.asset_id 
-                      LEFT JOIN departments d ON b.department_id = d.department_id
+                      LEFT JOIN departments d ON a.department_id = d.department_id
                       ORDER BY b.borrow_date DESC LIMIT 500";
             $stmt = $this->db->prepare($query);
             $stmt->execute();
@@ -89,7 +89,6 @@ class BorrowController {
         if (!empty($data->asset_id) && !empty($data->borrower_name)) {
             $this->borrow->asset_id = $data->asset_id;
             $this->borrow->borrower_name = $data->borrower_name;
-            $this->borrow->department_id = $data->department_id ?? null;
             $this->borrow->borrow_date = $data->borrow_date ?? date('Y-m-d');
             $this->borrow->return_date = $data->return_date ?? null;
             $this->borrow->due_date = $data->due_date ?? null;

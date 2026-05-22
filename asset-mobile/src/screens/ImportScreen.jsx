@@ -379,6 +379,25 @@ const ImportScreen = ({ navigation }) => {
                     const headers = rawData[headerIdx];
                     const dataRows = rawData.slice(headerIdx + 1);
 
+                    // --- Extract division_name from row 2 (index 1) ---
+                    let divisionName = '';
+                    if (rawData.length > 1) {
+                        const row2 = rawData[1];
+                        if (Array.isArray(row2)) {
+                            for (const cell of row2) {
+                                const s = String(cell ?? '').trim();
+                                if (s && s.includes('ภาควิชา')) {
+                                    divisionName = s;
+                                    break;
+                                }
+                                // Fallback: first non-empty cell longer than 4 chars
+                                if (s && s.length > 4 && !divisionName) {
+                                    divisionName = s;
+                                }
+                            }
+                        }
+                    }
+
                     const mappedData = dataRows.map(row => {
                         const obj = {};
                         headers.forEach((h, i) => {
@@ -392,6 +411,8 @@ const ImportScreen = ({ navigation }) => {
                         // Defaults
                         if (!obj.quantity) obj.quantity = 1;
                         if (!obj.status) obj.status = 'ใช้งานได้';
+                        // Inject division_name from row 2
+                        obj.division_name = divisionName || '';
                         return obj;
                     }).filter(r => r.asset_name);
 

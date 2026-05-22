@@ -110,7 +110,7 @@ function parseAssetTable(text) {
             const line = lines[i];
 
             // Skip header/footer lines
-            if (line.match(/ลำดับ|รหัสทรัพย์สิน|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น|มหาวิทยาลัย|ใบรับครุภัณฑ์|คณะเทคโนโลยี|รหัสแผนงาน|รหัสกองทุน|กองทุน|แผนงาน|รหัสหมวด|หมวดครุภัณฑ์|แหล่งเงิน|หน่วยงาน|กิจกรรม|เล่มที่|ปีงบประมาณ|วันที่นำเข้า|รหัสงาน/)) continue;
+            if (line.match(/ลำดับ|รหัสทรัพย์สิน|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น|มหาวิทยาลัย|ใบรับครุภัณฑ์|คณะเทคโนโลยี|รหัสแผนงาน|รหัสกองทุน|กองทุน|แผนงาน|รหัสหมวด|หมวดครุภัณฑ์|แหล่งเงิน|คณะ|กิจกรรม|เล่มที่|ปีงบประมาณ|วันที่นำเข้า|รหัสงาน/)) continue;
 
             // Skip lines that look like category code fragments: [S30502-0004] → "530502-0004", "!530502-000411"
             if (line.match(/^[^a-zA-Z\u0E00-\u0E7F]*[S!|]?\s*30502\s*[-]?\s*0{2,}/i)) continue;
@@ -988,16 +988,16 @@ export default function OcrImportTab() {
                         <p className="text-sm font-medium text-gray-700 mb-3">ตั้งค่าเพิ่มเติม (ใช้กับทุกรายการ)</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
-                                <label className="block text-xs text-gray-500 mb-1">หน่วยงาน</label>
+                                <label className="block text-xs text-gray-500 mb-1">คณะ</label>
                                 <select
                                     onChange={e => {
                                         const val = e.target.value;
                                         setParsedAssets(prev => prev.map(a => ({ ...a, department_id: val })));
                                     }}
                                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                                    <option value="">-- เลือกหน่วยงาน --</option>
+                                    <option value="">-- เลือกคณะ --</option>
                                     {departments.map(d => (
-                                        <option key={d.department_id} value={d.department_id}>{d.department_name}</option>
+                                        <option key={d.department_id} value={d.department_id}>{d.faculty}</option>
                                     ))}
                                 </select>
                             </div>

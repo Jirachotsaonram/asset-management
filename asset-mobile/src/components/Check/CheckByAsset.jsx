@@ -335,16 +335,16 @@ export default function CheckByAsset({ navigation }) {
                                     ))}
                                 </ScrollView>
                             </FilterSection>
-                            <FilterSection label="หน่วยงาน">
+                            <FilterSection label="คณะ">
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    {[{ department_id: 'all', department_name: 'ทั้งหมด' }, ...departments].map(d => (
+                                    {[{ department_id: 'all', faculty: 'ทั้งหมด' }, ...departments].map(d => (
                                         <TouchableOpacity
                                             key={d.department_id}
                                             style={[styles.optionChip, draftFilters.department_id === d.department_id && styles.optionChipActive, { marginRight: 8 }]}
                                             onPress={() => setDraftFilters(p => ({ ...p, department_id: d.department_id }))}
                                         >
                                             <Text style={[styles.optionChipText, draftFilters.department_id === d.department_id && styles.optionChipTextActive]}>
-                                                {d.department_name}
+                                                {d.faculty}
                                             </Text>
                                         </TouchableOpacity>
                                     ))}

@@ -1,8 +1,9 @@
 -- =============================================================
 -- Asset Management DB - Fresh Install (Clean)
--- วันที่: 2026-05-16
+-- วันที่: 2026-05-22
 -- สร้างตารางทั้งหมด + admin 1 account + system_settings
 -- ไม่มี asset_schedules / check_schedules (ลบแล้ว)
+-- ลบคอลัมน์ department (text) ออกจาก assets (ซ้ำกับ department_id FK)
 -- =============================================================
 
 CREATE DATABASE IF NOT EXISTS `asset_management_db`
@@ -75,8 +76,6 @@ CREATE TABLE `assets` (
   `price` decimal(15,2) DEFAULT 0.00 COMMENT 'มูลค่าครุภัณฑ์ (บาท)',
   `received_date` date DEFAULT NULL COMMENT 'วันที่รับเข้าคลัง',
   `department_id` int(11) DEFAULT NULL COMMENT 'รหัสหน่วยงาน (FK)',
-  `department` varchar(100) DEFAULT NULL COMMENT 'ชื่อหน่วยงาน',
-  `faculty_name` varchar(200) DEFAULT NULL COMMENT 'ชื่อคณะ',
   `delivery_number` varchar(100) DEFAULT NULL COMMENT 'เลขที่ใบส่งของ',
   `fund_code` varchar(50) DEFAULT NULL COMMENT 'รหัสกองทุน',
   `plan_code` varchar(50) DEFAULT NULL COMMENT 'รหัสแผนงาน',
@@ -240,8 +239,6 @@ SELECT
     a.price,
     a.received_date,
     a.department_id,
-    a.department,
-    a.faculty_name,
     a.delivery_number,
     a.fund_code,
     a.plan_code,
@@ -256,6 +253,7 @@ SELECT
     a.created_at,
     a.updated_at,
     d.department_name,
+    d.faculty AS faculty_name,
     l.building_name,
     l.floor,
     l.room_number,
@@ -279,7 +277,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- สรุป:
 -- ✅ สร้างตาราง 11 ตาราง (ไม่มี schedule tables)
 -- ✅ สร้าง View v_assets_with_check_info
+--    - ไม่มี a.department (text) → ลบแล้ว (2026-05-22)
+--    - ไม่มี a.faculty_name → ใช้ d.faculty AS faculty_name แทน (2026-05-22)
 -- ✅ users = admin 1 account (username: admin, password: admin123)
 -- ✅ system_settings = ค่ารอบตรวจประจำปี
 -- ✅ ตารางอื่นๆ = ว่างพร้อมใช้งาน
+-- ✅ ลบคอลัมน์ department (text) ออกจาก assets แล้ว (2026-05-22)
+-- ✅ ลบคอลัมน์ faculty_name ออกจาก assets แล้ว (2026-05-22)
 -- =============================================

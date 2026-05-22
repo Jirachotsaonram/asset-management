@@ -17,7 +17,7 @@ export default function QRCodeModal({ asset, onClose }) {
     serial: asset.serial_number,
     barcode: asset.barcode,
     status: asset.status,
-    dept: asset.department_name,
+    dept: asset.faculty,
     faculty: asset.faculty_name,
     price: asset.price,
     date: asset.received_date
@@ -134,7 +134,7 @@ export default function QRCodeModal({ asset, onClose }) {
             <!-- 4. ปีงบประมาณ -->
             <p class="info-text"><span class="label">ปีงบประมาณ:</span> ${getFiscalYear(asset.received_date)}</p>
             
-            <!-- 5. หน่วยงาน/คณะ -->
+            <!-- 5. คณะ/คณะ -->
             <p class="info-text"><span class="label">คณะ:</span> ${asset.faculty_name || '-'}</p>
           </div>
           <div class="no-print" style="margin-top: 20px;">

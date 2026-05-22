@@ -261,7 +261,7 @@ export default function AssetsScreen({ navigation }) {
               <View style={styles.detailItem}>
                 <Ionicons name="business-outline" size={12} color="#6B7280" />
                 <Text style={styles.detailText} numberOfLines={1}>
-                  {item.department_name || '-'}
+                  {item.faculty_name || '-'} {item.division_name ? `(${item.division_name})` : ''}
                 </Text>
               </View>
             </View>
@@ -432,7 +432,7 @@ export default function AssetsScreen({ navigation }) {
                 ))}
               </ScrollView>
 
-              <Text style={styles.filterLabel}>หน่วยงาน</Text>
+              <Text style={styles.filterLabel}>คณะ</Text>
               <View style={styles.selectContainer}>
                 {/* Simple mapping for departments as chips to keep it premium look */}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
@@ -449,7 +449,7 @@ export default function AssetsScreen({ navigation }) {
                         styles.optionChipText,
                         (d === 'all' ? filters.department === 'all' : String(filters.department) === String(d.department_id)) && styles.optionChipTextSelected
                       ]}>
-                        {d === 'all' ? 'ทั้งหมด' : d.department_name}
+                        {d === 'all' ? 'ทั้งหมด' : d.faculty}
                       </Text>
                     </TouchableOpacity>
                   ))}

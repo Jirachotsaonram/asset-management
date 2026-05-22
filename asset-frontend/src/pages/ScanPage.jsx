@@ -664,9 +664,9 @@ export default function ScanPage() {
                     <div>
                       <p className="text-sm text-gray-500 flex items-center gap-1">
                         <Building2 size={14} />
-                        หน่วยงาน
+                        คณะ
                       </p>
-                      <p className="font-medium text-gray-800">{scannedAsset.department_name || '-'}</p>
+                      <p className="font-medium text-gray-800">{scannedAsset.faculty || '-'}</p>
                     </div>
                   </div>
 

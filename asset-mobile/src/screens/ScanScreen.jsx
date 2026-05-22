@@ -89,7 +89,7 @@ export default function ScanScreen({ navigation }) {
           barcode: richData.barcode,
           serial_number: richData.serial,
           status: richData.status,
-          department_name: richData.dept,
+          faculty: richData.dept,
           building_name: richData.building,
           room_number: richData.room
         };
@@ -454,8 +454,8 @@ export default function ScanScreen({ navigation }) {
                     </Text>
                   </View>
                   <View style={styles.detailRow}>
-                    <Text style={styles.expandLabel}>หน่วยงาน:</Text>
-                    <Text style={styles.expandValue}>{scannedAsset.department_name || '-'}</Text>
+                    <Text style={styles.expandLabel}>คณะ:</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.faculty || '-'}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.expandLabel}>คณะ/ภาควิชา:</Text>

@@ -35,7 +35,7 @@ class ReportController {
                     ac.check_status,
                     ac.remark,
                     u.fullname as checker_name,
-                    d.department_name,
+                    d.faculty as department_name,
                     CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
                 FROM asset_check ac
                 JOIN assets a ON ac.asset_id = a.asset_id
@@ -84,7 +84,7 @@ class ReportController {
     // รายงานครุภัณฑ์ตามหน่วยงาน
     public function assetByDepartment() {
         $query = "SELECT 
-                    d.department_name,
+                    d.faculty as department_name,
                     d.faculty,
                     COUNT(a.asset_id) as asset_count,
                     SUM(a.price * a.quantity) as total_value,
@@ -211,7 +211,7 @@ class ReportController {
                     a.asset_name,
                     a.serial_number,
                     a.status,
-                    d.department_name,
+                    d.faculty as department_name,
                     CONCAT(l.building_name, ' ห้อง ', l.room_number) as location,
                     ac.check_date as last_check_date,
                     DATEDIFF(NOW(), ac.check_date) as days_since_check,
@@ -301,7 +301,7 @@ class ReportController {
                     a.asset_name,
                     a.serial_number,
                     b.borrower_name,
-                    d.department_name as borrower_department,
+                    d.faculty as borrower_department,
                     DATEDIFF(
                         CASE 
                             WHEN b.status = 'คืนแล้ว' THEN b.return_date 
@@ -349,7 +349,7 @@ class ReportController {
                 
                 $query = "SELECT 
                             barcode, asset_name, serial_number, quantity, unit, price, received_date, 
-                            status, department_name, building_name, floor, room_number, 
+                            status, faculty_name as department_name, building_name, floor, room_number, 
                             last_check_date, last_checker
                         FROM v_assets_with_check_info
                         ORDER BY barcode, asset_id";
@@ -370,7 +370,7 @@ class ReportController {
                             ac.check_status,
                             ac.remark,
                             u.fullname as checker_name,
-                            d.department_name,
+                            d.faculty as department_name,
                             CONCAT(l.building_name, ' ห้อง ', l.room_number) as location
                         FROM asset_check ac
                         JOIN assets a ON ac.asset_id = a.asset_id
@@ -425,7 +425,7 @@ class ReportController {
                 $headers = ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial Number', 'จำนวน', 'หน่วย', 'ราคา', 'วันที่รับ', 'สถานะ', 'หน่วยงาน', 'อาคาร', 'ชั้น', 'ห้อง', 'วันที่ตรวจล่าสุด', 'ผู้ตรวจล่าสุด'];
                 $query = "SELECT 
                             barcode, asset_name, serial_number, quantity, unit, price, received_date, 
-                            status, department_name, building_name, floor, room_number, 
+                            status, faculty_name as department_name, building_name, floor, room_number, 
                             last_check_date, last_checker
                         FROM v_assets_with_check_info
                         ORDER BY barcode, asset_id";
@@ -436,7 +436,7 @@ class ReportController {
                 $query = "SELECT 
                             ac.check_id, ac.check_date, a.barcode, a.asset_name, a.serial_number, 
                             ac.check_status, ac.remark, u.fullname as checker_name, 
-                            d.department_name, CONCAT(COALESCE(l.building_name,''), ' ห้อง ', COALESCE(l.room_number,'')) as location
+                            d.faculty as department_name, CONCAT(COALESCE(l.building_name,''), ' ห้อง ', COALESCE(l.room_number,'')) as location
                         FROM asset_check ac
                         JOIN assets a ON ac.asset_id = a.asset_id
                         JOIN users u ON ac.user_id = u.user_id
@@ -528,7 +528,7 @@ class ReportController {
                         asst.asset_name,
                         CONCAT(COALESCE(loc.building_name,'ไม่ระบุ'), IF(loc.room_number IS NOT NULL, CONCAT(' ห้อง ', loc.room_number), '')) as location_display,
                         asst.status,
-                        COALESCE(dept.department_name, '-') as department_name,
+                        COALESCE(dept.faculty, '-') as department_name,
                         asst.asset_id,
                         YEAR(ac.check_date) as check_year,
                         ac.check_status

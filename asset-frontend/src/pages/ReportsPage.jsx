@@ -49,7 +49,7 @@ const REPORT_TYPES = [
   { key: 'asset-summary', title: 'รายงานสรุปครุภัณฑ์', desc: 'ข้อมูลครุภัณฑ์ทุกรายการพร้อมรายละเอียด', icon: FileText, color: 'blue', gradient: 'from-blue-500 to-blue-600' },
   { key: 'check-report', title: 'รายงานการตรวจสอบ', desc: 'ประวัติการตรวจสอบครุภัณฑ์', icon: CheckCircle, color: 'green', gradient: 'from-green-500 to-green-600', hasDateFilter: true },
   { key: 'by-status', title: 'สรุปตามสถานะ', desc: 'จำนวนและมูลค่าแยกตามสถานะ', icon: PieChartIcon, color: 'purple', gradient: 'from-purple-500 to-purple-600' },
-  { key: 'by-department', title: 'สรุปตามหน่วยงาน', desc: 'จำนวนครุภัณฑ์แยกตามหน่วยงาน', icon: Building, color: 'indigo', gradient: 'from-indigo-500 to-indigo-600' },
+  { key: 'by-department', title: 'สรุปตามคณะ', desc: 'จำนวนครุภัณฑ์แยกตามคณะ', icon: Building, color: 'indigo', gradient: 'from-indigo-500 to-indigo-600' },
   { key: 'unchecked', title: 'ครุภัณฑ์ยังไม่ได้ตรวจ', desc: 'รายการที่ยังไม่ได้รับการตรวจสอบ', icon: AlertTriangle, color: 'red', gradient: 'from-red-500 to-red-600' },
   { key: 'movement-history', title: 'ประวัติการเคลื่อนย้าย', desc: 'บันทึกการย้ายครุภัณฑ์', icon: MapPin, color: 'orange', gradient: 'from-orange-500 to-orange-600', hasDateFilter: true },
   { key: 'borrow-report', title: 'รายงานการยืม', desc: 'สรุปข้อมูลการยืม-คืนครุภัณฑ์', icon: TrendingUp, color: 'teal', gradient: 'from-teal-500 to-teal-600' },
@@ -57,8 +57,8 @@ const REPORT_TYPES = [
 
 const REPORT_TABLE_CONFIG = {
   'asset-summary': {
-    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา (฿)', 'สถานะ', 'หน่วยงาน', 'สถานที่'],
-    fields: ['asset_id', 'asset_name', 'serial_number', '_quantity', '_price', '_status', 'department_name', 'location'],
+    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'Serial', 'จำนวน', 'ราคา (฿)', 'สถานะ', 'คณะ', 'สถานที่'],
+    fields: ['asset_id', 'asset_name', 'serial_number', '_quantity', '_price', '_status', 'faculty', 'location'],
   },
   'check-report': {
     headers: ['วันที่ตรวจ', 'หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'ผลการตรวจ', 'ผู้ตรวจ', 'หมายเหตุ'],
@@ -69,12 +69,12 @@ const REPORT_TABLE_CONFIG = {
     fields: ['_status', 'count', '_total_value'],
   },
   'by-department': {
-    headers: ['หน่วยงาน', 'คณะ', 'จำนวน', 'มูลค่า (฿)', 'ใช้งานได้', 'รอซ่อม', 'ไม่พบ'],
-    fields: ['department_name', 'faculty', 'asset_count', '_total_value', '_active', '_repair', '_missing'],
+    headers: ['คณะ', 'คณะ', 'จำนวน', 'มูลค่า (฿)', 'ใช้งานได้', 'รอซ่อม', 'ไม่พบ'],
+    fields: ['faculty', 'faculty', 'asset_count', '_total_value', '_active', '_repair', '_missing'],
   },
   'unchecked': {
-    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'สถานะ', 'หน่วยงาน', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ไม่ได้ตรวจมา'],
-    fields: ['asset_id', 'asset_name', '_status', 'department_name', 'location', 'last_check_date', '_days'],
+    headers: ['หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'สถานะ', 'คณะ', 'สถานที่', 'วันที่ตรวจล่าสุด', 'ไม่ได้ตรวจมา'],
+    fields: ['asset_id', 'asset_name', '_status', 'faculty', 'location', 'last_check_date', '_days'],
   },
   'movement-history': {
     headers: ['วันที่ย้าย', 'หมายเลขครุภัณฑ์', 'ชื่อครุภัณฑ์', 'จาก', 'ไปยัง', 'ผู้ดำเนินการ', 'หมายเหตุ'],
@@ -412,7 +412,7 @@ export default function ReportsPage() {
                 <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
                     <Pie data={chartData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
-                      paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
                       labelLine={false} fontSize={11}>
                       {chartData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
                     </Pie>

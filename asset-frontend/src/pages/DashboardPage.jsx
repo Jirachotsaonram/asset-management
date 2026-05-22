@@ -97,11 +97,11 @@ export default function DashboardPage() {
 
       const sc = { 'ใช้งานได้': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
       let tv = 0;
-      let totalAsssetCount = 0;
+      let totalAssetCount = 0;
 
       statusReport.forEach(item => {
         const count = parseInt(item.count || 0);
-        totalAsssetCount += count;
+        totalAssetCount += count;
 
         if (Object.prototype.hasOwnProperty.call(sc, item.status)) {
           sc[item.status] = count;
@@ -113,10 +113,12 @@ export default function DashboardPage() {
         name: c.label, value: sc[c.label] || 0, color: c.color,
       })).filter(d => d.value > 0);
 
+      // Use totalAssetCount from by-status for status-related stats (correct total for percentages)
+      // Use annStats for check-related stats (checked/unchecked within period)
       setStats({
-        total: annStats.total,
+        total: totalAssetCount,
         checked: annStats.checked,
-        unchecked: annStats.unchecked,
+        unchecked: Math.max(0, totalAssetCount - annStats.checked),
         available: sc['ใช้งานได้'], maintenance: sc['รอซ่อม'],
         pendingDisposal: sc['รอจำหน่าย'], disposed: sc['จำหน่ายแล้ว'],
         missing: sc['ไม่พบ'], totalValue: tv,
@@ -130,7 +132,7 @@ export default function DashboardPage() {
     } finally { setLoading(false); }
   };
 
-  const checkedPct = stats.total > 0 ? ((stats.checked / stats.total) * 100).toFixed(1) : 0;
+  const checkedPct = stats.total > 0 ? Math.min(100, ((stats.checked / stats.total) * 100)).toFixed(1) : 0;
   const availablePct = stats.total > 0 ? ((stats.available / stats.total) * 100).toFixed(1) : 0;
 
   const alertCount = useMemo(() => {
@@ -284,7 +286,7 @@ export default function DashboardPage() {
         {STATUS_CONFIG.map(s => {
           const Icon = s.icon;
           const value = stats[s.key] || 0;
-          const pct = stats.total > 0 ? ((value / stats.total) * 100).toFixed(0) : 0;
+          const pct = stats.total > 0 ? ((value / stats.total) * 100).toFixed(1) : 0;
           return (
             <div key={s.key} className={`${s.lightClass} rounded-xl p-4 border border-gray-100 hover:shadow-md transition cursor-pointer`}
               onClick={() => navigate('/reports')}>
@@ -319,7 +321,7 @@ export default function DashboardPage() {
                   <PieChart>
                     <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={80}
                       paddingAngle={3} dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
                       labelLine={false} fontSize={10}>
                       {statusData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
                     </Pie>

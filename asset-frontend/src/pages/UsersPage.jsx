@@ -45,7 +45,7 @@ export default function UsersPage() {
       const response = await api.get('/users');
       setUsers(response.data.data || []);
     } catch (error) {
-      toast.error('ไม่สามารถโหลดข้อมูลได้');
+      toast.error(error.response?.data?.message || 'ไม่สามารถโหลดข้อมูลได้');
     } finally {
       setLoading(false);
     }

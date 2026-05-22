@@ -48,19 +48,24 @@ class DepartmentController {
     public function create() {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!empty($data->department_name)) {
-            $this->department->department_name = $data->department_name;
-            $this->department->faculty = $data->faculty ?? '';
-
-            $id = $this->department->create();
-            
-            if ($id) {
-                Response::success('เพิ่มหน่วยงานสำเร็จ', ['department_id' => $id]);
-            } else {
-                Response::error('ไม่สามารถเพิ่มหน่วยงานได้', 500);
-            }
+        if (!empty($data->faculty)) {
+            $this->department->faculty = $data->faculty;
+        } elseif (!empty($data->department_name)) {
+            // Fallback for older frontend before migration
+            $this->department->faculty = $data->department_name;
         } else {
-            Response::error('กรุณากรอกชื่อหน่วยงาน', 400);
+            Response::error('กรุณาระบุคณะ (faculty)', 400);
+            return;
+        }
+        
+        $this->department->division_name = $data->division_name ?? null;
+
+        $id = $this->department->create();
+        
+        if ($id) {
+            Response::success('เพิ่มหน่วยงานสำเร็จ', ['department_id' => $id]);
+        } else {
+            Response::error('ไม่สามารถเพิ่มหน่วยงานได้', 500);
         }
     }
 
@@ -68,8 +73,14 @@ class DepartmentController {
         $data = json_decode(file_get_contents("php://input"));
 
         $this->department->department_id = $id;
-        $this->department->department_name = $data->department_name;
-        $this->department->faculty = $data->faculty ?? '';
+        
+        if (!empty($data->faculty)) {
+            $this->department->faculty = $data->faculty;
+        } elseif (!empty($data->department_name)) {
+            $this->department->faculty = $data->department_name;
+        }
+        
+        $this->department->division_name = $data->division_name ?? null;
 
         if ($this->department->update()) {
             Response::success('อัปเดตหน่วยงานสำเร็จ');

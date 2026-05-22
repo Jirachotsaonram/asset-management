@@ -579,3 +579,2635 @@ Stack trace:
 [21-May-2026 16:26:53 Europe/Berlin] ImageUpload: Received file: 7d2d65b5-a6e7-4e2a-8d8c-a48bea88581a.jpeg size: 18136 type: image/jpeg
 [21-May-2026 16:26:53 Europe/Berlin] ImageUpload: Attempting to resize image
 [21-May-2026 16:26:54 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0f162dee9d05.30268061.jpg
+[22-May-2026 08:28:36 Europe/Berlin] Import: Starting import of 449 rows
+[22-May-2026 08:32:26 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 08:32:26 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 08:32:40 Europe/Berlin] ImageUpload: Received file: images.jpg size: 3080 type: image/jpeg
+[22-May-2026 08:32:40 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 08:32:40 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0ff888a5d8a9.33856606.jpg
+[22-May-2026 08:34:32 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 08:34:32 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 08:34:32 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a0ff8f895bbe1.06702692.jpg
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:11 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:12 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Received file: 22_OLED.webp size: 127316 type: image/webp
+[22-May-2026 11:00:13 Europe/Berlin] ImageUpload: Invalid mime type: image/webp
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bba5d14b3.91975374.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bba6f1964.93142831.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bba7b7015.63825160.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bba89ba96.30090543.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bba90dff2.85749535.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bba9d17d1.07855325.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbaa8ce36.85552827.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbabf2a64.13545814.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbacada19.66821365.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbad17043.08847090.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbad7d726.98219056.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbae163a1.07173069.jpg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:50 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbaf04095.05840377.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb0ae965.19739973.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb108a32.45728271.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb171f77.42006238.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb258da6.80997110.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb2df943.55734469.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb3c1882.37536546.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb4338c7.39063392.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb4f8ad0.19706337.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb5a42f6.50489107.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb664d64.88267448.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb6cb817.52610834.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb7c5b84.72613880.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb881bf6.44829815.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb8f2bb2.60396654.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbb977800.44428848.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbba647e7.88469455.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbb20571.25540970.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbbd5931.91906866.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbc84b39.71749848.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbcee540.07209511.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbd4f282.51914980.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbde8539.32061793.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbea3371.05150096.jpg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:51 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbbf0c678.06365940.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc01d347.68767563.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc092ca8.33018778.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc143559.98786786.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc1fad66.68380130.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc266081.74271089.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc325705.21026488.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc3a20a3.20176878.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc465464.54769515.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc4c17c1.41742823.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc520839.88607761.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc58a609.37534815.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc643ca3.29654087.jpg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Attempting to resize image
+[22-May-2026 11:02:52 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a101bbc6f8e82.43578503.jpg
+[22-May-2026 12:12:23 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php:30
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php(30): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(200): BorrowController->getAll()
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\BorrowController.php on line 30
+[22-May-2026 12:18:49 Europe/Berlin] Import: Starting import of 515 rows
+[22-May-2026 12:48:41 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:42 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:43 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:44 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:47 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:48:47 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:49:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:49:49 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:50:20 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:50:21 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:54:07 Europe/Berlin] Import: Starting import of 515 rows
+[22-May-2026 12:54:07 Europe/Berlin] Row 1 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 2 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 3 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 4 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 5 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 6 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 7 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 8 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 9 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 10 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 11 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 12 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 13 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 14 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 15 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 16 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 17 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 18 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 19 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 20 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 21 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 22 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 23 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 24 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 25 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 26 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 27 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 28 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 29 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 30 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 31 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 32 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 33 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 34 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 35 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 36 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 37 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 38 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 39 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 40 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 41 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 42 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 43 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 44 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 45 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 46 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 47 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 48 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 49 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 50 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 51 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 52 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 53 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 54 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 55 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 56 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 57 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 58 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 59 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 60 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 61 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 62 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 63 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 64 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 65 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 66 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 67 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 68 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 69 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 70 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 71 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 72 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 73 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 74 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 75 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 76 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 77 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 78 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 79 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 80 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 81 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 82 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 83 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 84 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 85 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 86 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 87 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 88 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 89 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 90 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 91 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 92 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 93 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 94 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 95 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 96 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 97 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 98 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 99 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 100 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 101 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 102 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 103 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 104 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 105 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 106 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 107 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 108 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 109 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 110 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 111 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 112 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 113 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 114 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 115 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 116 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 117 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 118 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 119 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 120 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 121 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 122 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 123 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 124 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 125 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 126 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 127 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 128 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 129 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 130 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 131 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 132 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 133 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 134 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 135 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 136 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 137 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 138 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 139 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 140 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 141 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 142 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 143 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 144 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 145 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 146 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 147 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 148 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 149 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 150 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 151 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 152 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 153 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 154 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 155 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 156 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 157 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 158 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 159 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 160 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 161 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 162 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 163 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 164 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 165 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 166 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 167 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 168 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 169 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 170 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 171 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 172 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 173 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 174 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 175 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 176 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 177 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 178 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 179 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 180 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 181 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 182 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 183 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 184 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 185 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 186 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 187 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 188 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 189 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 190 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 191 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 192 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 193 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 194 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 195 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 196 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 197 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 198 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 199 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 200 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 201 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 202 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 203 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 204 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 205 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 206 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 207 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 208 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 209 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 210 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 211 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 212 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 213 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 214 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 215 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 216 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 217 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 218 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 219 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 220 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 221 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 222 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 223 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 224 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 225 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 226 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 227 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 228 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 229 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 230 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 231 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 232 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 233 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 234 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 235 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 236 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 237 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 238 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 239 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 240 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 241 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 242 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 243 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 244 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 245 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 246 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 247 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 248 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 249 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 250 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 251 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 252 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 253 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 254 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 255 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 256 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 257 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 258 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 259 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 260 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 261 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 262 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 263 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 264 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 265 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 266 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 267 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 268 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 269 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 270 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 271 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 272 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 273 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 274 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 275 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 276 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 277 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 278 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 279 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 280 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 281 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 282 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 283 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 284 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 285 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 286 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 287 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 288 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 289 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 290 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 291 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 292 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 293 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 294 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 295 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 296 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 297 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 298 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 299 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 300 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 301 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 302 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 303 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 304 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 305 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 306 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 307 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 308 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 309 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 310 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 311 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 312 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 313 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 314 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 315 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 316 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 317 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 318 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 319 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 320 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 321 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 322 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 323 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 324 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 325 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 326 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 327 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 328 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 329 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 330 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 331 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 332 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 333 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 334 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 335 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 336 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 337 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 338 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 339 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 340 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 341 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 342 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 343 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 344 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 345 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 346 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 347 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 348 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 349 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 350 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 351 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 352 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 353 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 354 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 355 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 356 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 357 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 358 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 359 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 360 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 361 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 362 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 363 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 364 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 365 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 366 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 367 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 368 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 369 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 370 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 371 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 372 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 373 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 374 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 375 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 376 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 377 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 378 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 379 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 380 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 381 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 382 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 383 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 384 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 385 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 386 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 387 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 388 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 389 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 390 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 391 parsed department_id: 1
+[22-May-2026 12:54:07 Europe/Berlin] Row 392 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 393 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 394 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 395 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 396 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 397 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 398 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 399 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 400 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 401 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 402 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 403 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 404 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 405 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 406 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 407 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 408 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 409 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 410 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 411 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 412 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 413 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 414 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 415 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 416 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 417 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 418 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 419 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 420 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 421 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 422 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 423 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 424 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 425 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 426 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 427 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 428 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 429 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 430 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 431 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 432 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 433 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 434 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 435 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 436 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 437 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 438 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 439 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 440 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 441 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 442 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 443 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 444 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 445 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 446 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 447 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 448 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 449 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 450 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 451 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 452 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 453 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 454 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 455 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 456 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 457 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 458 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 459 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 460 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 461 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 462 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 463 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 464 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 465 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 466 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 467 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 468 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 469 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 470 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 471 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 472 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 473 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 474 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 475 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 476 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 477 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 478 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 479 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 480 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 481 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 482 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 483 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 484 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 485 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 486 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 487 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 488 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 489 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 490 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 491 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 492 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 493 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 494 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 495 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 496 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 497 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 498 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 499 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 500 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 501 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 502 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 503 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 504 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 505 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 506 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 507 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 508 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 509 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 510 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 511 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 512 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 513 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 514 parsed department_id: 1
+[22-May-2026 12:54:08 Europe/Berlin] Row 515 parsed department_id: 1
+[22-May-2026 12:56:54 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:56:55 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:56:55 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:57:28 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:57:29 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:57:29 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:57:30 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'DESC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 12:57:30 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'faculty' in 'order clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php:234
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php(234): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\AssetController.php(54): Asset->readPaginated(1, 50, Array, 'faculty', 'ASC')
+#2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(62): AssetController->getAll()
+#3 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\Asset.php on line 234
+[22-May-2026 13:02:40 Europe/Berlin] Import: Starting import of 449 rows
+[22-May-2026 13:02:40 Europe/Berlin] Row 1 parsed department_id: 1
+[22-May-2026 13:02:40 Europe/Berlin] Row 2 parsed department_id: 1
+[22-May-2026 13:02:40 Europe/Berlin] Row 3 parsed department_id: 1
+[22-May-2026 13:02:40 Europe/Berlin] Row 4 parsed department_id: 1
+[22-May-2026 13:02:40 Europe/Berlin] Row 5 parsed department_id: 1
+[22-May-2026 13:02:40 Europe/Berlin] Row 6 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 7 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 8 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 9 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 10 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 11 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 12 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 13 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 14 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 15 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 16 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 17 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 18 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 19 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 20 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 21 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 22 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 23 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 24 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 25 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 26 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 27 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 28 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 29 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 30 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 31 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 32 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 33 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 34 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 35 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 36 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 37 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 38 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 39 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 40 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 41 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 42 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 43 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 44 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 45 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 46 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 47 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 48 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 49 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 50 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 51 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 52 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 53 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 54 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 55 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 56 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 57 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 58 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 59 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 60 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 61 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 62 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 63 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 64 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 65 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 66 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 67 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 68 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 69 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 70 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 71 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 72 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 73 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 74 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 75 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 76 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 77 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 78 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 79 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 80 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 81 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 82 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 83 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 84 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 85 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 86 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 87 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 88 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 89 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 90 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 91 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 92 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 93 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 94 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 95 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 96 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 97 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 98 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 99 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 100 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 101 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 102 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 103 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 104 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 105 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 106 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 107 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 108 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 109 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 110 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 111 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 112 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 113 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 114 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 115 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 116 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 117 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 118 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 119 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 120 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 121 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 122 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 123 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 124 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 125 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 126 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 127 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 128 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 129 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 130 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 131 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 132 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 133 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 134 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 135 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 136 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 137 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 138 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 139 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 140 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 141 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 142 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 143 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 144 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 145 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 146 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 147 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 148 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 149 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 150 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 151 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 152 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 153 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 154 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 155 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 156 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 157 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 158 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 159 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 160 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 161 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 162 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 163 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 164 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 165 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 166 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 167 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 168 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 169 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 170 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 171 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 172 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 173 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 174 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 175 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 176 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 177 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 178 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 179 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 180 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 181 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 182 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 183 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 184 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 185 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 186 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 187 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 188 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 189 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 190 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 191 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 192 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 193 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 194 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 195 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 196 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 197 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 198 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 199 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 200 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 201 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 202 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 203 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 204 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 205 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 206 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 207 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 208 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 209 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 210 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 211 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 212 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 213 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 214 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 215 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 216 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 217 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 218 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 219 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 220 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 221 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 222 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 223 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 224 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 225 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 226 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 227 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 228 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 229 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 230 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 231 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 232 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 233 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 234 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 235 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 236 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 237 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 238 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 239 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 240 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 241 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 242 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 243 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 244 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 245 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 246 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 247 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 248 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 249 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 250 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 251 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 252 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 253 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 254 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 255 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 256 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 257 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 258 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 259 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 260 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 261 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 262 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 263 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 264 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 265 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 266 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 267 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 268 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 269 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 270 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 271 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 272 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 273 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 274 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 275 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 276 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 277 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 278 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 279 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 280 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 281 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 282 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 283 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 284 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 285 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 286 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 287 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 288 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 289 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 290 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 291 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 292 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 293 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 294 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 295 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 296 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 297 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 298 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 299 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 300 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 301 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 302 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 303 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 304 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 305 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 306 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 307 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 308 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 309 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 310 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 311 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 312 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 313 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 314 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 315 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 316 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 317 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 318 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 319 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 320 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 321 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 322 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 323 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 324 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 325 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 326 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 327 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 328 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 329 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 330 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 331 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 332 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 333 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 334 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 335 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 336 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 337 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 338 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 339 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 340 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 341 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 342 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 343 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 344 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 345 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 346 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 347 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 348 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 349 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 350 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 351 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 352 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 353 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 354 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 355 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 356 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 357 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 358 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 359 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 360 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 361 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 362 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 363 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 364 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 365 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 366 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 367 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 368 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 369 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 370 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 371 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 372 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 373 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 374 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 375 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 376 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 377 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 378 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 379 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 380 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 381 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 382 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 383 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 384 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 385 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 386 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 387 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 388 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 389 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 390 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 391 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 392 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 393 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 394 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 395 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 396 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 397 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 398 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 399 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 400 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 401 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 402 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 403 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 404 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 405 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 406 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 407 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 408 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 409 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 410 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 411 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 412 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 413 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 414 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 415 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 416 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 417 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 418 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 419 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 420 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 421 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 422 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 423 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 424 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 425 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 426 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 427 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 428 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 429 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 430 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 431 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 432 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 433 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 434 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 435 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 436 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 437 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 438 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 439 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 440 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 441 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 442 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 443 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 444 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 445 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 446 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 447 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 448 parsed department_id: 1
+[22-May-2026 13:02:41 Europe/Berlin] Row 449 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Import: Starting import of 583 rows
+[22-May-2026 13:10:10 Europe/Berlin] Row 1 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 2 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 3 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 4 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 5 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 6 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 7 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 8 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 9 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 10 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 11 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 12 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 13 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 14 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 15 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 16 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 17 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 18 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 19 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 20 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 21 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 22 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 23 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 24 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 25 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 26 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 27 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 28 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 29 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 30 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 31 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 32 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 33 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 34 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 35 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 36 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 37 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 38 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 39 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 40 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 41 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 42 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 43 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 44 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 45 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 46 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 47 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 48 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 49 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 50 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 51 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 52 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 53 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 54 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 55 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 56 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 57 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 58 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 59 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 60 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 61 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 62 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 63 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 64 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 65 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 66 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 67 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 68 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 69 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 70 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 71 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 72 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 73 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 74 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 75 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 76 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 77 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 78 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 79 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 80 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 81 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 82 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 83 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 84 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 85 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 86 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 87 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 88 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 89 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 90 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 91 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 92 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 93 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 94 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 95 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 96 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 97 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 98 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 99 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 100 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 101 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 102 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 103 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 104 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 105 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 106 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 107 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 108 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 109 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 110 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 111 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 112 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 113 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 114 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 115 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 116 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 117 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 118 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 119 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 120 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 121 parsed department_id: 1
+[22-May-2026 13:10:10 Europe/Berlin] Row 122 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 123 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 124 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 125 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 126 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 127 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 128 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 129 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 130 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 131 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 132 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 133 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 134 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 135 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 136 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 137 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 138 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 139 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 140 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 141 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 142 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 143 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 144 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 145 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 146 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 147 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 148 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 149 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 150 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 151 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 152 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 153 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 154 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 155 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 156 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 157 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 158 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 159 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 160 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 161 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 162 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 163 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 164 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 165 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 166 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 167 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 168 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 169 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 170 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 171 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 172 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 173 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 174 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 175 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 176 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 177 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 178 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 179 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 180 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 181 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 182 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 183 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 184 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 185 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 186 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 187 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 188 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 189 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 190 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 191 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 192 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 193 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 194 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 195 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 196 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 197 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 198 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 199 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 200 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 201 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 202 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 203 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 204 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 205 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 206 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 207 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 208 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 209 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 210 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 211 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 212 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 213 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 214 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 215 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 216 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 217 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 218 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 219 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 220 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 221 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 222 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 223 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 224 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 225 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 226 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 227 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 228 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 229 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 230 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 231 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 232 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 233 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 234 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 235 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 236 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 237 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 238 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 239 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 240 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 241 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 242 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 243 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 244 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 245 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 246 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 247 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 248 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 249 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 250 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 251 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 252 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 253 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 254 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 255 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 256 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 257 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 258 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 259 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 260 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 261 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 262 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 263 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 264 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 265 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 266 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 267 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 268 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 269 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 270 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 271 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 272 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 273 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 274 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 275 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 276 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 277 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 278 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 279 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 280 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 281 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 282 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 283 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 284 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 285 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 286 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 287 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 288 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 289 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 290 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 291 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 292 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 293 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 294 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 295 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 296 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 297 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 298 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 299 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 300 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 301 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 302 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 303 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 304 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 305 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 306 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 307 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 308 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 309 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 310 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 311 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 312 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 313 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 314 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 315 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 316 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 317 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 318 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 319 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 320 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 321 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 322 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 323 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 324 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 325 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 326 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 327 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 328 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 329 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 330 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 331 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 332 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 333 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 334 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 335 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 336 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 337 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 338 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 339 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 340 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 341 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 342 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 343 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 344 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 345 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 346 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 347 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 348 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 349 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 350 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 351 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 352 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 353 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 354 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 355 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 356 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 357 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 358 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 359 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 360 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 361 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 362 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 363 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 364 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 365 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 366 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 367 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 368 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 369 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 370 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 371 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 372 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 373 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 374 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 375 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 376 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 377 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 378 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 379 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 380 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 381 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 382 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 383 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 384 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 385 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 386 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 387 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 388 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 389 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 390 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 391 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 392 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 393 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 394 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 395 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 396 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 397 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 398 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 399 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 400 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 401 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 402 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 403 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 404 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 405 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 406 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 407 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 408 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 409 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 410 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 411 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 412 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 413 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 414 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 415 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 416 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 417 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 418 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 419 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 420 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 421 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 422 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 423 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 424 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 425 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 426 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 427 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 428 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 429 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 430 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 431 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 432 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 433 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 434 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 435 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 436 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 437 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 438 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 439 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 440 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 441 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 442 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 443 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 444 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 445 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 446 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 447 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Import: Error at row 447: Serial Number ' ' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[22-May-2026 13:10:11 Europe/Berlin] Row 448 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Import: Error at row 448: Serial Number '  ' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ
+[22-May-2026 13:10:11 Europe/Berlin] Row 449 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 450 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 451 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 452 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 453 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 454 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 455 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 456 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 457 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 458 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 459 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 460 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 461 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 462 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 463 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 464 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 465 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 466 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 467 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 468 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 469 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 470 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 471 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 472 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 473 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 474 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 475 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 476 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 477 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 478 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 479 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 480 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 481 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 482 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 483 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 484 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 485 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 486 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 487 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 488 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 489 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 490 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 491 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 492 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 493 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 494 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 495 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 496 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 497 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 498 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 499 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 500 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 501 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 502 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 503 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 504 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 505 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 506 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 507 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 508 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 509 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 510 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 511 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 512 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 513 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 514 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 515 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 516 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 517 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 518 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 519 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 520 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 521 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 522 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 523 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 524 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 525 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 526 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 527 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 528 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 529 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 530 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 531 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 532 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 533 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 534 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 535 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 536 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 537 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 538 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 539 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 540 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 541 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 542 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 543 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 544 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 545 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 546 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 547 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 548 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 549 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 550 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 551 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 552 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 553 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 554 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 555 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 556 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 557 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 558 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 559 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 560 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 561 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 562 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 563 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 564 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 565 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 566 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 567 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 568 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 569 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 570 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 571 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 572 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 573 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 574 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 575 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 576 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 577 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 578 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 579 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 580 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 581 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 582 parsed department_id: 1
+[22-May-2026 13:10:11 Europe/Berlin] Row 583 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Import: Starting import of 620 rows
+[22-May-2026 13:16:02 Europe/Berlin] Row 1 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 2 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 3 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 4 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 5 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 6 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 7 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 8 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 9 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 10 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 11 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 12 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 13 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 14 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 15 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 16 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 17 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 18 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 19 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 20 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 21 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 22 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 23 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 24 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 25 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 26 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 27 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 28 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 29 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 30 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 31 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 32 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 33 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 34 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 35 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 36 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 37 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 38 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 39 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 40 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 41 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 42 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 43 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 44 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 45 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 46 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 47 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 48 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 49 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 50 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 51 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 52 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 53 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 54 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 55 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 56 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 57 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 58 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 59 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 60 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 61 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 62 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 63 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 64 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 65 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 66 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 67 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 68 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 69 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 70 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 71 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 72 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 73 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 74 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 75 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 76 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 77 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 78 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 79 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 80 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 81 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 82 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 83 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 84 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 85 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 86 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 87 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 88 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 89 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 90 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 91 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 92 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 93 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 94 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 95 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 96 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 97 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 98 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 99 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 100 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 101 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 102 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 103 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 104 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 105 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 106 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 107 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 108 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 109 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 110 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 111 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 112 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 113 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 114 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 115 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 116 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 117 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 118 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 119 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 120 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 121 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 122 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 123 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 124 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 125 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 126 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 127 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 128 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 129 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 130 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 131 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 132 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 133 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 134 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 135 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 136 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 137 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 138 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 139 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 140 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 141 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 142 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 143 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 144 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 145 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 146 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 147 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 148 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 149 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 150 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 151 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 152 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 153 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 154 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 155 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 156 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 157 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 158 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 159 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 160 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 161 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 162 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 163 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 164 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 165 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 166 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 167 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 168 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 169 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 170 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 171 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 172 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 173 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 174 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 175 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 176 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 177 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 178 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 179 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 180 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 181 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 182 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 183 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 184 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 185 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 186 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 187 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 188 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 189 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 190 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 191 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 192 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 193 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 194 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 195 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 196 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 197 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 198 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 199 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 200 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 201 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 202 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 203 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 204 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 205 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 206 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 207 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 208 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 209 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 210 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 211 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 212 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 213 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 214 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 215 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 216 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 217 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 218 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 219 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 220 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 221 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 222 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 223 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 224 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 225 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 226 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 227 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 228 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 229 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 230 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 231 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 232 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 233 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 234 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 235 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 236 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 237 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 238 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 239 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 240 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 241 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 242 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 243 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 244 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 245 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 246 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 247 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 248 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 249 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 250 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 251 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 252 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 253 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 254 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 255 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 256 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 257 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 258 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 259 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 260 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 261 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 262 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 263 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 264 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 265 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 266 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 267 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 268 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 269 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 270 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 271 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 272 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 273 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 274 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 275 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 276 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 277 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 278 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 279 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 280 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 281 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 282 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 283 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 284 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 285 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 286 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 287 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 288 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 289 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 290 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 291 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 292 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 293 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 294 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 295 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 296 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 297 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 298 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 299 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 300 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 301 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 302 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 303 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 304 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 305 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 306 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 307 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 308 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 309 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 310 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 311 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 312 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 313 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 314 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 315 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 316 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 317 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 318 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 319 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 320 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 321 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 322 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 323 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 324 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 325 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 326 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 327 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 328 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 329 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 330 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 331 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 332 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 333 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 334 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 335 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 336 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 337 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 338 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 339 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 340 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 341 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 342 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 343 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 344 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 345 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 346 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 347 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 348 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 349 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 350 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 351 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 352 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 353 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 354 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 355 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 356 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 357 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 358 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 359 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 360 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 361 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 362 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 363 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 364 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 365 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 366 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 367 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 368 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 369 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 370 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 371 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 372 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 373 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 374 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 375 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 376 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 377 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 378 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 379 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 380 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 381 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 382 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 383 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 384 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 385 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 386 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 387 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 388 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 389 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 390 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 391 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 392 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 393 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 394 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 395 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 396 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 397 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 398 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 399 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 400 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 401 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 402 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 403 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 404 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 405 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 406 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 407 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 408 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 409 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 410 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 411 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 412 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 413 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 414 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 415 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 416 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 417 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 418 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 419 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 420 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 421 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 422 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 423 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 424 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 425 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 426 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 427 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 428 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 429 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 430 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 431 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 432 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 433 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 434 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 435 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 436 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 437 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 438 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 439 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 440 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 441 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 442 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 443 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 444 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 445 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 446 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 447 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 448 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 449 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 450 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 451 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 452 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 453 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 454 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 455 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 456 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 457 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 458 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 459 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 460 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 461 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 462 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 463 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 464 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 465 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 466 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 467 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 468 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 469 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 470 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 471 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 472 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 473 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 474 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 475 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 476 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 477 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 478 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 479 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 480 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 481 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 482 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 483 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 484 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 485 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 486 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 487 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 488 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 489 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 490 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 491 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 492 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 493 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 494 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 495 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 496 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 497 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 498 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 499 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 500 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 501 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 502 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 503 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 504 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 505 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 506 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 507 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 508 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 509 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 510 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 511 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 512 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 513 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 514 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 515 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 516 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 517 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 518 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 519 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 520 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 521 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 522 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 523 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 524 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 525 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 526 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 527 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 528 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 529 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 530 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 531 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 532 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 533 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 534 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 535 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 536 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 537 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 538 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 539 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 540 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 541 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 542 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 543 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 544 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 545 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 546 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 547 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 548 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 549 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 550 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 551 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 552 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 553 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 554 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 555 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 556 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 557 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 558 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 559 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 560 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 561 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 562 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 563 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 564 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 565 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 566 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 567 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 568 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 569 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 570 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 571 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 572 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 573 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 574 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 575 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 576 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 577 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 578 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 579 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 580 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 581 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 582 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 583 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 584 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 585 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 586 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 587 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 588 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 589 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 590 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 591 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 592 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 593 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 594 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 595 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 596 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 597 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 598 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 599 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 600 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 601 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 602 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 603 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 604 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 605 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 606 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 607 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 608 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 609 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 610 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 611 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 612 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 613 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 614 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 615 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 616 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 617 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 618 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 619 parsed department_id: 1
+[22-May-2026 13:16:02 Europe/Berlin] Row 620 parsed department_id: 1

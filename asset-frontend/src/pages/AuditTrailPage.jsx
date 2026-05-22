@@ -39,8 +39,8 @@ const ITEMS_PER_PAGE = 50;
 
 const FIELD_LABELS = {
   asset_id: 'รหัสครุภัณฑ์', asset_name: 'ชื่อครุภัณฑ์', serial_number: 'หมายเลข Serial',
-  category_id: 'หมวดหมู่', category_name: 'ชื่อหมวดหมู่', department_id: 'รหัสหน่วยงาน',
-  department_name: 'หน่วยงาน', location_id: 'รหัสสถานที่', building_name: 'อาคาร',
+  category_id: 'หมวดหมู่', category_name: 'ชื่อหมวดหมู่', department_id: 'รหัสคณะ',
+  faculty: 'คณะ', location_id: 'รหัสสถานที่', building_name: 'อาคาร',
   floor: 'ชั้น', room_number: 'ห้อง', status: 'สถานะ', purchase_date: 'วันที่ซื้อ',
   purchase_price: 'ราคา', warranty_end: 'วันหมดประกัน', remark: 'หมายเหตุ',
   description: 'รายละเอียด', image_url: 'รูปภาพ', created_at: 'วันที่สร้าง',
@@ -50,7 +50,7 @@ const FIELD_LABELS = {
   purpose: 'วัตถุประสงค์', price: 'ราคา', quantity: 'จำนวน', unit: 'หน่วย',
   received_date: 'วันที่รับ', barcode: 'บาร์โค้ด', reference_number: 'เลขอ้างอิง',
   fund_code: 'รหัสกองทุน', plan_code: 'รหัสแผน', project_code: 'รหัสโครงการ',
-  faculty_name: 'คณะ', delivery_number: 'เลขที่ใบส่ง', room_text: 'ห้อง (text)',
+  faculty_name: 'คณะ', delivery_number: 'เลขที่ใบส่ง',
 };
 
 // ==================== Main Component ====================

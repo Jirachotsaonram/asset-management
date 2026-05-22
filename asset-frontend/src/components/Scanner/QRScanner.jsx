@@ -336,8 +336,8 @@ export default function QRScanner({ onClose }) {
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">หน่วยงาน</label>
-                    <p className="font-semibold">{scannedAsset.department_name}</p>
+                    <label className="text-sm text-gray-600">คณะ</label>
+                    <p className="font-semibold">{scannedAsset.faculty}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">สถานะ</label>

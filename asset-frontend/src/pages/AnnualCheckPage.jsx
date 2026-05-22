@@ -335,7 +335,7 @@ export default function AnnualCheckPage() {
             }
         },
         {
-            key: 'department_name', label: 'หน่วยงาน', minWidth: '150px'
+            key: 'faculty', label: 'คณะ', minWidth: '150px'
         },
         {
             key: 'last_check', label: 'ตรวจสอบล่าสุด', minWidth: '150px',

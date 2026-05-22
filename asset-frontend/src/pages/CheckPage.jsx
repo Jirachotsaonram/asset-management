@@ -401,11 +401,11 @@ export default function CheckPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">หน่วยงาน</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">คณะ</label>
                   <select value={filters.department} onChange={e => setFilters(p => ({ ...p, department: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                     <option value="all">ทั้งหมด</option>
-                    {departments.map(d => <option key={d.department_id} value={d.department_id}>{d.department_name}</option>)}
+                    {departments.map(d => <option key={d.department_id} value={d.department_id}>{d.faculty}</option>)}
                   </select>
                 </div>
                 {hasActiveFilters && (
@@ -472,7 +472,7 @@ export default function CheckPage() {
                   {modal.data.room_number ? ` ห้อง ${modal.data.room_number}` : ''}
                 </p>
                 <p className="text-xs text-slate-600 truncate sm:col-span-2">
-                  <span className="font-medium text-slate-500">หน่วยงาน:</span> {departments.find(d => d.department_id == modal.data.department_id)?.department_name || 'ไม่ระบุ'}
+                  <span className="font-medium text-slate-500">คณะ:</span> {departments.find(d => d.department_id == modal.data.department_id)?.faculty || 'ไม่ระบุ'}
                 </p>
               </div>
             </div>
