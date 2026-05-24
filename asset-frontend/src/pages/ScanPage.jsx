@@ -115,7 +115,7 @@ export default function ScanPage() {
   const [scannedAsset, setScannedAsset] = useState(null);
   const [loading, setLoading] = useState(false);
   const [processingImage, setProcessingImage] = useState(false);
-  const [checkStatus, setCheckStatus] = useState('ใช้งานได้');
+  const [checkStatus, setCheckStatus] = useState('ใช้งาน');
   const [remark, setRemark] = useState('');
   const [scanHistory, setScanHistory] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -157,7 +157,7 @@ export default function ScanPage() {
 
       if (foundAsset) {
         setScannedAsset(foundAsset);
-        setCheckStatus(foundAsset.status || 'ใช้งานได้');
+        setCheckStatus(foundAsset.status || 'ใช้งาน');
         setRemark('');
         // อัปเดตช่องกรอกข้อมูลให้เป็นหมายเลขครุภัณฑ์ (Barcode) แทนที่จะเป็น ID
         setBarcode(foundAsset.barcode || foundAsset.asset_id.toString());
@@ -242,7 +242,7 @@ export default function ScanPage() {
   const handleReset = () => {
     setBarcode('');
     setScannedAsset(null);
-    setCheckStatus('ใช้งานได้');
+    setCheckStatus('ใช้งาน');
     setRemark('');
     setShowDetails(false);
   };
@@ -441,7 +441,7 @@ export default function ScanPage() {
 
         if (foundAsset) {
           setScannedAsset(foundAsset);
-          setCheckStatus(foundAsset.status || 'ใช้งานได้');
+          setCheckStatus(foundAsset.status || 'ใช้งาน');
           setRemark('');
           setBarcode(foundAsset.barcode || foundAsset.asset_id.toString());
           toast.success(`พบครุภัณฑ์: ${foundAsset.asset_name}`, { duration: 4000 });
@@ -484,7 +484,7 @@ export default function ScanPage() {
   // Get status color
   const getStatusColor = (status) => {
     switch (status) {
-      case 'ใช้งานได้': return 'bg-success-100 text-success-700 border-success-200';
+      case 'ใช้งาน': return 'bg-success-100 text-success-700 border-success-200';
       case 'รอซ่อม': return 'bg-warning-100 text-warning-700 border-warning-200';
       case 'ไม่พบ': return 'bg-danger-100 text-danger-700 border-danger-200';
       case 'รอจำหน่าย': return 'bg-orange-100 text-orange-700 border-orange-200';
@@ -496,7 +496,7 @@ export default function ScanPage() {
   // Get status icon color
   const getStatusIconColor = (status) => {
     switch (status) {
-      case 'ใช้งานได้': return 'bg-success-500';
+      case 'ใช้งาน': return 'bg-success-500';
       case 'รอซ่อม': return 'bg-warning-500';
       case 'ไม่พบ': return 'bg-danger-500';
       case 'รอจำหน่าย': return 'bg-orange-500';
@@ -654,7 +654,7 @@ export default function ScanPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
+                    <div className="col-span-2">
                       <p className="text-sm text-gray-500 flex items-center gap-1">
                         <Package size={14} />
                         Serial Number
@@ -666,7 +666,14 @@ export default function ScanPage() {
                         <Building2 size={14} />
                         คณะ
                       </p>
-                      <p className="font-medium text-gray-800">{scannedAsset.faculty || '-'}</p>
+                      <p className="font-medium text-gray-800">{scannedAsset.faculty_name || scannedAsset.faculty || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 flex items-center gap-1">
+                        <Building2 size={14} />
+                        ภาควิชา
+                      </p>
+                      <p className="font-medium text-gray-800">{scannedAsset.division_name || '-'}</p>
                     </div>
                   </div>
 
@@ -732,10 +739,7 @@ export default function ScanPage() {
                         <p className="text-xs text-gray-500">รหัสโครงการ</p>
                         <p className="font-medium text-gray-800">{scannedAsset.project_code || '-'}</p>
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-500">คณะ</p>
-                        <p className="font-medium text-gray-800">{scannedAsset.faculty_name || '-'}</p>
-                      </div>
+
                       <div className="col-span-2">
                         <p className="text-xs text-gray-500">รายละเอียด</p>
                         <p className="text-sm font-medium text-gray-800 line-clamp-3">{scannedAsset.description || '-'}</p>
@@ -761,7 +765,7 @@ export default function ScanPage() {
                         onChange={(e) => setCheckStatus(e.target.value)}
                         className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
                       >
-                        <option value="ใช้งานได้">ใช้งานได้</option>
+                        <option value="ใช้งาน">ใช้งาน</option>
                         <option value="รอซ่อม">รอซ่อม</option>
                         <option value="รอจำหน่าย">รอจำหน่าย</option>
                         <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>

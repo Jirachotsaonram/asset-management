@@ -236,7 +236,7 @@ export default function AssetsPage() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'ใช้งานได้': 'bg-green-100 text-green-700 border border-green-200',
+      'ใช้งาน': 'bg-green-100 text-green-700 border border-green-200',
       'ยืม': 'bg-blue-100 text-blue-700 border border-blue-200',
       'รอซ่อม': 'bg-yellow-100 text-yellow-700 border border-yellow-200',
       'รอจำหน่าย': 'bg-orange-100 text-orange-700 border border-orange-200',
@@ -364,7 +364,7 @@ export default function AssetsPage() {
 
   const calculateStats = (assetList) => ({
     total: assetList.length,
-    available: assetList.filter(a => a.status === 'ใช้งานได้').length,
+    available: assetList.filter(a => a.status === 'ใช้งาน').length,
     maintenance: assetList.filter(a => a.status === 'รอซ่อม').length,
     missing: assetList.filter(a => a.status === 'ไม่พบ').length,
   });
@@ -626,7 +626,7 @@ export default function AssetsPage() {
               <select value={filters.status} onChange={(e) => { setFilters(f => ({ ...f, status: e.target.value })); setCurrentPage(1); }}
                 className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
                 <option value="all">สถานะ: ทั้งหมด</option>
-                <option value="ใช้งานได้">ใช้งานได้</option>
+                <option value="ใช้งาน">ใช้งาน</option>
                 <option value="รอซ่อม">รอซ่อม</option>
                 <option value="รอจำหน่าย">รอจำหน่าย</option>
                 <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>

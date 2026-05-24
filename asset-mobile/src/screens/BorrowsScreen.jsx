@@ -528,7 +528,7 @@ export default function BorrowsScreen({ route, navigation }) {
             <ScrollView contentContainerStyle={styles.borrowFormContainer}>
               <View style={styles.assetMiniCard}>
                 <Ionicons name="cube" size={24} color="#2563EB" />
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.assetMiniName} numberOfLines={1}>{selectedAsset?.asset_name}</Text>
                   <Text style={styles.assetMiniId}>{selectedAsset?.barcode || selectedAsset?.asset_id}</Text>
                 </View>
@@ -538,7 +538,7 @@ export default function BorrowsScreen({ route, navigation }) {
                 <Text style={styles.inputLabel}>ชื่อผู้ยืม *</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="กรอกชื่อสมมติ/เจ้าหน้าที่"
+                  placeholder="ระบุชื่อ-นามสกุล ผู้ยืม"
                   value={borrowerName}
                   onChangeText={setBorrowerName}
                 />
@@ -594,10 +594,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
     elevation: 5,
     zIndex: 10,
   },
@@ -679,10 +676,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.05)',
     elevation: 3,
     borderWidth: 1,
     borderColor: '#F3F4F6',
@@ -769,10 +763,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     width: '100%',
     maxHeight: '85%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.15,
-    shadowRadius: 30,
+    boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.15)',
     elevation: 10,
     overflow: 'hidden',
   },
@@ -865,10 +856,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(16, 185, 129, 0.2)',
     elevation: 4,
   },
   returnBtnText: {

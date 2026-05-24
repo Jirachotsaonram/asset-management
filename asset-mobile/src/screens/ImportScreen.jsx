@@ -236,7 +236,7 @@ function parseAssetTable(text) {
             received_date: docDate || new Date().toISOString().split('T')[0],
             department_id: '',
             location_id: '',
-            status: 'ใช้งานได้',
+            status: 'ใช้งาน',
             barcode: '',
             description: '',
             reference_number: ''
@@ -410,7 +410,7 @@ const ImportScreen = ({ navigation }) => {
                         });
                         // Defaults
                         if (!obj.quantity) obj.quantity = 1;
-                        if (!obj.status) obj.status = 'ใช้งานได้';
+                        if (!obj.status) obj.status = 'ใช้งาน';
                         // Inject division_name from row 2
                         obj.division_name = divisionName || '';
                         return obj;

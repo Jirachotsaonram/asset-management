@@ -6,7 +6,7 @@ import {
   CheckCircle, AlertTriangle, Clock, Building, MapPin, BarChart3,
   PieChart as PieChartIcon, RefreshCw, FileSpreadsheet, ChevronDown, ChevronUp,
   X, Search, ArrowLeft, Printer, Eye, RotateCcw, DollarSign, Hash,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Send
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -36,11 +36,12 @@ export const getReportNotifications = (stats) => {
 // ==================== Constants ====================
 const STATUS_MAP = {
   all: { label: 'ทั้งหมด', thai: null },
-  available: { label: 'ใช้งานได้', thai: 'ใช้งานได้' },
+  available: { label: 'ใช้งาน', thai: 'ใช้งาน' },
   maintenance: { label: 'รอซ่อม', thai: 'รอซ่อม' },
   pendingDisposal: { label: 'รอจำหน่าย', thai: 'รอจำหน่าย' },
   disposed: { label: 'จำหน่ายแล้ว', thai: 'จำหน่ายแล้ว' },
   missing: { label: 'ไม่พบ', thai: 'ไม่พบ' },
+  borrowed: { label: 'ถูกยืม', thai: 'ถูกยืม' },
 };
 
 const CHART_COLORS = ['#22c55e', '#eab308', '#f97316', '#6b7280', '#ef4444'];
@@ -69,7 +70,7 @@ const REPORT_TABLE_CONFIG = {
     fields: ['_status', 'count', '_total_value'],
   },
   'by-department': {
-    headers: ['คณะ', 'คณะ', 'จำนวน', 'มูลค่า (฿)', 'ใช้งานได้', 'รอซ่อม', 'ไม่พบ'],
+    headers: ['คณะ', 'คณะ', 'จำนวน', 'มูลค่า (฿)', 'ใช้งาน', 'รอซ่อม', 'ไม่พบ'],
     fields: ['faculty', 'faculty', 'asset_count', '_total_value', '_active', '_repair', '_missing'],
   },
   'unchecked': {
@@ -89,7 +90,7 @@ const REPORT_TABLE_CONFIG = {
 // ==================== Utility ====================
 const getStatusColor = (status) => {
   const colors = {
-    'ใช้งานได้': 'bg-green-100 text-green-700 border border-green-200',
+    'ใช้งาน': 'bg-green-100 text-green-700 border border-green-200',
     'รอซ่อม': 'bg-yellow-100 text-yellow-700 border border-yellow-200',
     'รอจำหน่าย': 'bg-orange-100 text-orange-700 border border-orange-200',
     'จำหน่ายแล้ว': 'bg-gray-100 text-gray-600 border border-gray-200',
@@ -146,7 +147,7 @@ function rawCellValue(fieldKey, item) {
 // ==================== MAIN COMPONENT ====================
 export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, available: 0, maintenance: 0, pendingDisposal: 0, disposed: 0, missing: 0 });
+  const [stats, setStats] = useState({ total: 0, available: 0, maintenance: 0, pendingDisposal: 0, disposed: 0, missing: 0, borrowed: 0 });
   const [activeTab, setActiveTab] = useState('all');
   const [statusAssets, setStatusAssets] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -164,19 +165,26 @@ export default function ReportsPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await api.get('/reports/by-status');
+      const [response, borrowRes] = await Promise.all([
+        api.get('/reports/by-status'),
+        api.get('/reports/borrow-report').catch(() => ({ data: { data: [] } }))
+      ]);
       const data = response.data.data;
       let total = 0, available = 0, maintenance = 0, pendingDisposal = 0, disposed = 0, missing = 0;
       data.forEach(item => {
         const c = parseInt(item.count || 0);
         total += c;
-        if (item.status === 'ใช้งานได้') available = c;
+        if (item.status === 'ใช้งาน') available = c;
         if (item.status === 'รอซ่อม') maintenance = c;
         if (item.status === 'รอจำหน่าย') pendingDisposal = c;
         if (item.status === 'จำหน่ายแล้ว') disposed = c;
         if (item.status === 'ไม่พบ') missing = c;
       });
-      setStats({ total, available, maintenance, pendingDisposal, disposed, missing });
+      
+      const borrowData = borrowRes.data.data || [];
+      const borrowedCount = borrowData.filter(b => b.status === 'ยืม').length;
+
+      setStats({ total, available, maintenance, pendingDisposal, disposed, missing, borrowed: borrowedCount });
     } catch (error) {
       toast.error('ไม่สามารถโหลดสถิติได้');
     } finally { setLoading(false); }
@@ -321,21 +329,23 @@ export default function ReportsPage() {
 
   // ==================== Chart data ====================
   const chartData = useMemo(() => [
-    { name: 'ใช้งานได้', value: stats.available, color: '#22c55e' },
+    { name: 'ใช้งาน', value: stats.available, color: '#22c55e' },
     { name: 'รอซ่อม', value: stats.maintenance, color: '#eab308' },
     { name: 'รอจำหน่าย', value: stats.pendingDisposal, color: '#f97316' },
     { name: 'จำหน่ายแล้ว', value: stats.disposed, color: '#6b7280' },
     { name: 'ไม่พบ', value: stats.missing, color: '#ef4444' },
+    { name: 'ถูกยืม', value: stats.borrowed, color: '#3b82f6' },
   ].filter(d => d.value > 0), [stats]);
 
   // ==================== Stat cards config ====================
   const statCards = [
     { key: 'all', label: 'ทั้งหมด', value: stats.total, icon: Package, gradient: 'from-blue-500 to-blue-600', ring: 'ring-blue-300', light: 'text-blue-100' },
-    { key: 'available', label: 'ใช้งานได้', value: stats.available, icon: CheckCircle, gradient: 'from-green-500 to-green-600', ring: 'ring-green-300', light: 'text-green-100' },
+    { key: 'available', label: 'ใช้งาน', value: stats.available, icon: CheckCircle, gradient: 'from-green-500 to-green-600', ring: 'ring-green-300', light: 'text-green-100' },
     { key: 'maintenance', label: 'รอซ่อม', value: stats.maintenance, icon: Clock, gradient: 'from-yellow-500 to-yellow-600', ring: 'ring-yellow-300', light: 'text-yellow-100' },
     { key: 'pendingDisposal', label: 'รอจำหน่าย', value: stats.pendingDisposal, icon: AlertTriangle, gradient: 'from-orange-500 to-orange-600', ring: 'ring-orange-300', light: 'text-orange-100' },
     { key: 'disposed', label: 'จำนวนแล้ว', value: stats.disposed, icon: Package, gradient: 'from-gray-500 to-gray-600', ring: 'ring-gray-300', light: 'text-gray-100' },
     { key: 'missing', label: 'ไม่พบ', value: stats.missing, icon: AlertTriangle, gradient: 'from-red-500 to-red-600', ring: 'ring-red-300', light: 'text-red-100' },
+    { key: 'borrowed', label: 'ถูกยืม', value: stats.borrowed, icon: Send, gradient: 'from-blue-500 to-blue-600', ring: 'ring-blue-300', light: 'text-blue-100' },
   ];
 
   // Total price for status view
@@ -381,7 +391,7 @@ export default function ReportsPage() {
       {!selectedReport && (
         <>
           {/* Stat Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {statCards.map(card => {
               const Icon = card.icon;
               const isActive = activeTab === card.key;

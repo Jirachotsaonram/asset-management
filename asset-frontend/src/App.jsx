@@ -39,10 +39,10 @@ function RootRedirect() {
   return <Navigate to={user?.role === 'User' ? "/assets" : "/dashboard"} />;
 }
 
-function RestrictUserRoute({ children }) {
+function RequireRole({ children, allowedRoles }) {
   const { user } = useAuth();
-  if (user?.role === 'User') {
-    return <Navigate to="/assets" />;
+  if (!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/" />; // RootRedirect will handle where they should go
   }
   return children;
 }
@@ -62,19 +62,19 @@ function App() {
               </PrivateRoute>
             }>
               <Route index element={<RootRedirect />} />
-              <Route path="dashboard" element={<RestrictUserRoute><DashboardPage /></RestrictUserRoute>} />
+              <Route path="dashboard" element={<RequireRole allowedRoles={['Admin', 'Inspector', 'Authority']}><DashboardPage /></RequireRole>} />
               <Route path="assets" element={<AssetsPage />} />
               <Route path="scan" element={<ScanPage />} />
-              <Route path="check" element={<RestrictUserRoute><CheckPage /></RestrictUserRoute>} />
-              <Route path="reports" element={<RestrictUserRoute><ReportsPage /></RestrictUserRoute>} />
-              <Route path="locations" element={<RestrictUserRoute><LocationsPage /></RestrictUserRoute>} />
-              <Route path="borrows" element={<RestrictUserRoute><BorrowsPage /></RestrictUserRoute>} />
-              <Route path="users" element={<RestrictUserRoute><UsersPage /></RestrictUserRoute>} />
-              <Route path="asset-history" element={<RestrictUserRoute><AssetHistoryPage /></RestrictUserRoute>} />
-              <Route path="import" element={<RestrictUserRoute><ImportPage /></RestrictUserRoute>} />
+              <Route path="check" element={<RequireRole allowedRoles={['Admin', 'Inspector']}><CheckPage /></RequireRole>} />
+              <Route path="reports" element={<RequireRole allowedRoles={['Admin', 'Inspector', 'Authority']}><ReportsPage /></RequireRole>} />
+              <Route path="locations" element={<RequireRole allowedRoles={['Admin']}><LocationsPage /></RequireRole>} />
+              <Route path="borrows" element={<RequireRole allowedRoles={['Admin', 'Authority']}><BorrowsPage /></RequireRole>} />
+              <Route path="users" element={<RequireRole allowedRoles={['Admin']}><UsersPage /></RequireRole>} />
+              <Route path="asset-history" element={<RequireRole allowedRoles={['Admin', 'Inspector', 'Authority']}><AssetHistoryPage /></RequireRole>} />
+              <Route path="import" element={<RequireRole allowedRoles={['Admin']}><ImportPage /></RequireRole>} />
               <Route path="profile" element={<ProfilePage />} />
-              <Route path="audit-trail" element={<RestrictUserRoute><AuditTrailPage /></RestrictUserRoute>} />
-              <Route path="annual-check" element={<RestrictUserRoute><AnnualCheckPage /></RestrictUserRoute>} />
+              <Route path="audit-trail" element={<RequireRole allowedRoles={['Admin']}><AuditTrailPage /></RequireRole>} />
+              <Route path="annual-check" element={<RequireRole allowedRoles={['Admin']}><AnnualCheckPage /></RequireRole>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

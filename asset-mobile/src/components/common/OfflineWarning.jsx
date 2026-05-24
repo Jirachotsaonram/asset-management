@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNetwork } from '../../hooks/useNetwork';
 
-export default function OfflineWarning({ message = 'คุณกำลังใช้งานในโหมดออฟไลน์ บางฟังก์ชันอาจไม่สามารถใช้งานได้' }) {
+export default function OfflineWarning({ message = 'คุณกำลังใช้งานในโหมดออฟไลน์ บางฟังก์ชันอาจไม่สามารถใช้งาน' }) {
     const { isConnected } = useNetwork();
 
     if (isConnected) return null;

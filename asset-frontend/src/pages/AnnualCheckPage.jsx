@@ -34,7 +34,7 @@ export default function AnnualCheckPage() {
     // Selection State
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [isBulkUpdating, setIsBulkUpdating] = useState(false);
-    const [bulkStatus, setBulkStatus] = useState("ใช้งานได้");
+    const [bulkStatus, setBulkStatus] = useState("ใช้งาน");
     const [bulkRemark, setBulkRemark] = useState("");
 
     // Filters
@@ -325,7 +325,7 @@ export default function AnnualCheckPage() {
             key: 'status', label: 'สถานะปัจจุบัน', width: '120px',
             render: (val) => {
                 const colors = {
-                    'ใช้งานได้': 'bg-green-100 text-green-700',
+                    'ใช้งาน': 'bg-green-100 text-green-700',
                     'รอซ่อม': 'bg-yellow-100 text-yellow-700',
                     'รอจำหน่าย': 'bg-orange-100 text-orange-700',
                     'จำหน่ายแล้ว': 'bg-gray-100 text-gray-600',
@@ -589,7 +589,7 @@ export default function AnnualCheckPage() {
                                         onChange={(e) => setBulkStatus(e.target.value)}
                                         className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                     >
-                                        <option value="ใช้งานได้">ใช้งานได้</option>
+                                        <option value="ใช้งาน">ใช้งาน</option>
                                         <option value="รอซ่อม">รอซ่อม</option>
                                         <option value="รอจำหน่าย">รอจำหน่าย</option>
                                         <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>

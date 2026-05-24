@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     filterBadgeText: { fontSize: 11, fontWeight: '700', color: '#2563EB' },
     countText: { fontSize: 12, color: '#6B7280', paddingHorizontal: 16, marginBottom: 4, marginTop: 4 },
     list: { padding: 16, paddingTop: 8 },
-    card: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2, borderWidth: 1, borderColor: '#F3F4F6' },
+    card: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 10, boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.04)', elevation: 2, borderWidth: 1, borderColor: '#F3F4F6' },
     cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 },
     cardLeft: { flex: 1, marginRight: 10 },
     assetId: { fontSize: 11, fontWeight: '700', color: '#2563EB', backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, alignSelf: 'flex-start', marginBottom: 5 },

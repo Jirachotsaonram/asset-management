@@ -179,7 +179,12 @@ function requireAdminOrInspector() {
     return requireRole(['Admin', 'Inspector']);
 }
 
+function requireAdminOrAuthority() {
+    return requireRole(['Admin', 'Authority']);
+}
+
 function requireBorrowAuthority() {
-    return requireRole(['Admin', 'Inspector', 'Authority']);
+    // ผู้ที่มีสิทธิ์อนุมัติยืม-คืน คือ Admin และ Authority
+    return requireRole(['Admin', 'Authority']);
 }
 ?>

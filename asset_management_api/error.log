@@ -3244,3 +3244,168 @@ Stack trace:
 #2 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(46): AuthController->googleLogin()
 #3 {main}
   thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\models\User.php on line 142
+[24-May-2026 06:42:03 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 06:42:11 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 06:42:11 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 06:42:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 06:42:45 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 06:43:15 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 06:43:15 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.department_id' in 'on clause' in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php:329
+Stack trace:
+#0 D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php(329): PDOStatement->execute()
+#1 D:\xampp_assets\htdocs\asset-management\asset_management_api\index.php(360): ReportController->borrowReport(NULL)
+#2 {main}
+  thrown in D:\xampp_assets\htdocs\asset-management\asset_management_api\controllers\ReportController.php on line 329
+[24-May-2026 08:06:53 Europe/Berlin] ImageUpload: Received file: images__1_-removebg-preview (1).png size: 74776 type: image/png
+[24-May-2026 08:06:53 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:06:53 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12957d2ccbb1.66497863.png
+[24-May-2026 08:07:00 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 08:07:00 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:07:00 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a129584ac3535.40595877.png
+[24-May-2026 08:07:30 Europe/Berlin] ImageUpload: Received file: images__1_-removebg-preview (1).png size: 74776 type: image/png
+[24-May-2026 08:07:30 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:07:30 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295a27c98b5.44563019.png
+[24-May-2026 08:07:41 Europe/Berlin] ImageUpload: Received file: images__1_-removebg-preview.png size: 74776 type: image/png
+[24-May-2026 08:07:41 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:07:41 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295ad593672.73954677.png
+[24-May-2026 08:07:48 Europe/Berlin] ImageUpload: Received file: images__1_-removebg-preview (1).png size: 74776 type: image/png
+[24-May-2026 08:07:48 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:07:48 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295b4d01374.65714304.png
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295ce9b8ec6.66433597.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cea9bdb6.72409773.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295ceb9b1e7.98418399.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cec51163.91787852.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cecd6961.78170813.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cee01b86.10382994.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cee8a5f4.70950653.jpg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:14 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cef13202.10445244.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf050a98.01911120.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf1037c2.51182990.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf1adc54.17171809.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf26d6c2.41647920.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf309c61.40506568.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf3c8be4.97646657.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf44a006.80248370.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf4d3e46.93964354.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf5afb64.61118965.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf6398a4.26162811.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf6c1f81.63665009.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf786233.81808195.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf806f64.77370456.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf8c4638.47855816.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf93e697.90421067.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cf9af3a4.87959769.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfa68428.24483688.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfae59c8.57598471.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfb913f0.12646208.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfc11096.05994124.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfcda528.66240354.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfdb7256.41885773.jpg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:15 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295cfea3768.13902161.jpg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295d00565d7.24416205.jpg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295d0117241.77507359.jpg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295d01fe074.82708025.jpg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295d02f1511.75417595.jpg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295d03a2df4.01837001.jpg

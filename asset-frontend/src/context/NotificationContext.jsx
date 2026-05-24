@@ -45,7 +45,7 @@ export function NotificationProvider({ children }) {
 
             // Calculate stats from status report
             const statusCounts = {
-                'ใช้งานได้': 0,
+                'ใช้งาน': 0,
                 'รอซ่อม': 0,
                 'รอจำหน่าย': 0,
                 'จำหน่ายแล้ว': 0,

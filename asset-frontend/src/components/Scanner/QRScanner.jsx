@@ -342,7 +342,7 @@ export default function QRScanner({ onClose }) {
                   <div>
                     <label className="text-sm text-gray-600">สถานะ</label>
                     <p>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${scannedAsset.status === 'ใช้งานได้' ? 'bg-green-100 text-green-800' :
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${scannedAsset.status === 'ใช้งาน' ? 'bg-green-100 text-green-800' :
                           scannedAsset.status === 'รอซ่อม' ? 'bg-yellow-100 text-yellow-800' :
                             'bg-red-100 text-red-800'
                         }`}>

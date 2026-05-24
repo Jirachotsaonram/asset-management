@@ -251,7 +251,7 @@ function parseAssetTable(text) {
             received_date: docDate,
             department_id: '',
             location_id: '',
-            status: 'ใช้งานได้',
+            status: 'ใช้งาน',
             barcode: '',
             description: '',
             reference_number: ''
@@ -1023,7 +1023,7 @@ export default function OcrImportTab() {
                                         setParsedAssets(prev => prev.map(a => ({ ...a, status: val })));
                                     }}
                                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500">
-                                    <option value="ใช้งานได้">ใช้งานได้</option>
+                                    <option value="ใช้งาน">ใช้งาน</option>
                                     <option value="รอซ่อม">รอซ่อม</option>
                                     <option value="รอจำหน่าย">รอจำหน่าย</option>
                                     <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>

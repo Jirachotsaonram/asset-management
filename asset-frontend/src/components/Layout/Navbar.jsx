@@ -28,106 +28,111 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
     try {
       const allNotifications = [];
 
-      // 1. Fetch Status Report
-      const statusRes = await api.get('/reports/by-status').catch(() => ({ data: { data: [] } }));
-      const statusReport = statusRes.data.data || [];
-      const statusCounts = {};
-      statusReport.forEach(item => {
-        statusCounts[item.status] = parseInt(item.count || 0);
-      });
-
-      if (statusCounts['ไม่พบ'] > 0) {
-        allNotifications.push({
-          id: 'missing',
-          type: 'danger',
-          title: `ครุภัณฑ์ไม่พบ ${statusCounts['ไม่พบ']} รายการ`,
-          message: 'ต้องตรวจสอบและดำเนินการ',
-          time: 'สำคัญ',
-          action: () => navigate('/assets?status=missing')
+      // === 1. Notifications for Admin & Inspector (Asset Checks) ===
+      if (user?.role === 'Admin' || user?.role === 'Inspector') {
+        // 1. Fetch Status Report
+        const statusRes = await api.get('/reports/by-status').catch(() => ({ data: { data: [] } }));
+        const statusReport = statusRes.data.data || [];
+        const statusCounts = {};
+        statusReport.forEach(item => {
+          statusCounts[item.status] = parseInt(item.count || 0);
         });
-      }
 
-      if (statusCounts['รอซ่อม'] > 0) {
-        allNotifications.push({
-          id: 'maintenance',
-          type: 'warning',
-          title: `รอซ่อม ${statusCounts['รอซ่อม']} รายการ`,
-          message: 'ครุภัณฑ์ที่รอการซ่อมบำรุง',
-          time: 'รอดำเนินการ',
-          action: () => navigate('/assets?status=repair')
-        });
-      }
-
-      if (statusCounts['รอจำหน่าย'] > 0) {
-        allNotifications.push({
-          id: 'disposal',
-          type: 'info',
-          title: `รอจำหน่าย ${statusCounts['รอจำหน่าย']} รายการ`,
-          message: 'ครุภัณฑ์ที่รอการจำหน่าย',
-          time: 'รอดำเนินการ',
-          action: () => navigate('/assets?status=disposal')
-        });
-      }
-
-      // 2. Fetch Annual Check Stats (แทนที่ระบบ check-schedules เดิม)
-      try {
-        const settingsRes = await api.get('/settings').catch(() => ({ data: { data: {} } }));
-        const settings = settingsRes.data.data || {};
-        const startDate = settings.annual_check_start || '';
-        const endDate = settings.annual_check_end || '';
-
-        let statsParams = '';
-        if (startDate && endDate) statsParams = `?start_date=${startDate}&end_date=${endDate}`;
-        const annStatsRes = await api.get(`/checks/annual-stats${statsParams}`).catch(() => ({ data: { data: { total: 0, checked: 0, unchecked: 0 } } }));
-        const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
-
-        // คำนวณสถานะจากรอบประจำปี
-        if (endDate) {
-          const endTime = new Date(endDate).getTime();
-          const now = Date.now();
-          const diffDays = Math.floor((endTime - now) / 86400000);
-
-          if (diffDays < 0 && annStats.unchecked > 0) {
-            // เลยกำหนดรอบประจำปี
-            allNotifications.push({
-              id: 'overdue-annual',
-              type: 'danger',
-              title: `เลยกำหนดตรวจประจำปี ${annStats.unchecked} รายการ`,
-              message: `ยังไม่ได้ตรวจสอบในรอบปีที่ผ่านมา`,
-              time: 'ต้องดำเนินการทันที',
-              action: () => navigate('/check')
-            });
-          } else if (diffDays >= 0 && diffDays <= 7 && annStats.unchecked > 0) {
-            // ใกล้หมดเขตรอบประจำปี
-            allNotifications.push({
-              id: 'urgent-annual',
-              type: 'warning',
-              title: `ใกล้หมดเขตตรวจประจำปี เหลือ ${diffDays} วัน`,
-              message: `ยังเหลือ ${annStats.unchecked} รายการที่ยังไม่ได้ตรวจ`,
-              time: `อีก ${diffDays} วัน`,
-              action: () => navigate('/check')
-            });
-          }
-        }
-      } catch (e) { console.error(e); }
-
-      // 4. Fetch Unchecked
-      try {
-        const uncheckedRes = await api.get('/reports/unchecked?days=365').catch(() => ({ data: { data: [] } }));
-        const uncheckedItems = uncheckedRes.data.data || [];
-        if (uncheckedItems.length > 0) {
+        if (statusCounts['ไม่พบ'] > 0) {
           allNotifications.push({
-            id: 'unchecked',
-            type: 'warning',
-            title: `ยังไม่ได้ตรวจ ${uncheckedItems.length} รายการ`,
-            message: 'ครุภัณฑ์ที่ยังไม่เคยตรวจสอบในรอบปี',
-            time: 'รอดำเนินการ',
-            action: () => navigate('/check?filter=unchecked')
+            id: 'missing',
+            type: 'danger',
+            title: `ครุภัณฑ์ไม่พบ ${statusCounts['ไม่พบ']} รายการ`,
+            message: 'ต้องตรวจสอบและดำเนินการ',
+            time: 'สำคัญ',
+            action: () => navigate('/assets?status=missing')
           });
         }
-      } catch (e) { console.error(e); }
 
-      // 5. Check Borrows
+        if (statusCounts['รอซ่อม'] > 0) {
+          allNotifications.push({
+            id: 'maintenance',
+            type: 'warning',
+            title: `รอซ่อม ${statusCounts['รอซ่อม']} รายการ`,
+            message: 'ครุภัณฑ์ที่รอการซ่อมบำรุง',
+            time: 'รอดำเนินการ',
+            action: () => navigate('/assets?status=repair')
+          });
+        }
+
+        if (statusCounts['รอจำหน่าย'] > 0) {
+          allNotifications.push({
+            id: 'disposal',
+            type: 'info',
+            title: `รอจำหน่าย ${statusCounts['รอจำหน่าย']} รายการ`,
+            message: 'ครุภัณฑ์ที่รอการจำหน่าย',
+            time: 'รอดำเนินการ',
+            action: () => navigate('/assets?status=disposal')
+          });
+        }
+
+        // 2. Fetch Annual Check Stats (แทนที่ระบบ check-schedules เดิม)
+        try {
+          const settingsRes = await api.get('/settings').catch(() => ({ data: { data: {} } }));
+          const settings = settingsRes.data.data || {};
+          const startDate = settings.annual_check_start || '';
+          const endDate = settings.annual_check_end || '';
+
+          let statsParams = '';
+          if (startDate && endDate) statsParams = `?start_date=${startDate}&end_date=${endDate}`;
+          const annStatsRes = await api.get(`/checks/annual-stats${statsParams}`).catch(() => ({ data: { data: { total: 0, checked: 0, unchecked: 0 } } }));
+          const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
+
+          // คำนวณสถานะจากรอบประจำปี
+          if (endDate) {
+            const endTime = new Date(endDate).getTime();
+            const now = Date.now();
+            const diffDays = Math.floor((endTime - now) / 86400000);
+
+            if (diffDays < 0 && annStats.unchecked > 0) {
+              // เลยกำหนดรอบประจำปี
+              allNotifications.push({
+                id: 'overdue-annual',
+                type: 'danger',
+                title: `เลยกำหนดตรวจประจำปี ${annStats.unchecked} รายการ`,
+                message: `ยังไม่ได้ตรวจสอบในรอบปีที่ผ่านมา`,
+                time: 'ต้องดำเนินการทันที',
+                action: () => navigate('/check')
+              });
+            } else if (diffDays >= 0 && diffDays <= 7 && annStats.unchecked > 0) {
+              // ใกล้หมดเขตรอบประจำปี
+              allNotifications.push({
+                id: 'urgent-annual',
+                type: 'warning',
+                title: `ใกล้หมดเขตตรวจประจำปี เหลือ ${diffDays} วัน`,
+                message: `ยังเหลือ ${annStats.unchecked} รายการที่ยังไม่ได้ตรวจ`,
+                time: `อีก ${diffDays} วัน`,
+                action: () => navigate('/check')
+              });
+            }
+          }
+        } catch (e) { console.error(e); }
+
+        // 4. Fetch Unchecked
+        try {
+          const uncheckedRes = await api.get('/reports/unchecked?days=365').catch(() => ({ data: { data: [] } }));
+          const uncheckedItems = uncheckedRes.data.data || [];
+          if (uncheckedItems.length > 0) {
+            allNotifications.push({
+              id: 'unchecked',
+              type: 'warning',
+              title: `ยังไม่ได้ตรวจ ${uncheckedItems.length} รายการ`,
+              message: 'ครุภัณฑ์ที่ยังไม่เคยตรวจสอบในรอบปี',
+              time: 'รอดำเนินการ',
+              action: () => navigate('/check?filter=unchecked')
+            });
+          }
+        } catch (e) { console.error(e); }
+      }
+
+      // === 2. Notifications for Admin & Authority (Borrows) ===
+      if (user?.role === 'Admin' || user?.role === 'Authority') {
+        // 5. Check Borrows
       try {
         const borrowsRes = await api.get('/borrows').catch(() => ({ data: { data: [] } }));
         const borrows = borrowsRes.data.data || [];
@@ -165,12 +170,10 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
             action: () => navigate('/borrows?status=borrowed')
           });
         }
-
-
-
       } catch (e) {
         console.log('Borrows check error', e);
       }
+    } // Close the if (user?.role === 'Admin' || user?.role === 'Authority')
 
       setNotifications(allNotifications);
     } catch (error) {

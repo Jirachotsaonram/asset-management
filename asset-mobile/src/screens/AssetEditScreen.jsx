@@ -10,6 +10,8 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    Modal,
+    FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -44,6 +46,7 @@ export default function AssetEditScreen() {
 
     const [departments, setDepartments] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [showPicker, setShowPicker] = useState(null);
 
     useEffect(() => {
         fetchMetadata();
@@ -136,6 +139,88 @@ export default function AssetEditScreen() {
         </View>
     );
 
+    const renderSelect = (label, key, placeholder, data, valueKey) => {
+        const selectedItem = data.find(item => item[valueKey] === formData[key]);
+        let displayText = placeholder;
+        if (selectedItem) {
+            if (key === 'department_id') {
+                displayText = `${selectedItem.faculty}${selectedItem.division_name && selectedItem.division_name !== '-' ? ` - ${selectedItem.division_name}` : ''}`;
+            } else if (key === 'location_id') {
+                displayText = `${selectedItem.building_name || ''} ชั้น ${selectedItem.floor || '-'} ห้อง ${selectedItem.room_number || '-'}`;
+            }
+        }
+
+        return (
+            <View style={styles.inputGroup}>
+                <Text style={styles.label}>{label}</Text>
+                <TouchableOpacity
+                    style={[styles.input, { justifyContent: 'center' }]}
+                    onPress={() => setShowPicker(key)}
+                    disabled={loading}
+                >
+                    <Text style={{ color: selectedItem ? '#111827' : '#9CA3AF', fontSize: 16 }} numberOfLines={1}>
+                        {displayText}
+                    </Text>
+                    <Ionicons name="chevron-down" size={20} color="#9CA3AF" style={{ position: 'absolute', right: 12 }} />
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
+    const renderPickerModal = () => {
+        if (!showPicker) return null;
+        const isDept = showPicker === 'department_id';
+        const data = isDept ? departments : locations;
+        const title = isDept ? 'เลือกคณะ/ภาควิชา' : 'เลือกสถานที่';
+        const valueKey = isDept ? 'department_id' : 'location_id';
+
+        return (
+            <Modal visible={true} animationType="slide" transparent={true} onRequestClose={() => setShowPicker(null)}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>{title}</Text>
+                            <TouchableOpacity onPress={() => setShowPicker(null)}>
+                                <Ionicons name="close" size={24} color="#6B7280" />
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={data}
+                            keyExtractor={item => String(item[valueKey])}
+                            renderItem={({ item }) => {
+                                let displayText = '';
+                                if (isDept) {
+                                    displayText = `${item.faculty}${item.division_name && item.division_name !== '-' ? ` - ${item.division_name}` : ''}`;
+                                } else {
+                                    displayText = `${item.building_name || ''} ชั้น ${item.floor || '-'} ห้อง ${item.room_number || '-'}`;
+                                }
+                                const isSelected = formData[showPicker] === item[valueKey];
+                                
+                                return (
+                                    <TouchableOpacity
+                                        style={[styles.pickerItem, isSelected && styles.pickerItemSelected]}
+                                        onPress={() => {
+                                            setFormData(prev => ({ ...prev, [showPicker]: item[valueKey] }));
+                                            setShowPicker(null);
+                                        }}
+                                    >
+                                        <Text style={[styles.pickerItemText, isSelected && styles.pickerItemTextSelected]}>
+                                            {displayText}
+                                        </Text>
+                                        {isSelected && <Ionicons name="checkmark" size={20} color="#2563EB" />}
+                                    </TouchableOpacity>
+                                );
+                            }}
+                            ListEmptyComponent={
+                                <Text style={{ padding: 20, textAlign: 'center', color: '#6B7280' }}>ไม่มีข้อมูล</Text>
+                            }
+                        />
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
+
     const formContent = (
         <ScrollView
             style={styles.formContent}
@@ -156,7 +241,8 @@ export default function AssetEditScreen() {
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>ตำแหน่งและสถานที่</Text>
-                {renderInput('คณะ/ภาควิชา', 'faculty_name', 'เช่น คณะเทคโนโลยีสารสนเทศ')}
+                {renderSelect('คณะ/ภาควิชา', 'department_id', '-- เลือกคณะ/ภาควิชา --', departments, 'department_id')}
+                {renderSelect('สถานที่', 'location_id', '-- เลือกสถานที่ --', locations, 'location_id')}
             </View>
 
             <View style={styles.section}>
@@ -217,6 +303,7 @@ export default function AssetEditScreen() {
             ) : (
                 formContent
             )}
+            {renderPickerModal()}
         </SafeAreaView>
     );
 }
@@ -262,10 +349,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 20,
         marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
+        boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
         elevation: 2,
     },
     sectionTitle: {
@@ -331,5 +415,52 @@ const styles = StyleSheet.create({
     statusChipTextActive: {
         color: '#2563EB',
         fontWeight: '700',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        maxHeight: '70%',
+        paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E7EB',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#111827',
+    },
+    pickerItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        paddingHorizontal: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+    },
+    pickerItemSelected: {
+        backgroundColor: '#EFF6FF',
+    },
+    pickerItemText: {
+        fontSize: 15,
+        color: '#374151',
+        flex: 1,
+        marginRight: 10,
+    },
+    pickerItemTextSelected: {
+        color: '#2563EB',
+        fontWeight: 'bold',
     },
 });

@@ -54,7 +54,7 @@ export const buildApiUrl = (ip) => {
 };
 
 export const ASSET_STATUS = {
-  AVAILABLE: 'ใช้งานได้',
+  AVAILABLE: 'ใช้งาน',
   MAINTENANCE: 'รอซ่อม',
   PENDING_DISPOSAL: 'รอจำหน่าย',
   DISPOSED: 'จำหน่ายแล้ว',

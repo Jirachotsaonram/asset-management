@@ -29,7 +29,8 @@ const { width } = Dimensions.get('window');
 
 export default function ScanScreen({ navigation }) {
   const { user } = useAuth();
-  const canEdit = user?.role === 'Admin' || user?.role === 'Inspector';
+  const canCheck = user?.role === 'Admin' || user?.role === 'Inspector';
+  const canBorrow = user?.role === 'Admin' || user?.role === 'Authority';
   const { isConnected } = useNetwork();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -458,12 +459,13 @@ export default function ScanScreen({ navigation }) {
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.expandLabel}>คณะ:</Text>
-                    <Text style={styles.expandValue}>{scannedAsset.faculty || '-'}</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.faculty_name || scannedAsset.faculty || '-'}</Text>
                   </View>
                   <View style={styles.detailRow}>
-                    <Text style={styles.expandLabel}>คณะ/ภาควิชา:</Text>
-                    <Text style={styles.expandValue}>{scannedAsset.faculty_name || '-'}</Text>
+                    <Text style={styles.expandLabel}>ภาควิชา:</Text>
+                    <Text style={styles.expandValue}>{scannedAsset.division_name || '-'}</Text>
                   </View>
+
                   <View style={styles.detailRow}>
                     <Text style={styles.expandLabel}>รหัสโครงการ:</Text>
                     <Text style={styles.expandValue}>{scannedAsset.project_code || '-'}</Text>
@@ -489,7 +491,7 @@ export default function ScanScreen({ navigation }) {
               )}
 
               {/* Borrow/Return Quick Action */}
-              {canEdit && (
+              {canBorrow && (
                 <View style={styles.quickActionContainer}>
                   {scannedAsset.status === ASSET_STATUS.AVAILABLE ? (
                     <TouchableOpacity
@@ -515,7 +517,7 @@ export default function ScanScreen({ navigation }) {
             </View>
 
             {/* Checkin Form */}
-            {canEdit ? (
+            {canCheck ? (
               <View style={styles.formCard}>
                 <Text style={styles.formTitle}>ผลการตรวจสอบ</Text>
 
@@ -636,10 +638,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 30,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
+    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.1)',
     elevation: 5,
     marginBottom: 20,
   },
@@ -806,10 +805,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
     elevation: 2,
   },
   formTitle: {

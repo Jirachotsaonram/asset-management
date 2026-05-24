@@ -143,16 +143,16 @@ class BorrowController {
         $this->borrow->return_date = $data->return_date ?? date('Y-m-d');
 
         if ($this->borrow->updateStatus()) {
-            // อัปเดตสถานะครุภัณฑ์คืนเป็น 'ใช้งานได้'
+            // อัปเดตสถานะครุภัณฑ์คืนเป็น 'ใช้งาน'
             if (!empty($asset_id)) {
-                $stmt_asset = $this->db->prepare("UPDATE assets SET status = 'ใช้งานได้' WHERE asset_id = :asset_id");
+                $stmt_asset = $this->db->prepare("UPDATE assets SET status = 'ใช้งาน' WHERE asset_id = :asset_id");
                 $stmt_asset->bindValue(":asset_id", $asset_id);
                 $exec_success = $stmt_asset->execute();
                 
                 if (!$exec_success) {
-                    error_log("BorrowController: Failed to update asset status to 'ใช้งานได้' for ID: " . $asset_id);
+                    error_log("BorrowController: Failed to update asset status to 'ใช้งาน' for ID: " . $asset_id);
                 } else if ($stmt_asset->rowCount() === 0) {
-                    error_log("BorrowController: Asset status update to 'ใช้งานได้' affected 0 rows for ID: " . $asset_id);
+                    error_log("BorrowController: Asset status update to 'ใช้งาน' affected 0 rows for ID: " . $asset_id);
                 }
             }
 

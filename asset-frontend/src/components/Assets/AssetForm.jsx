@@ -18,7 +18,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
     received_date: asset?.received_date || new Date().toISOString().split("T")[0],
     department_id: asset?.department_id || "",
     location_id: asset?.location_id || "",
-    status: asset?.status || "ใช้งานได้",
+    status: asset?.status || "ใช้งาน",
     barcode: asset?.barcode || "",
     description: asset?.description || "",
     reference_number: asset?.reference_number || "",
@@ -255,13 +255,15 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
             {expandedSections.location && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">คณะ</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">คณะ / ภาควิชา</label>
                   <div className="flex gap-2">
                     <select name="department_id" value={formData.department_id} onChange={handleChange}
                       className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500">
-                      <option value="">-- เลือกคณะ --</option>
+                      <option value="">-- เลือกคณะ / ภาควิชา --</option>
                       {departments.map((dept) => (
-                        <option key={dept.department_id} value={dept.department_id}>{dept.faculty}</option>
+                        <option key={dept.department_id} value={dept.department_id}>
+                          {dept.faculty}{dept.division_name && dept.division_name !== '-' ? ` - ${dept.division_name}` : ''}
+                        </option>
                       ))}
                     </select>
                     <button type="button" onClick={() => setShowDepartmentForm(true)}
@@ -270,7 +272,7 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
                     </button>
                   </div>
                 </div>
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">สถานที่</label>
                   <select name="location_id" value={formData.location_id} onChange={handleChange}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500">
@@ -280,7 +282,6 @@ export default function AssetForm({ asset, onClose, onSuccess }) {
                     ))}
                   </select>
                 </div>
-
               </div>
             )}
           </div>

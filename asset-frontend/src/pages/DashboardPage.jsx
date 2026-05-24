@@ -9,7 +9,7 @@ import {
   FileText, Activity, PieChart as PieChartIcon, BarChart3, Eye,
   User, Calendar, ClipboardCheck, Bell, AlertCircle, Wrench,
   XCircle, X, RefreshCw, TrendingUp, MapPin, ArrowRight,
-  ArrowUpRight, Layers, Search, ExternalLink, Edit, Trash2, Truck, ArrowDownLeft
+  ArrowUpRight, Layers, Search, ExternalLink, Edit, Trash2, Truck, ArrowDownLeft, Send
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -38,26 +38,22 @@ export const getDashboardNotifications = (stats) => {
 
 // ==================== Constants ====================
 const STATUS_CONFIG = [
-  { key: 'available', label: 'ใช้งานได้', color: '#22c55e', bgClass: 'bg-green-500', textClass: 'text-green-600', lightClass: 'bg-green-50', icon: CheckCircle },
+  { key: 'available', label: 'ใช้งาน', color: '#22c55e', bgClass: 'bg-green-500', textClass: 'text-green-600', lightClass: 'bg-green-50', icon: CheckCircle },
   { key: 'maintenance', label: 'รอซ่อม', color: '#eab308', bgClass: 'bg-yellow-500', textClass: 'text-yellow-600', lightClass: 'bg-yellow-50', icon: Wrench },
   { key: 'pendingDisposal', label: 'รอจำหน่าย', color: '#f97316', bgClass: 'bg-orange-500', textClass: 'text-orange-600', lightClass: 'bg-orange-50', icon: Clock },
   { key: 'disposed', label: 'จำหน่ายแล้ว', color: '#6b7280', bgClass: 'bg-gray-500', textClass: 'text-gray-500', lightClass: 'bg-gray-50', icon: Package },
   { key: 'missing', label: 'ไม่พบ', color: '#ef4444', bgClass: 'bg-red-500', textClass: 'text-red-600', lightClass: 'bg-red-50', icon: AlertTriangle },
+  { key: 'borrowed', label: 'ถูกยืม', color: '#3b82f6', bgClass: 'bg-blue-500', textClass: 'text-blue-600', lightClass: 'bg-blue-50', icon: Send },
 ];
 
-const QUICK_ACTIONS = [
-  { label: 'เพิ่มครุภัณฑ์', icon: Plus, path: '/assets', gradient: 'from-blue-500 to-blue-600' },
-  { label: 'ตรวจสอบ', icon: ClipboardCheck, path: '/check', gradient: 'from-purple-500 to-purple-600' },
-  { label: 'รายงาน', icon: FileText, path: '/reports', gradient: 'from-green-500 to-green-600' },
-  { label: 'ย้ายครุภัณฑ์', icon: MapPin, path: '/history', gradient: 'from-orange-500 to-orange-600' },
-];
+
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [stats, setStats] = useState({
     total: 0, checked: 0, unchecked: 0, available: 0,
-    maintenance: 0, pendingDisposal: 0, disposed: 0, missing: 0, totalValue: 0
+    maintenance: 0, pendingDisposal: 0, disposed: 0, missing: 0, borrowed: 0, totalValue: 0
   });
   const [statusData, setStatusData] = useState([]);
   const [auditTrail, setAuditTrail] = useState([]);
@@ -71,11 +67,12 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [assetsRes, statusRes, auditsRes, settingsRes] = await Promise.all([
+      const [assetsRes, statusRes, auditsRes, settingsRes, borrowRes] = await Promise.all([
         api.get('/assets?limit=1'),
         api.get('/reports/by-status'),
         api.get('/audits'),
-        api.get('/settings').catch(() => ({ data: { data: [] } }))
+        api.get('/settings').catch(() => ({ data: { data: [] } })),
+        api.get('/reports/borrow-report').catch(() => ({ data: { data: [] } }))
       ]);
 
       let assets = assetsRes.data.data || [];
@@ -95,7 +92,7 @@ export default function DashboardPage() {
       const annStatsRes = await api.get(`/checks/annual-stats${params}`).catch(() => ({ data: { data: { total: 0, checked: 0, unchecked: 0 } } }));
       const annStats = annStatsRes.data.data || { total: 0, checked: 0, unchecked: 0 };
 
-      const sc = { 'ใช้งานได้': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
+      const sc = { 'ใช้งาน': 0, 'รอซ่อม': 0, 'รอจำหน่าย': 0, 'จำหน่ายแล้ว': 0, 'ไม่พบ': 0 };
       let tv = 0;
       let totalAssetCount = 0;
 
@@ -109,8 +106,11 @@ export default function DashboardPage() {
         tv += parseFloat(item.total_value || 0);
       });
 
+      const borrowData = borrowRes.data.data || [];
+      const borrowedCount = borrowData.filter(b => b.status === 'ยืม').length;
+
       const chartData = STATUS_CONFIG.map(c => ({
-        name: c.label, value: sc[c.label] || 0, color: c.color,
+        name: c.label, value: c.key === 'borrowed' ? borrowedCount : sc[c.label] || 0, color: c.color,
       })).filter(d => d.value > 0);
 
       // Use totalAssetCount from by-status for status-related stats (correct total for percentages)
@@ -119,9 +119,9 @@ export default function DashboardPage() {
         total: totalAssetCount,
         checked: annStats.checked,
         unchecked: Math.max(0, totalAssetCount - annStats.checked),
-        available: sc['ใช้งานได้'], maintenance: sc['รอซ่อม'],
+        available: sc['ใช้งาน'], maintenance: sc['รอซ่อม'],
         pendingDisposal: sc['รอจำหน่าย'], disposed: sc['จำหน่ายแล้ว'],
-        missing: sc['ไม่พบ'], totalValue: tv,
+        missing: sc['ไม่พบ'], borrowed: borrowedCount, totalValue: tv,
       });
       setStatusData(chartData);
       const auditsData = auditsRes.data.data;
@@ -209,7 +209,7 @@ export default function DashboardPage() {
             <p className="text-2xl font-bold mt-0.5">{stats.total.toLocaleString()}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-            <p className="text-blue-200 text-xs">ใช้งานได้</p>
+            <p className="text-blue-200 text-xs">ใช้งาน</p>
             <p className="text-2xl font-bold mt-0.5">{stats.available.toLocaleString()}</p>
             <p className="text-xs text-green-300">{availablePct}%</p>
           </div>
@@ -265,24 +265,10 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ==================== Quick Actions ==================== */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {QUICK_ACTIONS.map(action => {
-          const Icon = action.icon;
-          return (
-            <button key={action.path} onClick={() => navigate(action.path)}
-              className={`bg-gradient-to-br ${action.gradient} text-white p-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200 flex items-center gap-3 group`}>
-              <div className="bg-white/20 p-2 rounded-lg group-hover:bg-white/30 transition">
-                <Icon size={20} />
-              </div>
-              <span className="font-semibold text-sm">{action.label}</span>
-            </button>
-          );
-        })}
-      </div>
+
 
       {/* ==================== Status Breakdown ==================== */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {STATUS_CONFIG.map(s => {
           const Icon = s.icon;
           const value = stats[s.key] || 0;

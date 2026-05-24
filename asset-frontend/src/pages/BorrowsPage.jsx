@@ -37,7 +37,7 @@ export default function BorrowsPage() {
   });
   const [formErrors, setFormErrors] = useState({});
   const [returnRemark, setReturnRemark] = useState('');
-  const [returnCondition, setReturnCondition] = useState('ใช้งานได้');
+  const [returnCondition, setReturnCondition] = useState('ใช้งาน');
 
   const [searchParams] = useSearchParams();
 
@@ -400,7 +400,7 @@ function BorrowModal({ formData, setFormData, formErrors, allAssets, onSubmit, o
   const dropdownRef = useRef(null);
 
   const availableAssets = useMemo(() =>
-    allAssets.filter(a => a.status === 'ใช้งานได้' &&
+    allAssets.filter(a => a.status === 'ใช้งาน' &&
       (a.asset_name?.toLowerCase().includes(search.toLowerCase()) ||
         a.serial_number?.toLowerCase().includes(search.toLowerCase()) ||
         a.barcode?.toLowerCase().includes(search.toLowerCase()) ||
@@ -522,7 +522,7 @@ function ReturnModal({ borrow, returnRemark, setReturnRemark, returnCondition, s
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">สถานะครุภัณฑ์หลังคืน</label>
             <div className="grid grid-cols-2 gap-2">
-              {['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'ไม่พบ'].map((s) => (
+              {['ใช้งาน', 'รอซ่อม', 'รอจำหน่าย', 'ไม่พบ'].map((s) => (
                 <button key={s} type="button" onClick={() => setReturnCondition(s)}
                   className={`py-2 px-3 rounded-xl text-xs font-bold border-2 transition ${returnCondition === s ? 'bg-success-600 border-success-600 text-white' : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200'}`}
                 >{s}</button>

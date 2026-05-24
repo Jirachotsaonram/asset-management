@@ -126,15 +126,15 @@ switch ($endpoint) {
         } elseif ($request_method === 'GET' && $id) {
             $controller->getOne($id);
         } 
-        // POST, PUT, DELETE - เฉพาะ Admin และ Inspector เท่านั้น
+        // POST, PUT, DELETE - เฉพาะ Admin เท่านั้น
         elseif ($request_method === 'POST') {
-            requireAdminOrInspector();
+            requireAdmin();
             $controller->create();
         } elseif ($request_method === 'PUT' && $id) {
-            requireAdminOrInspector();
+            requireAdmin();
             $controller->update($id);
         } elseif ($request_method === 'DELETE' && $id) {
-            requireAdminOrInspector();
+            requireAdmin();
             $controller->delete($id);
         } else {
             Response::error('ไม่พบเส้นทาง API', 404);

@@ -651,17 +651,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -756,10 +747,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    boxShadow: '0px 8px 12px rgba(16, 185, 129, 0.2)',
     elevation: 6,
   },
   mainActionButtonText: {

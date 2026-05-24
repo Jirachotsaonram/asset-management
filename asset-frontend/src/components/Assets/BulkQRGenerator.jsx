@@ -133,9 +133,13 @@ export default function BulkQRGenerator({ assets, onClose, onClear }) {
           const fiscalImg = drawThaiText(fiscalText, 9);
           if (fiscalImg) { pdf.addImage(fiscalImg.dataUrl, 'PNG', x + 5, currentY, fiscalImg.w, fiscalImg.h); currentY += 4.5; }
 
-          const deptText = `คณะ ${asset.faculty || '-'}`;
+          const deptText = `คณะ: ${asset.faculty_name || asset.faculty || '-'}`;
           const deptImg = drawThaiText(deptText, 9);
-          if (deptImg) { pdf.addImage(deptImg.dataUrl, 'PNG', x + 5, currentY, deptImg.w, deptImg.h); }
+          if (deptImg) { pdf.addImage(deptImg.dataUrl, 'PNG', x + 5, currentY, deptImg.w, deptImg.h); currentY += 4.5; }
+          
+          const divText = `ภาควิชา: ${asset.division_name || '-'}`;
+          const divImg = drawThaiText(divText, 9);
+          if (divImg) { pdf.addImage(divImg.dataUrl, 'PNG', x + 5, currentY, divImg.w, divImg.h); }
         }    // เอา "คณะ" หรือ "คณะ" ออกตามที่ผู้ใช้แจ้ง
       } else {
         const barcodeWidth = 63; 

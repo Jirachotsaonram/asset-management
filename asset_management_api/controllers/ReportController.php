@@ -88,7 +88,7 @@ class ReportController {
                     d.faculty,
                     COUNT(a.asset_id) as asset_count,
                     SUM(a.price * a.quantity) as total_value,
-                    SUM(CASE WHEN a.status = 'ใช้งานได้' THEN 1 ELSE 0 END) as active_count,
+                    SUM(CASE WHEN a.status = 'ใช้งาน' THEN 1 ELSE 0 END) as active_count,
                     SUM(CASE WHEN a.status = 'รอซ่อม' THEN 1 ELSE 0 END) as repair_count,
                     SUM(CASE WHEN a.status = 'ไม่พบ' THEN 1 ELSE 0 END) as missing_count
                 FROM departments d
@@ -311,7 +311,7 @@ class ReportController {
                     ) as borrow_duration
                 FROM borrow b
                 JOIN assets a ON b.asset_id = a.asset_id
-                LEFT JOIN departments d ON b.department_id = d.department_id
+                LEFT JOIN departments d ON a.department_id = d.department_id
                 WHERE 1=1";
         
         if ($status) {

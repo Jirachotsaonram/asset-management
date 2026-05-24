@@ -334,7 +334,6 @@ export default function AuditTrailPage() {
                       {audit.asset_name ? (
                         <div>
                           <p className="font-medium text-gray-800 truncate max-w-[200px]">{audit.asset_name}</p>
-                          <p className="text-[10px] text-gray-400">ID: {audit.asset_id}</p>
                         </div>
                       ) : <span className="text-gray-400">-</span>}
                     </td>

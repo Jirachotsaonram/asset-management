@@ -144,7 +144,7 @@ class ImportController {
                 }
 
                 // Validate status
-                $validStatuses = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม'];
+                $validStatuses = ['ใช้งาน', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม'];
                 if (!empty($row->status) && !in_array($row->status, $validStatuses)) {
                     $errors[] = "สถานะไม่ถูกต้อง";
                 }
@@ -303,7 +303,7 @@ class ImportController {
 
                     $this->asset->department_id = !empty($row->department_id) ? $row->department_id : null;
                     $this->asset->location_id = !empty($row->location_id) ? $row->location_id : null;
-                    $this->asset->status = $row->status ?? 'ใช้งานได้';
+                    $this->asset->status = $row->status ?? 'ใช้งาน';
                     
                     // Robust barcode generation if not provided
                     if (empty($row->barcode)) {
@@ -403,7 +403,7 @@ class ImportController {
                 '2024-01-15',
                 'สาขาวิชาเทคโนโลยีสารสนเทศ',
                 'อเนกประสงค์ ชั้น 3',
-                'ใช้งานได้',
+                'ใช้งาน',
                 'QR20240001',
                 'CPU Intel Core i7, RAM 16GB, SSD 512GB',
                 'REF-IT-2024',
@@ -423,7 +423,7 @@ class ImportController {
                 '2024-02-20',
                 'สำนักงานคณบดี',
                 'อาคาร 5 ชั้น 1',
-                'ใช้งานได้',
+                'ใช้งาน',
                 'QR20240002',
                 'LaserJet Pro M404dn',
                 'REF-ADM-2024',
@@ -470,7 +470,7 @@ class ImportController {
             Response::success('ดึงข้อมูลอ้างอิงสำเร็จ', [
                 'departments' => $departments,
                 'locations' => $locations,
-                'valid_statuses' => ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม']
+                'valid_statuses' => ['ใช้งาน', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ', 'ยืม']
             ]);
 
         } catch (Exception $e) {

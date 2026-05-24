@@ -161,7 +161,7 @@ function excelSheetToAssetRows(sheetData) {
     // Defaults
     obj.quantity = obj.quantity || 1;
     obj.unit = obj.unit || 'เครื่อง';
-    obj.status = obj.status || 'ใช้งานได้';
+    obj.status = obj.status || 'ใช้งาน';
     obj.serial_number = obj.serial_number || '';
     obj.barcode = obj.barcode || '';
     obj.price = obj.price || 0;
@@ -456,7 +456,7 @@ export default function ImportPage() {
 
   const downloadTemplate = () => {
     const headers = ['ชื่อครุภัณฑ์', 'หมายเลขซีเรียล', 'จำนวน', 'หน่วยนับ', 'ราคา', 'วันที่ตรวจรับ', 'คณะ', 'อาคาร/ห้อง', 'สถานะ', 'หมายเลขครุภัณฑ์ (Barcode)', 'รายละเอียด', 'รหัสหมวดสินทรัพย์', 'รหัสกองทุน', 'รหัสแผนงาน', 'รหัสงาน/โครงการ', 'ชื่อคณะ', 'เลขที่ใบส่งของ'];
-    const row1 = ['คอมพิวเตอร์ Dell Optiplex 7080', 'SN123456789', '1', 'เครื่อง', '25000', '2024-01-15', 'สาขาวิชาเทคโนโลยีสารสนเทศ', 'อเนกประสงค์ ชั้น 3', 'ใช้งานได้', 'QR20240001', 'CPU Intel Core i7, RAM 16GB, SSD 512GB', 'REF-IT-2024', 'กองทุนทั่วไป', 'แผนงานหลัก', 'โครงการพัฒนานักศึกษา', 'คณะเทคโนโลยีอุตสาหกรรม', 'DEL-001/67'];
+    const row1 = ['คอมพิวเตอร์ Dell Optiplex 7080', 'SN123456789', '1', 'เครื่อง', '25000', '2024-01-15', 'สาขาวิชาเทคโนโลยีสารสนเทศ', 'อเนกประสงค์ ชั้น 3', 'ใช้งาน', 'QR20240001', 'CPU Intel Core i7, RAM 16GB, SSD 512GB', 'REF-IT-2024', 'กองทุนทั่วไป', 'แผนงานหลัก', 'โครงการพัฒนานักศึกษา', 'คณะเทคโนโลยีอุตสาหกรรม', 'DEL-001/67'];
 
     const csvContent = [
       headers.join(','),

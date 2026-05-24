@@ -22,50 +22,49 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
   const location = useLocation();
   const { user } = useAuth();
 
-  // เมนูสำหรับผู้ใช้ทั่วไป (เห็นแค่ 2 เมนู)
   const userMenuItems = [
     { path: '/assets', label: 'ครุภัณฑ์', icon: Package, section: 'main' },
     { path: '/scan', label: 'สแกน QR Code', icon: QrCode, section: 'main' },
   ];
 
-  // เมนูพื้นฐาน (Admin/Inspector จะเห็น)
-  const baseMenuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
-    ...userMenuItems,
-    { path: '/reports', label: 'รายงาน', icon: FileText, section: 'main' },
-    { path: '/audit-trail', label: 'ประวัติการใช้งาน', icon: History, section: 'main' },
-  ];
-
-  // เมนูสำหรับ Inspector และ Admin
-  const inspectorMenuItems = [
-    { path: '/annual-check', label: 'การตรวจสอบประจำปี', icon: CalendarCheck, section: 'management' },
-    { path: '/check', label: 'ตรวจสอบรายห้อง', icon: CheckSquare, section: 'management' },
-    { path: '/locations', label: 'สถานที่', icon: MapPin, section: 'management' },
-    { path: '/borrows', label: 'ยืม-คืน', icon: ClipboardList, section: 'management' },
-    { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: History, section: 'management' },
-    { path: '/import', label: 'นำเข้าข้อมูล', icon: Upload, section: 'management' },
-  ];
-
-  // เมนูสำหรับ Admin เท่านั้น
-  const adminMenuItems = [
-    { path: '/users', label: 'ผู้ใช้งาน', icon: Users, section: 'admin' },
-  ];
-
-  // รวมเมนูตาม role
+  // รวมเมนูตาม role อย่างชัดเจน
   let menuItems = [];
 
   if (user?.role === 'User') {
-    menuItems = [...userMenuItems];
+    menuItems = [
+      ...userMenuItems
+    ];
+  } else if (user?.role === 'Inspector') {
+    menuItems = [
+      { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
+      ...userMenuItems,
+      { path: '/reports', label: 'รายงาน', icon: FileText, section: 'main' },
+      { path: '/check', label: 'ตรวจสอบครุภัณฑ์', icon: CheckSquare, section: 'management' },
+      { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: History, section: 'management' },
+    ];
+  } else if (user?.role === 'Authority') {
+    menuItems = [
+      { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
+      ...userMenuItems,
+      { path: '/reports', label: 'รายงาน', icon: FileText, section: 'main' },
+      { path: '/borrows', label: 'ยืม-คืน', icon: ClipboardList, section: 'management' },
+      { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: History, section: 'management' },
+    ];
   } else {
-    menuItems = [...baseMenuItems];
-  }
-
-  if (user?.role === 'Admin' || user?.role === 'Inspector') {
-    menuItems = [...menuItems, ...inspectorMenuItems];
-  }
-
-  if (user?.role === 'Admin') {
-    menuItems = [...menuItems, ...adminMenuItems];
+    // Admin gets everything
+    menuItems = [
+      { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
+      ...userMenuItems,
+      { path: '/reports', label: 'รายงาน', icon: FileText, section: 'main' },
+      { path: '/audit-trail', label: 'ประวัติการใช้งานระบบ', icon: History, section: 'main' },
+      { path: '/check', label: 'ตรวจสอบครุภัณฑ์', icon: CheckSquare, section: 'management' },
+      { path: '/borrows', label: 'ยืม-คืน', icon: ClipboardList, section: 'management' },
+      { path: '/asset-history', label: 'ประวัติการเคลื่อนย้าย', icon: History, section: 'management' },
+      { path: '/locations', label: 'สถานที่', icon: MapPin, section: 'management' },
+      { path: '/annual-check', label: 'ตั้งค่าการตรวจสอบ', icon: CalendarCheck, section: 'management' },
+      { path: '/import', label: 'นำเข้าข้อมูล', icon: Upload, section: 'management' },
+      { path: '/users', label: 'ผู้ใช้งาน', icon: Users, section: 'admin' },
+    ];
   }
 
   const isActive = (path) => location.pathname === path;
@@ -205,7 +204,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
           )}
 
           {/* Management Section */}
-          {(user?.role === 'Admin' || user?.role === 'Inspector') && renderSection(
+          {(user?.role === 'Admin' || user?.role === 'Inspector' || user?.role === 'Authority') && renderSection(
             'จัดการ',
             menuItems.filter(item => item.section === 'management'),
             'management'

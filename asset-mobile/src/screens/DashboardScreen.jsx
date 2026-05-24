@@ -50,8 +50,8 @@ export default function DashboardScreen({ navigation }) {
         const currentYear = new Date().getFullYear();
 
         cachedAssets.forEach(asset => {
-          const status = asset.status || 'ใช้งานได้';
-          if (status === 'ใช้งานได้') available++;
+          const status = asset.status || 'ใช้งาน';
+          if (status === 'ใช้งาน') available++;
           else if (status === 'รอซ่อม') maintenance++;
           else if (status === 'ไม่พบ') missing++;
 
@@ -111,7 +111,7 @@ export default function DashboardScreen({ navigation }) {
 
       statusData.forEach(item => {
         const count = parseInt(item.count);
-        if (item.status === 'ใช้งานได้') available = count;
+        if (item.status === 'ใช้งาน') available = count;
         if (item.status === 'รอซ่อม') maintenance = count;
         if (item.status === 'ไม่พบ') missing = count;
       });
@@ -125,8 +125,8 @@ export default function DashboardScreen({ navigation }) {
           let cAvailable = 0, cMaintenance = 0, cMissing = 0, cChecked = 0;
           const currentYear = new Date().getFullYear();
           cachedAssets.forEach(asset => {
-            const status = asset.status || 'ใช้งานได้';
-            if (status === 'ใช้งานได้') cAvailable++;
+            const status = asset.status || 'ใช้งาน';
+            if (status === 'ใช้งาน') cAvailable++;
             else if (status === 'รอซ่อม') cMaintenance++;
             else if (status === 'ไม่พบ') cMissing++;
             if (asset.last_check_date && new Date(asset.last_check_date).getFullYear() === currentYear) cChecked++;
@@ -261,7 +261,7 @@ export default function DashboardScreen({ navigation }) {
             icon="checkmark-circle-outline"
             color="#10B981"
             bgColor="#D1FAE5"
-            onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
+            onPress={() => navigation.navigate('Assets', { status: 'ใช้งาน' })}
           />
 
           <StatCard
@@ -274,12 +274,12 @@ export default function DashboardScreen({ navigation }) {
           />
 
           <StatCard
-            title="ใช้งานได้"
+            title="ใช้งาน"
             value={stats.available}
             icon="checkmark-outline"
             color="#10B981"
             bgColor="#D1FAE5"
-            onPress={() => navigation.navigate('Assets', { status: 'ใช้งานได้' })}
+            onPress={() => navigation.navigate('Assets', { status: 'ใช้งาน' })}
           />
 
           <StatCard
@@ -320,7 +320,7 @@ export default function DashboardScreen({ navigation }) {
               <Text style={styles.actionText}>รายการครุภัณฑ์</Text>
             </TouchableOpacity>
 
-            {user?.role !== 'User' && (
+            {(user?.role === 'Admin' || user?.role === 'Inspector') && (
               <>
                 <TouchableOpacity
                   style={styles.actionButton}
@@ -332,20 +332,22 @@ export default function DashboardScreen({ navigation }) {
 
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => navigation.navigate('Borrows')}
-                >
-                  <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
-                  <Text style={styles.actionText}>ยืม/คืน</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.actionButton}
                   onPress={() => navigation.navigate('Check', { tab: 'room' })}
                 >
                   <Ionicons name="business-outline" size={32} color="#2563EB" />
                   <Text style={styles.actionText}>ตรวจสอบรายห้อง</Text>
                 </TouchableOpacity>
               </>
+            )}
+
+            {(user?.role === 'Admin' || user?.role === 'Authority') && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('Borrows')}
+              >
+                <Ionicons name="swap-horizontal-outline" size={32} color="#2563EB" />
+                <Text style={styles.actionText}>ยืม/คืน</Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -487,10 +489,7 @@ const styles = StyleSheet.create({
   statCard: {
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 3,
   },
   statContent: {
@@ -543,10 +542,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '47%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 3,
   },
   actionText: {

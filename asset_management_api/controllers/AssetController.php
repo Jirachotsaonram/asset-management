@@ -114,7 +114,7 @@ class AssetController {
             // ถ้า department_id หรือ location_id เป็น string ว่าง ให้ส่ง null แทน เพื่อไม่ให้ foreign key constraint หัก
             $this->asset->department_id = (!empty($data->department_id) && $data->department_id !== '') ? $data->department_id : null;
             $this->asset->location_id = (!empty($data->location_id) && $data->location_id !== '') ? $data->location_id : null;
-            $this->asset->status = $data->status ?? 'ใช้งานได้';
+            $this->asset->status = $data->status ?? 'ใช้งาน';
             $this->asset->barcode = $data->barcode ?? uniqid('QR');
             $this->asset->description = $data->description ?? '';
             $this->asset->reference_number = $data->reference_number ?? '';
@@ -144,7 +144,7 @@ class AssetController {
                     'quantity' => $data->quantity ?? 1,
                     'unit' => $data->unit ?? '',
                     'price' => $data->price ?? 0,
-                    'status' => $data->status ?? 'ใช้งานได้'
+                    'status' => $data->status ?? 'ใช้งาน'
                 ]);
                 $this->auditTrail->create();
 
@@ -185,7 +185,7 @@ class AssetController {
         $this->asset->price = $data->price ?? 0;
         $this->asset->department_id = (!empty($data->department_id) && $data->department_id !== '') ? $data->department_id : null;
         $this->asset->location_id = (!empty($data->location_id) && $data->location_id !== '') ? $data->location_id : null;
-        $this->asset->status = $data->status ?? 'ใช้งานได้';
+        $this->asset->status = $data->status ?? 'ใช้งาน';
         $this->asset->description = $data->description ?? '';
         $this->asset->reference_number = $data->reference_number ?? '';
         $this->asset->delivery_number = $data->delivery_number ?? '';

@@ -134,8 +134,13 @@ export default function QRCodeModal({ asset, onClose }) {
             <!-- 4. ปีงบประมาณ -->
             <p class="info-text"><span class="label">ปีงบประมาณ:</span> ${getFiscalYear(asset.received_date)}</p>
             
-            <!-- 5. คณะ/คณะ -->
-            <p class="info-text"><span class="label">คณะ:</span> ${asset.faculty_name || '-'}</p>
+            <!-- 5. คณะ -->
+            <p class="info-text"><span class="label">คณะ:</span> ${asset.faculty_name || asset.faculty || '-'}</p>
+            
+            <!-- 6. ภาควิชา -->
+            <p class="info-text"><span class="label">ภาควิชา:</span> ${asset.division_name || '-'}</p>
+            
+
           </div>
           <div class="no-print" style="margin-top: 20px;">
             <button onclick="window.print()" style="padding: 10px 25px; cursor: pointer; border: none; border-radius: 8px; background: #2563eb; color: white; font-weight: bold;">

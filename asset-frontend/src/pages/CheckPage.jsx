@@ -5,7 +5,7 @@ import {
   CheckSquare, Search, ChevronDown, ChevronRight, Building, Layers,
   MapPin, Calendar, Bell, X, Save, Eye, BarChart3, TrendingUp,
   AlertCircle, AlertTriangle, Clock, Settings, EyeOff, Grid, List,
-  Filter as FilterIcon, ChevronLeft, Sliders, RotateCcw
+  Filter as FilterIcon, ChevronLeft, Sliders, RotateCcw, Square
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
@@ -19,7 +19,7 @@ const STATUS_CONFIGS = {
   checked: { label: 'ตรวจแล้วในรอบนี้', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckSquare, priority: 3 },
 };
 
-const CHECK_STATUSES = ['ใช้งานได้', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ'];
+const CHECK_STATUSES = ['ใช้งาน', 'รอซ่อม', 'รอจำหน่าย', 'จำหน่ายแล้ว', 'ไม่พบ'];
 const ITEMS_PER_PAGE = 100;
 
 // ==================== Helper: compute check status (pure function, Single Source of Truth) ====================
@@ -82,7 +82,8 @@ export default function CheckPage() {
 
   // Modals
   const [modal, setModal] = useState({ type: null, data: null }); // { type: 'check'|'roomCheck', data: ... }
-  const [checkForm, setCheckForm] = useState({ status: 'ใช้งานได้', remark: '' });
+  const [checkForm, setCheckForm] = useState({ status: 'ใช้งาน', remark: '' });
+  const [selectedRoomAssets, setSelectedRoomAssets] = useState([]);
 
   const computeCheckStatusWrapper = useCallback((asset) => {
     return computeCheckStatus(asset, globalPeriod);
@@ -204,8 +205,12 @@ export default function CheckPage() {
   // ==================== Handlers ====================
   const toggle = useCallback((key) => setExpanded(p => ({ ...p, [key]: !p[key] })), []);
 
-  const openCheckModal = (asset) => { setCheckForm({ status: 'ใช้งานได้', remark: '' }); setModal({ type: 'check', data: asset }); };
-  const openRoomCheck = (building, floor, room, roomAssets) => { setCheckForm({ status: 'ใช้งานได้', remark: '' }); setModal({ type: 'roomCheck', data: { building, floor, room, assets: roomAssets } }); };
+  const openCheckModal = (asset) => { setCheckForm({ status: 'ใช้งาน', remark: '' }); setModal({ type: 'check', data: asset }); };
+  const openRoomCheck = (building, floor, room, roomAssets) => { 
+    setCheckForm({ status: 'ใช้งาน', remark: '' }); 
+    setModal({ type: 'roomCheck', data: { building, floor, room, assets: roomAssets } }); 
+    setSelectedRoomAssets(roomAssets.map(a => a.asset_id));
+  };
   const closeModal = () => setModal({ type: null, data: null });
 
   const saveCheck = async () => {
@@ -223,9 +228,14 @@ export default function CheckPage() {
   };
 
   const saveRoomCheck = async () => {
+    if (selectedRoomAssets.length === 0) {
+      toast.error('กรุณาเลือกอย่างน้อย 1 รายการ');
+      return;
+    }
     try {
       setSaving(true);
-      const promises = modal.data.assets.map(a =>
+      const selectedAssets = modal.data.assets.filter(a => selectedRoomAssets.includes(a.asset_id));
+      const promises = selectedAssets.map(a =>
         api.post('/checks', {
           asset_id: a.asset_id, user_id: user.user_id,
           check_date: new Date().toISOString().split('T')[0],
@@ -233,7 +243,7 @@ export default function CheckPage() {
         })
       );
       await Promise.all(promises);
-      toast.success(`บันทึกการตรวจทั้งห้องสำเร็จ (${modal.data.assets.length} รายการ)`);
+      toast.success(`บันทึกการตรวจสำเร็จ (${selectedAssets.length} รายการ)`);
       closeModal(); fetchData();
     } catch { toast.error('ไม่สามารถบันทึกได้'); }
     finally { setSaving(false); }
@@ -485,9 +495,13 @@ export default function CheckPage() {
       {modal.type === 'roomCheck' && (
         <ModalWrapper title="ตรวจสอบทั้งห้อง" onClose={closeModal}>
           <RoomInfo room={modal.data} />
-          <RoomAssetList assets={modal.data.assets} />
+          <RoomAssetList 
+            assets={modal.data.assets} 
+            selected={selectedRoomAssets} 
+            setSelected={setSelectedRoomAssets} 
+          />
           <CheckFormFields checkForm={checkForm} setCheckForm={setCheckForm} isRoom />
-          <ModalActions onSave={saveRoomCheck} onClose={closeModal} saving={saving} color="blue" label={`บันทึกทั้งห้อง (${modal.data.assets.length})`} />
+          <ModalActions onSave={saveRoomCheck} onClose={closeModal} saving={saving} color="blue" label={`บันทึก (${selectedRoomAssets.length})`} />
         </ModalWrapper>
       )}
     </div>
@@ -899,18 +913,42 @@ function RoomInfo({ room }) {
   );
 }
 
-function RoomAssetList({ assets, icon: Icon = CheckSquare }) {
+function RoomAssetList({ assets, selected, setSelected }) {
+  const toggleAsset = (id) => {
+    if (selected.includes(id)) {
+      setSelected(selected.filter(x => x !== id));
+    } else {
+      setSelected([...selected, id]);
+    }
+  };
+
   return (
-    <div className="bg-gray-50 rounded-lg p-3 max-h-40 overflow-y-auto mb-4">
-      <p className="text-[10px] font-medium text-gray-500 uppercase mb-2">รายการ:</p>
+    <div className="bg-white border border-gray-200 rounded-lg p-3 max-h-60 overflow-y-auto mb-4 shadow-sm">
+      <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-100">
+        <p className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">เลือกรายการที่ตรวจพบ ({selected.length}/{assets.length})</p>
+        <button 
+          onClick={() => setSelected(selected.length === assets.length ? [] : assets.map(a => a.asset_id))}
+          className="text-[11px] text-blue-600 font-semibold hover:underline bg-blue-50 px-2 py-0.5 rounded"
+        >
+          {selected.length === assets.length ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด'}
+        </button>
+      </div>
       <ul className="space-y-1">
-        {assets.map(a => (
-          <li key={a.asset_id} className="text-xs text-gray-700 flex items-center gap-1.5 py-0.5 border-b border-gray-100 last:border-0">
-            <Icon size={12} className="text-blue-600 flex-shrink-0" />
-            <span className="truncate flex-1">{a.asset_name}</span>
-            <span className="text-[10px] text-gray-500 font-mono pl-2">{a.barcode || '-'}</span>
-          </li>
-        ))}
+        {assets.map(a => {
+          const isChecked = selected.includes(a.asset_id);
+          return (
+            <li key={a.asset_id} 
+                className={`text-xs flex items-center gap-2 py-1.5 px-2 border-b border-gray-50 last:border-0 cursor-pointer rounded transition-colors ${isChecked ? 'bg-blue-50/30 hover:bg-blue-50/50' : 'hover:bg-gray-50'}`}
+                onClick={() => toggleAsset(a.asset_id)}>
+              {isChecked ? 
+                <CheckSquare size={16} className="text-blue-600 flex-shrink-0" /> : 
+                <Square size={16} className="text-gray-300 flex-shrink-0" />
+              }
+              <span className={`truncate flex-1 ${!isChecked ? 'text-gray-400' : 'text-gray-700 font-medium'}`}>{a.asset_name}</span>
+              <span className={`text-[10px] font-mono pl-2 ${!isChecked ? 'text-gray-300' : 'text-gray-500'}`}>{a.barcode || '-'}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

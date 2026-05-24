@@ -5,7 +5,7 @@ export const API_BASE_URL = isLocal
   : 'http://202.44.47.45/asset-management/asset_management_api';
 
 export const ASSET_STATUS = {
-  AVAILABLE: 'ใช้งานได้',
+  AVAILABLE: 'ใช้งาน',
   MAINTENANCE: 'รอซ่อม',
   PENDING_DISPOSAL: 'รอจำหน่าย',
   DISPOSED: 'จำหน่ายแล้ว',

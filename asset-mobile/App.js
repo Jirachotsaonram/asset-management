@@ -34,6 +34,7 @@ function MainTabs() {
   const { user } = useAuth();
   const { isConnected } = useNetwork();
   const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
+  const isAdminOrAuthority = user?.role === 'Admin' || user?.role === 'Authority';
 
   return (
     <Tab.Navigator
@@ -108,7 +109,7 @@ function MainTabs() {
           }}
         />
       )}
-      {isAdminOrInspector && (
+      {isAdminOrAuthority && (
         <Tab.Screen
           name="Borrows"
           component={BorrowsScreen}

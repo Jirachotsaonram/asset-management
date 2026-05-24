@@ -77,10 +77,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.06)',
     elevation: 6,
     zIndex: 10,
   },
@@ -109,10 +106,7 @@ const styles = StyleSheet.create({
   },
   tabItemActive: {
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.08)',
     elevation: 3,
   },
   tabLabel: {

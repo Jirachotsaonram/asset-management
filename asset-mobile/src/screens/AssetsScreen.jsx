@@ -555,17 +555,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 16,
     padding: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.08)',
+    elevation: 4,
     borderWidth: 1,
     borderColor: '#F3F4F6',
   },
