@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
+import { View,
+    
     StyleSheet,
     TouchableOpacity,
     Alert,
     ScrollView,
     ActivityIndicator,
-    RefreshControl,
-} from 'react-native';
+    RefreshControl, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import offlineService from '../services/offlineService';
 import { useNetwork } from '../hooks/useNetwork';
@@ -19,8 +17,7 @@ export default function OfflineScreen({ navigation }) {
         totalAssets: 0,
         pendingChecks: 0,
         lastSync: null,
-        hasData: false,
-    });
+        hasData: false});
     const [loading, setLoading] = useState(true);
     const [syncing, setSyncing] = useState(false);
     const [downloading, setDownloading] = useState(false);
@@ -59,8 +56,7 @@ export default function OfflineScreen({ navigation }) {
                         } else {
                             Alert.alert('ข้อผิดพลาด', result.message);
                         }
-                    },
-                },
+                    }},
             ]
         );
     };
@@ -103,8 +99,7 @@ export default function OfflineScreen({ navigation }) {
                     onPress: async () => {
                         await offlineService.clearAssetChunks();
                         loadStats();
-                    },
-                },
+                    }},
             ]
         );
     };
@@ -233,13 +228,11 @@ export default function OfflineScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F3F4F6',
-    },
+        backgroundColor: '#F3F4F6'},
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-    },
+        alignItems: 'center'},
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -247,16 +240,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 60,
         paddingBottom: 20,
-        backgroundColor: '#fff',
-    },
+        backgroundColor: '#fff'},
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#111827',
-    },
+        color: '#111827'},
     backBtn: {
-        padding: 4,
-    },
+        padding: 4},
     statsCard: {
         backgroundColor: '#fff',
         margin: 16,
@@ -264,40 +254,33 @@ const styles = StyleSheet.create({
         padding: 20,
         boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
         elevation: 2,
-        gap: 20,
-    },
+        gap: 20},
     statRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
-    },
+        gap: 16},
     statIconContainer: {
         width: 48,
         height: 48,
         borderRadius: 12,
         backgroundColor: '#EFF6FF',
         justifyContent: 'center',
-        alignItems: 'center',
-    },
+        alignItems: 'center'},
     statInfo: {
-        flex: 1,
-    },
+        flex: 1},
     statLabel: {
         fontSize: 14,
         color: '#6B7280',
-        marginBottom: 4,
-    },
+        marginBottom: 4},
     statValue: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#111827',
-    },
+        color: '#111827'},
     actionSection: {
         backgroundColor: '#fff',
         borderTopWidth: 1,
         borderBottomWidth: 1,
-        borderColor: '#E5E7EB',
-    },
+        borderColor: '#E5E7EB'},
     sectionTitle: {
         fontSize: 14,
         fontWeight: '700',
@@ -306,46 +289,38 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#F9FAFB',
-    },
+        backgroundColor: '#F9FAFB'},
     actionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#F3F4F6',
-        gap: 12,
-    },
+        gap: 12},
     actionIcon: {
         width: 40,
         height: 40,
         borderRadius: 10,
         justifyContent: 'center',
-        alignItems: 'center',
-    },
+        alignItems: 'center'},
     actionInfo: {
-        flex: 1,
-    },
+        flex: 1},
     actionLabel: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#111827',
-    },
+        color: '#111827'},
     actionDesc: {
         fontSize: 12,
         color: '#6B7280',
-        marginTop: 2,
-    },
+        marginTop: 2},
     infoBox: {
         flexDirection: 'row',
         padding: 20,
         gap: 12,
-        alignItems: 'flex-start',
-    },
+        alignItems: 'flex-start'},
     infoText: {
         flex: 1,
         fontSize: 13,
         color: '#6B7280',
-        lineHeight: 18,
-    },
-});
+        lineHeight: 18}});
+

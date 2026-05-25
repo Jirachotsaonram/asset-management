@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   StyleSheet,
   TouchableOpacity,
-  Platform,
-} from 'react-native';
+  Platform, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CheckByAsset from '../components/Check/CheckByAsset';
 import CheckByRoom from '../components/Check/CheckByRoom';
@@ -68,8 +66,7 @@ export default function CheckScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   header: {
     backgroundColor: '#fff',
     paddingHorizontal: 20,
@@ -79,22 +76,19 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.06)',
     elevation: 6,
-    zIndex: 10,
-  },
+    zIndex: 10},
   title: {
     fontSize: 24,
     fontWeight: '800',
     color: '#111827',
     letterSpacing: -0.5,
-    marginBottom: 14,
-  },
+    marginBottom: 14},
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#F3F4F6',
     borderRadius: 14,
     padding: 4,
-    gap: 4,
-  },
+    gap: 4},
   tabItem: {
     flex: 1,
     flexDirection: 'row',
@@ -102,22 +96,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 10,
-    gap: 6,
-  },
+    gap: 6},
   tabItemActive: {
     backgroundColor: '#fff',
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.08)',
-    elevation: 3,
-  },
+    elevation: 3},
   tabLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   tabLabelActive: {
-    color: '#2563EB',
-  },
+    color: '#2563EB'},
   content: {
-    flex: 1,
-  },
-});
+    flex: 1}});
+

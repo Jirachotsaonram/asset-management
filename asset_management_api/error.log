@@ -3409,3 +3409,126 @@ Stack trace:
 [24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Received file: images (1).jpg size: 9359 type: image/jpeg
 [24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Attempting to resize image
 [24-May-2026 08:08:16 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1295d03a2df4.01837001.jpg
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f2754638b9.31659703.png
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f2758eb4b4.06959890.png
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:33 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f275e1f6b5.32461746.png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f2762f6fb5.57868410.png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f2766ddaa1.78783468.png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f276ad3491.72444938.png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:34 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f276eadaf4.54847067.png
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f2773bab46.72688361.png
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f2777fca06.35694059.png
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:35 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f277c5e6f0.72163594.png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f278157639.78284858.png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f278592017.65482478.png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27899e236.62751564.png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:36 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f278db4f71.09899999.png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27928cd10.86231564.png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f279677314.26481167.png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f279a762d8.07725142.png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:37 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f279e520b4.94359146.png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27a37ee87.33614722.png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27a73f321.37191078.png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27ab4a525.27978705.png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:38 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27af41ac5.36939098.png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27b3ea556.83766315.png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27b784751.10346767.png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27bb7d563.57450632.png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:39 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27bef32a9.91020253.png
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27c39f5c8.39706274.png
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27c7c56b6.00239160.png
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:40 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27cbe3457.97178934.png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27d070a58.41264505.png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27d4994a7.58872656.png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27d8ea5c5.76724414.png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:41 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27dcf91c4.83649992.png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27e1d72e6.25853042.png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27e5e8661.01292289.png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27e9dff53.91950365.png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:42 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27edd0613.32021761.png
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27f298807.21754199.png
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27f65c001.86037686.png
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Received file: 22_OLED-removebg-preview.png size: 223299 type: image/png
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Attempting to resize image
+[24-May-2026 14:43:43 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a12f27fa9bb82.29136687.png
+[25-May-2026 13:22:36 Europe/Berlin] ImageUpload: Received file: images.jpg size: 3080 type: image/jpeg
+[25-May-2026 13:22:36 Europe/Berlin] ImageUpload: Attempting to resize image
+[25-May-2026 13:22:36 Europe/Berlin] ImageUpload: Upload successful: uploads/assets/asset_6a1430fc92fa25.58304523.jpg

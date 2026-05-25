@@ -200,7 +200,7 @@ export default function CheckPage() {
   const paginatedAssets = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredAssets.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredAssets, currentPage, ITEMS_PER_PAGE]);
+  }, [filteredAssets, currentPage]);
 
   // ==================== Handlers ====================
   const toggle = useCallback((key) => setExpanded(p => ({ ...p, [key]: !p[key] })), []);

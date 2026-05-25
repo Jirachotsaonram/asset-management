@@ -421,7 +421,7 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
             {/* User info - Desktop only */}
             <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50/80 border border-gray-100">
               {user?.picture || user?.avatar_url ? (
-                <img src={user?.picture || user?.avatar_url} alt="Profile" className="w-8 h-8 rounded-lg object-cover border border-gray-200" />
+                <img src={user?.picture || user?.avatar_url} alt="Profile" className="w-8 h-8 rounded-lg object-cover border border-gray-200" referrerPolicy="no-referrer" />
               ) : (
                 <div className="bg-primary-100 p-1.5 rounded-lg w-8 h-8 flex items-center justify-center">
                   <User className="w-4 h-4 text-primary-600" />
@@ -442,7 +442,7 @@ export default function Navbar({ onMenuClick, isCollapsed, isMobile }) {
                 className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition-colors"
               >
                 {user?.picture || user?.avatar_url ? (
-                  <img src={user?.picture || user?.avatar_url} alt="Profile" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
+                  <img src={user?.picture || user?.avatar_url} alt="Profile" className="w-8 h-8 rounded-lg object-cover shadow-sm" referrerPolicy="no-referrer" />
                 ) : (
                   <div className="bg-primary-600 p-1.5 rounded-lg w-8 h-8 flex items-center justify-center">
                     <User className="w-4 h-4 text-white" />

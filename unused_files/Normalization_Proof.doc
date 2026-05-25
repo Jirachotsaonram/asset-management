@@ -1,0 +1,148 @@
+﻿<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><title>Normalization Proof</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<meta charset='utf-8'>
+<style>
+body { font-family: 'TH Sarabun PSK', 'Sarabun', 'Angsana New', sans-serif; font-size: 16pt; line-height: 1.5; }
+h1 { font-size: 24pt; color: #1f4e79; text-align: center; font-weight: bold; }
+h2 { font-size: 20pt; color: #2e74b5; border-bottom: 1px solid #2e74b5; padding-bottom: 5px; margin-top: 20px;}
+h3 { font-size: 18pt; color: #4472c4; margin-top: 15px;}
+p { margin-bottom: 10px; }
+ul { margin-bottom: 10px; }
+li { margin-bottom: 5px; }
+.success { font-weight: bold; color: #385623; }
+</style>
+</head>
+<body>
+<h1>การวิเคราะห์และพิสูจน์ Normalization ระดับ Attribute (1NF - BCNF)</h1>
+<p style='text-align:center;'><em>วิเคราะห์เจาะลึกแต่ละตาราง และแต่ละ Attribute ในระบบบริหารจัดการครุภัณฑ์</em></p>
+<p>เพื่อพิสูจน์ว่าฐานข้อมูลได้รับการอัปเดตและปรับปรุงตามหลักเกณฑ์ Normalization อย่างถูกต้องสมบูรณ์แบบ เราจะมาพิจารณา <strong>Functional Dependencies (FDs)</strong> หรือความสัมพันธ์การพึ่งพาข้อมูลของแต่ละตารางแบบละเอียดครับ</p>
+
+<h2>1. หลักเกณฑ์การพิสูจน์</h2>
+<ul>
+<li><strong>1NF (First Normal Form):</strong> แต่ละช่องข้อมูล (Attribute) ต้องเก็บค่าเดี่ยว (Atomic) และต้องไม่มีกลุ่มข้อมูลที่ซ้ำซ้อน (Repeating Groups)</li>
+<li><strong>2NF (Second Normal Form):</strong> ต้องผ่าน 1NF และแอตทริบิวต์ที่ไม่ใช่คีย์หลัก (Non-Prime) ต้องขึ้นอยู่กับคีย์หลักแบบ <strong>เต็มรูปแบบ (Full Dependency)</strong> เท่านั้น</li>
+<li><strong>3NF (Third Normal Form):</strong> ต้องผ่าน 2NF และแอตทริบิวต์ที่ไม่ใช่คีย์หลัก <strong>ห้าม</strong> ไปเป็นตัวกำหนดค่าแอตทริบิวต์อื่นที่ไม่ใช่คีย์หลักด้วยกันเอง</li>
+<li><strong>BCNF (Boyce-Codd Normal Form):</strong> เข้มงวดกว่า 3NF คือ <strong>ทุกๆ ตัวที่ไปกำหนดค่าให้คนอื่นได้ (Determinant) จะต้องเป็น Candidate Key เสมอ</strong></li>
+</ul>
+
+<h2>2. การพิสูจน์รายตาราง (Table-by-Table Analysis)</h2>
+
+<h3>2.1 ตาราง users (ผู้ใช้งานระบบ)</h3>
+<ul>
+<li><strong>Attributes:</strong> user_id (PK), google_sub_id (Unique), email (Unique), ullname, vatar_url, ole, status, uth_provider, phone, created_at, updated_at</li>
+<li><strong>Functional Dependencies (FDs):</strong>
+  <ul>
+  <li>user_id ➔ ทุกคอลัมน์</li>
+  <li>email ➔ ทุกคอลัมน์</li>
+  <li>google_sub_id ➔ ทุกคอลัมน์</li>
+  </ul>
+</li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF:</strong> ผ่าน (ไม่มีการเก็บเบอร์โทรศัพท์หลายเบอร์ในช่องเดียว)</li>
+  <li><strong>2NF:</strong> ผ่าน (คีย์หลักเป็นคอลัมน์เดียวคือ user_id จึงไม่มี Partial Dependency)</li>
+  <li><strong>3NF:</strong> ผ่าน (ไม่มี Non-Prime ที่กำหนดกันเอง)</li>
+  <li><strong>BCNF:</strong> <span class='success'>ผ่าน</span> (ตัวแปรที่เป็น Determinant คือ user_id, email, google_sub_id ล้วนเป็น Candidate Key ทั้งสิ้น)</li>
+  </ul>
+</li>
+</ul>
+
+<h3>2.2 ตาราง departments (หน่วยงาน/คณะ)</h3>
+<ul>
+<li><strong>Attributes:</strong> department_id (PK), aculty, division_name, created_at</li>
+<li><strong>FDs:</strong>
+  <ul><li>department_id ➔ aculty, division_name, created_at</li></ul>
+</li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF, 2NF:</strong> ผ่าน (เก็บค่าเดี่ยว, มี PK คอลัมน์เดียว)</li>
+  <li><strong>3NF:</strong> ผ่าน (เราแยกรหัสหน่วยงานออกมาต่างหาก เพื่อขจัด Transitive Dependency ในตารางครุภัณฑ์อย่างสมบูรณ์แบบ)</li>
+  <li><strong>BCNF:</strong> <span class='success'>ผ่าน</span> (department_id เป็น Determinant เดียวและเป็นคีย์หลัก)</li>
+  </ul>
+</li>
+</ul>
+
+<h3>2.3 ตาราง locations (สถานที่ตั้งครุภัณฑ์)</h3>
+<ul>
+<li><strong>Attributes:</strong> location_id (PK), uilding_name, loor, oom_number, description, created_at</li>
+<li><strong>FDs:</strong> <ul><li>location_id ➔ ทุกคอลัมน์</li></ul></li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF, 2NF:</strong> ผ่าน (ข้อมูลค่าเดี่ยว และ Surrogate Key คอลัมน์เดียว)</li>
+  <li><strong>3NF, BCNF:</strong> <span class='success'>ผ่าน</span> (การระบุสถานที่ที่แน่นอน เราใช้ location_id แทนการใช้ชื่อตึกและชื่อห้องซ้ำๆ ช่วยลดความผิดปกติเวลาเปลี่ยนชื่อห้องเรียน)</li>
+  </ul>
+</li>
+</ul>
+
+<h3>2.4 ตาราง ssets (ฐานข้อมูลครุภัณฑ์หลัก)</h3>
+<ul>
+<li><strong>Attributes:</strong> sset_id (PK), sset_name, serial_number, quantity, unit, price, eceived_date, department_id (FK), delivery_number, und_code, plan_code, project_code, location_id (FK), status, arcode, description, eference_number, image, created_at, updated_at</li>
+<li><strong>FDs:</strong>
+  <ul>
+  <li>sset_id ➔ ทุกคอลัมน์</li>
+  <li>arcode ➔ ทุกคอลัมน์</li>
+  </ul>
+</li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF:</strong> ผ่าน (ทุกค่าเป็น Atomic)</li>
+  <li><strong>2NF:</strong> ผ่าน (PK คือ sset_id คอลัมน์เดียว)</li>
+  <li><strong>3NF:</strong> ผ่านฉลุย! เพราะเราใช้ department_id (FK) และ location_id (FK) โยงไปตารางอื่น ทำให้ข้อมูลตึก ห้อง คณะ ภาควิชา ไม่มาเกิด Transitive Dependency ในตารางนี้</li>
+  <li><strong>BCNF:</strong> <span class='success'>ผ่าน</span> (Determinants คือ sset_id และ arcode ซึ่งทั้งคู่เป็น Candidate Key)</li>
+  </ul>
+</li>
+</ul>
+
+<h3>2.5 ตาราง orrow (ประวัติการยืม-คืน)</h3>
+<ul>
+<li><strong>Attributes:</strong> orrow_id (PK), sset_id (FK), orrower_name, orrow_date, due_date, eturn_date, status, emark, created_at, updated_at</li>
+<li><strong>FDs:</strong> <ul><li>orrow_id ➔ ทุกคอลัมน์</li></ul></li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF, 2NF:</strong> ผ่าน (คีย์หลักเดี่ยว orrow_id ทำให้ไม่เกิด Partial Dependency)</li>
+  <li><strong>3NF, BCNF:</strong> <span class='success'>ผ่าน</span> (orrow_date พึ่งพิงรหัสการยืม orrow_id อย่างเต็มรูปแบบ)</li>
+  </ul>
+</li>
+</ul>
+
+<h3>2.6 ตาราง sset_check (ประวัติการตรวจสอบสถานะ)</h3>
+<ul>
+<li><strong>Attributes:</strong> check_id (PK), sset_id (FK), user_id (FK), check_date, check_status, emark, created_at</li>
+<li><strong>FDs:</strong> <ul><li>check_id ➔ ทุกคอลัมน์</li></ul></li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF - BCNF:</strong> <span class='success'>ผ่าน</span> โครงสร้างนี้ใช้ Surrogate Key check_id เป็นคีย์หลัก แทนที่จะใช้ Composite Key ซึ่งช่วยตัดปัญหาเรื่องความสัมพันธ์บางส่วน (Partial Dependency) ออกไปอย่างสิ้นเชิง</li>
+  </ul>
+</li>
+</ul>
+
+<h3>2.7 ตาราง sset_history (ประวัติการเคลื่อนย้ายสถานที่)</h3>
+<ul>
+<li><strong>Attributes:</strong> history_id (PK), sset_id (FK), old_location_id (FK), 
+ew_location_id (FK), moved_by (FK), move_date, emark, created_at</li>
+<li><strong>FDs:</strong> <ul><li>history_id ➔ ทุกคอลัมน์</li></ul></li>
+<li><strong>การพิสูจน์:</strong>
+  <ul>
+  <li><strong>1NF - BCNF:</strong> <span class='success'>ผ่านการ Normalization โดยสมบูรณ์</span> ทุก Attribute อ้างอิงด้วย Foreign Key ทำให้ไม่มี Data Redundancy เลยแม้แต่น้อย</li>
+  </ul>
+</li>
+</ul>
+
+<h2>บทสรุปการพิสูจน์ (Conclusion)</h2>
+<p>จากการพิจารณาแยกย่อยในแต่ละ <strong>Attribute ของทั้ง 7 ตารางหลัก</strong> พบว่า ฐานข้อมูลชุดปัจจุบัน <strong>ได้รับการออกแบบให้อยู่ในสภาวะ BCNF อย่างสมบูรณ์แบบ</strong></p>
+<ul>
+<li><span class='success'>ไม่มี Partial Dependency</span> เนื่องจากทุกตารางมี Surrogate Key (ID) คอลัมน์เดียวทำหน้าที่เป็น Primary Key</li>
+<li><span class='success'>ไม่มี Transitive Dependency</span> เนื่องจากมีการแบ่งตารางอย่างชัดเจน ข้อมูลไม่พึ่งพากันเอง</li>
+<li><span class='success'>ไม่มี Determinant ที่ไม่ใช่ Candidate Key</span> เพราะทุกคอลัมน์ที่สามารถใช้ระบุตัวตนเรคคอร์ดได้ ล้วนเป็นคีย์หลักหรือคีย์รองที่กำหนด Unique Constraint ไว้แล้ว</li>
+</ul>
+</body>
+</html>

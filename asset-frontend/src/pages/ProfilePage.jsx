@@ -1,6 +1,6 @@
 // FILE: asset-frontend/src/pages/ProfilePage.jsx
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Lock, Save, Shield, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save, Shield, CheckCircle, AlertCircle, Info, Monitor } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -30,6 +30,8 @@ export default function ProfilePage() {
     email: '',
     phone: ''
   });
+
+  const [selectedFont, setSelectedFont] = useState(localStorage.getItem('app_font') || 'Prompt');
 
   const [passwordData, setPasswordData] = useState({
     current_password: '',
@@ -78,10 +80,13 @@ export default function ProfilePage() {
       // อัปเดต localStorage
       const updatedUser = { ...user, ...profileData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // บันทึกฟอนต์
+      localStorage.setItem('app_font', selectedFont);
 
-      toast.success('อัปเดตโปรไฟล์สำเร็จ');
+      toast.success('อัปเดตการตั้งค่าสำเร็จ');
 
-      // Reload หน้าเพื่อให้ข้อมูลอัปเดต
+      // Reload หน้าเพื่อให้ข้อมูลและฟอนต์อัปเดต
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -167,7 +172,7 @@ export default function ProfilePage() {
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
             {user?.picture || user?.avatar_url ? (
-              <img src={user?.picture || user?.avatar_url} alt={user.fullname} className="w-24 h-24 rounded-3xl object-cover shadow-xl shadow-primary-500/20 border-4 border-white" />
+              <img src={user?.picture || user?.avatar_url} alt={user.fullname} className="w-24 h-24 rounded-3xl object-cover shadow-xl shadow-primary-500/20 border-4 border-white" referrerPolicy="no-referrer" />
             ) : (
               <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl flex items-center justify-center shadow-xl shadow-primary-500/30">
                 <span className="text-3xl font-bold text-white">{user.fullname?.charAt(0)?.toUpperCase() || 'U'}</span>
@@ -250,6 +255,30 @@ export default function ProfilePage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
             <p className="text-xs text-gray-500 mt-1">กรอกเฉพาะตัวเลข 10 หลัก เช่น 0812345678</p>
+          </div>
+          
+          <hr className="my-6 border-gray-200" />
+          
+          {/* การแสดงผล */}
+          <h4 className="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <Monitor size={20} className="text-blue-600" />
+            การแสดงผล
+          </h4>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ฟอนต์แอปพลิเคชัน (ระบบจะรีเฟรช 1 ครั้งเมื่อบันทึก)
+            </label>
+            <select
+              value={selectedFont}
+              onChange={(e) => setSelectedFont(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="Prompt">Prompt</option>
+              <option value="Kanit">Kanit</option>
+              <option value="Sarabun">Sarabun</option>
+              <option value="Noto Sans Thai">Noto Sans Thai</option>
+            </select>
           </div>
 
           <button

@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-    View,
-    Text,
+import { View,
+    
     StyleSheet,
     FlatList,
     TouchableOpacity,
     ActivityIndicator,
     Alert,
-    TextInput,
-} from 'react-native';
+    TextInput, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
@@ -133,8 +131,7 @@ export default function RoomCheckScreen({ navigation }) {
                     asset_id: assetId,
                     check_status: checkStatus,
                     remark: remark || `ตรวจสอบรายห้อง: ${selectedLocation.building_name} ห้อง ${selectedLocation.room_number || ''}`,
-                    check_date: today,
-                });
+                    check_date: today});
                 if (res.data.success) success++;
                 else failed++;
             } catch {
@@ -313,8 +310,7 @@ const styles = StyleSheet.create({
     header: {
         padding: 16, backgroundColor: '#fff',
         flexDirection: 'row', alignItems: 'center',
-        borderBottomWidth: 1, borderBottomColor: '#E5E7EB', gap: 12,
-    },
+        borderBottomWidth: 1, borderBottomColor: '#E5E7EB', gap: 12},
     backBtn: { padding: 4 },
     headerTextContainer: { flex: 1 },
     headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#111827' },
@@ -322,8 +318,7 @@ const styles = StyleSheet.create({
     summaryBar: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
         paddingHorizontal: 16, paddingVertical: 10,
-        backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
-    },
+        backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB'},
     summaryText: { fontSize: 15, fontWeight: 'bold', color: '#374151' },
     outlineBtn: { borderWidth: 1, borderColor: '#2563EB', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
     outlineBtnText: { color: '#2563EB', fontSize: 12, fontWeight: '600' },
@@ -332,23 +327,20 @@ const styles = StyleSheet.create({
     searchBar: {
         flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
         marginHorizontal: 16, marginVertical: 10, paddingHorizontal: 12,
-        borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', gap: 8,
-    },
+        borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', gap: 8},
     searchInput: { flex: 1, height: 42, fontSize: 14 },
     listContent: { padding: 16, paddingBottom: 8 },
     locationItem: {
         backgroundColor: '#fff', padding: 16, borderRadius: 12,
         flexDirection: 'row', alignItems: 'center', marginBottom: 10,
-        borderWidth: 1, borderColor: '#E5E7EB', gap: 12,
-    },
+        borderWidth: 1, borderColor: '#E5E7EB', gap: 12},
     locationIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' },
     locationName: { fontSize: 16, fontWeight: '600', color: '#111827' },
     roomName: { fontSize: 13, color: '#6B7280' },
     assetItem: {
         backgroundColor: '#fff', padding: 16, borderRadius: 12,
         flexDirection: 'row', alignItems: 'center', marginBottom: 10,
-        borderWidth: 1.5, borderColor: '#E5E7EB',
-    },
+        borderWidth: 1.5, borderColor: '#E5E7EB'},
     assetItemChecked: { borderColor: '#10B981', backgroundColor: '#F0FDF4' },
     assetInfo: { flex: 1 },
     assetId: { fontSize: 11, color: '#2563EB', fontWeight: 'bold', marginBottom: 2 },
@@ -363,9 +355,8 @@ const styles = StyleSheet.create({
     remarkInput: {
         backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB',
         borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8,
-        fontSize: 14, minHeight: 44, marginBottom: 10,
-    },
+        fontSize: 14, minHeight: 44, marginBottom: 10},
     finishBtn: { backgroundColor: '#10B981', height: 50, borderRadius: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 },
     finishBtnDisabled: { backgroundColor: '#D1FAE5' },
-    finishBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-});
+    finishBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }});
+

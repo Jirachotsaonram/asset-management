@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -10,8 +9,7 @@ import {
   Image,
   Platform,
   StatusBar,
-  Dimensions,
-} from 'react-native';
+  Dimensions, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -96,16 +94,13 @@ export default function AssetDetailScreen() {
       [
         {
           text: 'ถ่ายรูป',
-          onPress: () => launchCamera(),
-        },
+          onPress: () => launchCamera()},
         {
           text: 'เลือกจากคลังภาพ',
-          onPress: () => launchImageLibrary(),
-        },
+          onPress: () => launchImageLibrary()},
         {
           text: 'ยกเลิก',
-          style: 'cancel',
-        },
+          style: 'cancel'},
       ]
     );
   };
@@ -115,8 +110,7 @@ export default function AssetDetailScreen() {
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.4,
-    });
+      quality: 0.4});
 
     if (!result.canceled) {
       uploadImage(result.assets[0].uri);
@@ -128,8 +122,7 @@ export default function AssetDetailScreen() {
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.4,
-    });
+      quality: 0.4});
 
     if (!result.canceled) {
       uploadImage(result.assets[0].uri);
@@ -149,8 +142,7 @@ export default function AssetDetailScreen() {
       formData.append('image', {
         uri: uri,
         name: filename,
-        type: type,
-      });
+        type: type});
 
       console.log('Attempting upload to:', `${api.defaults.baseURL}/upload/asset/${asset.asset_id}`);
 
@@ -473,29 +465,23 @@ export default function AssetDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
+    backgroundColor: '#F9FAFB'},
   scrollView: {
-    flex: 1,
-  },
+    flex: 1},
   scrollContent: {
-    flexGrow: 1,
-  },
+    flexGrow: 1},
   imageHeaderContainer: {
     height: 350,
     width: '100%',
-    position: 'relative',
-  },
+    position: 'relative'},
   headerImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
-  },
+    resizeMode: 'cover'},
   placeholderImage: {
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   headerActions: {
     position: 'absolute',
     top: 0,
@@ -504,8 +490,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 40 : 10,
-  },
+    paddingTop: Platform.OS === 'android' ? 40 : 10},
   headerActionButton: {
     width: 40,
     height: 40,
@@ -513,12 +498,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
-  },
+    zIndex: 10},
   headerActionRight: {
     flexDirection: 'row',
-    gap: 10,
-  },
+    gap: 10},
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -527,17 +510,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 6,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
+    borderColor: 'rgba(255,255,255,0.2)'},
   statusDot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
-  },
+    borderRadius: 4},
   statusText: {
     fontSize: 12,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   titleOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -545,21 +525,18 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 24,
     paddingRight: 120, // Add space for the edit button to prevent overlap
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
+    backgroundColor: 'rgba(0,0,0,0.4)'},
   assetIdLabel: {
     color: '#3B82F6',
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 4,
-    textTransform: 'uppercase',
-  },
+    textTransform: 'uppercase'},
   assetNameTitle: {
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
-    lineHeight: 30,
-  },
+    lineHeight: 30},
   editPhotoButton: {
     position: 'absolute',
     bottom: 20,
@@ -573,13 +550,11 @@ const styles = StyleSheet.create({
     gap: 6,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
-    zIndex: 10,
-  },
+    zIndex: 10},
   editPhotoText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   detailsContainer: {
     flex: 1,
     marginTop: -20,
@@ -587,16 +562,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
-    paddingTop: 24,
-  },
+    paddingTop: 24},
   borrowInfoCard: {
     backgroundColor: '#FFFBEB',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#FEF3C7',
-  },
+    borderColor: '#FEF3C7'},
   borrowInfoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -606,32 +579,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
     gap: 4,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   borrowInfoBadgeText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#B45309',
-  },
+    color: '#B45309'},
   borrowInfoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   borrowInfoCol: {
-    flex: 1,
-  },
+    flex: 1},
   borrowInfoLabel: {
     fontSize: 11,
     color: '#92400E',
     marginBottom: 4,
-    textTransform: 'uppercase',
-  },
+    textTransform: 'uppercase'},
   borrowInfoValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111827',
-  },
+    color: '#111827'},
   borrowViewBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -639,94 +606,77 @@ const styles = StyleSheet.create({
     marginTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#FEF3C7',
-    paddingTop: 12,
-  },
+    paddingTop: 12},
   borrowViewBtnText: {
     fontSize: 13,
     color: '#6366F1',
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   card: {
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-  },
+    elevation: 2},
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   cardTitle: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#111827',
-  },
+    color: '#111827'},
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 20,
-  },
+    gap: 20},
   infoItem: {
     width: (width - 100) / 2,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-  },
+    gap: 12},
   infoItemFull: {
-    width: '100%',
-  },
+    width: '100%'},
   iconContainer: {
     width: 36,
     height: 36,
     borderRadius: 10,
     backgroundColor: '#EFF6FF',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   infoTextContainer: {
-    flex: 1,
-  },
+    flex: 1},
   infoLabel: {
     fontSize: 11,
     color: '#6B7280',
     marginBottom: 2,
-    textTransform: 'uppercase',
-  },
+    textTransform: 'uppercase'},
   infoValue: {
     fontSize: 14,
     color: '#111827',
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   descriptionBox: {
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
+    borderColor: '#E5E7EB'},
   descriptionText: {
     fontSize: 14,
     color: '#4B5563',
-    lineHeight: 20,
-  },
+    lineHeight: 20},
   refBox: {
     marginTop: 12,
     flexDirection: 'row',
-    gap: 6,
-  },
+    gap: 6},
   refLabel: {
     fontSize: 12,
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   refValue: {
     fontSize: 12,
     color: '#111827',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   bottomActions: {
     position: 'absolute',
     bottom: 0,
@@ -737,8 +687,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
+    borderTopColor: '#E5E7EB'},
   mainActionButton: {
     backgroundColor: '#10B981',
     height: 56,
@@ -748,109 +697,89 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     boxShadow: '0px 8px 12px rgba(16, 185, 129, 0.2)',
-    elevation: 6,
-  },
+    elevation: 6},
   mainActionButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
-  },
+    padding: 40},
   errorText: {
     fontSize: 18,
     color: '#6B7280',
     marginTop: 16,
     marginBottom: 24,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   retryButton: {
     backgroundColor: '#2563EB',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   retryButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000,
-  },
+    zIndex: 1000},
   historyTimeline: {
-    paddingLeft: 5,
-  },
+    paddingLeft: 5},
   historyItem: {
     flexDirection: 'row',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   timelineLineContainer: {
     width: 20,
     alignItems: 'center',
-    marginRight: 15,
-  },
+    marginRight: 15},
   timelineDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    zIndex: 1,
-  },
+    zIndex: 1},
   timelineLine: {
     width: 2,
     flex: 1,
     backgroundColor: '#E5E7EB',
-    marginTop: -5,
-  },
+    marginTop: -5},
   historyContent: {
-    flex: 1,
-  },
+    flex: 1},
   historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   historyAction: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#374151',
-  },
+    color: '#374151'},
   historyDate: {
     fontSize: 11,
-    color: '#9CA3AF',
-  },
+    color: '#9CA3AF'},
   historyUser: {
     fontSize: 13,
     color: '#6B7280',
-    marginBottom: 5,
-  },
+    marginBottom: 5},
   emptyHistory: {
     textAlign: 'center',
     color: '#9CA3AF',
     fontStyle: 'italic',
-    paddingVertical: 10,
-  },
+    paddingVertical: 10},
   changesBox: {
     backgroundColor: '#f8fafc',
     padding: 8,
     borderRadius: 8,
     marginTop: 5,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
-  },
+    borderColor: '#f1f5f9'},
   changeText: {
     fontSize: 12,
-    color: '#64748b',
-  },
-});
+    color: '#64748b'}});
+
 
 
 

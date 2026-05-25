@@ -7,8 +7,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Alert,
-    TextInput,
-} from 'react-native';
+    TextInput} from 'react-native';
 import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { ASSET_STATUS } from '../../utils/constants';
@@ -134,8 +133,7 @@ export default function CheckByRoom({ navigation }) {
                     asset_id: assetId,
                     check_status: checkStatus,
                     remark: remark || `ตรวจสอบรายห้อง: ${selectedLocation.building_name} ห้อง ${selectedLocation.room_number || ''}`,
-                    check_date: today,
-                });
+                    check_date: today});
                 if (res.data.success) success++;
                 else failed++;
             } catch {
@@ -357,5 +355,4 @@ const styles = StyleSheet.create({
     remarkInput: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, fontSize: 14, minHeight: 44, marginBottom: 10 },
     finishBtn: { backgroundColor: '#10B981', height: 50, borderRadius: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 },
     finishBtnDisabled: { backgroundColor: '#D1FAE5' },
-    finishBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-});
+    finishBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }});

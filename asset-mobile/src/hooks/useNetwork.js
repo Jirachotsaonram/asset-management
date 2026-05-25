@@ -45,8 +45,7 @@ export function useNetwork() {
         isOnline,
         isInternetReachable,
         isConnected: isOnline && isInternetReachable,
-        refresh,
-    };
+        refresh};
 }
 
 export default useNetwork;

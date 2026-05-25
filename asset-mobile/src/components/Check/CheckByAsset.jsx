@@ -11,8 +11,7 @@ import {
     TextInput,
     Modal,
     ScrollView,
-    Platform,
-} from 'react-native';
+    Platform} from 'react-native';
 import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -20,8 +19,7 @@ const STATUS_MAP = {
     never: { color: '#2563EB', bg: '#EFF6FF', icon: 'alert-circle-outline', text: 'ยังไม่เคยตรวจสอบ' },
     critical: { color: '#DC2626', bg: '#FEF2F2', icon: 'warning-outline' },
     overdue: { color: '#EA580C', bg: '#FFF7ED', icon: 'time-outline' },
-    ok: { color: '#6B7280', bg: '#F9FAFB', icon: 'checkmark-circle-outline' },
-};
+    ok: { color: '#6B7280', bg: '#F9FAFB', icon: 'checkmark-circle-outline' }};
 
 function getUrgency(days) {
     if (days === null || days === undefined) return { ...STATUS_MAP.never };
@@ -117,8 +115,7 @@ export default function CheckByAsset({ navigation }) {
                 ...(filters.department_id !== 'all' && { department_id: filters.department_id }),
                 ...(filters.status !== 'all' && { status: filters.status }),
                 ...(globalPeriod.start && { start_date: globalPeriod.start }),
-                ...(globalPeriod.end && { end_date: globalPeriod.end }),
-            };
+                ...(globalPeriod.end && { end_date: globalPeriod.end })};
 
             const res = await api.get('/reports/unchecked', { params, signal });
             if (res.data.success) {
@@ -415,5 +412,4 @@ const styles = StyleSheet.create({
     resetBtn: { flex: 1, height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 14, borderWidth: 1, borderColor: '#E5E7EB' },
     resetBtnText: { fontSize: 15, fontWeight: '600', color: '#6B7280' },
     applyBtn: { flex: 2, height: 50, backgroundColor: '#2563EB', justifyContent: 'center', alignItems: 'center', borderRadius: 14 },
-    applyBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
-});
+    applyBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' }});

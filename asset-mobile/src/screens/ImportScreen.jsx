@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-    View,
-    Text,
+import { View,
+    
     StyleSheet,
     TouchableOpacity,
     ScrollView,
@@ -9,8 +8,7 @@ import {
     Alert,
     Image,
     Dimensions,
-    Platform
-} from 'react-native';
+    Platform, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -47,8 +45,7 @@ const COLUMN_MAP = {
     'รหัสสินทรัพย์': 'asset_code',
     'รหัสกองทุน': 'fund_code',
     'รหัสแผนงาน': 'plan_code',
-    'รหัสงาน/โครงการ': 'project_code',
-};
+    'รหัสงาน/โครงการ': 'project_code'};
 
 function parseExcelDate(value) {
     if (!value || value === '-' || value === '') return '';
@@ -167,7 +164,7 @@ function parseAssetTable(text) {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             if (line.match(/ลำดับ|รหัสทรัพย์สิน|รหัสทรัพย์|ราคา.หน่วย|หน่วยนับ|ลงชื่อ|ผู้นำ|หัวหน้า|รวม.*ทั้งสิ้น|มหาวิทยาลัย|ใบรับครุภัณฑ์|คณะเทคโนโลยี/)) continue;
-            if (line.match(/^[^a-zA-Z\u0E00-\u0E7F]*[S!|]?\s*30502\s*[-]?\s*0{2,}/i)) continue;
+            if (line.match(/^[^a-zA-Z\u0E00-\u0E7F]*[S!|]?\s*30502\s*[-]?\s*0{2}/i)) continue;
 
             const codeMatches = [...line.matchAll(/(?<!\d)(\d{12,15})(?!\d)/g)];
             for (const cm of codeMatches) {
@@ -252,7 +249,7 @@ function parseAssetTable(text) {
             asset.unit = unitMatch[1];
         }
 
-        let assetNumMatch = rowText.match(/(\d{10,})\s*[-–—]\s*(\d{3,6})\s*[-–—]\s*(\d{3,6})/);
+        let assetNumMatch = rowText.match(/(\d{10})\s*[-–—]\s*(\d{3,6})\s*[-–—]\s*(\d{3,6})/);
         if (assetNumMatch) {
             asset.barcode = `${assetNumMatch[1]}-${assetNumMatch[2]}-${assetNumMatch[3]}`;
         }
@@ -265,7 +262,7 @@ function parseAssetTable(text) {
             }
         }
 
-        const descMatch = rowText.match(/คุณสมบัต[ิี]?\s*[:;\-]?\s*(.+?)(?=\d{10,}-|\b\d{13}\b|หมายเลข|$)/i);
+        const descMatch = rowText.match(/คุณสมบัต[ิี]?\s*[:;\-]?\s*(.+?)(?=\d{10}-|\b\d{13}\b|หมายเลข|$)/i);
         if (descMatch) {
             asset.description = descMatch[1].trim().replace(/\s+/g, ' ').substring(0, 500);
         }
@@ -278,7 +275,7 @@ function parseAssetTable(text) {
         if (descMatch) nameText = nameText.replace(descMatch[0], '');
         nameText = nameText.replace(/(เครื่อง|ชุด|อัน|ตัว|ตู้|ชิ้น)/g, '');
         nameText = nameText.replace(/คุณสมบัต[ิี]?.*/i, '');
-        nameText = nameText.replace(/\b\d{10,}\b/g, '');
+        nameText = nameText.replace(/\b\d{10}\b/g, '');
         nameText = nameText.replace(/^\s*\d{1,3}\s+/, '');
         nameText = nameText.replace(/[|/\\[\]{}()]/g, ' ');
         nameText = nameText.replace(/\s+/g, ' ').trim();
@@ -333,8 +330,7 @@ const ImportScreen = ({ navigation }) => {
     const handleFileSelect = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
-                type: ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-            });
+                type: ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']});
 
             if (result.canceled) return;
 
@@ -440,13 +436,11 @@ const ImportScreen = ({ navigation }) => {
                 }
                 result = await ImagePicker.launchCameraAsync({
                     quality: 0.9,  // Higher quality for OCR
-                    base64: true,
-                });
+                    base64: true});
             } else {
                 result = await ImagePicker.launchImageLibraryAsync({
                     quality: 0.9,  // Higher quality for OCR
-                    base64: true,
-                });
+                    base64: true});
             }
 
             if (result.canceled) return;
@@ -784,42 +778,34 @@ const ImportScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
-    },
+        backgroundColor: '#F9FAFB'},
     stepContainer: {
-        flex: 1,
-    },
+        flex: 1},
     tabBar: {
         flexDirection: 'row',
         backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
+        borderBottomColor: '#E5E7EB'},
     tab: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 15,
-        gap: 8,
-    },
+        gap: 8},
     activeTab: {
         borderBottomWidth: 2,
-        borderBottomColor: '#2563EB',
-    },
+        borderBottomColor: '#2563EB'},
     tabText: {
         fontSize: 14,
         fontWeight: '500',
-        color: '#6B7280',
-    },
+        color: '#6B7280'},
     activeTabText: {
-        color: '#2563EB',
-    },
+        color: '#2563EB'},
     content: {
         flex: 1,
         padding: 20,
-        justifyContent: 'center',
-    },
+        justifyContent: 'center'},
     uploadBox: {
         backgroundColor: '#FFF',
         borderRadius: 16,
@@ -827,20 +813,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 2,
         borderStyle: 'dashed',
-        borderColor: '#E2E8F0',
-    },
+        borderColor: '#E2E8F0'},
     uploadTitle: {
         fontSize: 18,
         fontWeight: '700',
         color: '#1F2937',
         marginTop: 20,
-        marginBottom: 8,
-    },
+        marginBottom: 8},
     uploadSubtitle: {
         fontSize: 14,
         color: '#6B7280',
-        marginBottom: 30,
-    },
+        marginBottom: 30},
     selectButton: {
         backgroundColor: '#2563EB',
         flexDirection: 'row',
@@ -848,92 +831,76 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingVertical: 12,
         borderRadius: 12,
-        gap: 8,
-    },
+        gap: 8},
     selectButtonText: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '600',
-    },
+        fontWeight: '600'},
     ocrButtons: {
         flexDirection: 'row',
-        gap: 12,
-    },
+        gap: 12},
     galleryButton: {
         backgroundColor: '#FFF',
         borderWidth: 1,
-        borderColor: '#2563EB',
-    },
+        borderColor: '#2563EB'},
     galleryButtonText: {
         color: '#2563EB',
         fontSize: 16,
-        fontWeight: '600',
-    },
+        fontWeight: '600'},
     processingOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 40,
-    },
+        padding: 40},
     processingText: {
         fontSize: 16,
         fontWeight: '600',
         color: '#1F2937',
         marginTop: 20,
-        marginBottom: 12,
-    },
+        marginBottom: 12},
     progressBar: {
         width: '100%',
         height: 8,
         backgroundColor: '#E5E7EB',
         borderRadius: 4,
-        overflow: 'hidden',
-    },
+        overflow: 'hidden'},
     progressInner: {
         height: '100%',
-        backgroundColor: '#2563EB',
-    },
+        backgroundColor: '#2563EB'},
     progressValue: {
         fontSize: 14,
         color: '#6B7280',
-        marginTop: 8,
-    },
+        marginTop: 8},
     previewHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
         backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
+        borderBottomColor: '#E5E7EB'},
     backButton: {
         padding: 4,
-        marginRight: 12,
-    },
+        marginRight: 12},
     previewTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#1F2937',
-    },
+        color: '#1F2937'},
     previewList: {
         flex: 1,
-        padding: 16,
-    },
+        padding: 16},
     previewItem: {
         backgroundColor: '#FFF',
         borderRadius: 12,
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
+        borderColor: '#E5E7EB'},
     itemHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 12,
-        gap: 8,
-    },
+        gap: 8},
     itemIndex: {
         fontSize: 12,
         fontWeight: '700',
@@ -941,110 +908,91 @@ const styles = StyleSheet.create({
         backgroundColor: '#EFF6FF',
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: 4,
-    },
+        borderRadius: 4},
     itemName: {
         flex: 1,
         fontSize: 16,
         fontWeight: '600',
-        color: '#1F2937',
-    },
+        color: '#1F2937'},
     itemDetails: {
-        gap: 4,
-    },
+        gap: 4},
     detailRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
+        justifyContent: 'space-between'},
     detailLabel: {
         fontSize: 13,
-        color: '#6B7280',
-    },
+        color: '#6B7280'},
     detailValue: {
         fontSize: 13,
         fontWeight: '500',
         color: '#374151',
-        fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-    },
+        fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace'},
     footer: {
         padding: 20,
         backgroundColor: '#FFF',
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
-    },
+        borderTopColor: '#E5E7EB'},
     importButton: {
         backgroundColor: '#2563EB',
         paddingVertical: 16,
         borderRadius: 12,
-        alignItems: 'center',
-    },
+        alignItems: 'center'},
     importButtonText: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '700',
-    },
+        fontWeight: '700'},
     successContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 40,
-    },
+        padding: 40},
     successTitle: {
         fontSize: 24,
         fontWeight: '700',
         color: '#1F2937',
         marginTop: 20,
-        marginBottom: 8,
-    },
+        marginBottom: 8},
     successSubtitle: {
         fontSize: 16,
         color: '#6B7280',
         textAlign: 'center',
-        marginBottom: 40,
-    },
+        marginBottom: 40},
     homeButton: {
         backgroundColor: '#2563EB',
         paddingHorizontal: 32,
         paddingVertical: 14,
-        borderRadius: 12,
-    },
+        borderRadius: 12},
     homeButtonText: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '600',
-    },
+        fontWeight: '600'},
     // Validation View Styles
     statsContainer: {
         flexDirection: 'row',
         padding: 16,
         backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
+        borderBottomColor: '#E5E7EB'},
     statBox: {
         flex: 1,
         padding: 12,
         borderRadius: 8,
         marginHorizontal: 4,
-        alignItems: 'center',
-    },
+        alignItems: 'center'},
     statValue: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#1F2937',
-    },
+        color: '#1F2937'},
     statLabel: {
         fontSize: 12,
         color: '#6B7280',
-        marginTop: 2,
-    },
+        marginTop: 2},
     sectionTitle: {
         fontSize: 16,
         fontWeight: '700',
         color: '#374151',
         marginBottom: 12,
-        marginTop: 8,
-    },
+        marginTop: 8},
     errorCard: {
         backgroundColor: '#FFF',
         borderRadius: 12,
@@ -1053,25 +1001,21 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#FCA5A5',
         borderLeftWidth: 4,
-        borderLeftColor: '#DC2626',
-    },
+        borderLeftColor: '#DC2626'},
     errorHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
-    },
+        marginBottom: 8},
     assetNameText: {
         fontSize: 15,
         fontWeight: '600',
         color: '#1F2937',
-        flex: 1,
-    },
+        flex: 1},
     errorMsgText: {
         fontSize: 13,
         color: '#DC2626',
-        marginTop: 2,
-    },
+        marginTop: 2},
     validCard: {
         backgroundColor: '#FFF',
         borderRadius: 12,
@@ -1080,22 +1024,18 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#A7F3D0',
         borderLeftWidth: 4,
-        borderLeftColor: '#059669',
-    },
+        borderLeftColor: '#059669'},
     assetDetailText: {
         fontSize: 13,
         color: '#6B7280',
-        marginTop: 4,
-    },
+        marginTop: 4},
     moreText: {
         textAlign: 'center',
         fontSize: 14,
         color: '#6B7280',
-        padding: 12,
-    },
+        padding: 12},
     disabledButton: {
-        opacity: 0.6,
-    },
-});
+        opacity: 0.6}});
 
 export default ImportScreen;
+

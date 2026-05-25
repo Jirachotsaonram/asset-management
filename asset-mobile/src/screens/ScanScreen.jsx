@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   StyleSheet,
   TouchableOpacity,
   Alert,
@@ -12,8 +11,7 @@ import {
   Dimensions,
   Image,
   Vibration,
-  Platform,
-} from 'react-native';
+  Platform, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions, scanFromURLAsync } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -160,8 +158,7 @@ export default function ScanScreen({ navigation }) {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: 'images',
         allowsEditing: false,
-        quality: 1,
-      });
+        quality: 1});
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const imageUri = result.assets[0].uri;
@@ -205,8 +202,7 @@ export default function ScanScreen({ navigation }) {
         asset_id: scannedAsset.asset_id,
         check_status: checkStatus,
         remark: remark || 'Mobile Scan Check',
-        check_date: new Date().toISOString().split('T')[0],
-      };
+        check_date: new Date().toISOString().split('T')[0]};
 
       if (!isConnected) {
         const queued = await offlineService.queueCheck(requestData);
@@ -246,8 +242,7 @@ export default function ScanScreen({ navigation }) {
         asset_id: scannedAsset.asset_id,
         check_status: checkStatus,
         remark: remark || 'Mobile Scan Check (Offline Fallback)',
-        check_date: new Date().toISOString().split('T')[0],
-      });
+        check_date: new Date().toISOString().split('T')[0]});
       if (queued) {
         await loadPendingCount();
         Alert.alert('📋 ระบบบันทึกลงคิว', 'เกิดข้อผิดพลาดในการส่งข้อมูล แต่เราบันทึกไว้ให้แล้ว', [{ text: 'ตกลง', onPress: handleReset }]);
@@ -585,8 +580,7 @@ export default function ScanScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   header: {
     height: 60,
     flexDirection: 'row',
@@ -595,22 +589,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
+    borderBottomColor: '#E5E7EB'},
   headerTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#111827',
-  },
+    color: '#111827'},
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15,
-  },
+    gap: 15},
   badgeBtn: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   badge: {
     backgroundColor: '#EF4444',
     borderRadius: 10,
@@ -620,19 +610,15 @@ const styles = StyleSheet.create({
     top: -8,
     right: -8,
     zIndex: 1,
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   badgeText: {
     color: '#fff',
     fontSize: 10,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   scrollContent: {
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   mainContent: {
-    padding: 20,
-  },
+    padding: 20},
   introCard: {
     backgroundColor: '#fff',
     borderRadius: 24,
@@ -640,8 +626,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.1)',
     elevation: 5,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   introIconContainer: {
     width: 80,
     height: 80,
@@ -649,21 +634,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#EFF6FF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   introTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 10,
-  },
+    marginBottom: 10},
   introText: {
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   bigScanBtn: {
     backgroundColor: '#2563EB',
     width: '100%',
@@ -672,29 +654,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 10,
-  },
+    gap: 10},
   bigScanBtnText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '700',
-  },
+    fontWeight: '700'},
   manualSearchCard: {
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   manualLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 12,
-  },
+    marginBottom: 12},
   searchInputWrapper: {
     flexDirection: 'row',
-    gap: 10,
-  },
+    gap: 10},
   manualInput: {
     flex: 1,
     height: 48,
@@ -703,90 +680,74 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     borderRadius: 12,
     paddingHorizontal: 16,
-    fontSize: 15,
-  },
+    fontSize: 15},
   manualSearchBtn: {
     width: 48,
     height: 48,
     backgroundColor: '#4B5563',
     borderRadius: 12,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   resultContainer: {
-    padding: 20,
-  },
+    padding: 20},
   assetCard: {
     backgroundColor: '#1F2937',
     borderRadius: 24,
     padding: 24,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   assetCardHeader: {
     flexDirection: 'row',
     gap: 15,
     marginBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#374151',
-    paddingBottom: 15,
-  },
+    paddingBottom: 15},
   assetIconBox: {
     width: 48,
     height: 48,
     borderRadius: 12,
     backgroundColor: '#3B82F6',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   assetHeaderInfo: {
-    flex: 1,
-  },
+    flex: 1},
   assetIdText: {
     color: '#3B82F6',
     fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   assetNameText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    lineHeight: 24,
-  },
+    lineHeight: 24},
   assetDetailsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+    justifyContent: 'space-between'},
   assetDetailItem: {
-    flex: 1,
-  },
+    flex: 1},
   detailLabel: {
     color: '#9CA3AF',
     fontSize: 11,
     textTransform: 'uppercase',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   detailValue: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   offlineIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
-    gap: 5,
-  },
+    gap: 5},
   offlineIndicatorText: {
     color: '#9CA3AF',
-    fontSize: 11,
-  },
+    fontSize: 11},
   quickActionContainer: {
     marginTop: 20,
     borderTopWidth: 1,
     borderTopColor: '#374151',
-    paddingTop: 15,
-  },
+    paddingTop: 15},
   borrowQuickBtn: {
     backgroundColor: '#3B82F6',
     height: 48,
@@ -794,32 +755,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 10,
-  },
+    gap: 10},
   borrowQuickBtnText: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   formCard: {
     backgroundColor: '#fff',
     borderRadius: 24,
     padding: 24,
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-  },
+    elevation: 2},
   formTitle: {
     fontSize: 18,
     fontWeight: '800',
     color: '#111827',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   statusGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   statusSelectBtn: {
     width: (width - 100) / 2,
     flexDirection: 'row',
@@ -828,25 +784,21 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
+    borderColor: '#E5E7EB'},
   statusRadio: {
     width: 14,
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
-  },
+    borderColor: '#D1D5DB'},
   statusSelectText: {
     fontSize: 13,
-    color: '#4B5563',
-  },
+    color: '#4B5563'},
   formLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 10,
-  },
+    marginBottom: 10},
   remarkInput: {
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
@@ -856,8 +808,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     minHeight: 80,
     textAlignVertical: 'top',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   submitBtn: {
     backgroundColor: '#10B981',
     height: 56,
@@ -866,73 +817,61 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 12,
-  },
+    marginBottom: 12},
   submitBtnText: {
     color: '#fff',
     fontSize: 17,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   cancelBtn: {
     height: 48,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   cancelBtnText: {
     color: '#6B7280',
     fontSize: 15,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   cameraContainer: {
     flex: 1,
-    backgroundColor: '#000',
-  },
+    backgroundColor: '#000'},
   cameraOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
+    backgroundColor: 'rgba(0,0,0,0.4)'},
   scanTarget: {
     width: 250,
     height: 250,
-    position: 'relative',
-  },
+    position: 'relative'},
   corner: {
     position: 'absolute',
     width: 40,
     height: 40,
     borderColor: '#3B82F6',
-    borderWidth: 4,
-  },
+    borderWidth: 4},
   topLeft: {
     top: 0,
     left: 0,
     borderRightWidth: 0,
     borderBottomWidth: 0,
-    borderTopLeftRadius: 20,
-  },
+    borderTopLeftRadius: 20},
   topRight: {
     top: 0,
     right: 0,
     borderLeftWidth: 0,
     borderBottomWidth: 0,
-    borderTopRightRadius: 20,
-  },
+    borderTopRightRadius: 20},
   bottomLeft: {
     bottom: 0,
     left: 0,
     borderRightWidth: 0,
     borderTopWidth: 0,
-    borderBottomLeftRadius: 20,
-  },
+    borderBottomLeftRadius: 20},
   bottomRight: {
     bottom: 0,
     right: 0,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    borderBottomRightRadius: 20,
-  },
+    borderBottomRightRadius: 20},
   scanInstruction: {
     color: '#fff',
     fontSize: 16,
@@ -941,28 +880,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 20,
-  },
+    borderRadius: 20},
   cameraCloseBtn: {
     position: 'absolute',
     bottom: 50,
-    alignSelf: 'center',
-  },
+    alignSelf: 'center'},
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 999,
-  },
+    zIndex: 999},
   cameraBottomControls: {
     position: 'absolute',
     bottom: 130,
     left: 0,
     right: 0,
     alignItems: 'center',
-    zIndex: 10,
-  },
+    zIndex: 10},
   cameraGalleryBtn: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -971,49 +906,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
+    borderColor: 'rgba(255,255,255,0.2)'},
   cameraGalleryText: {
     color: '#fff',
     fontSize: 12,
     marginTop: 4,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 30,
-    backgroundColor: '#fff',
-  },
+    backgroundColor: '#fff'},
   permissionText: {
     fontSize: 18,
     textAlign: 'center',
     marginBottom: 30,
     color: '#374151',
-    lineHeight: 26,
-  },
+    lineHeight: 26},
   permissionBtn: {
     backgroundColor: '#2563EB',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 12,
     width: '100%',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   permissionBtnText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   cancelLink: {
     marginTop: 20,
-    padding: 10,
-  },
+    padding: 10},
   cancelLinkText: {
     color: '#6B7280',
-    fontSize: 15,
-  },
+    fontSize: 15},
   showMoreBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1022,42 +949,35 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#374151',
     marginTop: 15,
-    gap: 8,
-  },
+    gap: 8},
   showMoreText: {
     color: '#3B82F6',
     fontSize: 14,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   expandedInfo: {
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
-  },
+    borderTopColor: '#374151'},
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
-  },
+    paddingVertical: 6},
   expandLabel: {
     color: '#9CA3AF',
-    fontSize: 13,
-  },
+    fontSize: 13},
   expandValue: {
     color: '#fff',
     fontSize: 13,
     fontWeight: '500',
     flex: 1,
     textAlign: 'right',
-    paddingLeft: 10,
-  },
+    paddingLeft: 10},
   descSection: {
     marginTop: 10,
     backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 10,
-    borderRadius: 8,
-  },
-});
+    borderRadius: 8}});
+
 
 
 

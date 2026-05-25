@@ -276,6 +276,7 @@ export default function ImportPage() {
     if (files && files.length > 0) {
       processFile(files[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const processFile = (uploadedFile) => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
+import { View,
+    
     StyleSheet,
     ScrollView,
     TextInput,
@@ -11,8 +10,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Modal,
-    FlatList,
-} from 'react-native';
+    FlatList, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import api from '../services/api';
@@ -41,8 +39,7 @@ export default function AssetEditScreen() {
         delivery_number: '',
         fund_code: '',
         plan_code: '',
-        project_code: '',
-    });
+        project_code: ''});
 
     const [departments, setDepartments] = useState([]);
     const [locations, setLocations] = useState([]);
@@ -55,8 +52,7 @@ export default function AssetEditScreen() {
             setFormData({
                 ...initialAsset,
                 price: initialAsset.price ? String(initialAsset.price) : '',
-                quantity: initialAsset.quantity ? String(initialAsset.quantity) : '1',
-            });
+                quantity: initialAsset.quantity ? String(initialAsset.quantity) : '1'});
         }
     }, []);
 
@@ -85,8 +81,7 @@ export default function AssetEditScreen() {
             const payload = {
                 ...formData,
                 price: formData.price ? parseFloat(formData.price) : 0,
-                quantity: formData.quantity ? parseInt(formData.quantity) : 1,
-            };
+                quantity: formData.quantity ? parseInt(formData.quantity) : 1};
 
             let response;
             if (mode === 'edit') {
@@ -311,8 +306,7 @@ export default function AssetEditScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
-    },
+        backgroundColor: '#F9FAFB'},
     header: {
         height: 64,
         backgroundColor: '#fff',
@@ -321,37 +315,30 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
+        borderBottomColor: '#E5E7EB'},
     backBtn: {
-        padding: 8,
-    },
+        padding: 8},
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#111827',
-    },
+        color: '#111827'},
     saveBtn: {
         backgroundColor: '#2563EB',
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderRadius: 8,
-    },
+        borderRadius: 8},
     saveBtnText: {
         color: '#fff',
-        fontWeight: 'bold',
-    },
+        fontWeight: 'bold'},
     formContent: {
-        padding: 20,
-    },
+        padding: 20},
     section: {
         backgroundColor: '#fff',
         borderRadius: 16,
         padding: 20,
         marginBottom: 20,
         boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
-        elevation: 2,
-    },
+        elevation: 2},
     sectionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -359,17 +346,14 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         paddingBottom: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
-    },
+        borderBottomColor: '#F3F4F6'},
     inputGroup: {
-        marginBottom: 15,
-    },
+        marginBottom: 15},
     label: {
         fontSize: 14,
         fontWeight: '600',
         color: '#374151',
-        marginBottom: 6,
-    },
+        marginBottom: 6},
     input: {
         backgroundColor: '#F9FAFB',
         borderWidth: 1,
@@ -379,21 +363,17 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         minHeight: 48,
         fontSize: 16,
-        color: '#111827',
-    },
+        color: '#111827'},
     textArea: {
         height: 100,
         paddingTop: 12,
-        textAlignVertical: 'top',
-    },
+        textAlignVertical: 'top'},
     row: {
-        flexDirection: 'row',
-    },
+        flexDirection: 'row'},
     statusRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-    },
+        gap: 8},
     statusChip: {
         paddingHorizontal: 14,
         paddingVertical: 8,
@@ -401,46 +381,38 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: '#E5E7EB',
         backgroundColor: '#F9FAFB',
-        marginBottom: 4,
-    },
+        marginBottom: 4},
     statusChipActive: {
         borderColor: '#2563EB',
-        backgroundColor: '#EFF6FF',
-    },
+        backgroundColor: '#EFF6FF'},
     statusChipText: {
         fontSize: 13,
         fontWeight: '500',
-        color: '#6B7280',
-    },
+        color: '#6B7280'},
     statusChipTextActive: {
         color: '#2563EB',
-        fontWeight: '700',
-    },
+        fontWeight: '700'},
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'flex-end',
-    },
+        justifyContent: 'flex-end'},
     modalContent: {
         backgroundColor: '#fff',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         maxHeight: '70%',
-        paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    },
+        paddingBottom: Platform.OS === 'ios' ? 40 : 20},
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
+        borderBottomColor: '#E5E7EB'},
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#111827',
-    },
+        color: '#111827'},
     pickerItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -448,19 +420,15 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
-    },
+        borderBottomColor: '#F3F4F6'},
     pickerItemSelected: {
-        backgroundColor: '#EFF6FF',
-    },
+        backgroundColor: '#EFF6FF'},
     pickerItemText: {
         fontSize: 15,
         color: '#374151',
         flex: 1,
-        marginRight: 10,
-    },
+        marginRight: 10},
     pickerItemTextSelected: {
         color: '#2563EB',
-        fontWeight: 'bold',
-    },
-});
+        fontWeight: 'bold'}});
+

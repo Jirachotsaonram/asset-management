@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-  Modal,
-} from 'react-native';
+  Modal, Text } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import offlineService from '../services/offlineService';
@@ -70,8 +68,7 @@ export default function DashboardScreen({ navigation }) {
           unchecked: unchecked >= 0 ? unchecked : 0,
           available,
           maintenance,
-          missing,
-        });
+          missing});
 
         const pendingChecks = await offlineService.getPendingChecks();
         setTotalNotifs(pendingChecks.length); // แจ้งเตือนแบบออฟไลน์โชว์รายการที่ค้างส่ง
@@ -137,8 +134,7 @@ export default function DashboardScreen({ navigation }) {
             unchecked: Math.max(0, cachedAssets.length - cChecked),
             available: cAvailable,
             maintenance: cMaintenance,
-            missing: cMissing,
-          });
+            missing: cMissing});
           setLoading(false);
           setRefreshing(false);
           return;
@@ -151,8 +147,7 @@ export default function DashboardScreen({ navigation }) {
         unchecked: uncheckedCount,
         available,
         maintenance,
-        missing,
-      });
+        missing});
 
       // ใช้สูตรเดียวกับ web DashboardPage บรรทัด 133:
       // alertCount = overdueAssets.length + urgent.length + (unchecked>0?1:0) + (missing>0?1:0) + (maintenance>0?1:0)
@@ -176,8 +171,7 @@ export default function DashboardScreen({ navigation }) {
         urgent: urgentList.length,
         unchecked: uncheckedCount,
         missing,
-        maintenance,
-      });
+        maintenance});
 
     } catch (error) {
       console.error('Error loading dashboard:', error);
@@ -425,13 +419,11 @@ function NotifRow({ icon, color, bg, title, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   header: {
     backgroundColor: '#fff',
     padding: 20,
@@ -440,19 +432,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   headerLeft: {
-    flex: 1,
-  },
+    flex: 1},
   notificationBell: {
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   notificationBadge: {
     position: 'absolute',
     top: 0,
@@ -465,76 +454,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#fff',
-    paddingHorizontal: 4,
-  },
+    paddingHorizontal: 4},
   notificationBadgeText: {
     color: '#fff',
     fontSize: 9,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   welcomeText: {
     fontSize: 16,
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
-    marginTop: 4,
-  },
+    marginTop: 4},
   statsContainer: {
     padding: 16,
-    gap: 12,
-  },
+    gap: 12},
   statCard: {
     borderRadius: 12,
     padding: 16,
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
-  },
+    elevation: 3},
   statContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   statLeft: {
-    flex: 1,
-  },
+    flex: 1},
   statTitle: {
     fontSize: 14,
     color: '#6B7280',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   statValue: {
     fontSize: 32,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   statIcon: {
-    opacity: 0.5,
-  },
+    opacity: 0.5},
   quickActions: {
     padding: 16,
-    paddingTop: 0,
-  },
+    paddingTop: 0},
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   sectionTitleSmall: {
     fontSize: 14,
     fontWeight: '700',
     color: '#6B7280',
     textTransform: 'uppercase',
     marginBottom: 12,
-    letterSpacing: 0.5,
-  },
+    letterSpacing: 0.5},
   actionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-  },
+    gap: 12},
   actionButton: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -543,15 +517,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '47%',
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
-  },
+    elevation: 3},
   actionText: {
     marginTop: 8,
     fontSize: 14,
     color: '#374151',
     fontWeight: '500',
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   // Modal Styles
   modalOverlay: {
     position: 'absolute',
@@ -561,15 +533,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     zIndex: 100,
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'},
   modalContent: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
-    maxHeight: '80%',
-  },
+    maxHeight: '80%'},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -577,19 +547,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
+    borderBottomColor: '#F3F4F6'},
   modalTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#111827',
-  },
+    color: '#111827'},
   notificationList: {
-    paddingBottom: 20,
-  },
+    paddingBottom: 20},
   notificationSection: {
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -597,53 +563,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 16,
     marginBottom: 10,
-    gap: 12,
-  },
+    gap: 12},
   notifIcon: {
     width: 40,
     height: 40,
     borderRadius: 10,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   notifText: {
-    flex: 1,
-  },
+    flex: 1},
   notifTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#111827',
-  },
+    color: '#111827'},
   notifDesc: {
     fontSize: 12,
     color: '#6B7280',
-    marginTop: 2,
-  },
+    marginTop: 2},
   notifDetail: {
     fontSize: 11,
     color: '#9CA3AF',
-    marginTop: 1,
-  },
+    marginTop: 1},
   emptyNotif: {
     alignItems: 'center',
-    paddingVertical: 40,
-  },
+    paddingVertical: 40},
   emptyNotifText: {
     marginTop: 12,
     fontSize: 16,
     color: '#9CA3AF',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   loadMoreButton: {
     padding: 12,
     alignItems: 'center',
     marginVertical: 10,
     backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-  },
+    borderRadius: 8},
   loadMoreText: {
     color: '#2563EB',
-    fontWeight: '600',
-  },
-});
+    fontWeight: '600'}});
+
 

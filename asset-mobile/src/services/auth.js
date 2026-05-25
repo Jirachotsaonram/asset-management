@@ -63,6 +63,5 @@ export const authService = {
     } catch (error) {
       return false;
     }
-  },
-};
+  }};
 

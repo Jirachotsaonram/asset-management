@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   StyleSheet,
   FlatList,
   TouchableOpacity,
@@ -13,8 +12,7 @@ import {
   Image,
   ScrollView,
   Platform,
-  StatusBar,
-} from 'react-native';
+  StatusBar, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import api, { getImageUrl } from '../services/api';
 import offlineService from '../services/offlineService';
@@ -475,16 +473,14 @@ export default function AssetsScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
+    backgroundColor: '#fff'},
   headerContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 8,
     alignItems: 'center',
-    gap: 12,
-  },
+    gap: 12},
   searchBar: {
     flex: 1,
     flexDirection: 'row',
@@ -494,17 +490,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 48,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
+    borderColor: '#E5E7EB'},
   searchIcon: {
-    marginRight: 8,
-  },
+    marginRight: 8},
   searchTextInput: {
     flex: 1,
     fontSize: 16,
     color: '#111827',
-    height: '100%',
-  },
+    height: '100%'},
   filterButton: {
     width: 48,
     height: 48,
@@ -513,24 +506,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
+    borderColor: '#E5E7EB'},
   filterButtonActive: {
     backgroundColor: '#2563EB',
-    borderColor: '#1D4ED8',
-  },
+    borderColor: '#1D4ED8'},
   statsBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 8,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   statsText: {
     fontSize: 13,
     color: '#6B7280',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   offlineTag: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -538,18 +527,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
-    gap: 4,
-  },
+    gap: 4},
   offlineTagText: {
     fontSize: 11,
     color: '#EF4444',
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   listContainer: {
     padding: 16,
     paddingTop: 8,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   assetCard: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -558,125 +544,102 @@ const styles = StyleSheet.create({
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.08)',
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
+    borderColor: '#F3F4F6'},
   cardContent: {
     flexDirection: 'row',
-    gap: 12,
-  },
+    gap: 12},
   imageContainer: {
     width: 80,
     height: 80,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#F9FAFB',
-  },
+    backgroundColor: '#F9FAFB'},
   assetImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
-  },
+    resizeMode: 'cover'},
   imagePlaceholder: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   infoContainer: {
     flex: 1,
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   assetIdText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#2563EB',
-    letterSpacing: 0.5,
-  },
+    letterSpacing: 0.5},
   statusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 6,
-  },
+    borderRadius: 6},
   statusText: {
     fontSize: 10,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   assetNameText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
-    marginBottom: 6,
-  },
+    marginBottom: 6},
   detailsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-  },
+    gap: 4},
   detailText: {
     fontSize: 12,
     color: '#6B7280',
-    maxWidth: '90%',
-  },
+    maxWidth: '90%'},
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   loadingText: {
     marginTop: 12,
     color: '#6B7280',
-    fontSize: 14,
-  },
+    fontSize: 14},
   footerLoader: {
     paddingVertical: 20,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 10,
-  },
+    gap: 10},
   footerLoaderText: {
     fontSize: 12,
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   emptyContainer: {
     paddingTop: 100,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   emptyText: {
     fontSize: 16,
     color: '#9CA3AF',
     marginTop: 16,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   retryButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   retryButtonText: {
     color: '#2563EB',
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'},
   modalContent: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 32,
@@ -684,35 +647,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    maxHeight: '80%',
-  },
+    maxHeight: '80%'},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#111827',
-  },
+    color: '#111827'},
   modalBody: {
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   filterLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#374151',
     marginBottom: 12,
-    marginTop: 8,
-  },
+    marginTop: 8},
   filterOptions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   optionChip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -720,54 +677,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     borderWidth: 1,
     borderColor: 'transparent',
-    marginRight: 8,
-  },
+    marginRight: 8},
   optionChipSelected: {
     backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
-  },
+    borderColor: '#3B82F6'},
   optionChipText: {
     fontSize: 14,
-    color: '#4B5563',
-  },
+    color: '#4B5563'},
   optionChipTextSelected: {
     color: '#2563EB',
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   horizontalScroll: {
     flexGrow: 0,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   modalFooter: {
     flexDirection: 'row',
-    gap: 12,
-  },
+    gap: 12},
   resetModalButton: {
     flex: 1,
     height: 56,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   resetModalButtonText: {
     color: '#4B5563',
     fontSize: 16,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   applyButton: {
     flex: 2,
     height: 56,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#2563EB',
-  },
+    backgroundColor: '#2563EB'},
   applyButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
+    fontWeight: 'bold'}});
+
 
 

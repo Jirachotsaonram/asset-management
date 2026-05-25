@@ -77,6 +77,7 @@ export default function AuditTrailPage() {
   // เมื่อ filters, page, sort เปลี่ยน → fetch ใหม่
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, actionFilter, userFilter, startDate, endDate, sortKey, sortOrder]);
 
   const fetchData = async () => {
@@ -135,6 +136,15 @@ export default function AuditTrailPage() {
   const handleSearch = () => {
     setCurrentPage(1);
     fetchData();
+  };
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortOrder('asc');
+    }
   };
 
   const clearFilters = () => {

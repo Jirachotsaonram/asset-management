@@ -5,6 +5,9 @@ import './index.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+const savedFont = localStorage.getItem('app_font') || 'Prompt';
+document.documentElement.style.setProperty('--app-font', `"${savedFont}"`);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId="120709720620-5a7p2caf9pihnqimn9oj963odmag9o3k.apps.googleusercontent.com">

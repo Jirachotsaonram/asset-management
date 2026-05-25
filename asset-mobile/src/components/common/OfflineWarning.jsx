@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNetwork } from '../../hooks/useNetwork';
 
@@ -28,12 +28,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         borderWidth: 1,
         borderColor: '#FDE68A',
-        gap: 8,
-    },
+        gap: 8},
     text: {
         flex: 1,
         color: '#B45309',
         fontSize: 13,
-        lineHeight: 18,
-    },
-});
+        lineHeight: 18}});
+

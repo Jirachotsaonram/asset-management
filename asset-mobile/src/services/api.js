@@ -24,8 +24,7 @@ export const authEventEmitter = {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+  timeout: 10000});
 
 // เก็บ baseURL ปัจจุบันเพื่อใช้สร้าง URL รูปภาพ
 export let currentBaseUrl = API_BASE_URL;

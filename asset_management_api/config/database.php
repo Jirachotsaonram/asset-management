@@ -20,10 +20,10 @@ class Database {
                     empty($server_addr)); // CLI mode
 
         if (!$isLocal) {
-            $this->host = "localhost";
-            $this->db_name = "asset_management_db";
-            $this->username = "itisv";
-            $this->password = "@EH3319&2awr";
+            $this->host = "sql207.infinityfree.com";
+            $this->db_name = "if0_42016119_asset";
+            $this->username = "if0_42016119";
+            $this->password = "3Two1AhSi0r7";
         }
     }
 

@@ -72,8 +72,7 @@ export const AuthProvider = ({ children }) => {
     googleLogin,
     logout,
     isAuthenticated: !!user,
-    loading,
-  };
+    loading};
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

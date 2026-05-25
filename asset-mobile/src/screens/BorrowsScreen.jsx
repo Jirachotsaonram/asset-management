@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   StyleSheet,
   FlatList,
   TouchableOpacity,
@@ -12,8 +11,7 @@ import {
   ScrollView,
   Dimensions,
   TextInput,
-  Platform,
-} from 'react-native';
+  Platform, Text } from 'react-native';
 import api from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useNetwork } from '../hooks/useNetwork';
@@ -581,13 +579,11 @@ export default function BorrowsScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
+    backgroundColor: '#F9FAFB'},
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   header: {
     padding: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
@@ -596,22 +592,18 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
     elevation: 5,
-    zIndex: 10,
-  },
+    zIndex: 10},
   headerTop: {
-    marginBottom: 15,
-  },
+    marginBottom: 15},
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
     color: '#111827',
-    letterSpacing: -0.5,
-  },
+    letterSpacing: -0.5},
   headerSubtitle: {
     fontSize: 14,
     color: '#6B7280',
-    marginTop: 2,
-  },
+    marginTop: 2},
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -621,24 +613,19 @@ const styles = StyleSheet.create({
     height: 48,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    marginBottom: 15,
-  },
+    marginBottom: 15},
   searchIcon: {
-    marginRight: 8,
-  },
+    marginRight: 8},
   searchInput: {
     flex: 1,
     fontSize: 16,
     color: '#1F2937',
-    height: '100%',
-  },
+    height: '100%'},
   filterScroll: {
-    marginBottom: 5,
-  },
+    marginBottom: 5},
   filterScrollContent: {
     paddingRight: 20,
-    gap: 8,
-  },
+    gap: 8},
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -648,29 +635,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    gap: 6,
-  },
+    gap: 6},
   activeFilterChip: {
     backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
+    borderColor: '#2563EB'},
   filterChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   activeFilterChipText: {
-    color: '#fff',
-  },
+    color: '#fff'},
   dot: {
     width: 6,
     height: 6,
-    borderRadius: 3,
-  },
+    borderRadius: 3},
   listContainer: {
     padding: 16,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   borrowItem: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -679,85 +660,69 @@ const styles = StyleSheet.create({
     boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.05)',
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
+    borderColor: '#F3F4F6'},
   borrowItemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-  },
+    marginBottom: 12},
   borrowItemLeft: {
-    flex: 1,
-  },
+    flex: 1},
   assetId: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#6366F1',
     marginBottom: 2,
-    letterSpacing: 0.5,
-  },
+    letterSpacing: 0.5},
   assetName: {
     fontSize: 16,
     color: '#111827',
-    fontWeight: '700',
-  },
+    fontWeight: '700'},
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
-  },
+    borderRadius: 10},
   statusText: {
     fontSize: 11,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   borrowItemDetails: {
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F9FAFB',
-  },
+    borderTopColor: '#F9FAFB'},
   detailsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+    justifyContent: 'space-between'},
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
+    gap: 6},
   detailText: {
     fontSize: 13,
     color: '#4B5563',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 100,
-  },
+    paddingVertical: 100},
   emptyText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#374151',
-    marginTop: 16,
-  },
+    marginTop: 16},
   emptySubtext: {
     fontSize: 14,
     color: '#6B7280',
-    marginTop: 8,
-  },
+    marginTop: 8},
   loaderFooter: {
     paddingVertical: 20,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
-  },
+    padding: 24},
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 32,
@@ -765,87 +730,72 @@ const styles = StyleSheet.create({
     maxHeight: '85%',
     boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.15)',
     elevation: 10,
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#F8FAFC',
-  },
+    borderBottomColor: '#F8FAFC'},
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#111827',
-  },
+    color: '#111827'},
   closeIconBtn: {
-    padding: 4,
-  },
+    padding: 4},
   modalBody: {
     alignItems: 'center',
-    padding: 24,
-  },
+    padding: 24},
   assetIconContainer: {
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   assetIconCircle: {
     width: 64,
     height: 64,
     borderRadius: 16,
     backgroundColor: '#EEF2FF',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   modalAssetName: {
     fontSize: 20,
     fontWeight: '800',
     color: '#111827',
     textAlign: 'center',
-    lineHeight: 28,
-  },
+    lineHeight: 28},
   modalAssetId: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
     marginTop: 4,
-    letterSpacing: 1,
-  },
+    letterSpacing: 1},
   modalBadgeContainer: {
     marginTop: 8,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   modalBadgeLabel: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#94A3B8',
-    letterSpacing: 1,
-  },
+    letterSpacing: 1},
   infoGrid: {
     width: '100%',
     backgroundColor: '#F8FAFC',
     borderRadius: 24,
     padding: 20,
-    gap: 16,
-  },
+    gap: 16},
   infoItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   infoLabel: {
     fontSize: 14,
     color: '#64748B',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   infoValue: {
     fontSize: 14,
     color: '#0F172A',
     fontWeight: '600',
     flex: 1,
-    textAlign: 'right',
-  },
+    textAlign: 'right'},
   returnBtn: {
     backgroundColor: '#10B981',
     marginHorizontal: 24,
@@ -857,30 +807,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     boxShadow: '0px 4px 8px rgba(16, 185, 129, 0.2)',
-    elevation: 4,
-  },
+    elevation: 4},
   returnBtnText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
-  },
+    color: '#fff'},
   modalCloseBtn: {
     backgroundColor: '#F1F5F9',
     margin: 24,
     height: 56,
     borderRadius: 16,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   modalCloseBtnText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#334155',
-  },
+    color: '#334155'},
   // Borrow Form Styles
   borrowFormContainer: {
-    padding: 24,
-  },
+    padding: 24},
   assetMiniCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -888,27 +833,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#EFF6FF',
     padding: 16,
     borderRadius: 16,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   assetMiniName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1E40AF',
-  },
+    color: '#1E40AF'},
   assetMiniId: {
     fontSize: 13,
     color: '#3B82F6',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   formGroup: {
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   textInput: {
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
@@ -916,13 +856,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    color: '#0F172A',
-  },
+    color: '#0F172A'},
   inputHint: {
     fontSize: 12,
     color: '#94A3B8',
-    marginTop: 4,
-  },
+    marginTop: 4},
   submitBorrowBtn: {
     backgroundColor: '#2563EB',
     height: 56,
@@ -931,12 +869,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    marginTop: 12,
-  },
+    marginTop: 12},
   submitBorrowBtnText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
-  },
-});
+    color: '#fff'}});
+
 

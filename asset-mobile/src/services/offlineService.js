@@ -8,8 +8,7 @@ const STORAGE_KEYS = {
     LAST_SYNC: '@last_sync',
     LOCATIONS: '@offline_locations',
     DEPARTMENTS: '@offline_departments',
-    ASSET_CHUNKS_COUNT: '@asset_chunks_count',
-};
+    ASSET_CHUNKS_COUNT: '@asset_chunks_count'};
 
 const CHUNK_SIZE = 500; // Number of items per chunk
 
@@ -366,15 +365,13 @@ class OfflineService {
                 totalAssets: assets.length,
                 pendingChecks: pendingCount,
                 lastSync: lastSync,
-                hasData: assets.length > 0,
-            };
+                hasData: assets.length > 0};
         } catch (error) {
             return {
                 totalAssets: 0,
                 pendingChecks: 0,
                 lastSync: null,
-                hasData: false,
-            };
+                hasData: false};
         }
     }
 
@@ -414,8 +411,7 @@ class OfflineService {
             return {
                 assetsSize: this.formatBytes(assetsSize),
                 pendingSize: this.formatBytes(pendingSize),
-                totalSize: this.formatBytes(assetsSize + pendingSize),
-            };
+                totalSize: this.formatBytes(assetsSize + pendingSize)};
         } catch (error) {
             return { assetsSize: '0 B', pendingSize: '0 B', totalSize: '0 B' };
         }

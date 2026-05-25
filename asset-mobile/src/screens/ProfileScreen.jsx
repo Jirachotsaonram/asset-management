@@ -7,8 +7,7 @@ import {
   Alert,
   Platform,
   ScrollView,
-  Image,
-} from 'react-native';
+  Image} from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -26,15 +25,13 @@ export default function ProfileScreen({ navigation }) {
       Alert.alert('ออกจากระบบ', 'คุณต้องการออกจากระบบหรือไม่?', [
         {
           text: 'ยกเลิก',
-          style: 'cancel',
-        },
+          style: 'cancel'},
         {
           text: 'ออกจากระบบ',
           style: 'destructive',
           onPress: async () => {
             await logout();
-          },
-        },
+          }},
       ]);
     }
   };
@@ -139,15 +136,13 @@ export default function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   profileHeader: {
     backgroundColor: '#fff',
     alignItems: 'center',
     paddingVertical: 32,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
+    borderBottomColor: '#E5E7EB'},
   avatarContainer: {
     width: 100,
     height: 100,
@@ -155,98 +150,78 @@ const styles = StyleSheet.create({
     backgroundColor: '#DBEAFE',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   userRole: {
     fontSize: 16,
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   section: {
     marginTop: 16,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#E5E7EB',
-  },
+    borderColor: '#E5E7EB'},
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#374151',
     padding: 16,
-    paddingBottom: 8,
-  },
+    paddingBottom: 8},
   infoCard: {
     padding: 16,
-    paddingTop: 8,
-  },
+    paddingTop: 8},
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
+    borderBottomColor: '#F3F4F6'},
   infoLabel: {
     fontSize: 14,
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   infoValue: {
     fontSize: 14,
     color: '#111827',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   roleBadge: {
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#E5E7EB',
-  },
+    backgroundColor: '#E5E7EB'},
   roleBadgeAdmin: {
-    backgroundColor: '#DBEAFE',
-  },
+    backgroundColor: '#DBEAFE'},
   roleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#374151',
-  },
+    color: '#374151'},
   roleTextAdmin: {
-    color: '#1E40AF',
-  },
+    color: '#1E40AF'},
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
-    gap: 12,
-  },
+    gap: 12},
   menuText: {
     flex: 1,
     fontSize: 16,
-    color: '#374151',
-  },
+    color: '#374151'},
   logoutText: {
-    color: '#EF4444',
-  },
+    color: '#EF4444'},
   footer: {
     alignItems: 'center',
-    paddingVertical: 32,
-  },
+    paddingVertical: 32},
   footerText: {
     fontSize: 14,
     color: '#9CA3AF',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   footerVersion: {
     fontSize: 12,
-    color: '#D1D5DB',
-  },
-});
+    color: '#D1D5DB'}});
 

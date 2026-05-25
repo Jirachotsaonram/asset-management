@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
+import { View,
+  
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -11,8 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
-  Image,
-} from 'react-native';
+  Image, Text } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,7 +27,8 @@ export default function LoginScreen({ navigation }) {
   const { googleLogin } = useAuth();
   
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '120709720620-5a7p2caf9pihnqimn9oj963odmag9o3k.apps.googleusercontent.com', 
+    clientId: '120709720620-5a7p2caf9pihnqimn9oj963odmag9o3k.apps.googleusercontent.com',
+    androidClientId: '120709720620-t52mvrrdf1ufpk4ta7r5butofo1frt9n.apps.googleusercontent.com'
   });
 
   // Server Settings Modal
@@ -255,46 +254,38 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3B82F6',
-  },
+    backgroundColor: '#3B82F6'},
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: 24,
-  },
+    padding: 24},
   settingsBtn: {
     position: 'absolute',
     top: 50,
     right: 24,
     padding: 8,
-    zIndex: 10,
-  },
+    zIndex: 10},
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   logoImage: {
     width: 160,
     height: 100,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   subtitle: {
     fontSize: 14,
-    color: '#6B7280',
-  },
+    color: '#6B7280'},
   form: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 24,
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
-    elevation: 5,
-  },
+    elevation: 5},
   googleButton: {
     backgroundColor: '#DB4437',
     borderRadius: 8,
@@ -302,74 +293,61 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
-  },
+    marginTop: 8},
   googleIcon: {
-    marginRight: 12,
-  },
+    marginRight: 12},
   buttonDisabled: {
-    opacity: 0.6,
-  },
+    opacity: 0.6},
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   errorContainer: {
     backgroundColor: '#FEF2F2',
     borderWidth: 1,
     borderColor: '#FEE2E2',
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   errorText: {
     color: '#EF4444',
     fontSize: 14,
     textAlign: 'center',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   serverIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 16,
-    opacity: 0.7,
-  },
+    opacity: 0.7},
   serverText: {
     color: '#C7D2FE',
-    fontSize: 11,
-  },
+    fontSize: 11},
   // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'},
   modalContainer: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
-    maxHeight: '70%',
-  },
+    maxHeight: '70%'},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
-  },
+    color: '#111827'},
   modalLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   modalInput: {
     borderWidth: 1,
     borderColor: '#D1D5DB',
@@ -377,29 +355,25 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 15,
     color: '#111827',
-    backgroundColor: '#F9FAFB',
-  },
+    backgroundColor: '#F9FAFB'},
   urlPreview: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: '#F3F4F6',
     borderRadius: 6,
     padding: 10,
-    marginTop: 8,
-  },
+    marginTop: 8},
   urlPreviewText: {
     flex: 1,
     fontSize: 12,
     color: '#6B7280',
-    marginLeft: 4,
-  },
+    marginLeft: 4},
   modalHint: {
     fontSize: 12,
     color: '#9CA3AF',
     marginTop: 10,
     marginBottom: 20,
-    lineHeight: 18,
-  },
+    lineHeight: 18},
   saveButton: {
     backgroundColor: '#2563EB',
     borderRadius: 8,
@@ -407,13 +381,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 12,
-  },
+    marginBottom: 12},
   saveButtonText: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   resetButton: {
     borderWidth: 1,
     borderColor: '#FCA5A5',
@@ -423,11 +395,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     backgroundColor: '#FEF2F2',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   resetButtonText: {
     color: '#EF4444',
     fontSize: 14,
-    fontWeight: '500',
-  },
-});
+    fontWeight: '500'}});
+
