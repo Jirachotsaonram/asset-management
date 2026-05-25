@@ -2,7 +2,7 @@ const isLocal = window.location.hostname === 'localhost' || window.location.host
 
 export const API_BASE_URL = isLocal
   ? 'http://localhost/asset-management/asset_management_api'
-  : 'http://202.44.47.45/asset-management/asset_management_api';
+  : 'http://202.44.47.45/asset_management_api';
 
 export const ASSET_STATUS = {
   AVAILABLE: 'ใช้งาน',

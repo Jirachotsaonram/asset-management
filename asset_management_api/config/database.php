@@ -10,20 +10,14 @@ class Database {
         $server_addr = $_SERVER['SERVER_ADDR'] ?? '';
         $server_name = $_SERVER['SERVER_NAME'] ?? '';
         
-        $isLocal = ($server_name === 'localhost' || $server_addr === '127.0.0.1' || $server_addr === '::1' ||
-                    $server_addr === '10.40.143.98' || // Current Local IP
-                    strpos($server_addr, '192.168.0.') === 0 || // ITI Internal IP range
-                    strpos($server_addr, '10.14.91.') === 0 || // ITI Internal IP range
-                    strpos($server_addr, '192.168.') === 0 || 
-                    strpos($server_addr, '10.') === 0 || 
-                    strpos($server_addr, '172.') === 0 || // 172.16.0.0 – 172.31.255.255
-                    empty($server_addr)); // CLI mode
+        $isLocal = ($server_name === 'localhost' || $server_addr === '127.0.0.1' || $server_addr === '::1');
 
         if (!$isLocal) {
-            $this->host = "sql207.infinityfree.com";
-            $this->db_name = "if0_42016119_asset";
-            $this->username = "if0_42016119";
-            $this->password = "3Two1AhSi0r7";
+            // ตั้งค่าสำหรับรันบนเซิร์ฟเวอร์คณะ (ITIServer)
+            $this->host = "localhost"; // ให้ชี้เข้าตัวเอง
+            $this->db_name = "asset_management_db"; // ชื่อฐานข้อมูลที่คุณสร้างใน Webmin
+            $this->username = "itisv"; // รหัสของ Webmin หรือถ้าใช้ root ก็แก้เป็น root
+            $this->password = "@EH3319&2awr"; // รหัสของ Webmin หรือถ้าไม่ได้ตั้งก็ปล่อยว่าง
         }
     }
 
