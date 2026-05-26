@@ -27,10 +27,24 @@ api.interceptors.request.use(
         localStorage.removeItem('user');
         localStorage.removeItem('token_expiry');
         localStorage.removeItem('last_activity');
-        window.location.href = '/login';
+        window.location.href = '#/login';
         return Promise.reject(new Error('Token expired'));
       }
       config.headers.Authorization = `Bearer ${token}`;
+      // ส่งผ่าน Custom Header เผื่อกรณีที่เซิร์ฟเวอร์มหาลัย (Apache) ริบ Authorization ทิ้ง
+      config.headers['X-Auth-Token'] = token;
+      
+      // ไม้ตายสุดท้าย: ส่งผ่าน Query Parameter
+      if (config.method === 'get') {
+        config.params = { ...config.params, token: token };
+      } else {
+        // สำหรับ POST/PUT/DELETE
+        if (config.url.includes('?')) {
+          config.url += `&token=${token}`;
+        } else {
+          config.url += `?token=${token}`;
+        }
+      }
     }
     // อัปเดต last activity
     localStorage.setItem('last_activity', Date.now().toString());
@@ -51,7 +65,7 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       localStorage.removeItem('token_expiry');
       localStorage.removeItem('last_activity');
-      window.location.href = '/login';
+      window.location.href = '#/login';
     } else if (error.response?.status === 429) {
       // Rate limited
       console.warn('Rate limited - too many requests');

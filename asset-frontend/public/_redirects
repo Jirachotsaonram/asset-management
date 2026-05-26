@@ -1,0 +1,2 @@
+/api/*  http://202.44.47.45/asset_api/:splat  200
+/*      /index.html                           200

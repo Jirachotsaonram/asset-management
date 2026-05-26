@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
     if (activityTimerRef.current) clearTimeout(activityTimerRef.current);
-    window.location.href = '/login';
+    window.location.href = '#/login';
   }, []);
 
   const logout = () => {

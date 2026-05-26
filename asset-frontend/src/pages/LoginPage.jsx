@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
@@ -61,15 +61,18 @@ export default function LoginPage() {
           )}
 
           {/* Google Login Button */}
-          <div className="flex justify-center mb-4">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              shape="pill"
-              size="large"
-              text="continue_with"
-              locale="th"
-            />
+          <div className="flex flex-col gap-3 justify-center mb-4">
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                shape="pill"
+                size="large"
+                text="continue_with"
+                locale="th"
+              />
+            </div>
+            
           </div>
           
           {loading && (
