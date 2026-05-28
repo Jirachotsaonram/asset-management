@@ -135,14 +135,11 @@ function authenticate() {
         
         // ถ้า JWT ไม่ผ่าน ลอง fallback เป็น base64 แบบเดิม (backward compatible)
         if (!$user_data) {
-            $decoded = base64_decode($token, true);
-            if ($decoded !== false) {
-                $user_data = json_decode($decoded, true);
-            }
+            Response::error('Token Verification Failed (JWT Signature mismatch or expired)', 401);
         }
         
-        if (!$user_data || !isset($user_data['user_id'])) {
-            Response::error('Token ไม่ถูกต้องหรือหมดอายุ', 401);
+        if (!isset($user_data['user_id'])) {
+            Response::error('Token payload is missing user_id', 401);
         }
         
         // ตรวจสอบสถานะผู้ใช้ในฐานข้อมูล
@@ -150,7 +147,7 @@ function authenticate() {
         $database = new Database();
         $conn = $database->getConnection();
         
-        $query = "SELECT user_id, fullname, role, status FROM Users WHERE user_id = :user_id";
+        $query = "SELECT user_id, fullname, role, status FROM users WHERE user_id = :user_id";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':user_id', $user_data['user_id']);
         $stmt->execute();

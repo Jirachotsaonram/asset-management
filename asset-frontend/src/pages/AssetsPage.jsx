@@ -156,7 +156,7 @@ export default function AssetsPage() {
     const formData = new FormData();
     formData.append("image", file);
     try {
-      await api.post(`/upload/asset/${assetId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      await api.post(`/upload/asset/${assetId}`, formData);
       toast.success("อัปโหลดรูปภาพสำเร็จ");
       fetchAssets();
     } catch (error) { toast.error("อัปโหลดไม่สำเร็จ"); }
@@ -172,7 +172,7 @@ export default function AssetsPage() {
       try {
         const formData = new FormData();
         formData.append("image", file);
-        await api.post(`/upload/asset/${assetId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        await api.post(`/upload/asset/${assetId}`, formData);
         success++;
       } catch { fail++; }
     }
@@ -447,7 +447,7 @@ export default function AssetsPage() {
                                         <tr key={a.asset_id} className="hover:bg-blue-50/50 border-b border-gray-100 last:border-0 transition-colors">
                                           <td className="px-3 py-2">
                                             {a.image ? (
-                                              <img src={`${API_BASE_URL.replace('/api', '')}/${a.image}`} alt="" className="h-8 w-8 rounded object-cover shadow-sm border border-gray-100" onError={e => { e.target.style.display = 'none' }} />
+                                              <img src={`${API_BASE_URL}/${a.image}`} alt="" className="h-8 w-8 rounded object-cover shadow-sm border border-gray-100" onError={e => { e.target.style.display = 'none' }} />
                                             ) : <div className="h-8 w-8 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Package size={12} className="text-gray-300" /></div>}
                                           </td>
                                           <td className="px-3 py-2 text-[11px] font-medium text-gray-700">{a.asset_id}</td>

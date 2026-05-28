@@ -54,8 +54,8 @@ class AssetHistoryController {
             $id = $this->assetHistory->create();
             
             if ($id) {
-                // อัปเดตตำแหน่งปัจจุบันในตาราง Assets
-                $query = "UPDATE Assets SET location_id = :new_location_id WHERE asset_id = :asset_id";
+                // อัปเดตตำแหน่งปัจจุบันในตาราง assets
+                $query = "UPDATE assets SET location_id = :new_location_id WHERE asset_id = :asset_id";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':new_location_id', $data->new_location_id);
                 $stmt->bindParam(':asset_id', $data->asset_id);

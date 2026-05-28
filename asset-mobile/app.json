@@ -2,7 +2,10 @@
   "expo": {
     "name": "Asset Management",
     "slug": "asset-management-mobile",
-    "scheme": "assetmanagement",
+    "scheme": [
+      "com.assetmanagement.mobile",
+      "assetmanagement"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -45,7 +48,16 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {

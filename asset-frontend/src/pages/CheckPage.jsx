@@ -463,7 +463,7 @@ export default function CheckPage() {
         <ModalWrapper title="บันทึกการตรวจสอบ" onClose={closeModal}>
           <div className="flex gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 shadow-sm items-start">
             {modal.data.image ? (
-              <img src={`${api.defaults.baseURL.replace('/api', '')}/${modal.data.image}`} alt={modal.data.asset_name} 
+              <img src={`${api.defaults.baseURL}/${modal.data.image}`} alt={modal.data.asset_name} 
                    className="w-16 h-16 rounded-lg border border-gray-200 object-cover bg-white flex-shrink-0"
                    onError={(e) => { e.target.style.display = 'none'; }} />
             ) : (
@@ -610,7 +610,7 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onRoomCheck }) 
                                                   <td className="px-3 py-2 text-[10px] text-gray-400">{rowIdx++}</td>
                                                   <td className="px-3 py-2">
                                                     {asset.image ? (
-                                                      <img src={`${api.defaults.baseURL.replace('/api', '')}/${asset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200"
+                                                      <img src={`${api.defaults.baseURL}/${asset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200"
                                                         onError={(e) => { e.target.style.display = 'none'; }} />
                                                     ) : <div className="h-7 w-7 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Grid size={10} className="text-gray-300" /></div>}
                                                   </td>
@@ -642,7 +642,7 @@ function GroupedView({ groupedAssets, expanded, toggle, onCheck, onRoomCheck }) 
                                                     <td className="px-3 py-2 text-[10px] text-gray-500 font-medium">{currentIdx}</td>
                                                     <td className="px-3 py-2">
                                                       {firstAsset.image ? (
-                                                        <img src={`${api.defaults.baseURL.replace('/api', '')}/${firstAsset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200 opacity-80"
+                                                        <img src={`${api.defaults.baseURL}/${firstAsset.image}`} alt="" className="h-7 w-7 rounded object-cover border border-gray-200 opacity-80"
                                                           onError={(e) => { e.target.style.display = 'none'; }} />
                                                       ) : <div className="h-7 w-7 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><Grid size={10} className="text-gray-300" /></div>}
                                                     </td>

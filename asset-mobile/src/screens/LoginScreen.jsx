@@ -11,25 +11,23 @@ import { View,
   Modal,
   ScrollView,
   Image, Text } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { DEFAULT_SERVER_IP, buildApiUrl } from '../utils/constants';
 import { SERVER_IP_KEY } from '../services/api';
 
-WebBrowser.maybeCompleteAuthSession();
+GoogleSignin.configure({
+  webClientId: '120709720620-5a7p2caf9pihnqimn9oj963odmag9o3k.apps.googleusercontent.com',
+});
 
 export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { googleLogin } = useAuth();
   
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '120709720620-5a7p2caf9pihnqimn9oj963odmag9o3k.apps.googleusercontent.com',
-    androidClientId: '120709720620-t52mvrrdf1ufpk4ta7r5butofo1frt9n.apps.googleusercontent.com'
-  });
+
 
   // Server Settings Modal
   const [showSettings, setShowSettings] = useState(false);
@@ -103,14 +101,27 @@ export default function LoginScreen({ navigation }) {
     );
   };
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      handleGoogleLogin(id_token);
-    } else if (response?.type === 'error') {
-      setError('การเข้าสู่ระบบด้วย Google ล้มเหลว');
+  const handleGoogleSignInPress = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.idToken || userInfo?.data?.idToken;
+      if (idToken) {
+        handleGoogleLogin(idToken);
+      } else {
+        setError('ไม่ได้รับ Token จาก Google');
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.code !== 'SIGN_IN_CANCELLED' && error.code !== '-5') {
+         setError('เข้าสู่ระบบด้วย Google ล้มเหลว');
+      }
+      setLoading(false);
     }
-  }, [response]);
+  };
 
   const handleGoogleLogin = async (idToken) => {
     setLoading(true);
@@ -159,10 +170,17 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.subtitle}>ภาควิชาเทคโนโลยีสารสนเทศ</Text>
           </View>
 
+          {error && (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle" size={20} color="#DC2626" />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+
           <TouchableOpacity
-            style={[styles.googleButton, (!request || loading) && styles.buttonDisabled]}
-            onPress={() => promptAsync()}
-            disabled={!request || loading}
+            style={[styles.googleButton, loading && styles.buttonDisabled]}
+            onPress={handleGoogleSignInPress}
+            disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />

@@ -17,6 +17,11 @@ api.interceptors.request.use(
       config.url = config.url.substring(1);
     }
 
+    // ลบ Content-Type ถ้าเป็นการส่งไฟล์ (FormData)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       // ตรวจสอบ token expiry ก่อนส่ง request

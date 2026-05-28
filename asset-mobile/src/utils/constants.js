@@ -41,7 +41,7 @@ export const API_BASE_URL = __DEV__
   : 'http://202.44.47.45/asset_api';
 
 // IP เริ่มต้นที่ใช้แสดงในช่อง Settings ของ Login
-export const DEFAULT_SERVER_IP = YOUR_IP_ADDRESS;
+export const DEFAULT_SERVER_IP = __DEV__ ? YOUR_IP_ADDRESS : '202.44.47.45';
 
 // ฟังก์ชันสร้าง URL จาก IP ที่ผู้ใช้กำหนด
 export const buildApiUrl = (ip) => {

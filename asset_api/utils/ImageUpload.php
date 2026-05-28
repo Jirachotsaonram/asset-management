@@ -35,7 +35,7 @@ class ImageUpload {
 
         if (!in_array($mime_type, $this->allowed_types)) {
             error_log("ImageUpload: Invalid mime type: " . $mime_type);
-            return ['success' => false, 'message' => 'ประเภทไฟล์ไม่ถูกต้อง (รองรับเฉพาะ JPG, PNG, GIF)'];
+            return ['success' => false, 'message' => "ประเภทไฟล์ไม่ถูกต้อง ($mime_type) (รองรับเฉพาะ JPG, PNG, GIF)"];
         }
 
         // ตรวจสอบขนาดไฟล์

@@ -24,7 +24,9 @@ $request_uri = $_SERVER['REQUEST_URI'];
 // Parse URL
 $path = parse_url($request_uri, PHP_URL_PATH);
 $path = str_replace('/asset-management/asset_management_api/', '', $path);
-$path = str_replace('/asset_management_api/', '', $path); // local dev fallback
+$path = str_replace('/asset_management_api/', '', $path); // old fallback
+$path = str_replace('/asset-management/asset_api/', '', $path); // new local fallback
+$path = str_replace('/asset_api/', '', $path); // new live fallback
 $segments = explode('/', trim($path, '/'));
 
 $endpoint = $segments[0] ?? '';

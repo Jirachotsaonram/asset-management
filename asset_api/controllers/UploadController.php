@@ -24,6 +24,7 @@ class UploadController {
         try {
             // ตรวจสอบว่ามีไฟล์หรือไม่
             if (!isset($_FILES['image'])) {
+                error_log("Upload Failed: No image. POST=" . print_r($_POST, true) . ", FILES=" . print_r($_FILES, true) . ", CONTENT_TYPE=" . ($_SERVER["CONTENT_TYPE"] ?? 'none'));
                 Response::error('กรุณาเลือกไฟล์รูปภาพ', 400);
             }
 
@@ -57,7 +58,7 @@ class UploadController {
 
             if ($result['success']) {
                 // อัปเดตชื่อไฟล์ในฐานข้อมูล
-                $query = "UPDATE Assets SET image = :image WHERE asset_id = :asset_id";
+                $query = "UPDATE assets SET image = :image WHERE asset_id = :asset_id";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':image', $result['filepath']);
                 $stmt->bindParam(':asset_id', $asset_id);
@@ -101,7 +102,7 @@ class UploadController {
             // ลบรูปภาพ
             if ($this->imageUpload->deleteImage($image_path)) {
                 // อัปเดตฐานข้อมูล
-                $query = "UPDATE Assets SET image = NULL WHERE asset_id = :asset_id";
+                $query = "UPDATE assets SET image = NULL WHERE asset_id = :asset_id";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':asset_id', $asset_id);
 

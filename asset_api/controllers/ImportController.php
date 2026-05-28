@@ -59,7 +59,7 @@ class ImportController {
                     }
 
                     // Check Database
-                    $checkQuery = "SELECT asset_id FROM Assets WHERE serial_number = :serial AND serial_number != '' AND serial_number != '-'";
+                    $checkQuery = "SELECT asset_id FROM assets WHERE serial_number = :serial AND serial_number != '' AND serial_number != '-'";
                     $stmt = $this->db->prepare($checkQuery);
                     $stmt->bindParam(':serial', $row->serial_number);
                     $stmt->execute();
@@ -78,7 +78,7 @@ class ImportController {
                     }
 
                     // Check Database
-                    $checkBarcode = "SELECT asset_id FROM Assets WHERE barcode = :barcode AND barcode != ''";
+                    $checkBarcode = "SELECT asset_id FROM assets WHERE barcode = :barcode AND barcode != ''";
                     $stmtB = $this->db->prepare($checkBarcode);
                     $stmtB->bindParam(':barcode', $row->barcode);
                     $stmtB->execute();
@@ -89,7 +89,7 @@ class ImportController {
 
                 // Resolve department: by ID or by name
                 if (!empty($row->department_id)) {
-                    $checkDept = "SELECT department_id FROM Departments WHERE department_id = :dept_id";
+                    $checkDept = "SELECT department_id FROM departments WHERE department_id = :dept_id";
                     $stmtDept = $this->db->prepare($checkDept);
                     $stmtDept->bindParam(':dept_id', $row->department_id);
                     $stmtDept->execute();
@@ -99,7 +99,7 @@ class ImportController {
                 } elseif (!empty($row->department_name_excel) || !empty($row->faculty_name) || !empty($row->division_name)) {
                     // Try to find department by name, faculty, or division_name
                     $deptName = !empty($row->department_name_excel) ? $row->department_name_excel : (!empty($row->faculty_name) ? $row->faculty_name : $row->division_name);
-                    $findDept = "SELECT department_id FROM Departments WHERE faculty = :dept_name OR division_name = :dept_name LIMIT 1";
+                    $findDept = "SELECT department_id FROM departments WHERE faculty = :dept_name OR division_name = :dept_name LIMIT 1";
                     $stmtFind = $this->db->prepare($findDept);
                     $stmtFind->bindParam(':dept_name', $deptName);
                     $stmtFind->execute();
@@ -112,7 +112,7 @@ class ImportController {
 
                 // Resolve location: by ID or by name
                 if (!empty($row->location_id)) {
-                    $checkLoc = "SELECT location_id FROM Locations WHERE location_id = :loc_id";
+                    $checkLoc = "SELECT location_id FROM locations WHERE location_id = :loc_id";
                     $stmtLoc = $this->db->prepare($checkLoc);
                     $stmtLoc->bindParam(':loc_id', $row->location_id);
                     $stmtLoc->execute();
@@ -122,7 +122,7 @@ class ImportController {
                 } elseif (!empty($row->location_name)) {
                     // Try to find location by room_number
                     $locName = $row->location_name;
-                    $findLoc = "SELECT location_id FROM Locations WHERE room_number = :loc_name LIMIT 1";
+                    $findLoc = "SELECT location_id FROM locations WHERE room_number = :loc_name LIMIT 1";
                     $stmtFindLoc = $this->db->prepare($findLoc);
                     $stmtFindLoc->bindParam(':loc_name', $locName);
                     $stmtFindLoc->execute();
@@ -232,7 +232,7 @@ class ImportController {
                         $deptName = !empty($row->faculty_name) ? $row->faculty_name : (!empty($row->department_name_excel) ? $row->department_name_excel : $row->division_name);
                         $divisionName = $row->division_name ?? null;
                         
-                        $check = $this->db->prepare("SELECT department_id FROM Departments WHERE faculty = ? OR division_name = ? LIMIT 1");
+                        $check = $this->db->prepare("SELECT department_id FROM departments WHERE faculty = ? OR division_name = ? LIMIT 1");
                         $check->execute([$deptName, $deptName]);
                         $found = $check->fetch();
                         
@@ -240,11 +240,11 @@ class ImportController {
                             $row->department_id = $found['department_id'];
                             // Update division_name if provided and not yet set
                             if ($divisionName) {
-                                $upd = $this->db->prepare("UPDATE Departments SET division_name = ? WHERE department_id = ? AND (division_name IS NULL OR division_name = '')");
+                                $upd = $this->db->prepare("UPDATE departments SET division_name = ? WHERE department_id = ? AND (division_name IS NULL OR division_name = '')");
                                 $upd->execute([$divisionName, $found['department_id']]);
                             }
                         } else {
-                            $ins = $this->db->prepare("INSERT INTO Departments (faculty, division_name) VALUES (?, ?)");
+                            $ins = $this->db->prepare("INSERT INTO departments (faculty, division_name) VALUES (?, ?)");
                             if ($ins->execute([$deptName, $divisionName])) {
                                 $row->department_id = $this->db->lastInsertId();
                             }
@@ -257,7 +257,7 @@ class ImportController {
                     if (empty($row->location_id) && !empty($row->location_name)) {
                         $locName = $row->location_name;
                         
-                        $check = $this->db->prepare("SELECT location_id FROM Locations WHERE room_number = ? LIMIT 1");
+                        $check = $this->db->prepare("SELECT location_id FROM locations WHERE room_number = ? LIMIT 1");
                         $check->execute([$locName]);
                         $found = $check->fetch();
                         
@@ -273,7 +273,7 @@ class ImportController {
                                 $newFloor = $m[1];
                             }
 
-                            $ins = $this->db->prepare("INSERT INTO Locations (building_name, floor, room_number) VALUES (?, ?, ?)");
+                            $ins = $this->db->prepare("INSERT INTO locations (building_name, floor, room_number) VALUES (?, ?, ?)");
                             if ($ins->execute([$newBuilding, $newFloor, $locName])) {
                                 $row->location_id = $this->db->lastInsertId();
                             }
@@ -285,7 +285,7 @@ class ImportController {
                     $barcode = !empty($row->barcode) ? $row->barcode : '';
 
                     if ($serial !== '') {
-                        $checkSerial = $this->db->prepare("SELECT asset_id FROM Assets WHERE serial_number = ? LIMIT 1");
+                        $checkSerial = $this->db->prepare("SELECT asset_id FROM assets WHERE serial_number = ? LIMIT 1");
                         $checkSerial->execute([$serial]);
                         if ($checkSerial->fetch()) {
                             throw new Exception("Serial Number '{$serial}' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ");
@@ -293,7 +293,7 @@ class ImportController {
                     }
 
                     if ($barcode !== '') {
-                        $checkBarcode = $this->db->prepare("SELECT asset_id FROM Assets WHERE barcode = ? LIMIT 1");
+                        $checkBarcode = $this->db->prepare("SELECT asset_id FROM assets WHERE barcode = ? LIMIT 1");
                         $checkBarcode->execute([$barcode]);
                         if ($checkBarcode->fetch()) {
                             throw new Exception("หมายเลขครุภัณฑ์ (Barcode) '{$barcode}' ซ้ำกับครุภัณฑ์ที่มีอยู่แล้วในระบบ");
@@ -452,7 +452,7 @@ class ImportController {
             $locations = [];
 
             // Get departments
-            $deptQuery = "SELECT department_id, faculty FROM Departments ORDER BY faculty";
+            $deptQuery = "SELECT department_id, faculty FROM departments ORDER BY faculty";
             $stmtDept = $this->db->prepare($deptQuery);
             $stmtDept->execute();
             while ($row = $stmtDept->fetch(PDO::FETCH_ASSOC)) {
@@ -460,7 +460,7 @@ class ImportController {
             }
 
             // Get locations
-            $locQuery = "SELECT location_id, building_name, floor, room_number FROM Locations ORDER BY building_name, floor, room_number";
+            $locQuery = "SELECT location_id, building_name, floor, room_number FROM locations ORDER BY building_name, floor, room_number";
             $stmtLoc = $this->db->prepare($locQuery);
             $stmtLoc->execute();
             while ($row = $stmtLoc->fetch(PDO::FETCH_ASSOC)) {
