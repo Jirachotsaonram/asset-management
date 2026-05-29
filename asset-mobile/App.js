@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { useAuth } from './src/hooks/useAuth';
@@ -35,6 +35,7 @@ function MainTabs() {
   const { isConnected } = useNetwork();
   const isAdminOrInspector = user?.role === 'Admin' || user?.role === 'Inspector';
   const isAdminOrAuthority = user?.role === 'Admin' || user?.role === 'Authority';
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -70,9 +71,9 @@ function MainTabs() {
         tabBarStyle: {
           borderTopWidth: 1,
           borderTopColor: '#E5E7EB',
-          paddingBottom: 5,
+          paddingBottom: Math.max(insets.bottom, 5),
           paddingTop: 5,
-          height: 65,
+          height: 60 + Math.max(insets.bottom, 0),
         },
       })}
     >
